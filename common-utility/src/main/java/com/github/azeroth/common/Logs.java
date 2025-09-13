@@ -13,6 +13,7 @@ public interface Logs {
      Logger SPELLS = LoggerFactory.getLogger("spells");
      Logger UNIT = LoggerFactory.getLogger("entities.unit");
      Logger SCRIPTS = LoggerFactory.getLogger("scripts");
+    Logger SCRIPTS_SPELLS = LoggerFactory.getLogger("scripts.spells");
      Logger CONDITION = LoggerFactory.getLogger("condition");
 
 }

@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class PositionFullTerrainStatus {
-    private short areaId;
+    private int areaId;
     private float floorZ;
     private boolean outdoors;
     private EnumFlag<ZLiquidStatus> liquidStatus;

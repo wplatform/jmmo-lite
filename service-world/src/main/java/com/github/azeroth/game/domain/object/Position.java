@@ -318,4 +318,20 @@ public class Position {
         return "Position{X: %f Y: %f Z: %f O: %f}".formatted(x, y, z, o);
     }
 
+
+    public static Position of(float x, float y, float z, float o) {
+        return new Position(x, y, z, o);
+    }
+
+    public static Position of(float x, float y, float z) {
+        return new Position(x, y, z);
+    }
+
+    public static Position of(Vector3 vec) {
+        return new Position(vec.x, vec.y, vec.z);
+    }
+
+    public static Position of(Position pos) {
+        return new Position(pos);
+    }
 }

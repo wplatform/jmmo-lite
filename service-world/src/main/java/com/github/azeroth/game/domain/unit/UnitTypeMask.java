@@ -1,11 +1,12 @@
 package com.github.azeroth.game.domain.unit;
 
+import com.github.azeroth.common.EnumFlag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter(onMethod = @__({@Override}))
 @RequiredArgsConstructor
-public enum UnitTypeMask {
+public enum UnitTypeMask implements EnumFlag.FlagValue {
     NONE(0x00000000),
     SUMMON(0x00000001),
     MINION(0x00000002),

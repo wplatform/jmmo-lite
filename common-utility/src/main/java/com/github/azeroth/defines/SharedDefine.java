@@ -129,13 +129,13 @@ public interface SharedDefine {
 
     // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)
     int IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK = (
-            (1 << Mechanics.MECHANIC_CHARM.ordinal()) | (1 << Mechanics.MECHANIC_DISORIENTED.ordinal()) | (1 << Mechanics.MECHANIC_FEAR.ordinal()) |
-                    (1 << Mechanics.MECHANIC_ROOT.ordinal()) | (1 << Mechanics.MECHANIC_SLEEP.ordinal()) | (1 << Mechanics.MECHANIC_SNARE.ordinal()) |
-                    (1 << Mechanics.MECHANIC_STUN.ordinal()) | (1 << Mechanics.MECHANIC_FREEZE.ordinal()) | (1 << Mechanics.MECHANIC_SILENCE.ordinal())
-                    | (1 << Mechanics.MECHANIC_DISARM.ordinal()) | (1 << Mechanics.MECHANIC_KNOCKOUT.ordinal()) |
-                    (1 << Mechanics.MECHANIC_POLYMORPH.ordinal()) | (1 << Mechanics.MECHANIC_BANISH.ordinal()) | (1 << Mechanics.MECHANIC_SHACKLE.ordinal()) |
-                    (1 << Mechanics.MECHANIC_TURN.ordinal()) | (1 << Mechanics.MECHANIC_HORROR.ordinal()) | (1 << Mechanics.MECHANIC_DAZE.ordinal()) |
-                    (1 << Mechanics.MECHANIC_SAPPED.ordinal()));
+            (1 << Mechanics.CHARM.ordinal()) | (1 << Mechanics.DISORIENTED.ordinal()) | (1 << Mechanics.FEAR.ordinal()) |
+                    (1 << Mechanics.ROOT.ordinal()) | (1 << Mechanics.SLEEP.ordinal()) | (1 << Mechanics.SNARE.ordinal()) |
+                    (1 << Mechanics.STUN.ordinal()) | (1 << Mechanics.FREEZE.ordinal()) | (1 << Mechanics.SILENCE.ordinal())
+                    | (1 << Mechanics.DISARM.ordinal()) | (1 << Mechanics.KNOCKOUT.ordinal()) |
+                    (1 << Mechanics.POLYMORPH.ordinal()) | (1 << Mechanics.BANISH.ordinal()) | (1 << Mechanics.SHACKLE.ordinal()) |
+                    (1 << Mechanics.TURN.ordinal()) | (1 << Mechanics.HORROR.ordinal()) | (1 << Mechanics.DAZE.ordinal()) |
+                    (1 << Mechanics.SAPPED.ordinal()));
 
     ;
 

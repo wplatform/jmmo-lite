@@ -29,7 +29,7 @@ public enum UnitFlag3 implements EnumFlag.FlagValue {
     ALREADY_SKINNED(0x00020000),
     SUPPRESS_ALL_NPC_SOUNDS(0x00040000),   // TITLE Suppress all NPC sounds DESCRIPTION Skips playing sounds on beginning and end of npc interaction for all npcs as long as npc with this flag is visible
     SUPPRESS_NPC_SOUNDS(0x00080000),   // TITLE Suppress NPC sounds DESCRIPTION Skips playing sounds on beginning and end of npc interaction
-    UNK20(0x00100000),
+    ALLOW_INTERACTION_WHILE_IN_COMBAT(0x00100000),
     UNK21(0x00200000),
     DONT_FADE_OUT(0x00400000),
     UNK23(0x00800000),
@@ -47,7 +47,7 @@ public enum UnitFlag3 implements EnumFlag.FlagValue {
             IGNORE_COMBAT.value | SUPPRESS_NPC_FEEDBACK.value | UNK10.value | UNK11.value |
             UNK12.value | /* FAKE_DEAD | */ /* NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNTARGETABLE_FROM_UI | */
             /* NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD | */ ALREADY_SKINNED.value | /* SUPPRESS_ALL_NPC_SOUNDS | */ /* SUPPRESS_NPC_SOUNDS | */
-            UNK20.value | UNK21.value | /* DONT_FADE_OUT | */ UNK23.value |
+            ALLOW_INTERACTION_WHILE_IN_COMBAT.value | UNK21.value | /* DONT_FADE_OUT | */ UNK23.value |
             /* FORCE_HIDE_NAMEPLATE | */ UNK25.value | UNK26.value | UNK27.value |
             UNK28.value | UNK29.value | UNK30.value | UNK31.value), // SKIP
     ALLOWED(~DISALLOWED.value); // SKIP

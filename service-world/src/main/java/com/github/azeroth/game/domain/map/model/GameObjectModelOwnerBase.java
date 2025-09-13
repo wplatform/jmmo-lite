@@ -2,7 +2,7 @@ package com.github.azeroth.game.domain.map.model;
 
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.github.azeroth.game.phasing.PhaseShift;
+import com.github.azeroth.game.domain.phasing.PhaseShift;
 
 public abstract class GameObjectModelOwnerBase {
     public abstract boolean isSpawned();

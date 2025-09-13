@@ -1235,7 +1235,8 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
     @Override
     public Integer getLiquidFlags(Integer liquidType) {
-        return 0;
+        LiquidType type = liquidType(liquidType);
+        return type == null ? 0 : 1 << type.getSoundBank();
     }
 
     @Override

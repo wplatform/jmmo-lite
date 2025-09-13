@@ -2,6 +2,7 @@ package com.github.azeroth.game.domain.map.model;
 
 
 import com.badlogic.gdx.math.Vector3;
+import com.github.azeroth.game.domain.map.Distance;
 import com.github.azeroth.game.domain.map.MapDefine;
 import lombok.NoArgsConstructor;
 

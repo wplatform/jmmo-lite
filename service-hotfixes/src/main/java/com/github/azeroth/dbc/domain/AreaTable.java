@@ -6,7 +6,7 @@ import com.github.azeroth.common.LocalizedString;
 import com.github.azeroth.dbc.db2.Db2Field;
 import com.github.azeroth.dbc.db2.Db2DataBind;
 import com.github.azeroth.dbc.db2.Db2Type;
-import com.github.azeroth.dbc.defines.AreaFlags;
+import com.github.azeroth.dbc.defines.AreaFlag;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -144,14 +144,14 @@ public class AreaTable implements DbcEntity {
         return shorts[index];
     }
 
-    public EnumFlag<AreaFlags> getFlags() {
-        return EnumFlag.of(AreaFlags.class, flags1);
+    public EnumFlag<AreaFlag> getFlags() {
+        return EnumFlag.of(AreaFlag.class, flags1);
     }
 
 
     private boolean isSanctuary()
     {
-        return getFlags().hasFlag(AreaFlags.NoPvP);
+        return getFlags().hasFlag(AreaFlag.NoPvP);
     }
 
 }

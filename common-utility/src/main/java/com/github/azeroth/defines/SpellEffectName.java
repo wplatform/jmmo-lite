@@ -258,4 +258,5 @@ public enum SpellEffectName {
     EFFECT_254,
     LEARN_TRANSMOG_SET,
     TOTAL_SPELL_EFFECTS,
+    SPELL_EFFECT_ANY
 }

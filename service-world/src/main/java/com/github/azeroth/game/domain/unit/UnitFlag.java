@@ -34,7 +34,7 @@ public enum UnitFlag implements EnumFlag.FlagValue {
     CONFUSED(0x00400000),
     FLEEING(0x00800000),
     POSSESSED(0x01000000),           // under direct client control by a player (possess or vehicle)
-    UNITERACTIBLE(0x02000000),
+    UNINTERACTIBLE(0x02000000),
     SKINNABLE(0x04000000),
     MOUNT(0x08000000),
     UNK_28(0x10000000),

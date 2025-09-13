@@ -320,4 +320,19 @@ public class Utils {
     public static boolean isArrayEmpty(int[] array) {
         return array == null || array.length < 1;
     }
+
+    @SafeVarargs
+    public static <T> T coalesce(T first, T... rest) {
+        if (first != null) {
+            return first;
+        }
+        if (rest != null) {
+            for (T item : rest) {
+                if (item != null) {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -50,6 +50,15 @@ public final class EnumFlag<T extends Enum<T> & EnumFlag.FlagValue> {
         return (this.flag & ~element.getValue()) != 0;
     }
 
+    @SafeVarargs
+    public final boolean hasNotFlag(T... elements) {
+        int newFlag = 0;
+        for (T element : elements) {
+            newFlag |= element.getValue();
+        }
+        return (this.flag & ~newFlag) != 0;
+    }
+
     public boolean hasFlag(EnumFlag<T> other) {
         return (this.flag & other.flag) != 0;
     }

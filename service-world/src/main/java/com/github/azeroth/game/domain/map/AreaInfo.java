@@ -1,8 +1,9 @@
 package com.github.azeroth.game.domain.map;
 
 
-import com.github.azeroth.game.domain.map.MapDefine;
+import lombok.Data;
 
+@Data
 public class AreaInfo {
     public float floorZ = MapDefine.VMAP_INVALID_HEIGHT_VALUE;
 
@@ -13,9 +14,9 @@ public class AreaInfo {
     public int rootId;
     public int groupId;
     public int flags;
-
     //liquid data
     public int liquidType;
     public float liquidLevel;
+    public boolean liquidEnabled;
 
 }
