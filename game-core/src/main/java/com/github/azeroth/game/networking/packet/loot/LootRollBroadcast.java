@@ -7,7 +7,7 @@ public class LootRollBroadcast extends ServerPacket {
     public ObjectGuid player = ObjectGuid.EMPTY;
     public int roll; // Roll value can be negative, it means that it is an "offspec" roll but only during roll selection broadcast (not when sending the result)
     public RollVote rollType = RollVote.values()[0];
-    public LootitemData item = new lootItemData();
+    public LootitemData item = new LootItemData();
     public boolean autopassed; // Triggers message |HlootHistory:%d|h[Loot]|h: You automatically passed on: %s because you cannot loot that item.
 
     public LootRollBroadcast() {

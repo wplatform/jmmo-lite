@@ -2,6 +2,8 @@ package com.github.azeroth.game.entity.unit;
 
 
 import com.github.azeroth.common.EnumFlag;
+import com.github.azeroth.common.Flag128;
+import com.github.azeroth.dbc.domain.DungeonEncounter;
 import com.github.azeroth.dbc.domain.LiquidType;
 import com.github.azeroth.defines.*;
 import com.github.azeroth.defines.Power;
@@ -12,11 +14,12 @@ import com.github.azeroth.game.combat.CombatManager;
 import com.github.azeroth.game.combat.CombatReference;
 import com.github.azeroth.game.combat.ThreatManager;
 import com.github.azeroth.game.domain.map.MapDefine;
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.object.WorldLocation;
 import com.github.azeroth.game.domain.unit.*;
 import com.github.azeroth.game.entity.areatrigger.AreaTrigger;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.creature.TempSummon;
-import com.github.azeroth.game.entity.creature.minion;
 import com.github.azeroth.game.entity.dynamic.DynamicObject;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.domain.object.ObjectGuid;
@@ -34,12 +37,13 @@ import com.github.azeroth.game.loot.LootManager;
 import com.github.azeroth.game.loot.LootStorage;
 import com.github.azeroth.game.map.*;
 import com.github.azeroth.game.map.grid.Cell;
-import com.github.azeroth.game.map.grid.CellCoord;
-import com.github.azeroth.game.map.grid.LiquidData;
 import com.github.azeroth.game.movement.AbstractFollower;
 import com.github.azeroth.game.movement.MotionMaster;
 import com.github.azeroth.game.movement.MovementGenerator;
 import com.github.azeroth.game.movement.SpellEffectExtraData;
+import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
+import com.github.azeroth.game.movement.enums.MovementSlot;
 import com.github.azeroth.game.movement.generator.FollowMovementGenerator;
 import com.github.azeroth.game.movement.model.MovementForce;
 import com.github.azeroth.game.movement.model.MovementForces;
@@ -47,72 +51,76 @@ import com.github.azeroth.game.movement.spline.MoveSpline;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 import com.github.azeroth.game.networking.WorldPacket;
 import com.github.azeroth.game.networking.opcode.ServerOpCode;
+import com.github.azeroth.game.networking.packet.movement.MoveSetActiveMover;
 import com.github.azeroth.game.networking.packet.movement.MoveSetSpeed;
 import com.github.azeroth.game.networking.packet.movement.MoveSplineSetSpeed;
 import com.github.azeroth.game.networking.packet.movement.MoveUpdateSpeed;
-import com.github.azeroth.game.listener.ScriptManager;
-import com.github.azeroth.game.listener.interfaces.iplayer.*;
-import com.github.azeroth.game.listener.interfaces.ispell.ISpellCalculateBonusCoefficient;
-import com.github.azeroth.game.listener.interfaces.ispell.ISpellCalculateMultiplier;
-import com.github.azeroth.game.listener.interfaces.iunit.*;
+
+import com.github.azeroth.game.networking.packet.party.PartyKillLog;
 import com.github.azeroth.game.spell.*;
-import com.github.azeroth.game.spell.auras.AuraApplicationCollection;
-import com.github.azeroth.game.spell.auras.AuraCollection;
+
+import com.github.azeroth.game.spell.auras.enums.AuraTriggerOnPowerChangeDirection;
 import com.github.azeroth.game.spell.auras.enums.AuraType;
+import com.github.azeroth.game.spell.enums.SpellAuraInterruptFlag;
+import com.github.azeroth.game.spell.enums.SpellAuraInterruptFlag2;
+import com.github.azeroth.game.spell.enums.SpellCustomAttributes;
 import com.github.azeroth.game.spell.enums.SpellGroup;
 import com.github.azeroth.game.spell.events.DelayedCastEvent;
-import com.github.azeroth.time.TimeTracker;
+import com.github.azeroth.time.GameTime;
 import com.github.azeroth.utils.MathUtil;
 import com.github.azeroth.utils.RandomUtil;
-import game.ConditionManager;
-import game.ObjectManager;
-import game.PhasingHandler;
+
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDateTime;
+
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static com.github.azeroth.game.entity.objects.update.ObjectFields.*;
+import static com.github.azeroth.defines.SharedDefine.MAX_POWERS_PER_CLASS;
 import static com.github.azeroth.game.domain.unit.UnitDefine.*;
+import static java.util.logging.Logger.global;
+
 
 @Getter
 @Setter
-public class Unit extends WorldObject {
+public abstract class Unit extends WorldObject {
+
     private static final Duration DESPAWN_TIME = Duration.ofSeconds(2);
     public static Duration MAX_DAMAGE_HISTORY_DURATION = Duration.ofSeconds(20);
     private final Object healthLock = new Object();
     private final ArrayList<AbstractFollower> followingMe = new ArrayList<>();
     private final MotionMaster motionMaster;
-    private final TimeTracker splineSyncTimer;
-    private final HashMap<ReactiveType, Integer> reactiveTimer = new HashMap<ReactiveType, Integer>();
-    private final int[] baseAttackSpeed = new int[WeaponAttackType.max.getValue()];
+    private final int[] reactiveTimer = new int[ReactiveType.values().length];
+    private final int[] baseAttackSpeed = new int[WeaponAttackType.values().length];
+    private final float[] modAttackSpeedPct = new float[WeaponAttackType.values().length];
+    private final int[] attackTimer = new int[WeaponAttackType.values().length];
     // threat+combat management
     private final CombatManager combatManager;
     private final ThreatManager threatManager;
     private final HashMap<ObjectGuid, Integer> extraAttacksTargets = new HashMap<ObjectGuid, Integer>();
     private final ArrayList<Player> sharedVision = new ArrayList<>();
-    private final HashMap<Integer, List<Integer>> spellImmune = new HashMap<>();
+    private final EnumMap<SpellImmunity, List<Integer>> spellImmune = new EnumMap<>(SpellImmunity.class);
     //Auras
-    private final ConcurrentMultiMap<auraType, AuraEffect> modAuras = new ConcurrentMultiMap<auraType, AuraEffect>();
-    private final ArrayList<aura> removedAuras = new ArrayList<>();
+    private final EnumMap<AuraType, List<AuraEffect>> modAuras = new EnumMap<>(AuraType.class);
+    private final ArrayList<Aura> removedAuras = new ArrayList<>();
     private final ArrayList<AuraApplication> interruptableAuras = new ArrayList<>(); // auras which have interrupt mask applied on unit
-    private final MultiMap<AuraStateType, AuraApplication> auraStateAuras = new MultiMap<AuraStateType, AuraApplication>(); // Used for improve performance of aura state checks on aura apply/remove
-    private final TreeSet<AuraApplication> visibleAuras = new TreeSet<AuraApplication>(new visibleAuraSlotCompare());
-    private final TreeSet<AuraApplication> visibleAurasToUpdate = new TreeSet<AuraApplication>(new visibleAuraSlotCompare());
+    private final HashMap<AuraStateType, List<AuraApplication>> auraStateAuras = new HashMap<>(); // Used for improve performance of aura state checks on aura apply/remove
+    private final TreeSet<AuraApplication> visibleAuras = new TreeSet<>();
+    private final TreeSet<AuraApplication> visibleAurasToUpdate = new TreeSet<>();
     private final HashMap<Integer,List<AuraApplication>> appliedAuras = new HashMap<>();
-    private final auraCollection ownedAuras = new auraCollection();
-    private final ArrayList<aura> scAuras = new ArrayList<>();
-    private final DiminishingReturn[] diminishing = new DiminishingReturn[DiminishingGroup.max.getValue()];
-    private final ArrayList<areaTrigger> areaTrigger = new ArrayList<>();
-    private final double[] floatStatPosBuff = new double[Stats.max.getValue()];
-    private final double[] floatStatNegBuff = new double[Stats.max.getValue()];
-    public object sendLock = new object();
+    private final HashMap<Integer,List<Aura>> ownedAuras = new HashMap<>();
+    private final ArrayList<Aura> scAuras = new ArrayList<>();
+    private final DiminishingReturn[] diminishing = new DiminishingReturn[DiminishingGroup.values().length];
+    private final ArrayList<AreaTrigger> areaTrigger = new ArrayList<>();
+    protected float[] createStats = new float[Stats.values().length];
+    private final float[] floatStatPosBuff = new float[Stats.values().length];
+    private final float[] floatStatNegBuff = new float[Stats.values().length];
     public boolean canDualWield;
-    protected float[] createStats = new float[Stats.max.getValue()];
+
     private MovementForces movementForces;
     private PositionUpdateInfo positionUpdateInfo = new PositionUpdateInfo();
     private boolean isCombatDisallowed;
@@ -123,11 +131,11 @@ public class Unit extends WorldObject {
     private CharmInfo charmInfo;
     private int oldFactionId; // faction before charm
     private boolean isWalkingBeforeCharm; // Are we walking before we were charmed?
-    private SpellAuraInterruptFlags interruptMask = SpellAuraInterruptFlags.values()[0];
-    private SpellAuraInterruptFlags2 interruptMask2 = SpellAuraInterruptFlags2.values()[0];
+    private SpellAuraInterruptFlag interruptMask;
+    private SpellAuraInterruptFlag2 interruptMask2;
     private SpellHistory spellHistory;
     private int removedAurasCount;
-    private UnitState state = UnitState.values()[0];
+    private EnumFlag<UnitState> state;
     private boolean canModifyStats;
     private int transformSpell;
     private boolean cleanupDone; // lock made to not add stuff after cleanup before delete
@@ -138,19 +146,18 @@ public class Unit extends WorldObject {
     private short movementAnimKitId;
     private short meleeAnimKitId;
     //AI
-    private stack<IUnitAI> unitAis = new stack<IUnitAI>();
+    private Stack<IUnitAI> unitAis = new Stack<>();
     private IUnitAI ai;
     //Movement
     private float[] speedRate = new float[UnitMoveType.values().length];
-    private moveSpline moveSpline;
+    private final MoveSpline moveSpline;
     private int movementCounter;
     private Unit unitMovedByMe;
     private Player playerMovingMe;
     //Combat
     private ArrayList<Unit> attackerList = new ArrayList<>();
-    private float[][] weaponDamage = new float[WeaponAttackType.values().length][];
-    private float[] modAttackSpeedPct = new float[WeaponAttackType.values().length];
-    private int[] attackTimer = new int[WeaponAttackType.values().length];
+    private float[][] weaponDamage = new float[WeaponAttackType.values().length][WeaponDamageRange.values().length];
+
     private Unit attacking;
     private float modMeleeHitChance;
     private float modRangedHitChance;
@@ -162,10 +169,10 @@ public class Unit extends WorldObject {
     private boolean controlledByPlayer;
     private ObjectGuid lastCharmerGuid = ObjectGuid.EMPTY;
     //Spells
-    private HashMap<CurrentSpellType, Spell> currentSpells = new HashMap<CurrentSpellType, Spell>(CurrentSpellType.max.getValue());
+    private EnumMap<CurrentSpellType, Spell> currentSpells = new EnumMap<>(CurrentSpellType.class);
     private int procDeep;
-    private double[][] auraFlatModifiersGroup = new double[UnitMod.End.getValue()][];
-    private double[][] auraPctModifiersGroup = new double[UnitMod.End.getValue()][];
+    private float[][] auraFlatModifiersGroup = new float[UnitMod.values().length][UnitModifierFlatType.values().length];
+    private float[][] auraPctModifiersGroup = new float[UnitMod.values().length][UnitModifierPctType.values().length];
     //General
     private UnitData unitData;
     private ArrayList<GameObject> gameObjects = new ArrayList<>();
@@ -176,64 +183,69 @@ public class Unit extends WorldObject {
     private Vehicle vehicle;
     private Vehicle vehicleKit;
     private int lastSanctuaryTime;
+    private EnumFlag<UnitTypeMask> unitTypeMask;
+    private DeathState deathState;
 
-    private CreatureStaticFlagsHolder staticFlags;
-    private LoopSafeSortedDictionary<LocalDateTime, Double> damageTakenHistory = new LoopSafeSortedDictionary<LocalDateTime, Double>();
 
-    public Unit(boolean isWorldObject) {
-        super(isWorldObject);
-        setMoveSpline(new MoveSpline());
+    // Power Regeneration
+    private Instant regenInterruptTimestamp;
+    private int powerRegenUpdateTimer;
+    private int healthRegenerationTimer;
+    protected float[] powerFraction = new float[MAX_POWERS_PER_CLASS];
+    private Power[] usedPowerTypes = new Power[MAX_POWERS_PER_CLASS];
+
+
+
+    public Unit() {
+        moveSpline = new MoveSpline();
         motionMaster = new MotionMaster(this);
         combatManager = new CombatManager(this);
         threatManager = new ThreatManager(this);
         spellHistory = new SpellHistory(this);
 
-        setObjectTypeId(TypeId.UNIT);
-        setObjectTypeMask(TypeMask.forValue(getObjectTypeMask().getValue() | TypeMask.unit.getValue()));
+
         updateFlag.movementUpdate = true;
 
-        setModAttackSpeedPct(new double[]{1.0f, 1.0f, 1.0f});
+        setDeathState(DeathState.ALIVE);
 
-        setDeathState(deathState.Alive);
-
-        for (byte i = 0; i < SpellImmunity.max.getValue(); ++i) {
-            _spellImmune[i] = new MultiMap<Integer, Integer>();
+        for (var immunity : SpellImmunity.values()) {
+            spellImmune.put(immunity, new ArrayList<>(5));
         }
 
-        for (byte i = 0; i < UnitMod.End.getValue(); ++i) {
-            getAuraFlatModifiersGroup()[i] = new double[UnitModifierFlatType.End.getValue()];
-            getAuraFlatModifiersGroup()[i][UnitModifierFlatType.base.getValue()] = 0.0f;
-            getAuraFlatModifiersGroup()[i][UnitModifierFlatType.BasePCTExcludeCreate.getValue()] = 100.0f;
-            getAuraFlatModifiersGroup()[i][UnitModifierFlatType.Total.getValue()] = 0.0f;
-
-            getAuraPctModifiersGroup()[i] = new double[UnitModifierPctType.End.getValue()];
-            getAuraPctModifiersGroup()[i][UnitModifierPctType.base.getValue()] = 1.0f;
-            getAuraPctModifiersGroup()[i][UnitModifierPctType.Total.getValue()] = 1.0f;
+        for (var unitMod : UnitMod.values()) {
+            auraFlatModifiersGroup[unitMod.ordinal()][UnitModifierFlatType.BASE_VALUE.ordinal()] = 0.0f;
+            auraFlatModifiersGroup[unitMod.ordinal()][UnitModifierFlatType.BASE_PCT_EXCLUDE_CREATE.ordinal()] = 100.0f;
+            auraFlatModifiersGroup[unitMod.ordinal()][UnitModifierFlatType.TOTAL_VALUE.ordinal()] = 0.0f;
+            auraPctModifiersGroup[unitMod.ordinal()][UnitModifierPctType.BASE_PCT.ordinal()] = 1.0f;
+            auraPctModifiersGroup[unitMod.ordinal()][UnitModifierPctType.TOTAL_PCT.ordinal()] = 1.0f;
         }
 
-        getAuraPctModifiersGroup()[UnitMod.DamageOffHand.getValue()][UnitModifierPctType.Total.getValue()] = 0.5f;
+        auraPctModifiersGroup[UnitMod.DAMAGE_OFFHAND.ordinal()][UnitModifierPctType.TOTAL_PCT.ordinal()] = 0.5f;
 
-        for (byte i = 0; i < WeaponAttackType.max.getValue(); ++i) {
-            getWeaponDamage()[i] = new double[]{1.0f, 2.0f};
+        for (var attackType : WeaponAttackType.values()) {
+            weaponDamage[attackType.ordinal()][WeaponDamageRange.MIN_DAMAGE.ordinal()] = BASE_MIN_DAMAGE;
+            weaponDamage[attackType.ordinal()][WeaponDamageRange.MAX_DAMAGE.ordinal()] = BASE_MAX_DAMAGE;
         }
 
-        if (isTypeId(TypeId.PLAYER)) {
-            setModMeleeHitChance(7.5f);
-            setModRangedHitChance(7.5f);
-            setModSpellHitChance(15.0f);
-        }
 
-        setBaseSpellCritChance(5);
+        attacking = null;
+        modMeleeHitChance = 0.0f;
+        modRangedHitChance = 0.0f;
+        modSpellHitChance = 0.0f;
+        baseSpellCritChance = 5.0f;
 
-        for (byte i = 0; i < UnitMoveType.max.getValue(); ++i) {
-            getSpeedRate()[i] = 1.0f;
-        }
+        Arrays.fill(speedRate, 1.0f);
 
-        getServerSideVisibility().setValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
 
-        splineSyncTimer = new TimeTracker();
+        // remove aurastates allowing special moves
+        getServerSideVisibility().setValue(ServerSideVisibilityType.GHOST, GhostVisibilityType.ALIVE.ordinal());
+
+
+        regenInterruptTimestamp = GameTime.now();
+        Arrays.fill(usedPowerTypes, Power.MAX_POWERS);
 
     }
+
 
     public static void kill(Unit attacker, Unit victim, boolean durabilityLoss) {
         kill(attacker, victim, durabilityLoss, false);
@@ -270,9 +282,9 @@ public class Unit extends WorldObject {
 
         ArrayList<Player> tappers = new ArrayList<>();
 
-        if (isRewardAllowed && creature) {
+        if (isRewardAllowed && creature != null) {
             for (var tapperGuid : creature.getTapList()) {
-                var tapper = global.getObjAccessor().getPlayer(creature, tapperGuid);
+                var tapper = creature.getWorldContext().getPlayer(creature, tapperGuid);
 
                 if (tapper != null) {
                     tappers.add(tapper);
@@ -285,31 +297,28 @@ public class Unit extends WorldObject {
         }
 
         // Exploit fix
-        if (creature && creature.isPet() && creature.getOwnerGUID().isPlayer()) {
+        if (creature != null && creature.isPet() && creature.getOwnerGUID().isPlayer()) {
             isRewardAllowed = false;
         }
 
         // Reward player, his pets, and group/raid members
         // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
         if (isRewardAllowed) {
-            HashSet<PlayerGroup> groups = new HashSet<PlayerGroup>();
+            HashSet<PlayerGroup> groups = new HashSet<>();
 
             for (var tapper : tappers) {
                 var tapperGroup = tapper.getGroup();
 
-                if (tapperGroup != null) {
-                    if (groups.add(tapperGroup)) {
-                        PartyKillLog partyKillLog = new PartyKillLog();
-                        partyKillLog.player = player && tapperGroup.isMember(player.getGUID()) ? player.getGUID() : tapper.getGUID();
-                        partyKillLog.victim = victim.getGUID();
-                        partyKillLog.write();
+                if (tapperGroup != null && groups.add(tapperGroup)) {
+                    PartyKillLog partyKillLog = new PartyKillLog();
+                    partyKillLog.player = player != null && tapperGroup.isMember(player.getGUID()) ? player.getGUID() : tapper.getGUID();
+                    partyKillLog.victim = victim.getGUID();
+                    partyKillLog.write();
 
-                        tapperGroup.broadcastPacket(partyKillLog, tapperGroup.getMemberGroup(tapper.getGUID()) != 0);
+                    tapperGroup.broadcastPacket(partyKillLog, tapperGroup.getMemberGroup(tapper.getGUID()) != 0);
 
-                        if (creature) {
-                            tapperGroup.updateLooterGuid(creature, true);
-                        }
-                    }
+                    tapperGroup.updateLooterGuid(creature, true);
+
                 } else {
                     PartyKillLog partyKillLog = new PartyKillLog();
                     partyKillLog.player = tapper.getGUID();
@@ -319,8 +328,8 @@ public class Unit extends WorldObject {
             }
 
             // Generate loot before updating looter
-            if (creature) {
-                DungeonEncounterRecord dungeonEncounter = null;
+            if (creature != null) {
+                DungeonEncounter dungeonEncounter = null;
                 var instance = creature.getInstanceScript();
 
                 if (instance != null) {
@@ -329,12 +338,12 @@ public class Unit extends WorldObject {
 
                 if (creature.getMap().isDungeon()) {
                     if (dungeonEncounter != null) {
-                        creature.setPersonalLoot(LootManager.generateDungeonEncounterPersonalLoot(dungeonEncounter.id, creature.getLootId(), LootStorage.CREATURE, LootType.Corpse, creature, creature.getCreatureTemplate().minGold, creature.getCreatureTemplate().maxGold, (short) creature.getLootMode().getValue(), creature.getMap().getDifficultyLootItemContext(), tappers));
+                        creature.setPersonalLoot(LootManager.generateDungeonEncounterPersonalLoot(dungeonEncounter.getId(), creature.getLootId(), LootStorage.CREATURE, LootType.CORPSE, creature, creature.getCreatureTemplate().minGold, creature.getCreatureTemplate().maxGold, creature.getLootMode(), creature.getMap().getDifficultyLootItemContext(), tappers));
                     } else if (!tappers.isEmpty()) {
-                        var group = !groups.isEmpty() ? groups.first() : null;
-                        var looter = group ? global.getObjAccessor().getPlayer(creature, group.LooterGuid) : tappers.get(0);
+                        var group = !groups.isEmpty() ? groups.iterator().next() : null;
+                        var looter = group != null ? creature.getWorldContext().getPlayer(creature, group.getLooterGuid()) : tappers.getFirst();
 
-                        Loot loot = new loot(creature.getMap(), creature.getGUID(), LootType.Corpse, dungeonEncounter != null ? group : null);
+                        Loot loot = new Loot(creature.getMap(), creature.getGUID(), LootType.CORPSE, dungeonEncounter != null ? group : null);
 
                         var lootid = creature.getLootId();
 
@@ -363,7 +372,7 @@ public class Unit extends WorldObject {
                     }
                 } else {
                     for (var tapper : tappers) {
-                        Loot loot = new loot(creature.getMap(), creature.getGUID(), LootType.Corpse, null);
+                        Loot loot = new Loot(creature.getMap(), creature.getGUID(), LootType.Corpse, null);
 
                         if (dungeonEncounter != null) {
                             loot.setDungeonEncounterId(dungeonEncounter.id);
@@ -479,14 +488,14 @@ public class Unit extends WorldObject {
             if (!creature.isPet()) {
                 // must be after setDeathState which resets dynamic flags
                 if (!creature.isFullyLooted()) {
-                    creature.setDynamicFlag(UnitDynFlags.Lootable);
+                    creature.setDynamicFlag(UnitDynFlag.LOOTABLE);
                 } else {
                     creature.allLootRemovedFromCorpse();
                 }
 
                 if (creature.getCanHaveLoot() && LootStorage.SKINNING.haveLootFor(creature.getCreatureTemplate().skinLootId)) {
-                    creature.setDynamicFlag(UnitDynFlags.CanSkin);
-                    creature.setUnitFlag(UnitFlag.Skinnable);
+                    creature.setDynamicFlag(UnitDynFlag.CAN_SKIN);
+                    creature.setUnitFlag(UnitFlag.SKINNABLE);
                 }
             }
 
@@ -597,11 +606,11 @@ public class Unit extends WorldObject {
 
     public static boolean isDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo spellInfo) {
         // only physical spells damage gets reduced by armor
-        if ((schoolMask.getValue() & spellSchoolMask.NORMAL.getValue()) == 0) {
+        if ((schoolMask.getValue() & SpellSchoolMask.NORMAL.getValue()) == 0) {
             return false;
         }
 
-        return spellInfo == null || !spellInfo.hasAttribute(SpellCustomAttributes.IgnoreArmor);
+        return spellInfo == null || !spellInfo.hasAttribute(SpellCustomAttributes.IGNORE_ARMOR);
     }
 
     public static void dealDamageMods(Unit attacker, Unit victim, tangible.RefObject<Double> damage) {
@@ -972,7 +981,7 @@ public class Unit extends WorldObject {
             if (!victim.isTypeId(TypeId.PLAYER)) {
                 // Part of Evade mechanics. DoT's and Thorns / Retribution Aura do not contribute to this
                 if (damagetype != DamageEffectType.DOT && damageTaken > 0 && !victim.getOwnerGUID().isPlayer() && (spellProto == null || !spellProto.hasAura(AuraType.DamageShield))) {
-                    victim.toCreature().setLastDamagedTime(gameTime.GetGameTime() + SharedConst.MaxAggroResetTime);
+                    victim.toCreature().setLastDamagedTime(GameTime.getGameTime() + SharedConst.MaxAggroResetTime);
                 }
 
                 if (attacker != null && (spellProto == null || !spellProto.hasAttribute(SpellAttr4.NoHarmfulThreat))) {
@@ -1075,7 +1084,7 @@ public class Unit extends WorldObject {
         // logging uses damageDone
         if (victim.isPlayer()) {
             player = victim.toPlayer();
-            ScriptManager.getInstance().<IPlayerOnTakeDamage>ForEach(player.getClass(), a -> a.OnPlayerTakeDamage(player, damageDone, damageSchoolMask));
+            ScriptManager.getInstance().<IPlayerOnTakeDamage>ForEach(player.getUnitClass(), a -> a.OnPlayerTakeDamage(player, damageDone, damageSchoolMask));
         }
 
         // make player victims stand up automatically
@@ -1559,11 +1568,11 @@ public class Unit extends WorldObject {
             return damage;
         }
 
-        var attackerClass = playerClass.Warrior;
+        var attackerClass = UnitClass.Warrior;
 
         if (attacker != null) {
             attackerLevel = attacker.getLevelForTarget(victim);
-            attackerClass = attacker.getClass();
+            attackerClass = attacker.getUnitClass();
         }
 
         // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
@@ -3678,32 +3687,31 @@ public class Unit extends WorldObject {
     }
 
     public final Race getRace() {
-        return race.forValue((byte) getUnitData().race);
+        return Race.values()[unitData.getRace()];
     }
 
     public final void setRace(Race value) {
         setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().race), (byte) value.getValue());
     }
 
-    public final PlayerClass getClass() {
-        byte value = getByteValue(UNIT_FIELD_BYTES_0, UnitBytes0Offsets.CLASS);
-        return PlayerClass.values()[value];
+    public final UnitClass getUnitClass() {
+        return UnitClass.values()[unitData.getClassId()];
     }
 
-    public final void setClass(PlayerClass value) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().classId), (byte) value.getValue());
+    public final void setUnitClass(UnitClass value) {
+        unitData.setClassId((byte) value.ordinal());
     }
 
     public final int getClassMask() {
-        return (int) (1 << (getClass().ordinal() - 1));
+        return (1 << (getUnitClass().ordinal() - 1));
     }
 
     public final Gender getGender() {
-        return gender.forValue((byte) ((byte) getUnitData().sex));
+        return Gender.valueOf(unitData.getSex());
     }
 
     public final void setGender(Gender value) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().sex), (byte) value.getValue());
+        unitData.setSex((byte) value.value);
     }
 
     public Gender getNativeGender() {
@@ -3886,7 +3894,7 @@ public class Unit extends WorldObject {
     }
 
     public final UnitDynFlags getDynamicFlags() {
-        return UnitDynFlags.forValue((int) getObjectData().dynamicFlags);
+        return UnitDynFlag.forValue((int) getObjectData().dynamicFlags);
     }
 
     public final Emote getEmoteState() {
@@ -4866,7 +4874,7 @@ public class Unit extends WorldObject {
 
     @Override
     public String getDebugInfo() {
-        var str = String.format("%1$s\nIsAIEnabled: %2$s DeathState: %3$s UnitMovementFlags: %4$s UnitMovementFlags2: %5$s Class: %6$s\n", super.getDebugInfo(), isAIEnabled(), getDeathState(), getUnitMovementFlags(), getUnitMovementFlags2(), getClass()) + String.format(" %1$s GetCharmedGUID(): %2$s\nGetCharmerGUID(): %3$s\n%4$s\n", (getMoveSpline() != null ? getMoveSpline().toString() : "Movespline: <none>\n"), getCharmedGUID(), getCharmerGUID(), (getVehicleKit1() != null ? getVehicleKit1().getDebugInfo() : "No vehicle kit")) + String.format("m_Controlled size: %1$s", getControlled().size());
+        var str = String.format("%1$s\nIsAIEnabled: %2$s DeathState: %3$s UnitMovementFlags: %4$s UnitMovementFlags2: %5$s Class: %6$s\n", super.getDebugInfo(), isAIEnabled(), getDeathState(), getUnitMovementFlags(), getUnitMovementFlags2(), getUnitClass()) + String.format(" %1$s GetCharmedGUID(): %2$s\nGetCharmerGUID(): %3$s\n%4$s\n", (getMoveSpline() != null ? getMoveSpline().toString() : "Movespline: <none>\n"), getCharmedGUID(), getCharmerGUID(), (getVehicleKit1() != null ? getVehicleKit1().getDebugInfo() : "No vehicle kit")) + String.format("m_Controlled size: %1$s", getControlled().size());
 
         var controlledCount = 0;
 
@@ -5348,7 +5356,7 @@ public class Unit extends WorldObject {
                         if (displayInfo != null) {
                             var choiceReq = CliDB.ChrCustomizationReqStorage.get(formModelData.Choices.get(i).ChrCustomizationReqID);
 
-                            if (choiceReq == null || thisPlayer.getSession().meetsChrCustomizationReq(choiceReq, getClass(), false, thisPlayer.getPlayerData().customizations)) {
+                            if (choiceReq == null || thisPlayer.getSession().meetsChrCustomizationReq(choiceReq, getUnitClass(), false, thisPlayer.getPlayerData().customizations)) {
                                 displayIds.add(displayInfo.displayID);
                             }
                         }
@@ -5505,7 +5513,7 @@ public class Unit extends WorldObject {
                     var powerTypeAura = powerTypeAuras.get(0);
                     displayPower = powerType.forValue(powerTypeAura.miscValue);
                 } else if (getObjectTypeId() == TypeId.PLAYER) {
-                    var cEntry = CliDB.ChrClassesStorage.get(getClass());
+                    var cEntry = CliDB.ChrClassesStorage.get(getUnitClass());
 
                     if (cEntry != null && cEntry.displayPower < powerType.max.getValue()) {
                         displayPower = cEntry.displayPower;
@@ -5518,7 +5526,7 @@ public class Unit extends WorldObject {
 
                         if (powerDisplay != null) {
                             displayPower = powerType.forValue(powerDisplay.ActualType);
-                        } else if (getClass() == playerClass.Rogue) {
+                        } else if (getUnitClass() == UnitClass.Rogue) {
                             displayPower = powerType.Energy;
                         }
                     } else {
@@ -5632,7 +5640,7 @@ public class Unit extends WorldObject {
         var race = getRace();
 
         /* pandaren death knight (basically same thing as allied death knight) */
-        if ((race == race.PandarenAlliance || race == race.PandarenHorde || race == race.PandarenNeutral) && getClass() == playerClass.Deathknight) {
+        if ((race == race.PandarenAlliance || race == race.PandarenHorde || race == race.PandarenNeutral) && getUnitClass() == UnitClass.DEATH_KNIGHT) {
             return true;
         }
 
@@ -6126,7 +6134,7 @@ public class Unit extends WorldObject {
             flags = UpdateFieldFlag.forValue(flags.getValue() | UpdateFieldFlag.owner.getValue());
         }
 
-        if (hasDynamicFlag(UnitDynFlags.SpecialInfo)) {
+        if (hasDynamicFlag(UnitDynFlag.SpecialInfo)) {
             if (hasAuraTypeWithCaster(AuraType.Empathy, target.getGUID())) {
                 flags = UpdateFieldFlag.forValue(flags.getValue() | UpdateFieldFlag.Empath.getValue());
             }
@@ -7487,236 +7495,8 @@ public class Unit extends WorldObject {
         return false;
     }
 
-    protected final stack<IUnitAI> getUnitAis() {
-        return unitAis;
-    }
-
-    protected final void setUnitAis(stack<IUnitAI> value) {
-        unitAis = value;
-    }
 
 
-
-    protected final float[] getSpeedRate() {
-        return speedRate;
-    }
-
-    protected final void setSpeedRate(float[] value) {
-        speedRate = value;
-    }
-
-    public final MoveSpline getMoveSpline() {
-        return moveSpline;
-    }
-
-    public final void setMoveSpline(MoveSpline value) {
-        moveSpline = value;
-    }
-
-    public final int getMovementCounter() {
-        return movementCounter;
-    }
-
-    public final void setMovementCounter(int value) {
-        movementCounter = value;
-    }
-
-    protected final Unit getUnitMovedByMe() {
-        return unitMovedByMe;
-    }
-
-    protected final void setUnitMovedByMe(Unit value) {
-        unitMovedByMe = value;
-    }
-
-    protected final Player getPlayerMovingMe() {
-        return playerMovingMe;
-    }
-
-    protected final void setPlayerMovingMe(Player value) {
-        playerMovingMe = value;
-    }
-
-    protected final ArrayList<Unit> getAttackerList() {
-        return attackerList;
-    }
-
-    protected final void setAttackerList(ArrayList<Unit> value) {
-        attackerList = value;
-    }
-
-
-
-    public final float[] getModAttackSpeedPct() {
-        return modAttackSpeedPct;
-    }
-
-
-    protected final int[] getAttackTimer() {
-        return attackTimer;
-    }
-
-    protected final void setAttackTimer(int[] value) {
-        attackTimer = value;
-    }
-
-    protected final Unit getAttacking() {
-        return attacking;
-    }
-
-    protected final void setAttacking(Unit value) {
-        attacking = value;
-    }
-
-    public final double getModMeleeHitChance() {
-        return modMeleeHitChance;
-    }
-
-    public final void setModMeleeHitChance(double value) {
-        modMeleeHitChance = value;
-    }
-
-    public final double getModRangedHitChance() {
-        return modRangedHitChance;
-    }
-
-    public final void setModRangedHitChance(double value) {
-        modRangedHitChance = value;
-    }
-
-
-    public final double getBaseSpellCritChance() {
-        return baseSpellCritChance;
-    }
-
-    public final void setBaseSpellCritChance(double value) {
-        baseSpellCritChance = value;
-    }
-
-    public final int getRegenTimer() {
-        return regenTimer;
-    }
-
-    public final void setRegenTimer(int value) {
-        regenTimer = value;
-    }
-
-    public final ArrayList<Unit> getControlled() {
-        return controlled;
-    }
-
-    public final void setControlled(ArrayList<Unit> value) {
-        controlled = value;
-    }
-
-    protected final boolean getControlledByPlayer() {
-        return controlledByPlayer;
-    }
-
-    protected final void setControlledByPlayer(boolean value) {
-        controlledByPlayer = value;
-    }
-
-    public final ObjectGuid getLastCharmerGuid() {
-        return lastCharmerGuid;
-    }
-
-    public final void setLastCharmerGuid(ObjectGuid value) {
-        lastCharmerGuid = value;
-    }
-
-    protected final HashMap<CurrentSpellType, spell> getCurrentSpells() {
-        return currentSpells;
-    }
-
-    protected final void setCurrentSpells(HashMap<CurrentSpellType, spell> value) {
-        currentSpells = value;
-    }
-
-    protected final int getProcDeep() {
-        return procDeep;
-    }
-
-    protected final void setProcDeep(int value) {
-        procDeep = value;
-    }
-
-    protected final double[][] getAuraFlatModifiersGroup() {
-        return auraFlatModifiersGroup;
-    }
-
-    protected final void setAuraFlatModifiersGroup(double[][] value) {
-        auraFlatModifiersGroup = value;
-    }
-
-    protected final double[][] getAuraPctModifiersGroup() {
-        return auraPctModifiersGroup;
-    }
-
-    protected final void setAuraPctModifiersGroup(double[][] value) {
-        auraPctModifiersGroup = value;
-    }
-    private EnumFlag<UnitTypeMask> unitTypeMask;
-
-    public final UnitData getUnitData() {
-        return unitData;
-    }
-
-    public final void setUnitData(UnitData value) {
-        unitData = value;
-    }
-
-    protected final ArrayList<GameObject> getGameObjects() {
-        return gameObjects;
-    }
-
-    protected final void setGameObjects(ArrayList<GameObject> value) {
-        gameObjects = value;
-    }
-
-    protected final ArrayList<DynamicObject> getDynamicObjects() {
-        return dynamicObjects;
-    }
-
-    protected final void setDynamicObjects(ArrayList<DynamicObject> value) {
-        dynamicObjects = value;
-    }    private DeathState deathState = getDeathState().values()[0];
-
-    public final ObjectGuid[] getSummonSlot() {
-        return summonSlot;
-    }
-
-    public final void setSummonSlot(ObjectGuid[] value) {
-        summonSlot = value;
-    }
-
-    public final ObjectGuid[] getObjectSlot() {
-        return objectSlot;
-    }
-
-    public final void setObjectSlot(ObjectGuid[] value) {
-        objectSlot = value;
-    }
-
-    public final UnitTypeMask getUnitTypeMask() {
-        return unitTypeMask;
-    }
-
-    public final void setUnitTypeMask(UnitTypeMask value) {
-        unitTypeMask = value;
-    }
-
-    protected final LiquidType getLastLiquid() {
-        return lastLiquid;
-    }
-
-    protected final void setLastLiquid(LiquidType value) {
-        lastLiquid = value;
-    }
-
-    public final DeathState getDeathState() {
-        return deathState;
-    }
 
     public void setDeathState(DeathState s) {
         // Death state needs to be updated before removeAllAurasOnDeath() is called, to prevent entering combat
@@ -7768,41 +7548,7 @@ public class Unit extends WorldObject {
         }
     }
 
-    protected final void setDeathState(DeathState value) {
-        deathState = value;
-    }
 
-    public final Vehicle getVehicle() {
-        return vehicle;
-    }
-
-    public final void setVehicle(Vehicle value) {
-        vehicle = value;
-    }
-
-    public final Vehicle getVehicleKit() {
-        return vehicleKit;
-    }
-
-    public final void setVehicleKit(Vehicle value) {
-        vehicleKit = value;
-    }
-
-    public final int getLastSanctuaryTime() {
-        return lastSanctuaryTime;
-    }
-
-    public final void setLastSanctuaryTime(int value) {
-        lastSanctuaryTime = value;
-    }
-
-    public final LoopSafeSortedDictionary<LocalDateTime, Double> getDamageTakenHistory() {
-        return damageTakenHistory;
-    }
-
-    public final void setDamageTakenHistory(LoopSafeSortedDictionary<LocalDateTime, Double> value) {
-        damageTakenHistory = value;
-    }
 
     public boolean canFly() {
         return false;
@@ -7970,7 +7716,7 @@ public class Unit extends WorldObject {
     }
 
     public final void stopMoving() {
-        clearUnitState(UnitState.Moving);
+        clearUnitState(UnitState.MOVING);
 
         // not need send any packets if not in world or not moving
         if (!isInWorld() || getMoveSpline().finalized()) {
@@ -8035,7 +7781,7 @@ public class Unit extends WorldObject {
     }
 
     public final void setInFront(WorldObject target) {
-        if (!hasUnitState(UnitState.CannotTurn)) {
+        if (!hasUnitState(UnitState.CANNOT_TURN)) {
             getLocation().setO(getLocation().getAbsoluteAngle(target.getLocation()));
         }
     }
@@ -8122,7 +7868,7 @@ public class Unit extends WorldObject {
             init.setVelocity(speed);
         };
 
-        getMotionMaster().launchMoveSpline(initializer, 0, MovementGeneratorPriority.NORMAL, MovementGeneratorType.Point);
+        getMotionMaster().launchMoveSpline(initializer, 0, MovementGeneratorPriority.NORMAL, MovementGeneratorType.POINT);
     }
 
     public final void knockbackFrom(Position origin, float speedXY, float speedZ) {
@@ -9053,7 +8799,7 @@ public class Unit extends WorldObject {
         disableSpline();
 
         if (isTypeId(TypeId.PLAYER)) {
-            WorldLocation target = new worldLocation(getLocation().getMapId(), pos);
+            WorldLocation target = new WorldLocation(getLocation().getMapId(), pos);
             toPlayer().teleportTo(target, (TeleportToOptions.NotLeaveTransport.getValue() | TeleportToOptions.NotLeaveCombat.getValue().getValue() | TeleportToOptions.NotUnSummonPet.getValue().getValue().getValue() | (casting ? TeleportToOptions.Spell : 0).getValue().getValue().getValue()));
         } else {
             sendTeleportPacket(pos);
@@ -9078,24 +8824,24 @@ public class Unit extends WorldObject {
                 return;
             }
 
-            if (state.hasFlag(UnitState.controlled)) {
+            if (state.hasFlag(UnitState.CONTROLLED)) {
                 castStop();
             }
 
             addUnitState(state);
 
             switch (state) {
-                case Stunned:
+                case STUNNED:
                     setStunned(true);
 
                     break;
-                case Root:
+                case ROOT:
                     if (!hasUnitState(UnitState.Stunned)) {
                         setRooted(true);
                     }
 
                     break;
-                case Confused:
+                case CONFUSED:
                     if (!hasUnitState(UnitState.Stunned)) {
                         clearUnitState(UnitState.MeleeAttacking);
                         sendMeleeAttackStop();
@@ -9104,9 +8850,9 @@ public class Unit extends WorldObject {
                     }
 
                     break;
-                case Fleeing:
-                    if (!hasUnitState(UnitState.Stunned.getValue() | UnitState.Confused.getValue())) {
-                        clearUnitState(UnitState.MeleeAttacking);
+                case FLEEING:
+                    if (!hasUnitState(UnitState.STUNNED | UnitState.CONFUSED)) {
+                        clearUnitState(UnitState.MELEE_ATTACKING);
                         sendMeleeAttackStop();
                         // SendAutoRepeatCancel ?
                         setFeared(true);
@@ -9118,8 +8864,8 @@ public class Unit extends WorldObject {
             }
         } else {
             switch (state) {
-                case Stunned:
-                    if (hasAuraType(AuraType.ModStun) || hasAuraType(AuraType.ModStunDisableGravity)) {
+                case STUNNED:
+                    if (hasAuraType(AuraType.MOD_STUN) || hasAuraType(AuraType.MOD_STUN_DISABLE_GRAVITY)) {
                         return;
                     }
 
@@ -9127,20 +8873,20 @@ public class Unit extends WorldObject {
                     setStunned(false);
 
                     break;
-                case Root:
-                    if (hasAuraType(AuraType.ModRoot) || hasAuraType(AuraType.ModRoot2) || hasAuraType(AuraType.ModRootDisableGravity) || getVehicle1() != null || (isCreature() && toCreature().getMovementTemplate().isRooted())) {
+                case ROOT:
+                    if (hasAuraType(AuraType.MOD_ROOT) || hasAuraType(AuraType.MOD_ROOT_2) || hasAuraType(AuraType.MOD_ROOT_DISABLE_GRAVITY) || getVehicle1() != null || (isCreature() && toCreature().getMovementTemplate().isRooted())) {
                         return;
                     }
 
                     clearUnitState(state);
 
-                    if (!hasUnitState(UnitState.Stunned)) {
+                    if (!hasUnitState(UnitState.STUNNED)) {
                         setRooted(false);
                     }
 
                     break;
-                case Confused:
-                    if (hasAuraType(AuraType.ModConfuse)) {
+                case CONFUSED:
+                    if (hasAuraType(AuraType.MOD_CONFUSE)) {
                         return;
                     }
 
@@ -9148,8 +8894,8 @@ public class Unit extends WorldObject {
                     setConfused(false);
 
                     break;
-                case Fleeing:
-                    if (hasAuraType(AuraType.ModFear)) {
+                case FLEEING:
+                    if (hasAuraType(AuraType.MOD_FEAR)) {
                         return;
                     }
 
@@ -9803,27 +9549,12 @@ public class Unit extends WorldObject {
         return null;
     }
 
-    private void updateSplineMovement(int diff) {
+    private void updateSplineMovement(int delta) {
         if (getMoveSpline().finalized()) {
             return;
         }
-
-        getMoveSpline().updateState((int) diff);
+        getMoveSpline().updateState(delta);
         var arrived = getMoveSpline().finalized();
-
-        if (getMoveSpline().isCyclic()) {
-            splineSyncTimer.update(diff);
-
-            if (splineSyncTimer.Passed) {
-                splineSyncTimer.reset(5000); // Retail value, do not change
-
-                FlightSplineSync flightSplineSync = new FlightSplineSync();
-                flightSplineSync.guid = getGUID();
-                flightSplineSync.splineDist = getMoveSpline().timePassed() / getMoveSpline().duration();
-                sendMessageToSet(flightSplineSync, true);
-            }
-        }
-
         if (arrived) {
             disableSpline();
 
@@ -10244,12 +9975,12 @@ public class Unit extends WorldObject {
 
                     break;
                 case Charm:
-                    if (isTypeId(TypeId.UNIT) && charmer.getClass() == playerClass.Warlock) {
+                    if (isTypeId(TypeId.UNIT) && charmer.getUnitClass() == UnitClass.Warlock) {
                         var cinfo = toCreature().getCreatureTemplate();
 
                         if (cinfo != null && cinfo.type == creatureType.Demon) {
                             // to prevent client crash
-                            setClass(playerClass.Mage);
+                            setUnitClass(UnitClass.Mage);
 
                             // just to enable stat window
                             if (getCharmInfo() != null) {
@@ -10257,7 +9988,7 @@ public class Unit extends WorldObject {
                             }
 
                             // if charmed two demons the same session, the 2nd gets the 1st one's name
-                            setPetNameTimestamp((int) gameTime.GetGameTime()); // cast can't be helped
+                            setPetNameTimestamp((int) GameTime.getGameTime()); // cast can't be helped
                         }
                     }
 
@@ -10350,11 +10081,11 @@ public class Unit extends WorldObject {
 
                     break;
                 case Charm:
-                    if (isTypeId(TypeId.UNIT) && charmer.getClass() == playerClass.Warlock) {
+                    if (isTypeId(TypeId.UNIT) && charmer.getUnitClass() == UnitClass.Warlock) {
                         var cinfo = toCreature().getCreatureTemplate();
 
                         if (cinfo != null && cinfo.type == creatureType.Demon) {
-                            setClass(playerClass.forValue(cinfo.unitClass));
+                            setUnitClass(UnitClass.forValue(cinfo.unitClass));
 
                             if (getCharmInfo() != null) {
                                 getCharmInfo().setPetNumber(0, true);
@@ -11495,7 +11226,7 @@ public class Unit extends WorldObject {
         // Nourish cast
         if (spellProto.getSpellFamilyName() == SpellFamilyName.Druid && spellProto.getSpellFamilyFlags().get(1).hasFlag(0x2000000)) {
             // rejuvenation, regrowth, lifebloom, or Wild Growth
-            if (getAuraEffect(AuraType.PeriodicHeal, SpellFamilyName.Druid, new flagArray128(0x50, 0x4000010, 0)) != null) {
+            if (getAuraEffect(AuraType.PeriodicHeal, SpellFamilyName.Druid, new Flag128(0x50, 0x4000010, 0)) != null) {
                 // increase healing by 20%
                 TakenTotalMod *= 1.2f;
             }
@@ -12013,7 +11744,7 @@ public class Unit extends WorldObject {
         return true;
     }
 
-    public final boolean hasAuraTypeWithFamilyFlags(AuraType auraType, int familyName, FlagArray128 familyFlags) {
+    public final boolean hasAuraTypeWithFamilyFlags(AuraType auraType, int familyName, Flag128 familyFlags) {
         for (var aura : getAuraEffectsByType(auraType)) {
             if (aura.getSpellInfo().getSpellFamilyName() == SpellFamilyName.forValue(familyName) && aura.getSpellInfo().getSpellFamilyFlags() & familyFlags) {
                 return true;
@@ -13451,8 +13182,8 @@ public class Unit extends WorldObject {
     }
 
 
-    public final <T extends Enum> boolean hasAura(T spellId) {
-        return getAuraApplication(new integer(spellId)).Any();
+    public final boolean hasAura(EnumFlag.FlagValue spellId) {
+        return getAuraApplication(spellId).Any();
     }
 
     public final boolean hasAura(int spellId) {
@@ -14206,7 +13937,7 @@ public class Unit extends WorldObject {
         }
     }
 
-    public final void removeAurasWithFamily(SpellFamilyName family, FlagArray128 familyFlag, ObjectGuid casterGUID) {
+    public final void removeAurasWithFamily(SpellFamilyName family, Flag128 familyFlag, ObjectGuid casterGUID) {
         appliedAuras.query().hasCasterGuid(casterGUID).hasSpellFamily(family).alsoMatches(a -> a.base.spellInfo.spellFamilyFlags & familyFlag).execute(this::RemoveAura);
     }
 
@@ -14567,11 +14298,11 @@ public class Unit extends WorldObject {
         return null;
     }
 
-    public final AuraEffect getAuraEffect(AuraType type, SpellFamilyName family, FlagArray128 familyFlag) {
+    public final AuraEffect getAuraEffect(AuraType type, SpellFamilyName family, Flag128 familyFlag) {
         return getAuraEffect(type, family, familyFlag, null);
     }
 
-    public final AuraEffect getAuraEffect(AuraType type, SpellFamilyName family, FlagArray128 familyFlag, ObjectGuid casterGUID) {
+    public final AuraEffect getAuraEffect(AuraType type, SpellFamilyName family, Flag128 familyFlag, ObjectGuid casterGUID) {
         var auras = getAuraEffectsByType(type);
 
         for (var aura : auras) {
@@ -14591,16 +14322,33 @@ public class Unit extends WorldObject {
 
     // spell mustn't have familyflags
 
-    public final Iterable<AuraApplication> getAuraApplication(int spellId) {
-        return appliedAuras.query().hasSpellId(spellId).getResults();
+    public final AuraApplication getAuraApplication(Predicate<AuraApplication> predicate) {
+        return appliedAuras.values().stream().flatMap(List::stream).filter(predicate).findFirst().orElse(null);
+    }
+
+    public final AuraApplication getAuraApplication(int spellId, Predicate<AuraApplication> predicate) {
+        return appliedAuras.get(spellId).stream().filter(predicate).findFirst().orElse(null);
     }
 
     public final AuraApplication getAuraApplication(int spellId, ObjectGuid casterGUID) {
         return getAuraApplication(spellId, casterGUID, null);
     }
 
-    public final AuraApplication getAuraApplication(int spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID) {
-        return appliedAuras.query().hasSpellId(spellId).hasCasterGuid(casterGUID).hasCastItemGuid(itemCasterGUID).getResults().FirstOrDefault();
+    public final AuraApplication getAuraApplication(int spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID, int reqEffMask, AuraApplication except) {
+        Predicate<AuraApplication> predicate = app -> {
+            Aura aura = app.getBase();
+
+            if (((aura.getEffectMask() & reqEffMask) == reqEffMask)
+                    && (!casterGUID || aura.getCasterGuid() == casterGUID)
+                    && (!itemCasterGUID || aura.getCastItemGuid() == itemCasterGUID)
+                    && (!except || except != app))
+            {
+                return true;
+            }
+
+            return false;
+        };
+        return appliedAuras.get(spellId).stream().filter(predicate).findFirst().orElse(null);
     }
 
     public final double getAuraEffectAmount(int spellId, byte effIndex) {
@@ -15216,7 +14964,7 @@ public class Unit extends WorldObject {
                     // if victim and dodge attack
                     if (hitMask.hasFlag(ProcFlagsHit.Dodge)) {
                         // Update AURA_STATE on dodge
-                        if (getClass() != playerClass.Rogue) // skip Rogue Riposte
+                        if (getUnitClass() != UnitClass.Rogue) // skip Rogue Riposte
                         {
                             modifyAuraState(AuraStateType.Defensive, true);
                             startReactiveTimer(ReactiveType.Defense);
@@ -15935,30 +15683,27 @@ public class Unit extends WorldObject {
 
     //Stats
     public final float getStat(Stats stat) {
-        var st = stat.getValue();
-
-        if (getUnitData().stats.getValues().length > st) {
-            return getUnitData().stats.get(st);
+        if (unitData.getStats().size() > stat.ordinal()) {
+            return getUnitData().getStats().get(stat.ordinal());
         } else {
             return 0;
         }
     }
 
     public final void setStat(Stats stat, int val) {
-
-        setUpdateFieldValue(ref getValues().modifyValue(getUnitData()).modifyValue(getUnitData().stats, stat.getValue()), val);
+        unitData.getStats().set(stat.ordinal(), val);
     }
 
     public final int getCreateMana() {
-        return getUnitData().baseMana;
+        return unitData.getBaseMana();
     }
 
     public final void setCreateMana(int val) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().baseMana), val);
+        unitData.setBaseMana(val);
     }
 
     public final int getArmor() {
-        return (int) getResistance(SpellSchool.NORMAL);
+        return getResistance(SpellSchool.NORMAL);
     }
 
     public final void setArmor(int val, int bonusVal) {
@@ -15967,83 +15712,72 @@ public class Unit extends WorldObject {
     }
 
     public final float getCreateStat(Stats stat) {
-        return CreateStats[stat.getValue()];
+        return createStats[stat.ordinal()];
     }
 
     public final void setCreateStat(Stats stat, float val) {
-        CreateStats[stat.getValue()] = val;
+        createStats[stat.ordinal()] = val;
     }
 
     public final float getPosStat(Stats stat) {
-        return getUnitData().statPosBuff.get(stat.getValue());
+        return unitData.getStatPosBuff().get(stat.ordinal());
     }
 
     public final float getNegStat(Stats stat) {
-        return getUnitData().statNegBuff.get(stat.getValue());
+        return unitData.getStatNegBuff().get(stat.ordinal());
     }
 
     public final int getResistance(SpellSchool school) {
-        return getUnitData().resistances.get(school.getValue());
+        return unitData.getResistances().get(school.ordinal());
     }
 
-    public final int getBonusResistanceMod(SpellSchool school) {
-        return getUnitData().bonusResistanceMods.get(school.getValue());
-    }
 
     public final int getResistance(SpellSchoolMask mask) {
         Integer resist = null;
-
-        for (var i = SpellSchool.NORMAL.getValue(); i < SpellSchool.max.getValue(); ++i) {
-            var schoolResistance = getResistance(SpellSchool.forValue(i));
-
-            if ((boolean) (mask.getValue() & (1 << i)) && (resist == null || resist.intValue() > schoolResistance)) {
+        for (SpellSchool school : SpellSchool.values()) {
+            var schoolResistance = getResistance(school);
+            if ((mask.value & (1 << school.ordinal())) != 0 && (resist == null || resist > schoolResistance)) {
                 resist = schoolResistance;
             }
         }
-
         // resist value will never be negative here
-        return resist != null ? resist.intValue() : 0;
+        return resist != null ? resist : 0;
     }
 
     public final void setResistance(SpellSchool school, int val) {
-
-        setUpdateFieldValue(ref getValues().modifyValue(getUnitData()).modifyValue(getUnitData().resistances, school.getValue()), val);
-    }
-
-    public final void setBonusResistanceMod(SpellSchool school, int val) {
-
-        setUpdateFieldValue(ref getValues().modifyValue(getUnitData()).modifyValue(getUnitData().bonusResistanceMods, school.getValue()), val);
+        unitData.getResistances().set(school.ordinal(), val);
     }
 
     public final void setModCastingSpeed(float castingSpeed) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modCastingSpeed), castingSpeed);
+        unitData.setModCastingSpeed(castingSpeed);
     }
 
     public final void setModSpellHaste(float spellHaste) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modSpellHaste), spellHaste);
+        unitData.setModSpellHaste(spellHaste);
     }
 
     public final void setModHaste(float haste) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modHaste), haste);
+        unitData.setModHaste(haste);
     }
 
     public final void setModRangedHaste(float rangedHaste) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modRangedHaste), rangedHaste);
+        unitData.setModRangedHaste(rangedHaste);
     }
 
     public final void setModHasteRegen(float hasteRegen) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modHasteRegen), hasteRegen);
+        unitData.setModHasteRegen(hasteRegen);
     }
 
     public final void setModTimeRate(float timeRate) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modTimeRate), timeRate);
+        unitData.setModTimeRate(timeRate);
     }
 
     public final void initStatBuffMods() {
-        for (var stat = stats.Strength; stat.getValue() < stats.max.getValue(); ++stat) {
-            _floatStatPosBuff[stat.getValue()] = 0.0f;
-            _floatStatNegBuff[stat.getValue()] = 0.0f;
-            updateStatBuffModForClient(stat);
+
+        for (Stats stats : Stats.values()) {
+            floatStatPosBuff[stats.ordinal()] = 0.0f;
+            floatStatNegBuff[stats.ordinal()] = 0.0f;
+            updateStatBuffModForClient(stats);
         }
     }
 
@@ -16256,7 +15990,7 @@ public class Unit extends WorldObject {
             player = tempOut_player.outArgValue;
             var newVal = val;
             tangible.RefObject<Integer> tempRef_val = new tangible.RefObject<Integer>(val);
-            global.getScriptMgr().<IPlayerOnModifyPower>ForEach(player.getClass(), p -> p.OnModifyPower(player, powerType, oldPower, tempRef_val, isRegen));
+            global.getScriptMgr().<IPlayerOnModifyPower>ForEach(player.getUnitClass(), p -> p.OnModifyPower(player, powerType, oldPower, tempRef_val, isRegen));
             val = tempRef_val.refArgValue;
             val = newVal;
         } else {
@@ -16289,7 +16023,7 @@ public class Unit extends WorldObject {
 		}*/
 
         if (isPlayer()) {
-            global.getScriptMgr().<IPlayerOnAfterModifyPower>ForEach(player.getClass(), p -> p.OnAfterModifyPower(player, powerType, oldPower, val, isRegen));
+            global.getScriptMgr().<IPlayerOnAfterModifyPower>ForEach(player.getUnitClass(), p -> p.OnAfterModifyPower(player, powerType, oldPower, val, isRegen));
         }
     }
 
@@ -16311,7 +16045,7 @@ public class Unit extends WorldObject {
         var powerIndex = getPowerIndex(powerType);
 
         if (powerIndex == Power.MAX_POWERS.ordinal()
-                || powerIndex >= SharedDefine.MAX_POWERS_PER_CLASS) {
+                || powerIndex >= MAX_POWERS_PER_CLASS) {
             return 0;
         }
 
@@ -16333,7 +16067,7 @@ public class Unit extends WorldObject {
     }
 
     public int getPowerIndex(Power power) {
-        return getWorldContext().getDbcObjectManager().getPowerIndexByClass(power, getClass());
+        return getWorldContext().getDbcObjectManager().getPowerIndexByClass(power, getUnitClass());
     }
 
     public final float getPowerPct(Power power) {
@@ -16494,21 +16228,21 @@ public class Unit extends WorldObject {
 
         switch (unitMod) {
             case StatStart:
-            case StatStrength:
-            case StatAgility:
-            case StatStamina:
-            case StatIntellect:
+            case STAT_STRENGTH:
+            case STAT_AGILITY:
+            case STAT_STAMINA:
+            case STAT_INTELLECT:
                 updateStats(getStatByAuraGroup(unitMod));
 
                 break;
             case ResistanceStart:
             case PowerEnd:
-            case Armor:
+            case ARMOR:
                 updateArmor();
 
                 break;
             case StatEnd:
-            case Health:
+            case HEALTH:
                 updateMaxHealth();
 
                 break;
@@ -16603,32 +16337,30 @@ public class Unit extends WorldObject {
     }
 
     private void updateStatBuffModForClient(Stats stat) {
-
-        setUpdateFieldValue(ref getValues().modifyValue(getUnitData()).modifyValue(getUnitData().statPosBuff, stat.getValue()), (int) _floatStatPosBuff[stat.getValue()]);
-
-        setUpdateFieldValue(ref getValues().modifyValue(getUnitData()).modifyValue(getUnitData().statNegBuff, stat.getValue()), (int) _floatStatNegBuff[stat.getValue()]);
+        unitData.getStatPosBuff().set(stat.ordinal(), (int) floatStatPosBuff[stat.ordinal()]);
+        unitData.getStatNegBuff().set(stat.ordinal(), (int) floatStatNegBuff[stat.ordinal()]);
     }
 
     private void triggerOnPowerChangeAuras(Power power, int oldVal, int newVal) {
-        var effects = getAuraEffectsByType(AuraType.TriggerSpellOnPowerPct);
-        var effectsAmount = getAuraEffectsByType(AuraType.TriggerSpellOnPowerAmount);
+        var effects = getAuraEffectsByType(AuraType.TRIGGER_SPELL_ON_POWER_PCT);
+        var effectsAmount = getAuraEffectsByType(AuraType.TRIGGER_SPELL_ON_POWER_AMOUNT);
         effects.addAll(effectsAmount);
 
         for (var effect : effects) {
-            if (effect.getMiscValue() == power.getValue()) {
+            if (effect.getMiscValue() == power.index) {
                 var effectAmount = effect.getAmount();
                 var triggerSpell = effect.getSpellEffectInfo().triggerSpell;
 
                 float oldValueCheck = oldVal;
                 float newValueCheck = newVal;
 
-                if (effect.getAuraType() == AuraType.TriggerSpellOnPowerPct) {
+                if (effect.getAuraType() == AuraType.TRIGGER_SPELL_ON_POWER_PCT) {
                     var maxPower = getMaxPower(power);
                     oldValueCheck = MathUtil.GetPctOf(oldVal, maxPower);
                     newValueCheck = MathUtil.GetPctOf(newVal, maxPower);
                 }
-
-                switch (AuraTriggerOnPowerChangeDirection.forValue(effect.getMiscValueB())) {
+                var direction = AuraTriggerOnPowerChangeDirection.values()[effect.getMiscValueB()];
+                switch (direction) {
                     case Gain:
                         if (oldValueCheck >= effect.getAmount() || newValueCheck < effectAmount) {
                             continue;
@@ -16675,8 +16407,7 @@ public class Unit extends WorldObject {
 
     private double getCombatRatingDamageReduction(CombatRating cr, float rate, float cap, double damage) {
         var percent = Math.min(getCombatRatingReduction(cr) * rate, cap);
-
-        return MathUtil.CalculatePct(damage, percent);
+        return MathUtil.calculatePct(damage, percent);
     }
 
     private double getUnitCriticalChanceDone(WeaponAttackType attackType) {

@@ -40,7 +40,7 @@ public class CharacterCache {
         data.accountId = accountId;
         data.raceId = race.forValue(race);
         data.sex = gender.forValue((byte) gender);
-        data.classId = playerClass.forValue(playerClass);
+        data.classId = UnitClass.forValue(playerClass);
         data.level = level;
         data.guildId = 0; // Will be set in guild loading or guild setting
 

@@ -15,7 +15,7 @@ public class PlayerGuidLookupData {
     public int virtualRealmAddress;
     public Race raceID = race.NONE;
     public Gender sex = gender.NONE;
-    public PlayerClass classID = playerClass.NONE;
+    public PlayerClass classID = UnitClass.NONE;
     public byte level;
     public byte unused915;
     public declinedName declinedNames = new declinedName();
@@ -38,7 +38,7 @@ public class PlayerGuidLookupData {
             name = player.getName();
             raceID = player.getRace();
             sex = player.getNativeGender();
-            classID = player.getClass();
+            classID = player.getUnitClass();
             level = (byte) player.getLevel();
 
             var names = player.getDeclinedNames();

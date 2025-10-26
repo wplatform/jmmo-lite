@@ -1515,7 +1515,7 @@ public class AuraEffect {
         }
 
         if (apply) {
-            target.setPlayerFlag(playerFlags.Ghost);
+            target.setPlayerFlag(PlayerFlag.Ghost);
             target.getServerSideVisibility().setValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
             target.getServerSideVisibilityDetect().setValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
         } else {
@@ -1523,7 +1523,7 @@ public class AuraEffect {
                 return;
             }
 
-            target.removePlayerFlag(playerFlags.Ghost);
+            target.removePlayerFlag(PlayerFlag.Ghost);
             target.getServerSideVisibility().setValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
             target.getServerSideVisibilityDetect().setValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
         }
@@ -1652,7 +1652,7 @@ public class AuraEffect {
             if (!target.hasAuraType(AuraType.ModShapeshift)) {
                 target.setShapeshiftForm(ShapeShiftForm.NONE);
 
-                if (target.getClass() == playerClass.Druid) {
+                if (target.getUnitClass() == UnitClass.Druid) {
                     // Remove movement impairing effects also when shifting out
                     target.removeAurasByShapeShift();
                 }
@@ -1699,9 +1699,9 @@ public class AuraEffect {
             target.updateDisplayPower();
         }
 
-        if (target.getClass() == playerClass.Druid) {
+        if (target.getUnitClass() == UnitClass.Druid) {
             // Dash
-            var aurEff = target.getAuraEffect(AuraType.ModIncreaseSpeed, SpellFamilyNames.Druid, new flagArray128(0, 0, 0x8));
+            var aurEff = target.getAuraEffect(AuraType.ModIncreaseSpeed, SpellFamilyNames.Druid, new Flag128(0, 0, 0x8));
 
             if (aurEff != null) {
                 aurEff.recalculateAmount();
@@ -2411,11 +2411,11 @@ public class AuraEffect {
 
         // used by spells: Hunter's Mark, Mind Vision, Syndicate Tracker (MURP) DND
         if (apply) {
-            target.setDynamicFlag(UnitDynFlags.TrackUnit);
+            target.setDynamicFlag(UnitDynFlag.TrackUnit);
         } else {
             // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
             if (!target.hasAuraType(getAuraType())) {
-                target.removeDynamicFlag(UnitDynFlags.TrackUnit);
+                target.removeDynamicFlag(UnitDynFlag.TrackUnit);
             }
         }
 
@@ -4496,7 +4496,7 @@ public class AuraEffect {
 
         var target = aurApp.getTarget();
 
-        if ((target.getClassMask() & (int) playerClass.ClassMaskWandUsers.getValue()) != 0) {
+        if ((target.getClassMask() & (int) UnitClass.ClassMaskWandUsers.getValue()) != 0) {
             return;
         }
 
@@ -4528,7 +4528,7 @@ public class AuraEffect {
 
         var target = aurApp.getTarget();
 
-        if ((target.getClassMask() & (int) playerClass.ClassMaskWandUsers.getValue()) != 0) {
+        if ((target.getClassMask() & (int) UnitClass.ClassMaskWandUsers.getValue()) != 0) {
             return;
         }
 
@@ -4706,7 +4706,7 @@ public class AuraEffect {
             return;
         }
 
-        FlagArray128 mask = new flagArray128();
+        Flag128 mask = new Flag128();
         var noReagent = target.getAuraEffectsByType(AuraType.NoReagentUse);
 
         for (var eff : noReagent) {
@@ -5165,9 +5165,9 @@ public class AuraEffect {
 
         if (target.getCreatureType() == creatureType.Beast) {
             if (apply) {
-                target.setDynamicFlag(UnitDynFlags.SpecialInfo);
+                target.setDynamicFlag(UnitDynFlag.SpecialInfo);
             } else {
-                target.removeDynamicFlag(UnitDynFlags.SpecialInfo);
+                target.removeDynamicFlag(UnitDynFlag.SpecialInfo);
             }
         }
     }
@@ -6315,7 +6315,7 @@ public class AuraEffect {
             return;
         }
 
-        if (player.getClass() != playerClass.Hunter) {
+        if (player.getUnitClass() != UnitClass.Hunter) {
             return;
         }
 
@@ -6331,7 +6331,7 @@ public class AuraEffect {
             return;
         }
 
-        pet.SetSpecialization(global.getDB2Mgr().GetChrSpecializationByIndex(apply ? playerClass.Max : 0, currSpec.orderIndex).id);
+        pet.SetSpecialization(global.getDB2Mgr().GetChrSpecializationByIndex(apply ? UnitClass.Max : 0, currSpec.orderIndex).id);
     }
 
     

@@ -669,26 +669,6 @@ public final class CommonNetty {
 
     }
 
-
-    static final class SimpleConnection extends AtomicLong implements Connection {
-
-        final Channel channel;
-
-        SimpleConnection(Channel channel) {
-            this.channel = Objects.requireNonNull(channel, "channel");
-        }
-
-        @Override
-        public Channel channel() {
-            return channel;
-        }
-
-        @Override
-        public String toString() {
-            return "SimpleConnection{" + "channel=" + channel + '}';
-        }
-    }
-
     static NettyInbound unavailableInbound(Connection c) {
         return new NettyInbound() {
             @Override

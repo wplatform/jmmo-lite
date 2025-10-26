@@ -5,7 +5,7 @@ public class CharacterCacheEntry {
     public ObjectGuid guid = ObjectGuid.EMPTY;
     public String name;
     public int accountId;
-    public PlayerClass classId = playerClass.values()[0];
+    public PlayerClass classId = UnitClass.values()[0];
     public Race raceId = race.values()[0];
     public Gender sex = gender.values()[0];
     public byte level;

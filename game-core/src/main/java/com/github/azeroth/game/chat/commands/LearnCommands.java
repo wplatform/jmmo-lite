@@ -328,7 +328,7 @@ class LearnCommands {
 
 
         private static boolean handleLearnMySpellsCommand(CommandHandler handler) {
-            var classEntry = CliDB.ChrClassesStorage.get(handler.getPlayer().getClass());
+            var classEntry = CliDB.ChrClassesStorage.get(handler.getPlayer().getUnitClass());
 
             if (classEntry == null) {
                 return true;

@@ -6,10 +6,7 @@ import com.github.azeroth.net.Connection;
 import com.github.azeroth.net.server.ConnectionObserver;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -69,8 +66,8 @@ public abstract class HttpOperations extends ChannelOperations<HttpServerRequest
     final boolean validateHeaders = false;
 
 
-    public HttpOperations(Connection connection, ConnectionObserver listener) {
-        super(connection, listener);
+    public HttpOperations(Channel channel, ConnectionObserver listener) {
+        super(channel, listener);
     }
 
     @Override
@@ -188,8 +185,8 @@ public abstract class HttpOperations extends ChannelOperations<HttpServerRequest
             }
             // Write the initial line and the header.
             channel().write(response);
-            if (CommonNetty.mustChunkFileTransfer(connection(), file)) {
-                CommonNetty.addChunkedWriter(connection());
+            if (CommonNetty.mustChunkFileTransfer(this, file)) {
+                CommonNetty.addChunkedWriter(this);
                 sendObject(new ChunkedNioFile(fileChannel, position, count, 1024));
             } else {
                 sendObject(new DefaultFileRegion(fileChannel, position, count));

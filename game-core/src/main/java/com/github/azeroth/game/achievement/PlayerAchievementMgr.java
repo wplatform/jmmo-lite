@@ -93,7 +93,7 @@ public class PlayerAchievementMgr extends AchievementManager {
         }
 
         if (!criteriaResult.isEmpty()) {
-            var now = gameTime.GetGameTime();
+            var now = GameTime.getGameTime();
 
             do {
                 var id = criteriaResult.<Integer>Read(0);
@@ -333,7 +333,7 @@ public class PlayerAchievementMgr extends AchievementManager {
         Log.outDebug(LogFilter.achievement, "PlayerAchievementMgr.completedAchievement({0}). {1}", achievement.id, getOwnerInfo());
 
         CompletedAchievementData ca = new CompletedAchievementData();
-        ca.date = gameTime.GetGameTime();
+        ca.date = GameTime.getGameTime();
         ca.changed = true;
         completedAchievements.put(achievement.id, ca);
 
@@ -524,7 +524,7 @@ public class PlayerAchievementMgr extends AchievementManager {
         achievementEarned.earner = owner.getGUID();
         achievementEarned.earnerNativeRealm = achievementEarned.earnerVirtualRealm = global.getWorldMgr().getVirtualRealmAddress();
         achievementEarned.achievementID = achievement.id;
-        achievementEarned.time = gameTime.GetGameTime();
+        achievementEarned.time = GameTime.getGameTime();
 
         if (!achievement.flags.hasFlag(AchievementFlags.TrackingFlag)) {
             owner.sendMessageToSetInRange(achievementEarned, WorldConfig.getFloatValue(WorldCfg.ListenRangeSay), true);

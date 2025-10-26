@@ -172,7 +172,7 @@ public class EntityMarkUpdater implements PropertyChangeListener {
 
     public void add(EntityFragment fragment, boolean update) {
 
-        Assert.state(count < MAX_IDS, "Count exceeds maximum Ids size");
+        Assert.isTrue(count < MAX_IDS, "Count exceeds maximum Ids size");
 
 
         record InsertResult(int insertIndex, byte newCount, boolean inserted) {
@@ -200,7 +200,7 @@ public class EntityMarkUpdater implements PropertyChangeListener {
 
         if (fragment.isUpdatableFragment()) {
 
-            Assert.state(updatableCount < MAX_UPDATABLE_IDS, "UpdatableCount exceeds maximum size");
+            Assert.isTrue(updatableCount < MAX_UPDATABLE_IDS, "UpdatableCount exceeds maximum size");
 
             // Insert into updateable ids array
             InsertResult updateableResult = addFunc.apply(updatableIds, updatableCount);

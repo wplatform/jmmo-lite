@@ -1,11 +1,12 @@
 package com.github.azeroth.game.networking.packet.petition;
 
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.WorldPacket;
 
 public class PetitionInfo {
     public int petitionID;
-    public ObjectGuid petitioner = ObjectGuid.EMPTY;
+    public ObjectGuid petitioner;
     public String title;
     public String bodyText;
     public int minSignatures;
@@ -21,7 +22,7 @@ public class PetitionInfo {
     public int numChoices;
     public int staticType;
     public int muid = 0;
-    public LocalizedString choicetext = new LocalizedString();
+    public String[] choiceTexts = new String[10];
 
     public final void write(WorldPacket data) {
         data.writeInt32(petitionID);
@@ -41,17 +42,17 @@ public class PetitionInfo {
         data.writeInt32(staticType);
         data.writeInt32(muid);
 
-        data.writeBits(title.getBytes().length, 7);
-        data.writeBits(bodyText.getBytes().length, 12);
+        data.writeBits(title, 8);
+        data.writeBits(bodyText, 12);
 
-        for (byte i = 0; i < choicetext.length; i++) {
-            data.writeBits(choicetext.get(i).getBytes().length, 6);
+        for (String choiceText : choiceTexts) {
+            data.writeBits(choiceText, 6);
         }
 
         data.flushBits();
 
-        for (byte i = 0; i < choicetext.length; i++) {
-            data.writeString(choicetext.get(i));
+        for (String choiceText : choiceTexts) {
+            data.writeString(choiceText);
         }
 
         data.writeString(title);

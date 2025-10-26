@@ -1,11 +1,14 @@
 package com.github.azeroth.game.entity.player;
 
+import com.github.azeroth.defines.BattlegroundQueueTypeId;
 import com.github.azeroth.game.entity.item.Bag;
 import com.github.azeroth.game.entity.item.Item;
-import com.github.azeroth.game.entity.player.enums.PlayerFieldBytes3Offset;
+
 import lombok.Data;
 
 import java.time.Duration;
+
+import static com.github.azeroth.defines.MoneyUnit.GOLD;
 
 public interface PlayerDefine {
 
@@ -17,8 +20,7 @@ public interface PlayerDefine {
     int MAX_RECHARGING_RUNES = 3;
     int MAX_DRUNKEN = 4;
 
-    ;
-    int PLAYER_BYTES_3_OVERRIDE_SPELLS_UINT16_OFFSET = (PlayerFieldBytes3Offset.OVERRIDE_SPELLS_ID.ordinal() / 2);
+
     int KNOWN_TITLES_SIZE = 6;
     int MAX_TITLE_INDEX = (KNOWN_TITLES_SIZE * 64);        // 4 uint64 fields
     int MAX_TIMERS = 3;
@@ -27,8 +29,8 @@ public interface PlayerDefine {
     int QUESTS_COMPLETED_BITS_SIZE = 1750;
     int MAX_QUEST_COUNTS = 24;
     int MAX_QUEST_OFFSET = 16;
-    int INVENTORY_SLOT_BAG_0 = 255;
-    int INVENTORY_DEFAULT_SIZE = 20;
+
+
     int VISIBLE_ITEM_ENTRY_OFFSET = 0;
     int VISIBLE_ITEM_ENCHANTMENT_OFFSET = 1;
     int MAX_PLAYED_TIME_INDEX = 2;
@@ -66,6 +68,122 @@ public interface PlayerDefine {
     int GetBagSize(Bag bag);
 
     Item GetItemInBag(Bag bag, byte slot);
+
+
+    // first slot for item stored (in any way in player m_items data)
+    short PLAYER_SLOT_START = 0;
+    // last+1 slot for item stored (in any way in player m_items data)
+    short PLAYER_SLOT_END = 146;
+    short PLAYER_SLOTS_COUNT = (PLAYER_SLOT_END - PLAYER_SLOT_START);
+
+    short INVENTORY_SLOT_BAG_0 = 255;
+    short INVENTORY_DEFAULT_SIZE = 20;
+
+
+    short INVENTORY_SLOT_BAG_START = 30;
+    short INVENTORY_SLOT_BAG_END = 34;
+
+    short REAGENT_BAG_SLOT_START = 34;
+    short REAGENT_BAG_SLOT_END = 35;
+
+
+    short INVENTORY_SLOT_ITEM_START = 35;
+    short INVENTORY_SLOT_ITEM_END = 59;
+
+    short BANK_SLOT_ITEM_START = 59;
+    short BANK_SLOT_ITEM_END = 87;
+
+
+    short BANK_SLOT_BAG_START = 87;
+    short BANK_SLOT_BAG_END = 94;
+
+    short BUYBACK_SLOT_START = 94;
+    short BUYBACK_SLOT_END = 106;
+
+
+    short KEYRING_SLOT_START = 106;
+    short KEYRING_SLOT_END = 138;
+
+    short CHILD_EQUIPMENT_SLOT_START = 138;
+    short CHILD_EQUIPMENT_SLOT_END = 141;
+
+
+    short EQUIPMENT_SLOT_START = 0;
+    short EQUIPMENT_SLOT_HEAD = 0;
+    short EQUIPMENT_SLOT_NECK = 1;
+    short EQUIPMENT_SLOT_SHOULDERS = 2;
+    short EQUIPMENT_SLOT_BODY = 3;
+    short EQUIPMENT_SLOT_CHEST = 4;
+    short EQUIPMENT_SLOT_WAIST = 5;
+    short EQUIPMENT_SLOT_LEGS = 6;
+    short EQUIPMENT_SLOT_FEET = 7;
+    short EQUIPMENT_SLOT_WRISTS = 8;
+    short EQUIPMENT_SLOT_HANDS = 9;
+    short EQUIPMENT_SLOT_FINGER1 = 10;
+    short EQUIPMENT_SLOT_FINGER2 = 11;
+    short EQUIPMENT_SLOT_TRINKET1 = 12;
+    short EQUIPMENT_SLOT_TRINKET2 = 13;
+    short EQUIPMENT_SLOT_BACK = 14;
+    short EQUIPMENT_SLOT_MAINHAND = 15;
+    short EQUIPMENT_SLOT_OFFHAND = 16;
+    short EQUIPMENT_SLOT_RANGED = 17;
+    short EQUIPMENT_SLOT_TABARD = 18;
+    short EQUIPMENT_SLOT_END = 19;
+
+
+    short PROFESSION_SLOT_PROFESSION1_TOOL = 19;
+    short PROFESSION_SLOT_PROFESSION1_GEAR1 = 20;
+    short PROFESSION_SLOT_PROFESSION1_GEAR2 = 21;
+    short PROFESSION_SLOT_PROFESSION2_TOOL = 22;
+    short PROFESSION_SLOT_PROFESSION2_GEAR1 = 23;
+    short PROFESSION_SLOT_PROFESSION2_GEAR2 = 24;
+    short PROFESSION_SLOT_COOKING_TOOL = 25;
+    short PROFESSION_SLOT_COOKING_GEAR1 = 26;
+    short PROFESSION_SLOT_FISHING_TOOL = 27;
+    short PROFESSION_SLOT_FISHING_GEAR1 = 28;
+    short PROFESSION_SLOT_FISHING_GEAR2 = 29;
+
+    short PROFESSION_SLOT_END = 30;
+    short PROFESSION_SLOT_START = PROFESSION_SLOT_PROFESSION1_TOOL;
+
+    short PROFESSION_SLOT_MAX_COUNT = PROFESSION_SLOT_PROFESSION2_TOOL - PROFESSION_SLOT_PROFESSION1_TOOL;
+
+
+    short EQUIPABLE_SPELL_OFFENSIVE_SLOT1 = 211;
+    short EQUIPABLE_SPELL_OFFENSIVE_SLOT2 = 212;
+    short EQUIPABLE_SPELL_OFFENSIVE_SLOT3 = 213;
+    short EQUIPABLE_SPELL_OFFENSIVE_SLOT4 = 214;
+    short EQUIPABLE_SPELL_UTILITY_SLOT1 = 215;
+    short EQUIPABLE_SPELL_UTILITY_SLOT2 = 216;
+    short EQUIPABLE_SPELL_UTILITY_SLOT3 = 217;
+    short EQUIPABLE_SPELL_UTILITY_SLOT4 = 218;
+    short EQUIPABLE_SPELL_DEFENSIVE_SLOT1 = 219;
+    short EQUIPABLE_SPELL_DEFENSIVE_SLOT2 = 220;
+    short EQUIPABLE_SPELL_DEFENSIVE_SLOT3 = 221;
+    short EQUIPABLE_SPELL_DEFENSIVE_SLOT4 = 222;
+    short EQUIPABLE_SPELL_WEAPON_SLOT1 = 223;
+    short EQUIPABLE_SPELL_WEAPON_SLOT2 = 224;
+    short EQUIPABLE_SPELL_WEAPON_SLOT3 = 225;
+    short EQUIPABLE_SPELL_WEAPON_SLOT4 = 226;
+
+
+    short ACCOUNT_BANK_SLOT_BAG_START = 141;
+    short ACCOUNT_BANK_SLOT_BAG_END = 146;
+
+
+    int VOID_STORAGE_UNLOCK_COST        = 100 * GOLD.value;
+    int VOID_STORAGE_STORE_ITEM_COST    = 10 * GOLD.value;
+    byte VOID_STORAGE_MAX_DEPOSIT        = 9;
+    byte VOID_STORAGE_MAX_WITHDRAW       = 9;
+    short VOID_STORAGE_MAX_SLOT           = 160;
+
+    byte PLAYER_MAX_BATTLEGROUND_QUEUES = 3;
+    byte MAX_CUF_PROFILES = 5;
+
+
+    BattlegroundQueueTypeId BATTLEGROUND_QUEUE_NONE = { 0, 0, false, 0 };
+
+
 
     @Data
     class Areas {

@@ -3,7 +3,7 @@ package com.github.azeroth.game.service;
 
 import Google.Protobuf.*;
 import com.github.azeroth.game.networking.packet.MethodCall;
-import game.WorldSession;
+import com.github.azeroth.game.world.WorldSession;
 
 public class WorldServiceHandler {
     private final Delegate methodCaller;

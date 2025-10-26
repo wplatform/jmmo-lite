@@ -46,10 +46,10 @@ class ResetCommands {
     }
 
     private static boolean handleResetStatsOrLevelHelper(Player player) {
-        var classEntry = CliDB.ChrClassesStorage.get(player.getClass());
+        var classEntry = CliDB.ChrClassesStorage.get(player.getUnitClass());
 
         if (classEntry == null) {
-            Log.outError(LogFilter.Server, "Class {0} not found in DBC (Wrong DBC files?)", player.getClass());
+            Log.outError(LogFilter.Server, "Class {0} not found in DBC (Wrong DBC files?)", player.getUnitClass());
 
             return false;
         }
@@ -98,7 +98,7 @@ class ResetCommands {
         var oldLevel = (byte) target.getLevel();
 
         // set starting level
-        var startLevel = target.getStartLevel(target.getRace(), target.getClass());
+        var startLevel = target.getStartLevel(target.getRace(), target.getUnitClass());
 
         target._ApplyAllLevelScaleItemMods(false);
         target.setLevel(startLevel);
@@ -117,7 +117,7 @@ class ResetCommands {
             pet.SynchronizeLevelWithOwner();
         }
 
-        global.getScriptMgr().<IPlayerOnLevelChanged>ForEach(target.getClass(), p -> p.OnLevelChanged(target, oldLevel));
+        global.getScriptMgr().<IPlayerOnLevelChanged>ForEach(target.getUnitClass(), p -> p.OnLevelChanged(target, oldLevel));
 
         return true;
     }

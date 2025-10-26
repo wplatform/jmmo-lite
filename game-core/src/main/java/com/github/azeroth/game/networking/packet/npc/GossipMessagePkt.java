@@ -1,7 +1,9 @@
 package com.github.azeroth.game.networking.packet.npc;
 
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 import java.util.ArrayList;
 
@@ -16,7 +18,7 @@ public class GossipMessagePkt extends ServerPacket {
     public int gossipID;
 
     public GossipMessagePkt() {
-        super(ServerOpcode.GossipMessage);
+        super(ServerOpCode.SMSG_GOSSIP_MESSAGE, 200);
     }
 
     @Override

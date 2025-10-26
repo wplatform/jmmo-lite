@@ -2,13 +2,15 @@ package com.github.azeroth.game.networking.packet.adventuremap;
 
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
+import io.netty.buffer.ByteBuf;
 
-class AdventureMapStartQuest extends ClientPacket {
+public class AdventureMapStartQuest extends ClientPacket {
     public int questID;
 
-    public AdventureMapStartQuest(WorldPacket packet) {
-        super(packet);
+    public AdventureMapStartQuest(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {

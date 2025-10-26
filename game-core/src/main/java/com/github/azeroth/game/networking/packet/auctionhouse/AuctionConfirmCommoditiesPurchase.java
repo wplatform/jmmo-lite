@@ -1,17 +1,21 @@
 package com.github.azeroth.game.networking.packet.auctionhouse;
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.networking.packet.addon.AddOnInfo;
+import io.netty.buffer.ByteBuf;
 
-class AuctionConfirmCommoditiesPurchase extends ClientPacket {
-    public ObjectGuid auctioneer = ObjectGuid.EMPTY;
+public class AuctionConfirmCommoditiesPurchase extends ClientPacket {
+    public ObjectGuid auctioneer;
     public int itemID;
     public int quantity;
     public AddOnInfo taintedBy = null;
 
-    public AuctionConfirmCommoditiesPurchase(WorldPacket packet) {
-        super(packet);
+    public AuctionConfirmCommoditiesPurchase(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {
@@ -21,7 +25,7 @@ class AuctionConfirmCommoditiesPurchase extends ClientPacket {
 
         if (this.readBit()) {
             taintedBy = new AddOnInfo();
-            taintedBy.getValue().read(this);
+            taintedBy.read(this);
         }
     }
 }

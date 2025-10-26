@@ -454,7 +454,7 @@ public class GameObject extends WorldObject implements GirdObject {
     }
 
     public final void setRespawnTime(int respawn) {
-        respawnTime = respawn > 0 ? gameTime.GetGameTime() + respawn : 0;
+        respawnTime = respawn > 0 ? GameTime.getGameTime() + respawn : 0;
         respawnDelayTime = (int) (respawn > 0 ? respawn : 0);
 
         if (respawn != 0 && !spawnedByDefault) {
@@ -463,7 +463,7 @@ public class GameObject extends WorldObject implements GirdObject {
     }
 
     public final long getRespawnTimeEx() {
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         if (respawnTime > now) {
             return respawnTime;
@@ -749,7 +749,7 @@ public class GameObject extends WorldObject implements GirdObject {
         if (perPlayerState != null) {
 
             for (var(guid, playerState) : perPlayerState.ToList()) {
-                if (playerState.validUntil > gameTime.GetSystemTime()) {
+                if (playerState.validUntil > GameTime.getSystemTime()) {
                     continue;
                 }
 
@@ -803,7 +803,7 @@ public class GameObject extends WorldObject implements GirdObject {
                     }
                     case FishingNode: {
                         // fishing code (bobber ready)
-                        if (gameTime.GetGameTime() > _respawnTime - 5) {
+                        if (GameTime.getGameTime() > _respawnTime - 5) {
                             // splash bobber (bobber ready now)
                             var caster = getOwnerUnit();
 
@@ -817,7 +817,7 @@ public class GameObject extends WorldObject implements GirdObject {
                         return;
                     }
                     case Chest:
-                        if (restockTime > gameTime.GetGameTime()) {
+                        if (restockTime > GameTime.getGameTime()) {
                             return;
                         }
 
@@ -839,7 +839,7 @@ public class GameObject extends WorldObject implements GirdObject {
                 if (respawnCompatibilityMode) {
                     if (respawnTime > 0) // timer on
                     {
-                        var now = gameTime.GetGameTime();
+                        var now = GameTime.getGameTime();
 
                         if (respawnTime <= now) // timer expired
                         {
@@ -1064,7 +1064,7 @@ public class GameObject extends WorldObject implements GirdObject {
                         }
 
                         // Non-consumable chest was partially looted and restock time passed, restock all loot now
-                        if (getTemplate().chest.consumable == 0 && getTemplate().chest.chestRestockTime != 0 && gameTime.GetGameTime() >= restockTime) {
+                        if (getTemplate().chest.consumable == 0 && getTemplate().chest.chestRestockTime != 0 && GameTime.getGameTime() >= restockTime) {
                             restockTime = 0;
                             lootState = LootState.Ready;
                             clearLoot();
@@ -1167,7 +1167,7 @@ public class GameObject extends WorldObject implements GirdObject {
                 if ((getGoType() == GameObjectType.chest || getGoType() == GameObjectType.goober) && !getTemplate().isDespawnAtAction() && !isSummonedAndExpired) {
                     if (getGoType() == GameObjectType.chest && getTemplate().chest.chestRestockTime > 0) {
                         // Start restock timer when the chest is fully looted
-                        restockTime = gameTime.GetGameTime() + getTemplate().chest.chestRestockTime;
+                        restockTime = GameTime.getGameTime() + getTemplate().chest.chestRestockTime;
                         setLootState(LootState.NotReady);
                         updateDynamicFlagsForNearbyPlayers();
                     } else {
@@ -1222,7 +1222,7 @@ public class GameObject extends WorldObject implements GirdObject {
                     respawnDelay = tempRef_respawnDelay.refArgValue;
                 }
 
-                respawnTime = gameTime.GetGameTime() + respawnDelay;
+                respawnTime = GameTime.getGameTime() + respawnDelay;
 
                 // if option not set then object will be saved at grid unload
                 // Otherwise just save respawn time to map object memory
@@ -1317,7 +1317,7 @@ public class GameObject extends WorldObject implements GirdObject {
     public final Loot getFishLoot(Player lootOwner) {
         int defaultzone = 1;
 
-        Loot fishLoot = new loot(getMap(), getGUID(), LootType.FISHING, null);
+        Loot fishLoot = new Loot(getMap(), getGUID(), LootType.FISHING, null);
 
         var areaId = getAreaId();
         AreaTableRecord areaEntry;
@@ -1342,7 +1342,7 @@ public class GameObject extends WorldObject implements GirdObject {
     public final Loot getFishLootJunk(Player lootOwner) {
         int defaultzone = 1;
 
-        Loot fishLoot = new loot(getMap(), getGUID(), LootType.FishingJunk, null);
+        Loot fishLoot = new Loot(getMap(), getGUID(), LootType.FishingJunk, null);
 
         var areaId = getAreaId();
         AreaTableRecord areaEntry;
@@ -1493,7 +1493,7 @@ public class GameObject extends WorldObject implements GirdObject {
                 respawnTime = getMap().getGORespawnTime(spawnId);
 
                 // ready to respawn
-                if (respawnTime != 0 && respawnTime <= gameTime.GetGameTime()) {
+                if (respawnTime != 0 && respawnTime <= GameTime.getGameTime()) {
                     respawnTime = 0;
                     getMap().removeRespawnTime(SpawnObjectType.gameObject, spawnId);
                 }
@@ -1533,7 +1533,7 @@ public class GameObject extends WorldObject implements GirdObject {
     }
 
     public final void saveRespawnTime(int forceDelay) {
-        if (goData != null && (forceDelay != 0 || respawnTime > gameTime.GetGameTime()) && spawnedByDefault) {
+        if (goData != null && (forceDelay != 0 || respawnTime > GameTime.getGameTime()) && spawnedByDefault) {
             if (respawnCompatibilityMode) {
                 RespawnInfo ri = new RespawnInfo();
                 ri.setObjectType(SpawnObjectType.gameObject);
@@ -1544,7 +1544,7 @@ public class GameObject extends WorldObject implements GirdObject {
                 return;
             }
 
-            var thisRespawnTime = forceDelay != 0 ? gameTime.GetGameTime() + forceDelay : respawnTime;
+            var thisRespawnTime = forceDelay != 0 ? GameTime.getGameTime() + forceDelay : respawnTime;
             getMap().saveRespawnTime(SpawnObjectType.gameObject, spawnId, getEntry(), thisRespawnTime, MapDefine.computeGridCoord(getLocation().getX(), getLocation().getY()).getId());
         }
     }
@@ -1622,7 +1622,7 @@ public class GameObject extends WorldObject implements GirdObject {
 
     public final void respawn() {
         if (spawnedByDefault && respawnTime > 0) {
-            respawnTime = gameTime.GetGameTime();
+            respawnTime = GameTime.getGameTime();
             getMap().respawn(SpawnObjectType.gameObject, spawnId);
         }
     }
@@ -1973,7 +1973,7 @@ public class GameObject extends WorldObject implements GirdObject {
         var cooldown = getTemplate().getCooldown();
 
         if (cooldown != 0) {
-            if (cooldownTime > gameTime.GetGameTime()) {
+            if (cooldownTime > GameTime.getGameTime()) {
                 return;
             }
 
@@ -2021,7 +2021,7 @@ public class GameObject extends WorldObject implements GirdObject {
                         var group = player.getGroup();
                         var groupRules = group != null && info.chest.usegrouplootrules != 0;
 
-                        setLoot(new loot(getMap(), getGUID(), LootType.chest, groupRules ? group : null));
+                        setLoot(new Loot(getMap(), getGUID(), LootType.chest, groupRules ? group : null));
                         getLoot().setDungeonEncounterId(info.chest.dungeonEncounter);
                         getLoot().fillLoot(info.getLootId(), LootStorage.GAMEOBJECT, player, !groupRules, false, getLootMode(), getMap().getDifficultyLootItemContext());
 
@@ -2067,7 +2067,7 @@ public class GameObject extends WorldObject implements GirdObject {
 
                             personalLoot = LootManager.generateDungeonEncounterPersonalLoot(info.chest.dungeonEncounter, info.chest.chestPersonalLoot, LootStorage.GAMEOBJECT, LootType.chest, this, addon != null ? addon.Mingold : 0, addon != null ? addon.Maxgold : 0, (short) getLootMode().getValue(), getMap().getDifficultyLootItemContext(), tappers);
                         } else {
-                            Loot loot = new loot(getMap(), getGUID(), LootType.chest, null);
+                            Loot loot = new Loot(getMap(), getGUID(), LootType.chest, null);
                             personalLoot.put(player.getGUID(), loot);
 
                             loot.setDungeonEncounterId(info.chest.dungeonEncounter);
@@ -2082,7 +2082,7 @@ public class GameObject extends WorldObject implements GirdObject {
 
                 if (!uniqueUsers.contains(player.getGUID()) && info.getLootId() == 0) {
                     if (info.chest.chestPushLoot != 0) {
-                        Loot pushLoot = new loot(getMap(), getGUID(), LootType.chest, null);
+                        Loot pushLoot = new Loot(getMap(), getGUID(), LootType.chest, null);
                         pushLoot.fillLoot(info.chest.chestPushLoot, LootStorage.GAMEOBJECT, player, true, false, getLootMode(), getMap().getDifficultyLootItemContext());
                         pushLoot.autoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
                     }
@@ -2654,7 +2654,7 @@ public class GameObject extends WorldObject implements GirdObject {
 
                 var player = user.toPlayer();
 
-                var loot = new loot(getMap(), getGUID(), LootType.Fishinghole, null);
+                var loot = new Loot(getMap(), getGUID(), LootType.Fishinghole, null);
                 loot.fillLoot(getTemplate().getLootId(), LootStorage.GAMEOBJECT, player, true);
                 personalLoot.put(player.getGUID(), loot);
 
@@ -2868,7 +2868,7 @@ public class GameObject extends WorldObject implements GirdObject {
 
                 if (!personalLoot.containsKey(player.getGUID())) {
                     if (info.gatheringNode.chestLoot != 0) {
-                        Loot newLoot = new loot(getMap(), getGUID(), LootType.chest, null);
+                        Loot newLoot = new Loot(getMap(), getGUID(), LootType.chest, null);
                         personalLoot.put(player.getGUID(), newLoot);
 
                         newLoot.fillLoot(info.gatheringNode.chestLoot, LootStorage.GAMEOBJECT, player, true, false, getLootMode(), getMap().getDifficultyLootItemContext());
@@ -3349,7 +3349,7 @@ public class GameObject extends WorldObject implements GirdObject {
 
         // Start restock timer if the chest is partially looted or not looted at all
         if (getGoType() == GameObjectType.chest && state == LootState.Activated && getTemplate().chest.chestRestockTime > 0 && restockTime == 0) {
-            restockTime = gameTime.GetGameTime() + getTemplate().chest.chestRestockTime;
+            restockTime = GameTime.getGameTime() + getTemplate().chest.chestRestockTime;
         }
 
         // only set collision for doors on SetGoState
@@ -4197,7 +4197,7 @@ public class GameObject extends WorldObject implements GirdObject {
 
     private void despawnForPlayer(Player seer, Duration respawnTime) {
         var perPlayerState = getOrCreatePerPlayerStates(seer.getGUID());
-        perPlayerState.setValidUntil(gameTime.GetSystemTime() + respawnTime);
+        perPlayerState.setValidUntil(GameTime.getSystemTime() + respawnTime);
         perPlayerState.setDespawned(true);
         seer.updateVisibilityOf(this);
     }
@@ -4265,7 +4265,7 @@ public class GameObject extends WorldObject implements GirdObject {
 
     private void setGoStateFor(GOState state, Player viewer) {
         var perPlayerState = getOrCreatePerPlayerStates(viewer.getGUID());
-        perPlayerState.setValidUntil(gameTime.GetSystemTime() + duration.FromSeconds(respawnDelayTime));
+        perPlayerState.setValidUntil(GameTime.getSystemTime() + duration.FromSeconds(respawnDelayTime));
         perPlayerState.state = state;
 
         GameObjectSetStateLocal setStateLocal = new GameObjectSetStateLocal();

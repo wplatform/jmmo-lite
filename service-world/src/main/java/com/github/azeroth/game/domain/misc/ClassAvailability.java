@@ -1,10 +1,10 @@
 package com.github.azeroth.game.domain.misc;
 
-import com.github.azeroth.defines.PlayerClass;
+import com.github.azeroth.defines.UnitClass;
 
 public class ClassAvailability {
 
-    public PlayerClass classID;
+    public UnitClass classID;
 
     public byte activeExpansionLevel;
 

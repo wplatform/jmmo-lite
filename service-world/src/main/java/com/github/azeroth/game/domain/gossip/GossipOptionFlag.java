@@ -1,7 +1,7 @@
 package com.github.azeroth.game.domain.gossip;
 
 public enum GossipOptionFlag {
-    None                    ,
-    QuestLabelPrepend       ,
+    None,
+    QuestLabelPrepend,
     HideOptionIDFromClient;
 }

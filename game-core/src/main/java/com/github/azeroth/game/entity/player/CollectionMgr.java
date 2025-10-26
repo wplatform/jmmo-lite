@@ -5,7 +5,7 @@ import com.github.azeroth.game.entity.item.Item;
 import com.github.azeroth.game.networking.packet.AccountMountUpdate;
 import com.github.azeroth.game.networking.packet.AccountTransmogUpdate;
 import game.ConditionManager;
-import game.WorldSession;
+import com.github.azeroth.game.world.WorldSession;
 import game.datastorage.CliDB;
 import game.datastorage.HeirloomRecord;
 import game.datastorage.ItemModifiedAppearanceRecord;
@@ -30,7 +30,7 @@ public class CollectionMgr {
     private final HashMap<Integer, FavoriteAppearanceState> favoriteAppearances = new HashMap<Integer, FavoriteAppearanceState>();
 
 
-    private final int[] playerClassByArmorSubclass = {PlayerClass.ClassMaskAllPlayable.getValue(), (1 << (playerClass.Priest.getValue() - 1)) | (1 << (playerClass.Mage.getValue() - 1)) | (1 << (playerClass.Warlock.getValue() - 1)), (1 << (playerClass.Rogue.getValue() - 1)) | (1 << (playerClass.Monk.getValue() - 1)) | (1 << (playerClass.Druid.getValue() - 1)) | (1 << (playerClass.DemonHunter.getValue() - 1)), (1 << (playerClass.Hunter.getValue() - 1)) | (1 << (playerClass.Shaman.getValue() - 1)), (1 << (playerClass.Warrior.getValue() - 1)) | (1 << (playerClass.Paladin.getValue() - 1)) | (1 << (playerClass.Deathknight.getValue() - 1)), playerClass.ClassMaskAllPlayable.getValue(), (1 << (playerClass.Warrior.getValue() - 1)) | (1 << (playerClass.Paladin.getValue() - 1)) | (1 << (playerClass.Shaman.getValue() - 1)), 1 << (playerClass.Paladin.getValue() - 1), 1 << (playerClass.Druid.getValue() - 1), 1 << (playerClass.Shaman.getValue() - 1), 1 << (playerClass.Deathknight.getValue() - 1), (1 << (playerClass.Paladin.getValue() - 1)) | (1 << (playerClass.Deathknight.getValue() - 1)) | (1 << (playerClass.Shaman.getValue() - 1)) | (1 << (playerClass.Druid.getValue() - 1))};
+    private final int[] playerClassByArmorSubclass = {PlayerClass.ClassMaskAllPlayable.getValue(), (1 << (UnitClass.Priest.getValue() - 1)) | (1 << (UnitClass.Mage.getValue() - 1)) | (1 << (UnitClass.Warlock.getValue() - 1)), (1 << (UnitClass.Rogue.getValue() - 1)) | (1 << (UnitClass.Monk.getValue() - 1)) | (1 << (UnitClass.Druid.getValue() - 1)) | (1 << (UnitClass.DemonHunter.getValue() - 1)), (1 << (UnitClass.Hunter.getValue() - 1)) | (1 << (UnitClass.Shaman.getValue() - 1)), (1 << (UnitClass.Warrior.getValue() - 1)) | (1 << (UnitClass.Paladin.getValue() - 1)) | (1 << (UnitClass.DEATH_KNIGHT.getValue() - 1)), UnitClass.ClassMaskAllPlayable.getValue(), (1 << (UnitClass.Warrior.getValue() - 1)) | (1 << (UnitClass.Paladin.getValue() - 1)) | (1 << (UnitClass.Shaman.getValue() - 1)), 1 << (UnitClass.Paladin.getValue() - 1), 1 << (UnitClass.Druid.getValue() - 1), 1 << (UnitClass.Shaman.getValue() - 1), 1 << (UnitClass.DEATH_KNIGHT.getValue() - 1), (1 << (UnitClass.Paladin.getValue() - 1)) | (1 << (UnitClass.DEATH_KNIGHT.getValue() - 1)) | (1 << (UnitClass.Shaman.getValue() - 1)) | (1 << (UnitClass.Druid.getValue() - 1))};
 
     private BitSet appearances;
     private BitSet transmogIllusions;

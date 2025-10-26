@@ -1,12 +1,14 @@
 package com.github.azeroth.game.entity.player;
 
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
 public class PlayerSocial {
-    public HashMap<ObjectGuid, FriendInfo> playerSocialMap = new HashMap<ObjectGuid, FriendInfo>();
+    public HashMap<ObjectGuid, FriendInfo> playerSocialMap = new HashMap<>();
     public ArrayList<ObjectGuid> ignoredAccounts = new ArrayList<>();
     private ObjectGuid m_playerGUID = ObjectGuid.EMPTY;
 

@@ -2,18 +2,19 @@ package com.github.azeroth.game.quest;
 
 
 import com.github.azeroth.game.achievement.*;
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.domain.quest.QuestStatus;
 import com.github.azeroth.game.domain.quest.QuestObjective;
 
 import java.util.ArrayList;
 
-class QuestObjectiveCriteriaManager extends CriteriaHandler {
+public class QuestObjectiveCriteriaManager extends CriteriaHandler {
     private final Player owner;
     private final ArrayList<Integer> completedObjectives = new ArrayList<>();
 
     public QuestObjectiveCriteriaManager(Player owner) {
-        owner = owner;
+        this.owner = owner;
     }
 
     public static void deleteFromDB(ObjectGuid guid) {
@@ -67,7 +68,7 @@ class QuestObjectiveCriteriaManager extends CriteriaHandler {
         }
 
         if (!criteriaResult.isEmpty()) {
-            var now = gameTime.GetGameTime();
+            var now = GameTime.getGameTime();
 
             do {
                 var criteriaId = criteriaResult.<Integer>Read(0);

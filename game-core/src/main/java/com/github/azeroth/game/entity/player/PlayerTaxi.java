@@ -19,7 +19,7 @@ public class PlayerTaxi {
             taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
 
             // class specific initial known nodes
-            if (chrClass == playerClass.Deathknight) {
+            if (chrClass == UnitClass.DEATH_KNIGHT) {
                 var factionMask = player.teamForRace(race) == Team.Horde ? CliDB.HordeTaxiNodesMask : CliDB.AllianceTaxiNodesMask;
                 taximask = new byte[factionMask.length];
 

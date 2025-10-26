@@ -1,6 +1,6 @@
 package com.github.azeroth.game.entity.creature;
 
-import Time.GameTime;
+import com.github.azeroth.time.GameTime;
 
 public class VendorItemCount {
     private int itemId;
@@ -10,7 +10,7 @@ public class VendorItemCount {
     public VendorItemCount(int item, int count) {
         setItemId(item);
         setCount(count);
-        setLastIncrementTime(GameTime.getGameTime());
+        setLastIncrementTime(GameTime.getGAME_TIME());
     }
 
     public final int getItemId() {

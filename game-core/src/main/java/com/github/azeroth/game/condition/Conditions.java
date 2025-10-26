@@ -4,12 +4,11 @@ import com.github.azeroth.common.Assert;
 import com.github.azeroth.game.domain.condition.Condition;
 import com.github.azeroth.game.domain.condition.InstanceInfo;
 import com.github.azeroth.game.domain.instance.EncounterState;
+import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.map.BattlegroundMap;
 import com.github.azeroth.game.map.InstanceMap;
-import com.github.azeroth.game.map.InstanceScript;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
 
 import java.util.function.Predicate;
 
@@ -18,10 +17,12 @@ import static com.github.azeroth.game.condition.ConditionSourceInfo.MAX_CONDITIO
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Conditions {
 
+
+
     public static Predicate<ConditionSourceInfo> condition(Condition condition) {
         return sourceInfo -> {
 
-            Assert.state(condition.conditionTarget < MAX_CONDITION_TARGETS);
+            Assert.isTrue(condition.conditionTarget < MAX_CONDITION_TARGETS);
 
             var map = sourceInfo.mConditionMap;
             boolean condMeets = false;

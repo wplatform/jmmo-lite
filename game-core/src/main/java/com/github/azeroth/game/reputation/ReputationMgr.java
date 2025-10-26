@@ -43,7 +43,7 @@ public class ReputationMgr {
         }
 
         var raceMask = SharedConst.GetMaskForRace(race);
-        var classMask = (1 << (playerClass.getValue() - 1));
+        var classMask = (1 << (UnitClass.getValue() - 1));
 
         for (var i = 0; i < 4; i++) {
             if ((factionEntry.ReputationClassMask[i] == 0 || factionEntry.ReputationClassMask[i].hasFlag((short) classMask)) && (factionEntry.ReputationRaceMask[i] == 0 || factionEntry.ReputationRaceMask[i].hasFlag(raceMask))) {

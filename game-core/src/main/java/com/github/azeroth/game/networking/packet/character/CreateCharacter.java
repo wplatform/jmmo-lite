@@ -22,7 +22,7 @@ public class CreateCharacter extends ClientPacket {
         createInfo.useNPE = this.readBit();
 
         createInfo.raceId = race.forValue(this.readUInt8());
-        createInfo.classId = playerClass.forValue(this.readUInt8());
+        createInfo.classId = UnitClass.forValue(this.readUInt8());
         createInfo.sex = gender.forValue((byte) this.readUInt8());
         var customizationCount = this.readUInt32();
 

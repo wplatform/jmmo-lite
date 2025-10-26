@@ -102,7 +102,7 @@ class NPCCommands {
         var nativeid = target.getNativeDisplayId();
         var entry = target.getEntry();
 
-        var curRespawnDelay = target.getRespawnCompatibilityMode() ? target.getRespawnTimeEx() - gameTime.GetGameTime() : target.getMap().getCreatureRespawnTime(target.getSpawnId()) - gameTime.GetGameTime();
+        var curRespawnDelay = target.getRespawnCompatibilityMode() ? target.getRespawnTimeEx() - GameTime.getGameTime() : target.getMap().getCreatureRespawnTime(target.getSpawnId()) - GameTime.getGameTime();
 
         if (curRespawnDelay < 0) {
             curRespawnDelay = 0;

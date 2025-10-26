@@ -14,13 +14,12 @@ import com.github.azeroth.game.networking.packet.spell.AuraInfo;
 import com.github.azeroth.game.networking.packet.spell.AuraUpdate;
 import lombok.Getter;
 
-import java.util.HashSet;
 import java.util.Objects;
 
 import static com.github.azeroth.game.spell.auras.SpellAuraDefine.MAX_AURAS;
 
 @Getter
-public class AuraApplication {
+public class AuraApplication implements Comparable<AuraApplication> {
     private final Unit target;
     private final Aura base;
     private short slot; // Aura slot on unit
@@ -85,9 +84,9 @@ public class AuraApplication {
             return;
         }
 
-        Assert.state(hasEffect(effIndex) == !apply, "Aura {} has effect at effectIndex {} but _HandleEffect with {} was called", getBase().getSpellInfo().getId(), effIndex, apply);
+        Assert.isTrue(hasEffect(effIndex) == !apply, "Aura {} has effect at effectIndex {} but _HandleEffect with {} was called", getBase().getSpellInfo().getId(), effIndex, apply);
 
-        Assert.state(((1 << effIndex.ordinal()) & effectsToApply) != 0);
+        Assert.isTrue(((1 << effIndex.ordinal()) & effectsToApply) != 0);
 
         Logs.SPELLS.debug("AuraApplication._HandleEffect: {}, apply: {}, amount: {}", aurEff.getAuraType(), apply, aurEff.getAmount());
 
@@ -286,5 +285,10 @@ public class AuraApplication {
         if (getBase().getSpellInfo().hasAttribute(SpellAttr8.AuraSendAmount) || getBase().getAuraEffects().Any(effectNeedsAmount)) {
             flags = AuraFlags.forValue(flags.getValue() | AuraFlags.SCALABLE.getValue());
         }
+    }
+
+    @Override
+    public int compareTo(AuraApplication o) {
+        return Integer.compare(slot, o.slot);
     }
 }

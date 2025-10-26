@@ -1,31 +1,34 @@
 package com.github.azeroth.world.server.traffic;
 
-import com.rainbowland.worldserver.adapter.ChannelSession;
-import com.rainbowland.worldserver.adapter.SessionState;
-import com.rainbowland.worldserver.constant.Constants;
-import com.rainbowland.proto.SendPacketOpcode;
-import com.rainbowland.proto.WorldPacketFrame;
-import com.rainbowland.utils.SecureUtils;
+
+import com.github.azeroth.crypto.CryptoDefine;
+import com.github.azeroth.game.networking.packet.authentication.AuthChallenge;
+import com.github.azeroth.utils.RandomUtil;
+import com.github.azeroth.world.server.network.WorldConnection;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import lombok.extern.slf4j.Slf4j;
-import reactor.netty.Connection;
+import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.TooLongFrameException;
 
-import java.io.*;
+import java.nio.charset.StandardCharsets;
 
-@Slf4j
 public class WorldConnectionInitializer extends ChannelInboundHandlerAdapter {
 
+
+    private static final String SERVER_CONNECTION_INITIALIZER = "WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT - V2\n";
+    private static final String CLIENT_CONNECTION_INITIALIZER = "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER - V2\n";
+
+    private static final String INITIALIZER_DECODER = "lineBasedFrameDecoder";
+
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
-        log.info("A new client{} connected.", ctx.channel().remoteAddress());
-        Connection connection = Connection.from(ctx.channel());
-        ByteBuf buffer = connection.outbound().alloc().buffer();
-        buffer.writeBytes(Constants.SERVER_CONNECTION_HELLO.getBytes(WorldPacketFrame.PROTOCOL_CHARSET));
-        buffer.writeByte('\n');
+    public void channelActive(ChannelHandlerContext ctx) {
+        ctx.pipeline().addFirst(INITIALIZER_DECODER, new LineBasedFrameDecoder(100, false, true));
+        ByteBuf buffer = ctx.alloc().buffer();
+        buffer.writeBytes(SERVER_CONNECTION_INITIALIZER.getBytes());
         ctx.writeAndFlush(buffer);
+        //fire NettyPipeline.ReactiveBridge to let the client know that the connection is active.
+        ctx.fireChannelActive();
     }
 
     @Override
@@ -35,46 +38,37 @@ public class WorldConnectionInitializer extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ChannelSession channelSession = ChannelSession.fromChanel(ctx.channel());
-        if (channelSession.getState() == SessionState.INITIALIZING) {
-            initConnection(ctx, channelSession, (ByteBuf) msg);
-            channelSession.setState(SessionState.INITIALIZED);
+        ByteBuf buf = (ByteBuf) msg;
+        try {
+            String bodyMessage = buf.toString(StandardCharsets.UTF_8);
+            if (!CLIENT_CONNECTION_INITIALIZER.equals(bodyMessage)) {
+
+                ctx.fireExceptionCaught(
+                        new TooLongFrameException(
+                                "frame length (" + length + ") exceeds the allowed maximum (" + maxLength + ')'));
+
+                ctx.close();
+                return;
+            }
+        } finally {
+            buf.release();
         }
-        // fire next channel read. the one last user the msg will release the byte buffer.
-        super.channelRead(ctx, msg);
+        ctx.pipeline().remove(INITIALIZER_DECODER);
+        ctx.pipeline().remove(this);
+        ctx.pipeline().addFirst(new WorldProtocolCodec());
+        sendAuthSession(ctx);
     }
 
 
-    private void initConnection(ChannelHandlerContext ctx, ChannelSession channelSession, ByteBuf buf) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(Constants.CLIENT_CONNECTION_HELLO.length());
-        int byteValue;
-        while ('\n' != (byteValue = buf.readByte())) {
-            outputStream.write(byteValue);
-        }
-
-        String helloMessage = outputStream.toString(WorldPacketFrame.PROTOCOL_CHARSET);
-        if (!Constants.CLIENT_CONNECTION_HELLO.equals(helloMessage)) {
-            log.info("The client{} sent a error hello message  {}", ctx.channel().remoteAddress(), helloMessage);
-            ctx.close();
-            return;
-        }
-
-        byte[] serverChallenge = SecureUtils.generateRandomBytes(16);
-        byte[] dosChallenge = SecureUtils.generateRandomBytes(32);
-
-        channelSession.setServerChallenge(serverChallenge);
-
-        //16 + 4 * 8 + 1
-        ByteBuf buffer = ctx.alloc().buffer();
-        buffer.writeIntLE(16 + 32 + 1);
-        buffer.writeBytes(new byte[WorldPacketFrame.TAG_BYTE_LENGTH]);
-        buffer.writeShortLE(SendPacketOpcode.SMSG_AUTH_CHALLENGE.value());
-
-        buffer.writeBytes(dosChallenge);
-        buffer.writeBytes(serverChallenge);
-        buffer.writeByte(1);
-        ctx.writeAndFlush(buffer);
-
+    private void sendAuthSession(ChannelHandlerContext ctx) {
+        byte[] serverChallenge = RandomUtil.randomBytes(CryptoDefine.SERVER_CHALLENGE_LENGTH);
+        WorldConnection connection = WorldConnection.get(ctx.channel());
+        connection.setServerChallenge(serverChallenge);
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.challenge = serverChallenge;
+        authChallenge.dosChallenge = RandomUtil.randomBytes(32);
+        authChallenge.dosZeroBits = 1;
+        ctx.writeAndFlush(authChallenge);
     }
 
 }

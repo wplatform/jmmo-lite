@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.lfg;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class DFProposalResponse extends ClientPacket {
+public class DFProposalResponse extends ClientPacket {
     public Rideticket ticket = new rideTicket();
     public long instanceID;
     public int proposalID;

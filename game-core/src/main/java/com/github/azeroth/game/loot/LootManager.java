@@ -1,6 +1,10 @@
 package com.github.azeroth.game.loot;
 
 
+import com.github.azeroth.dbc.defines.ItemContext;
+import com.github.azeroth.defines.LootMode;
+import com.github.azeroth.defines.LootType;
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.entity.player.Player;
 
@@ -29,15 +33,17 @@ public class LootManager extends LootStorage {
     }
 
 
-    public static HashMap<ObjectGuid, loot> generateDungeonEncounterPersonalLoot(int dungeonEncounterId, int lootId, LootStore store, LootType type, WorldObject lootOwner, int minMoney, int maxMoney, short lootMode, ItemContext context, ArrayList<Player> tappers) {
-        HashMap<Player, loot> tempLoot = new HashMap<Player, loot>();
+    public static HashMap<ObjectGuid, Loot> generateDungeonEncounterPersonalLoot(
+            int dungeonEncounterId, int lootId, LootStore store, LootType type, WorldObject lootOwner,
+            int minMoney, int maxMoney, LootMode lootMode, ItemContext context, ArrayList<Player> tappers) {
+        HashMap<Player, Loot> tempLoot = new HashMap<>();
 
         for (var tapper : tappers) {
             if (tapper.isLockedToDungeonEncounter(dungeonEncounterId)) {
                 continue;
             }
 
-            Loot loot = new loot(lootOwner.getMap(), lootOwner.getGUID(), type, null);
+            Loot loot = new Loot(lootOwner.getMap(), lootOwner.getGUID(), type, null);
             loot.setItemContext(context);
             loot.setDungeonEncounterId(dungeonEncounterId);
             loot.generateMoneyLoot(minMoney, maxMoney);
@@ -51,17 +57,18 @@ public class LootManager extends LootStorage {
             tab.processPersonalLoot(tempLoot, store.isRatesAllowed(), lootMode);
         }
 
-        HashMap<ObjectGuid, loot> personalLoot = new HashMap<ObjectGuid, loot>();
+        HashMap<ObjectGuid, Loot> personalLoot = new HashMap<>();
 
+        for (var entry : tempLoot.entrySet()) {
+            Player looter = entry.getKey();
+            Loot loot = entry.getValue();
 
-        for (var(looter, loot) : tempLoot) {
             loot.fillNotNormalLootFor(looter);
 
             if (loot.isLooted()) {
                 continue;
             }
-
-            personalLoot.put(looter.GUID, loot);
+            personalLoot.put(looter.getGUID(), loot);
         }
 
         return personalLoot;

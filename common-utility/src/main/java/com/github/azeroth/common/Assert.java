@@ -4,13 +4,13 @@ import org.slf4j.helpers.MessageFormatter;
 
 public interface Assert {
 
-    static void state(boolean b) {
+    static void isTrue(boolean b) {
         if(!b) {
             throw new IllegalArgumentException("Assertion failed, require true but got false");
         }
     }
 
-    static void state(boolean b, String message, Object... args) {
+    static void isTrue(boolean b, String message, Object... args) {
         if(!b) {
             throw new IllegalArgumentException(MessageFormatter.basicArrayFormat(message, args));
         }

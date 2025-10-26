@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter(onMethod_ = {@Override})
 @RequiredArgsConstructor
-public
-enum PlayerFlag implements EnumFlag.FlagValue {
+public enum PlayerFlag implements EnumFlag.FlagValue {
     GROUP_LEADER(0x00000001),
     AFK(0x00000002),
     DND(0x00000004),

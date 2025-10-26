@@ -1,11 +1,5 @@
 package com.github.azeroth.defines;
 
 public enum Stats {
-    STAT_STRENGTH(0), STAT_AGILITY(1), STAT_STAMINA(2), STAT_INTELLECT(3);
-
-    public final int value;
-
-    Stats(int value) {
-        this.value = value;
-    }
+    STAT_STRENGTH, STAT_AGILITY, STAT_STAMINA, STAT_INTELLECT, STAT_SPIRIT;
 }

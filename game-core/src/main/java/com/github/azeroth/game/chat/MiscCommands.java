@@ -1155,7 +1155,7 @@ class MiscCommands {
 
         if (target) {
             // Target is online, mute will be in effect right away.
-            var mutedUntil = gameTime.GetGameTime() + muteTime * time.Minute;
+            var mutedUntil = GameTime.getGameTime() + muteTime * time.Minute;
             target.getSession().muteTime = mutedUntil;
             stmt.AddValue(0, mutedUntil);
         } else {
@@ -1423,7 +1423,7 @@ class MiscCommands {
             level = target.getLevel();
             latency = target.getSession().getLatency();
             raceid = target.getRace();
-            classid = target.getClass();
+            classid = target.getUnitClass();
             muteTime = target.getSession().muteTime;
             mapId = target.getLocation().getMapId();
             areaId = target.getAreaId();
@@ -1451,7 +1451,7 @@ class MiscCommands {
             money = result.<Long>Read(2);
             accId = result.<Integer>Read(3);
             raceid = race.forValue(result.<Byte>Read(4));
-            classid = playerClass.forValue(result.<Byte>Read(5));
+            classid = UnitClass.forValue(result.<Byte>Read(5));
             mapId = result.<SHORT>Read(6);
             areaId = result.<SHORT>Read(7);
             gender = gender.forValue(result.<Byte>Read(8));
@@ -1558,12 +1558,12 @@ class MiscCommands {
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0) {
-            handler.sendSysMessage(SysMessage.PinfoBanned, banType, banReason, banTime > 0 ? time.secsToTimeString((long) (banTime - gameTime.GetGameTime()), TimeFormat.ShortText, false) : handler.getSysMessage(SysMessage.Permanently), bannedBy);
+            handler.sendSysMessage(SysMessage.PinfoBanned, banType, banReason, banTime > 0 ? time.secsToTimeString((long) (banTime - GameTime.getGameTime()), TimeFormat.ShortText, false) : handler.getSysMessage(SysMessage.Permanently), bannedBy);
         }
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0) {
-            handler.sendSysMessage(SysMessage.PinfoMuted, muteReason, time.secsToTimeString((long) (muteTime - gameTime.GetGameTime()), TimeFormat.ShortText, false), muteBy);
+            handler.sendSysMessage(SysMessage.PinfoMuted, muteReason, time.secsToTimeString((long) (muteTime - GameTime.getGameTime()), TimeFormat.ShortText, false), muteBy);
         }
 
         // Output V. LANG_PINFO_ACC_ACCOUNT
@@ -2047,7 +2047,7 @@ class MiscCommands {
             handler.sendSysMessage(SysMessage.Summoning, nameLink, handler.getSysMessage(SysMessage.Offline));
 
             // in point where GM stay
-            player.savePositionInDB(new worldLocation(player.getLocation().getMapId(), player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getO()), player.getZone(), targetGuid);
+            player.savePositionInDB(new WorldLocation(player.getLocation().getMapId(), player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getO()), player.getZone(), targetGuid);
         }
 
         return true;
@@ -2247,7 +2247,7 @@ class MiscCommands {
             var result = DB.characters.query(stmt);
 
             if (!result.isEmpty()) {
-                player.savePositionInDB(new worldLocation(result.<SHORT>Read(0), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4), 0.0f), result.<SHORT>Read(1), targetGUID);
+                player.savePositionInDB(new WorldLocation(result.<SHORT>Read(0), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4), 0.0f), result.<SHORT>Read(1), targetGUID);
 
                 return true;
             }

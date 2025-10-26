@@ -1,59 +1,75 @@
 package com.github.azeroth.game.loot;
 
 
+import com.github.azeroth.dbc.defines.ItemContext;
+import com.github.azeroth.defines.LootMethod;
+import com.github.azeroth.defines.LootType;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.domain.object.enums.HighGuid;
+import com.github.azeroth.game.entity.item.ItemDefine;
 import com.github.azeroth.game.entity.item.ItemPosCount;
+import com.github.azeroth.game.entity.item.enums.InventoryResult;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.group.PlayerGroup;
+import com.github.azeroth.game.map.Map;
+import com.github.azeroth.game.world.WorldContext;
+import com.github.azeroth.utils.RandomUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
 
 public class Loot {
     private final ArrayList<ObjectGuid> playersLooting = new ArrayList<>();
-    private final MultiMap<ObjectGuid, NotNormalLootItem> playerFFAItems = new MultiMap<ObjectGuid, NotNormalLootItem>();
+    private final HashMap<ObjectGuid, List<NotNormalLootItem>> playerFFAItems = new HashMap<>();
     private final LootMethod lootMethod;
-    private final HashMap<Integer, LootRoll> rolls = new HashMap<Integer, LootRoll>(); // used if an item is under rolling
+    private final HashMap<Integer, LootRoll> rolls = new HashMap<>(); // used if an item is under rolling
     private final ArrayList<ObjectGuid> allowedLooters = new ArrayList<>();
     // Loot GUID
     private final ObjectGuid guid;
     private final ObjectGuid owner; // The WorldObject that holds this loot
     private final ObjectGuid lootMaster;
+    private ItemContext itemContext;
     public ArrayList<LootItem> items = new ArrayList<>();
     public int gold;
     public byte unlootedCount;
     public ObjectGuid roundRobinPlayer = ObjectGuid.EMPTY; // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     public LootType loot_type = LootType.values()[0]; // required for achievement system    private ItemContext itemContext = itemContext.values()[0];
     private boolean wasOpened; // true if at least one player received the loot content
+    private boolean changed;
     private int dungeonEncounterId;
-    public loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group) {
-        loot_type = type;
-        guid = map ? ObjectGuid.create(HighGuid.LootObject, map.getId(), 0, map.generateLowGuid(HighGuid.LootObject)) : ObjectGuid.Empty;
-        owner = owner;
-        itemContext = itemContext.NONE;
-        lootMethod = group != null ? group.getLootMethod() : lootMethod.FreeForAll;
-        lootMaster = group != null ? group.getMasterLooterGuid() : ObjectGuid.Empty;
+    private final WorldContext worldContext;
+    public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group) {
+        this.loot_type = type;
+        this.guid = map != null ? ObjectGuid.create(HighGuid.LootObject, map.getId(), 0, map.generateLowGuid(HighGuid.LootObject)) : ObjectGuid.EMPTY;
+        this.worldContext = map.getWorld();
+        this.owner = owner;
+        this.itemContext = ItemContext.NONE;
+        this.lootMethod = group != null ? group.getLootMethod() : LootMethod.FREE_FOR_ALL;
+        this.lootMaster = group != null ? group.getMasterLooterGuid() : ObjectGuid.EMPTY;
     }
 
     // Inserts the item into the loot (called by LootTemplate processors)
     public final void addItem(LootStoreItem item) {
-        var proto = global.getObjectMgr().getItemTemplate(item.itemid);
+
+        var proto = worldContext.getObjectManager().getItemTemplate(item.itemId);
 
         if (proto == null) {
             return;
         }
 
-        var count = RandomUtil.URand(item.mincount, item.maxcount);
-        var stacks = (int) (count / proto.getMaxStackSize() + ((boolean) (count % proto.getMaxStackSize()) ? 1 : 0));
+        var count = RandomUtil.randomInt(item.minCount, item.maxCount);
+        var stacks = count / proto.getMaxStackSize() + (count % proto.getMaxStackSize() != 0 ? 1 : 0);
 
-        for (int i = 0; i < stacks && items.size() < SharedConst.MaxNRLootItems; ++i) {
+        for (int i = 0; i < stacks && items.size() < ItemDefine.MAX_NR_LOOT_ITEMS; ++i) {
             LootItem generatedLoot = new LootItem(item);
             generatedLoot.context = itemContext;
             generatedLoot.count = (byte) Math.min(count, proto.getMaxStackSize());
-            generatedLoot.lootListId = (int) items.size();
+            generatedLoot.lootListId = items.size();
 
-            if (itemContext != 0) {
-                var bonusListIDs = global.getDB2Mgr().GetDefaultItemBonusTree(generatedLoot.itemid, itemContext);
+            if (itemContext != ItemContext.NONE) {
+                var bonusListIDs = worldContext.getDbcObjectManager().getDefaultItemBonusTree(generatedLoot.itemid, itemContext);
                 generatedLoot.bonusListIDs.addAll(bonusListIDs);
             }
 
@@ -99,11 +115,11 @@ public class Loot {
             ArrayList<ItemPosCount> dest = new ArrayList<>();
             var msg = player.canStoreNewItem(bag, slot, dest, lootItem.itemid, lootItem.count);
 
-            if (msg != InventoryResult.Ok && slot != ItemConst.NullSlot) {
+            if (msg != InventoryResult.OK && slot != ItemConst.NullSlot) {
                 msg = player.canStoreNewItem(bag, ItemConst.NullSlot, dest, lootItem.itemid, lootItem.count);
             }
 
-            if (msg != InventoryResult.Ok && bag != ItemConst.NullBag) {
+            if (msg != InventoryResult.OK && bag != ItemConst.NullBag) {
                 msg = player.canStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, lootItem.itemid, lootItem.count);
             }
 
@@ -455,7 +471,7 @@ public class Loot {
                 continue;
             }
 
-            LootItemData lootItem = new lootItemData();
+            LootItemData lootItem = new LootItemData();
             lootItem.lootListID = (byte) item.lootListId;
             lootItem.UIType = uiType;
             lootItem.quantity = item.count;

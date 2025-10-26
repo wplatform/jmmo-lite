@@ -21,7 +21,7 @@ public class Ticket {
     }
 
     public ticket(Player player) {
-        createTimeProtected = (long) gameTime.GetGameTime();
+        createTimeProtected = (long) GameTime.getGameTime();
         playerGuidProtected = player.getGUID();
     }
 

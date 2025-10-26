@@ -81,7 +81,7 @@ public class Weather {
         var old_type = type;
         var old_intensity = intensity;
 
-        var gtime = gameTime.GetGameTime();
+        var gtime = GameTime.getGameTime();
         var ltime = time.UnixTimeToDateTime(gtime).ToLocalTime();
         var season = (int) ((ltime.getDayOfYear() - 78 + 365) / 91) % 4;
 

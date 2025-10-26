@@ -10,7 +10,7 @@ public class RaidMarker {
     }
 
     public RaidMarker(int mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid) {
-        location = new worldLocation(mapId, positionX, positionY, positionZ);
+        location = new WorldLocation(mapId, positionX, positionY, positionZ);
         transportGUID = transportGuid;
     }
 }

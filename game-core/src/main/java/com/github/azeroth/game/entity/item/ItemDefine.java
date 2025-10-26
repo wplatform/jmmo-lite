@@ -7,13 +7,15 @@ public interface ItemDefine {
     // 2 fields per visible item (entry+enchantment)
     byte MAX_VISIBLE_ITEM_OFFSET = 2;
 
+    int MAX_NR_LOOT_ITEMS = 18;
+
 
     int STANDARD = (SocketColor.RED.value | SocketColor.YELLOW.value | SocketColor.BLUE.value);
 
 
     int MASK_WEAPON_RANGED = (
-            (1 << ItemSubclassWeapon.WEAPON_BOW.ordinal()) | (1 << ItemSubclassWeapon.WEAPON_GUN.ordinal()) |
-                    (1 << ItemSubclassWeapon.WEAPON_CROSSBOW.ordinal()));
+            (1 << ItemSubclassWeapon.BOW.ordinal()) | (1 << ItemSubclassWeapon.GUN.ordinal()) |
+                    (1 << ItemSubclassWeapon.CROSSBOW.ordinal()));
 
 
     int MAX_QUEST = 9;

@@ -24,7 +24,7 @@ public class PlayerModelDisplayInfo {
         name = player.getName();
         genderID = (byte) player.getNativeGender().getValue();
         race = (byte) player.getRace().getValue();
-        classID = (byte) player.getClass().getValue();
+        classID = (byte) player.getUnitClass().getValue();
 
         for (var customization : player.getPlayerData().customizations) {
             customizations.add(customization);

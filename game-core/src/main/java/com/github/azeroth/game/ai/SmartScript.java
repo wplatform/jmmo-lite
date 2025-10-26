@@ -2208,7 +2208,7 @@ public class SmartScript {
             case AddDynamicFlag: {
                 for (var target : targets) {
                     if (isUnit(target)) {
-                        target.toUnit().setDynamicFlag(UnitDynFlags.forValue(e.action.flag.flag));
+                        target.toUnit().setDynamicFlag(UnitDynFlag.forValue(e.action.flag.flag));
                     }
                 }
 
@@ -2217,7 +2217,7 @@ public class SmartScript {
             case RemoveDynamicFlag: {
                 for (var target : targets) {
                     if (isUnit(target)) {
-                        target.toUnit().removeDynamicFlag(UnitDynFlags.forValue(e.action.flag.flag));
+                        target.toUnit().removeDynamicFlag(UnitDynFlag.forValue(e.action.flag.flag));
                     }
                 }
 

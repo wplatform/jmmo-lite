@@ -50,7 +50,7 @@ public class ChannelOperations<IN extends NettyInbound, OUT extends NettyOutboun
 
 
     protected Object receivedMessage;
-    protected final Connection connection;
+    protected final Channel channel;
     protected final ConnectionObserver listener;
 
     protected boolean localActive;
@@ -58,8 +58,8 @@ public class ChannelOperations<IN extends NettyInbound, OUT extends NettyOutboun
     String shortId;
 
 
-    public ChannelOperations(Connection connection, ConnectionObserver listener) {
-        this.connection = requireNonNull(connection, "connection");
+    public ChannelOperations(Channel channel, ConnectionObserver listener) {
+        this.channel = requireNonNull(channel, "connection");
         this.listener = requireNonNull(listener, "listener");
 
     }
@@ -76,7 +76,7 @@ public class ChannelOperations<IN extends NettyInbound, OUT extends NettyOutboun
 
     @Override
     public ByteBufAllocator alloc() {
-        return connection.channel().alloc();
+        return channel.alloc();
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ChannelOperations<IN extends NettyInbound, OUT extends NettyOutboun
 
     @Override
     public final Channel channel() {
-        return connection.channel();
+        return channel;
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ChannelOperations<IN extends NettyInbound, OUT extends NettyOutboun
         if (log.isDebugEnabled()) {
             log.debug(CommonNetty.format(channel(), "Disposing ChannelOperation from a channel"));
         }
-        connection.close();
+        channel.close();
     }
 
 
@@ -158,11 +158,6 @@ public class ChannelOperations<IN extends NettyInbound, OUT extends NettyOutboun
     protected final void onInboundError(Throwable err) {
         listener.onUncaughtException(this, err);
     }
-
-    protected final Connection connection() {
-        return connection;
-    }
-
 
     protected void onWritabilityChanged() {
     }
@@ -223,17 +218,16 @@ public class ChannelOperations<IN extends NettyInbound, OUT extends NettyOutboun
          * Create a new {@link ChannelOperations} given a netty channel, a parent {@link
          * ConnectionObserver} and an optional message (nullable).
          *
-         * @param c        a {@link Connection}
          * @param listener a {@link ConnectionObserver}
          * @param msg      an optional message
          * @return the new {@link ChannelOperations}
          */
-        ChannelOperations<?, ?> create(Connection c, ConnectionObserver listener, Object msg);
+        ChannelOperations<?, ?> create(Channel channel, ConnectionObserver listener, Object msg);
 
     }
 
 
-    static final OnSetup EMPTY_SETUP = (c, l, msg) -> null;
+    static final OnSetup EMPTY_SETUP = (c,l, msg) -> null;
 
 
 }

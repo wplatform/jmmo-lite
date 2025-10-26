@@ -63,7 +63,7 @@ class BanInfoCommands {
 
         do {
             var unbanDate = result.<Long>Read(3);
-            var active = result.<Boolean>Read(2) && (result.<Long>Read(1) == 0L || unbanDate >= gameTime.GetGameTime());
+            var active = result.<Boolean>Read(2) && (result.<Long>Read(1) == 0L || unbanDate >= GameTime.getGameTime());
 
             var permanent = (result.<Long>Read(1) == 0L);
             var banTime = permanent ? handler.getSysMessage(SysMessage.BaninfoInfinite) : time.secsToTimeString(result.<Long>Read(1), TimeFormat.ShortText, false);
@@ -109,7 +109,7 @@ class BanInfoCommands {
 
         do {
             long unbanDate = result.<Integer>Read(3);
-            var active = result.<Boolean>Read(2) && (result.<Long>Read(1) == 0 || unbanDate >= gameTime.GetGameTime());
+            var active = result.<Boolean>Read(2) && (result.<Long>Read(1) == 0 || unbanDate >= GameTime.getGameTime());
 
 
             var permanent = (result.<Long>Read(1) == 0);

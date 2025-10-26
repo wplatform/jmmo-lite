@@ -87,7 +87,7 @@ public abstract class WorldObject extends GenericObject {
     protected boolean isActive;
     protected boolean isFarVisible;
     protected Float visibilityDistanceOverride;
-    protected final boolean storedInWorldObjectGridContainer;
+    protected boolean storedInWorldObjectGridContainer;
     protected ZoneScript zoneScript;
     // transports (gameobjects only)
     protected ITransport transport;
@@ -126,23 +126,16 @@ public abstract class WorldObject extends GenericObject {
     private final EventProcessor events = new EventProcessor();
 
     private int instanceId;
-    private final WorldContext worldContext;
+    private WorldContext worldContext;
     private int faction;
     private int heartbeatTimer = ObjectDefine.HEARTBEAT_INTERVAL;
 
-    public WorldObject(WorldContext worldContext, ObjectGuid guid, EnumFlag<TypeMask> objectType, TypeId objectTypeId, CreateObjectBits updateFlag) {
-        this(worldContext, false, guid, objectType, objectTypeId, updateFlag);
-    }
 
-    public WorldObject(WorldContext worldContext, boolean storedInWorldObjectGridContainer, ObjectGuid guid, EnumFlag<TypeMask> objectType, TypeId objectTypeId, CreateObjectBits updateFlag) {
-        super(guid, objectType, objectTypeId, updateFlag);
-        this.worldContext = worldContext;
-        this.storedInWorldObjectGridContainer = storedInWorldObjectGridContainer;
+    public WorldObject() {
         serverSideVisibility.setValue(ServerSideVisibilityType.GHOST, GhostVisibilityType.ALIVE.ordinal() | GhostVisibilityType.GHOST.ordinal());
         serverSideVisibilityDetect.setValue(ServerSideVisibilityType.GHOST, GhostVisibilityType.ALIVE.ordinal());
         staticFloorZ = MapDefine.VMAP_INVALID_HEIGHT_VALUE;
         location = new WorldLocation();
-
     }
 
 
@@ -1208,7 +1201,7 @@ public abstract class WorldObject extends GenericObject {
 
     public final void summonCreatureGroup(byte group, ArrayList<TempSummon> summoned) {
 
-        Assert.state(getObjectTypeId() == TypeId.GAME_OBJECT || getObjectTypeId() == TypeId.UNIT, "Only GOs and creatures can summon npc groups!");
+        Assert.isTrue(getObjectTypeId() == TypeId.GAME_OBJECT || getObjectTypeId() == TypeId.UNIT, "Only GOs and creatures can summon npc groups!");
 
         var data = worldContext.getObjectManager().getSummonGroup(getEntry(), isTypeId(TypeId.GAME_OBJECT) ? SummonerType.GAME_OBJECT : SummonerType.CREATURE, group);
 
@@ -1247,14 +1240,14 @@ public abstract class WorldObject extends GenericObject {
     }
 
     public final Creature findNearestCreature(int entry, float range, boolean alive) {
-        YieldResult<Creature> yieldResult = YieldResult.of();
+        YieldResult<Creature> yieldResult = YieldResult.ofNull();
         var searcher = GridVisitors.newCreatureLastSearcher(this, entry, range, alive, yieldResult);
         Cell.visitGrid(this, searcher, range);
         return yieldResult.get();
     }
 
     public final Creature findNearestCreatureWithOptions(float range, FindCreatureOptions options) {
-        YieldResult<Creature> yieldResult = YieldResult.of();
+        YieldResult<Creature> yieldResult = YieldResult.ofNull();
         var searcher = GridVisitors.newCreatureLastSearcher(this, range, options, yieldResult);
         Cell.visitGrid(this, searcher, range);
         return yieldResult.get();
@@ -1266,7 +1259,7 @@ public abstract class WorldObject extends GenericObject {
     }
 
     public final GameObject findNearestGameObject(int entry, float range, boolean spawnedOnly) {
-        YieldResult<GameObject> yieldResult = YieldResult.of();
+        YieldResult<GameObject> yieldResult = YieldResult.ofNull();
         var searcher = GridVisitors.newGameObjectLastSearcher(this, entry, range, spawnedOnly, yieldResult);
         Cell.visitGrid(this, searcher, range);
         return yieldResult.get();
@@ -1274,21 +1267,21 @@ public abstract class WorldObject extends GenericObject {
 
 
     public final GameObject findNearestUnspawnedGameObject(int entry, float range) {
-        YieldResult<GameObject> yieldResult = YieldResult.of();
+        YieldResult<GameObject> yieldResult = YieldResult.ofNull();
         var searcher = GridVisitors.newGameObjectLastSearcher(this, entry, range, yieldResult);
         Cell.visitGrid(this, searcher, range);
         return yieldResult.get();
     }
 
     public final GameObject findNearestGameObjectOfType(GameObjectType type, float range) {
-        YieldResult<GameObject> yieldResult = YieldResult.of();
+        YieldResult<GameObject> yieldResult = YieldResult.ofNull();
         var searcher = GridVisitors.newGameObjectLastSearcher(this, type, range, yieldResult);
         Cell.visitGrid(this, searcher, range);
         return yieldResult.get();
     }
 
     public final Player selectNearestPlayer(float distance) {
-        YieldResult<Player> yieldResult = YieldResult.of();
+        YieldResult<Player> yieldResult = YieldResult.ofNull();
         var searcher = GridVisitors.newPlayerLastSearcher(this, distance, yieldResult);
         Cell.visitGrid(this, searcher, distance);
         return yieldResult.get();

@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.lfg;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class DFTeleport extends ClientPacket {
+public class DFTeleport extends ClientPacket {
     public boolean teleportOut;
 
     public DFTeleport(WorldPacket packet) {

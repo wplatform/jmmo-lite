@@ -1,6 +1,7 @@
 package com.github.azeroth.game.chat;
 
 
+import com.github.azeroth.time.GameTime;
 
 class EventCommands {
     
@@ -29,8 +30,8 @@ class EventCommands {
         var endTimeStr = time.UnixTimeToDateTime(eventData.end).ToLongDateString();
 
         var delay = global.getGameEventMgr().nextCheck(eventId);
-        var nextTime = gameTime.GetGameTime() + delay;
-        var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? time.UnixTimeToDateTime(gameTime.GetGameTime() + delay).ToShortTimeString() : "-";
+        var nextTime = GameTime.getGameTime() + delay;
+        var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? time.UnixTimeToDateTime(GameTime.getGameTime() + delay).ToShortTimeString() : "-";
 
         var occurenceStr = time.secsToTimeString(eventData.occurence * time.Minute, 0, false);
         var lengthStr = time.secsToTimeString(eventData.length * time.Minute, 0, false);

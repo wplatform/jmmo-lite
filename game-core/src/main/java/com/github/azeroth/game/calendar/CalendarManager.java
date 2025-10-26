@@ -301,7 +301,7 @@ public class CalendarManager {
     }
 
     public final void deleteOldEvents() {
-        var oldEventsTime = gameTime.GetGameTime() - SharedConst.CalendarOldEventsDeletionTime;
+        var oldEventsTime = GameTime.getGameTime() - SharedConst.CalendarOldEventsDeletionTime;
 
         for (var calendarEvent : events) {
             if (calendarEvent.getDate() < oldEventsTime) {

@@ -39,6 +39,14 @@ public interface Functions {
         };
     }
 
+    static <K, V extends Comparable<V>> BiFunction<K, TreeSet<V>, TreeSet<V>> addToTreeSet(V valueToAdd) {
+        return (k, v) -> {
+            TreeSet<V> values = v == null ? new TreeSet<>() : v;
+            values.add(valueToAdd);
+            return values;
+        };
+    }
+
     static <K1, K2, V2> BiFunction<K1, Map<K2, V2>, Map<K2, V2>> addToMap(K2 keyToAdd, V2 valueToAdd) {
         return addToMap(keyToAdd, valueToAdd, HashMap::new);
     }

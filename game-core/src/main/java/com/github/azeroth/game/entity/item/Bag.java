@@ -1,8 +1,8 @@
 package com.github.azeroth.game.entity.item;
 
 
-import com.github.azeroth.game.entity.ContainerData;
-import com.github.azeroth.game.entity.UpdateMask;
+import com.github.azeroth.game.domain.object.enums.TypeMask;
+import com.github.azeroth.game.entity.object.update.ContainerData;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.networking.WorldPacket;
 
@@ -10,14 +10,14 @@ import java.io.IOException;
 
 
 public class Bag extends Item {
-    private final ContainerData m_containerData;
+    private final ContainerData m_containerData = new ContainerData();
     private Item[] m_bagslot = new Item[36];
 
-    public bag() {
-        setObjectTypeMask(TypeMask.forValue(getObjectTypeMask().getValue() | TypeMask.Container.getValue()));
+    public Bag() {
+        objectType.addFlag(TypeMask.CONTAINER);
         setObjectTypeId(TypeId.Container);
 
-        m_containerData = new containerData();
+        m_containerData.numSlots.set(36);
     }
 
     @Override
@@ -228,12 +228,11 @@ public class Bag extends Item {
         if (slot < getBagSize()) {
             return m_bagslot[slot];
         }
-
         return null;
     }
 
     public final int getBagSize() {
-        return m_containerData.numSlots;
+        return m_containerData.getNumSlots();
     }
 
     private void setBagSize(int numSlots) {

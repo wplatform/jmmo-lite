@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.npc;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class TrainerBuySpell extends ClientPacket {
+public class TrainerBuySpell extends ClientPacket {
     public ObjectGuid trainerGUID = ObjectGuid.EMPTY;
     public int trainerID;
     public int spellID;

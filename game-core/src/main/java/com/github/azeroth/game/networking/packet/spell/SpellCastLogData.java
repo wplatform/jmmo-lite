@@ -18,7 +18,7 @@ public class SpellCastLogData {
 
     public final void initialize(Unit unit) {
         health = unit.getHealth();
-        attackPower = unit.getTotalAttackPowerValue(unit.getClass() == playerClass.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
+        attackPower = unit.getTotalAttackPowerValue(unit.getUnitClass() == UnitClass.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
         spellPower = unit.spellBaseDamageBonusDone(spellSchoolMask.spell);
         armor = unit.getArmor();
         powerData.add(new SpellLogPowerData(unit.getDisplayPowerType().getValue(), unit.getPower(unit.getDisplayPowerType()), 0));
@@ -29,7 +29,7 @@ public class SpellCastLogData {
 
         if (unitCaster != null) {
             health = unitCaster.getHealth();
-            attackPower = unitCaster.getTotalAttackPowerValue(unitCaster.getClass() == playerClass.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
+            attackPower = unitCaster.getTotalAttackPowerValue(unitCaster.getUnitClass() == UnitClass.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
             spellPower = unitCaster.spellBaseDamageBonusDone(spellSchoolMask.spell);
             armor = unitCaster.getArmor();
             var primaryPower = unitCaster.getDisplayPowerType();

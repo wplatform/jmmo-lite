@@ -7,7 +7,7 @@ import com.github.azeroth.game.networking.WorldPacket;
 import java.util.ArrayList;
 
 
-class DFJoin extends ClientPacket {
+public class DFJoin extends ClientPacket {
     public boolean queueAsGroup;
     public byte partyIndex;
     public Lfgroles roles = LfgRoles.values()[0];

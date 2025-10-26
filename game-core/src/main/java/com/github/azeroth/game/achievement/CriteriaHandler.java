@@ -1,19 +1,19 @@
 package com.github.azeroth.game.achievement;
 
 
+import com.github.azeroth.dbc.defines.CriteriaType;
 import com.github.azeroth.game.domain.condition.DisableType;
-import com.github.azeroth.game.entity.activePlayerData;
+
 import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.entity.player.Player;
-import game.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
 public class CriteriaHandler {
-    private final HashMap<Integer, Integer> timeCriteriaTrees = new HashMap<Integer, Integer>();
-    protected HashMap<Integer, criteriaProgress> criteriaProgress = new HashMap<Integer, criteriaProgress>();
+    private final HashMap<Integer, Integer> timeCriteriaTrees = new HashMap<>();
+    protected HashMap<Integer, CriteriaProgress> criteriaProgress = new HashMap<>();
 
     public void reset() {
         for (var iter : criteriaProgress.entrySet()) {
@@ -650,7 +650,7 @@ public class CriteriaHandler {
         }
 
         progress.changed = true;
-        progress.date = gameTime.GetGameTime(); // set the date to the latest update.
+        progress.date = GameTime.getGameTime(); // set the date to the latest update.
         progress.playerGUID = referencePlayer ? referencePlayer.getGUID() : ObjectGuid.Empty;
         criteriaProgress.put(criteria.id, progress);
 
@@ -1649,7 +1649,7 @@ public class CriteriaHandler {
 
                 break;
             case PlayerClass: // 26
-                if ((int) referencePlayer.getClass().getValue() != reqValue) {
+                if ((int) referencePlayer.getUnitClass().getValue() != reqValue) {
                     return false;
                 }
 
@@ -1661,7 +1661,7 @@ public class CriteriaHandler {
 
                 break;
             case TargetClass: // 28
-                if (refe == null || !refe.isUnit() || refe.toUnit().getClass() != playerClass.forValue(reqValue)) {
+                if (refe == null || !refe.isUnit() || refe.toUnit().getUnitClass() != playerClass.forValue(reqValue)) {
                     return false;
                 }
 
@@ -2252,7 +2252,7 @@ public class CriteriaHandler {
                 var from = time.GetUnixTimeFromPackedTime(reqValue);
                 var to = time.GetUnixTimeFromPackedTime((int) secondaryAsset);
 
-                if (gameTime.GetGameTime() < from || gameTime.GetGameTime() > to) {
+                if (GameTime.getGameTime() < from || GameTime.getGameTime() > to) {
                     return false;
                 }
 
@@ -4221,7 +4221,7 @@ public class CriteriaHandler {
                 break;
             case HasTimeEventPassed: // 289
             {
-                var eventTimestamp = gameTime.GetGameTime();
+                var eventTimestamp = GameTime.getGameTime();
 
                 switch (reqValue) {
                     case 111: // Battle for Azeroth Season 4 Start
@@ -4248,7 +4248,7 @@ public class CriteriaHandler {
                         break;
                 }
 
-                if (gameTime.GetGameTime() < eventTimestamp) {
+                if (GameTime.getGameTime() < eventTimestamp) {
                     return false;
                 }
 
@@ -4612,7 +4612,7 @@ public class CriteriaHandler {
                 break;
             }
             case PlayerDaysSinceLogout: // 344
-                if (gameTime.GetGameTime() - referencePlayer.getPlayerData().logoutTime < reqValue * time.Day) {
+                if (GameTime.getGameTime() - referencePlayer.getPlayerData().logoutTime < reqValue * time.Day) {
                     return false;
                 }
 

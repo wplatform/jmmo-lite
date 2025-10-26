@@ -1,16 +1,24 @@
 package com.github.azeroth.game.chat;
 
 
+import com.github.azeroth.common.Functions;
+import com.github.azeroth.common.Tuple;
+import com.github.azeroth.dbc.domain.SpellEffect;
+import com.github.azeroth.defines.Language;
 import com.github.azeroth.game.LanguageDesc;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+
+import static java.util.logging.Logger.global;
 
 
 public class LanguageManager {
     private static final int[] SHashtable = {0x486E26EE, (int) 0xDCAA16B3, (int) 0xE1918EEF, 0x202DAFDB, 0x341C7DC7, 0x1C365303, 0x40EF2D37, 0x65FD5E49, (int) 0xD6057177, (int) 0x904ECE93, 0x1C38024F, (int) 0x98FD323B, (int) 0xE3061AE7, (int) 0xA39B0FA1, (int) 0x9797F25F, (int) 0xE4444563};
 
-    private final MultiMap<Integer, LanguageDesc> langsMap = new MultiMap<Integer, LanguageDesc>();
-    private final MultiMap<Tuple<Integer, Byte>, String> wordsMap = new MultiMap<Tuple<Integer, Byte>, String>();
+    private final EnumMap<Language, List<LanguageDesc>> langsMap = new EnumMap<>(Language.class);
+    private final MultiMap<Tuple<Language, Byte>, String> wordsMap = new MultiMap<Tuple<Language, Byte>, String>();
 
     private LanguageManager() {
     }
@@ -19,9 +27,9 @@ public class LanguageManager {
         return c == '/' ? '\\' : Character.toUpperCase(c);
     }
 
-    public final void loadSpellEffectLanguage(SpellEffectRecord spellEffect) {
+    public final void loadSpellEffectLanguage(SpellEffect spellEffect) {
         var languageId = (int) spellEffect.EffectMiscValue[0];
-        langsMap.add(languageId, new LanguageDesc(spellEffect.spellID, 0)); // register without a skill id for now
+        langsMap.put(languageId, Functions.addToList(new LanguageDesc(spellEffect.getSpellID(), 0)); // register without a skill id for now
     }
 
     public final void loadLanguages() {
@@ -145,8 +153,8 @@ public class LanguageManager {
         return CliDB.LanguagesStorage.HasRecord((int) languageId.getValue());
     }
 
-    public final ArrayList<LanguageDesc> getLanguageDescById(Language languageId) {
-        return langsMap.get((int) languageId.getValue());
+    public final List<LanguageDesc> getLanguageDescById(Language languageId) {
+        return langsMap.get(languageId);
     }
 
     public final boolean forEachLanguage(tangible.Func2Param<Integer, LanguageDesc, Boolean> callback) {

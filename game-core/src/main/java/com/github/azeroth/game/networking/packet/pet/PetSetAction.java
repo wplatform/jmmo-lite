@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.pet;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class PetSetAction extends ClientPacket {
+public class PetSetAction extends ClientPacket {
     public ObjectGuid petGUID = ObjectGuid.EMPTY;
 
     public int index;

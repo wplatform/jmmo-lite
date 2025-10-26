@@ -1,7 +1,7 @@
 package com.github.azeroth.portal.rpc;
 
-import com.github.azeroth.service.auth.dto.AccountInfo;
-import com.github.azeroth.service.auth.dto.GameAccount;
+import com.github.azeroth.auth.dto.AccountInfo;
+import com.github.azeroth.auth.dto.GameAccount;
 import lombok.Data;
 
 @Data

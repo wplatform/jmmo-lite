@@ -201,7 +201,7 @@ public class Spell {
         if (playerCaster != null) {
             // wand case
             if (attackType == WeaponAttackType.RangedAttack) {
-                if ((playerCaster.getClassMask() & (int) playerClass.ClassMaskWandUsers.getValue()) != 0) {
+                if ((playerCaster.getClassMask() & (int) UnitClass.ClassMaskWandUsers.getValue()) != 0) {
                     var pItem = playerCaster.getWeaponForAttack(WeaponAttackType.RangedAttack);
 
                     if (pItem != null) {
@@ -1987,12 +1987,12 @@ public class Spell {
                 //can cast triggered (by aura only?) spells while have this flag
                 if (!triggeredCastFlags.hasFlag(TriggerCastFlag.IgnoreCasterAurastate)) {
                     // These two auras check SpellFamilyName defined by db2 class data instead of current spell SpellFamilyName
-                    if (playerCaster.hasAuraType(AuraType.DisableCastingExceptAbilities) && !spellInfo.hasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.hasEffect(SpellEffectName.attack) && !spellInfo.hasAttribute(SpellAttr12.IgnoreCastingDisabled) && !playerCaster.hasAuraTypeWithFamilyFlags(AuraType.DisableCastingExceptAbilities, CliDB.ChrClassesStorage.get(playerCaster.getClass()).SpellClassSet, spellInfo.getSpellFamilyFlags())) {
+                    if (playerCaster.hasAuraType(AuraType.DisableCastingExceptAbilities) && !spellInfo.hasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.hasEffect(SpellEffectName.attack) && !spellInfo.hasAttribute(SpellAttr12.IgnoreCastingDisabled) && !playerCaster.hasAuraTypeWithFamilyFlags(AuraType.DisableCastingExceptAbilities, CliDB.ChrClassesStorage.get(playerCaster.getUnitClass()).SpellClassSet, spellInfo.getSpellFamilyFlags())) {
                         return SpellCastResult.CantDoThatRightNow;
                     }
 
                     if (playerCaster.hasAuraType(AuraType.DisableAttackingExceptAbilities)) {
-                        if (!playerCaster.hasAuraTypeWithFamilyFlags(AuraType.DisableAttackingExceptAbilities, CliDB.ChrClassesStorage.get(playerCaster.getClass()).SpellClassSet, spellInfo.getSpellFamilyFlags())) {
+                        if (!playerCaster.hasAuraTypeWithFamilyFlags(AuraType.DisableAttackingExceptAbilities, CliDB.ChrClassesStorage.get(playerCaster.getUnitClass()).SpellClassSet, spellInfo.getSpellFamilyFlags())) {
                             if (spellInfo.hasAttribute(SpellAttr0.UsesRangedSlot) || spellInfo.isNextMeleeSwingSpell() || spellInfo.hasAttribute(SpellAttr1.InitiatesCombatEnablesAutoAttack) || spellInfo.hasAttribute(SpellAttr2.InitiateCombatPostCastEnablesAutoAttack) || spellInfo.hasEffect(SpellEffectName.attack) || spellInfo.hasEffect(SpellEffectName.NormalizedWeaponDmg) || spellInfo.hasEffect(SpellEffectName.WeaponDamageNoSchool) || spellInfo.hasEffect(SpellEffectName.WeaponPercentDamage) || spellInfo.hasEffect(SpellEffectName.weaponDamage)) {
                                 return SpellCastResult.CantDoThatRightNow;
                             }
@@ -2998,7 +2998,7 @@ public class Spell {
                         return SpellCastResult.TargetNotPlayer;
                     }
 
-                    if (spec == null || (spec.classID != (int) player.getClass().getValue() && !spec.IsPetSpecialization())) {
+                    if (spec == null || (spec.classID != (int) player.getUnitClass().getValue() && !spec.IsPetSpecialization())) {
                         return SpellCastResult.NoSpec;
                     }
 
@@ -5888,7 +5888,7 @@ public class Spell {
         if (playerCaster != null) {
             // now that we've done the basic check, now run the scripts
             // should be done before the spell is actually executed
-            global.getScriptMgr().<IPlayerOnSpellCast>ForEach(playerCaster.getClass(), p -> p.onSpellCast(playerCaster, this, skipCheck));
+            global.getScriptMgr().<IPlayerOnSpellCast>ForEach(playerCaster.getUnitClass(), p -> p.onSpellCast(playerCaster, this, skipCheck));
 
             // As of 3.0.2 pets begin attacking their owner's target immediately
             // Let any pets know we've attacked something. Check DmgClass for harmful spells only
@@ -6602,7 +6602,7 @@ public class Spell {
             castFlags = SpellCastFlags.forValue(castFlags.getValue() | SpellCastFlags.PowerLeftSelf.getValue());
         }
 
-        if (caster.isTypeId(TypeId.PLAYER) && caster.toPlayer().getClass() == playerClass.Deathknight && hasPowerTypeCost(powerType.runes) && !triggeredCastFlags.hasFlag(TriggerCastFlag.IgnorePowerAndReagentCost)) {
+        if (caster.isTypeId(TypeId.PLAYER) && caster.toPlayer().getUnitClass() == UnitClass.DEATH_KNIGHT && hasPowerTypeCost(powerType.runes) && !triggeredCastFlags.hasFlag(TriggerCastFlag.IgnorePowerAndReagentCost)) {
             castFlags = SpellCastFlags.forValue(castFlags.getValue() | SpellCastFlags.NoGCD.getValue()); // same as in SMSG_SPELL_START
             castFlags = SpellCastFlags.forValue(castFlags.getValue() | SpellCastFlags.RuneList.getValue()); // rune cooldowns list
         }
@@ -7222,7 +7222,7 @@ public class Spell {
             return SpellCastResult.SpellCastOk;
         }
 
-        if (player.getClass() != playerClass.Deathknight) {
+        if (player.getUnitClass() != UnitClass.DEATH_KNIGHT) {
             return SpellCastResult.SpellCastOk;
         }
 
@@ -7242,7 +7242,7 @@ public class Spell {
     }
 
     private void takeRunePower(boolean didHit) {
-        if (!caster.isTypeId(TypeId.PLAYER) || caster.toPlayer().getClass() != playerClass.Deathknight) {
+        if (!caster.isTypeId(TypeId.PLAYER) || caster.toPlayer().getUnitClass() != UnitClass.DEATH_KNIGHT) {
             return;
         }
 
@@ -10233,7 +10233,7 @@ public class Spell {
         }
 
         // Init dest coordinates
-        WorldLocation targetDest = new worldLocation(destTarget);
+        WorldLocation targetDest = new WorldLocation(destTarget);
 
         if (targetDest.getMapId() == 0xFFFFFFFF) {
             targetDest.setMapId(unitTarget.getLocation().getMapId());
@@ -10283,7 +10283,7 @@ public class Spell {
         }
 
         // Init dest coordinates
-        WorldLocation targetDest = new worldLocation(destTarget);
+        WorldLocation targetDest = new WorldLocation(destTarget);
 
         if (targetDest.getMapId() == 0xFFFFFFFF) {
             targetDest.setMapId(unitTarget.getLocation().getMapId());
@@ -11496,7 +11496,7 @@ public class Spell {
         if (creature.getCanGeneratePickPocketLoot()) {
             creature.startPickPocketRefillTimer();
 
-            creature.setLoot(new loot(creature.getMap(), creature.getGUID(), LootType.PICKPOCKETING, null));
+            creature.setLoot(new Loot(creature.getMap(), creature.getGUID(), LootType.PICKPOCKETING, null));
             var lootid = creature.getCreatureTemplate().pickPocketId;
 
             if (lootid != 0) {
@@ -11600,7 +11600,7 @@ public class Spell {
         }
 
         var skillid = (int) effectInfo.miscValue;
-        var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(skillid, unitTarget.getRace(), unitTarget.getClass());
+        var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(skillid, unitTarget.getRace(), unitTarget.getUnitClass());
 
         if (rcEntry == null) {
             return;
@@ -11871,7 +11871,7 @@ public class Spell {
             return;
         }
 
-        if (unitCaster.getClass() != playerClass.Hunter) {
+        if (unitCaster.getUnitClass() != UnitClass.Hunter) {
             return;
         }
 
@@ -12908,7 +12908,7 @@ public class Spell {
 
         if (caster != null) {
             caster.updateCraftSkill(spellInfo);
-            itemTarget.setLoot(new loot(caster.getMap(), itemTarget.getGUID(), LootType.Disenchanting, null));
+            itemTarget.setLoot(new Loot(caster.getMap(), itemTarget.getGUID(), LootType.Disenchanting, null));
             itemTarget.getLoot().fillLoot(itemTarget.getDisenchantLoot(caster).id, LootStorage.DISENCHANT, caster, true);
             caster.sendLoot(itemTarget.getLoot());
         }
@@ -13334,8 +13334,8 @@ public class Spell {
         var skill = creature.getCreatureTemplate().getRequiredLootSkill();
 
         creature.setUnitFlag3(unitFlags3.AlreadySkinned);
-        creature.setDynamicFlag(UnitDynFlags.Lootable);
-        Loot loot = new loot(creature.getMap(), creature.getGUID(), LootType.SKINNING, null);
+        creature.setDynamicFlag(UnitDynFlag.Lootable);
+        Loot loot = new Loot(creature.getMap(), creature.getGUID(), LootType.SKINNING, null);
 
         if (loot != null) {
             creature.getPersonalLoot().put(player.getGUID(), loot);
@@ -13777,7 +13777,7 @@ public class Spell {
             pet.getLocation().relocate(closePoint); // This is needed so saveStayPosition() will get the proper coords.
         }
 
-        pet.replaceAllDynamicFlags(UnitDynFlags.NONE);
+        pet.replaceAllDynamicFlags(UnitDynFlag.NONE);
         pet.removeUnitFlag(UnitFlag.Skinnable);
         pet.setDeathState(deathState.Alive);
         pet.clearUnitState(UnitState.AllErasable);
@@ -14102,7 +14102,7 @@ public class Spell {
             player.updateGatherSkill(SkillType.Jewelcrafting, SkillValue, reqSkillValue);
         }
 
-        itemTarget.setLoot(new loot(player.getMap(), itemTarget.getGUID(), LootType.PROSPECTING, null));
+        itemTarget.setLoot(new Loot(player.getMap(), itemTarget.getGUID(), LootType.PROSPECTING, null));
         itemTarget.getLoot().fillLoot(itemTarget.getEntry(), LootStorage.PROSPECTING, player, true);
         player.sendLoot(itemTarget.getLoot());
     }
@@ -14133,7 +14133,7 @@ public class Spell {
             player.updateGatherSkill(SkillType.Inscription, SkillValue, reqSkillValue);
         }
 
-        itemTarget.setLoot(new loot(player.getMap(), itemTarget.getGUID(), LootType.MILLING, null));
+        itemTarget.setLoot(new Loot(player.getMap(), itemTarget.getGUID(), LootType.MILLING, null));
         itemTarget.getLoot().fillLoot(itemTarget.getEntry(), LootStorage.MILLING, player, true);
         player.sendLoot(itemTarget.getLoot());
     }
@@ -14382,7 +14382,7 @@ public class Spell {
             return;
         }
 
-        if (unitTarget == null || !unitTarget.isTypeId(TypeId.PLAYER) || !unitTarget.getPetGUID().isEmpty() || unitTarget.getClass() != playerClass.Hunter) {
+        if (unitTarget == null || !unitTarget.isTypeId(TypeId.PLAYER) || !unitTarget.getPetGUID().isEmpty() || unitTarget.getUnitClass() != UnitClass.Hunter) {
             return;
         }
 
@@ -14807,7 +14807,7 @@ public class Spell {
 
         var player = unitTarget.toPlayer();
 
-        WorldLocation homeLoc = new worldLocation();
+        WorldLocation homeLoc = new WorldLocation();
         var areaId = player.getAreaId();
 
         if (effectInfo.miscValue != 0) {
@@ -15263,7 +15263,7 @@ public class Spell {
         }
 
         var player = unitTarget.toPlayer();
-        player.setPlayerFlag(playerFlags.PetBattlesUnlocked);
+        player.setPlayerFlag(PlayerFlag.PetBattlesUnlocked);
         player.getSession().getBattlePetMgr().unlockSlot(BattlePetSlot.Slot0);
     }
 
@@ -15823,7 +15823,7 @@ public class Spell {
                 return false;
             }
 
-            FlagArray128 reqFlag = new flagArray128();
+            Flag128 reqFlag = new Flag128();
             reqFlag.set(bitIndex / 32, 1 << (bitIndex % 32));
 
             return (spellOnCooldown.spellFamilyFlags & reqFlag);

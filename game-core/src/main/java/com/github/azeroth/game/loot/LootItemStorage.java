@@ -92,7 +92,7 @@ public class LootItemStorage {
 
         var container = lootItemStorage.get(item.getGUID().getCounter());
 
-        Loot loot = new loot(player.getMap(), item.getGUID(), LootType.item, null);
+        Loot loot = new Loot(player.getMap(), item.getGUID(), LootType.item, null);
         loot.gold = container.getMoney();
 
         var lt = LootStorage.items.getLootFor(item.getEntry());

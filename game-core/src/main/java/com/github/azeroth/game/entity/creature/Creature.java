@@ -78,7 +78,7 @@ public class Creature extends Unit implements GirdObject {
 
     private Integer gossipMenuId = null;
 
-    private Integer lootid = null;
+    private Integer lootId = null;
 
     private long playerDamageReq;
     private float sightDistance;
@@ -86,7 +86,7 @@ public class Creature extends Unit implements GirdObject {
     private boolean isTempWorldObject;
 
     private int originalEntry;
-    private HashMap<ObjectGuid, Loot> personalLoot = new HashMap<ObjectGuid, Loot>();
+    private HashMap<ObjectGuid, Loot> personalLoot = new HashMap<>();
     private MovementGeneratorType defaultMovementType = MovementGeneratorType.values()[0];
 
     private int spawnId;
@@ -384,7 +384,7 @@ public class Creature extends Unit implements GirdObject {
         }
 
         if (getRespawnCompatibilityMode()) {
-            setCorpseRemoveTime(gameTime.GetGameTime());
+            setCorpseRemoveTime(GameTime.getGameTime());
             setDeathState(deathState.Dead);
             removeAllAuras();
             //DestroyForNearbyPlayers(); // old updateObjectVisibility()
@@ -402,7 +402,7 @@ public class Creature extends Unit implements GirdObject {
 
             // Should get removed later, just keep "compatibility" with scripts
             if (setSpawnTime) {
-                setRespawnTime(Math.max(gameTime.GetGameTime() + respawnDelay, getRespawnTime()));
+                setRespawnTime(Math.max(GameTime.getGameTime() + respawnDelay, getRespawnTime()));
             }
 
             // if corpse was removed during falling, the falling will continue and override relocation to respawn position
@@ -438,7 +438,7 @@ public class Creature extends Unit implements GirdObject {
             // will be ignored if the correct place added a respawn timer
             if (setSpawnTime) {
                 var respawnDelay = getRespawnDelay();
-                setRespawnTime(Math.max(gameTime.GetGameTime() + respawnDelay, getRespawnTime()));
+                setRespawnTime(Math.max(GameTime.getGameTime() + respawnDelay, getRespawnTime()));
 
                 saveRespawnTime();
             }
@@ -499,7 +499,7 @@ public class Creature extends Unit implements GirdObject {
 
         // equal to player Race field, but creature does not have race
         setRace(race.forValue(0));
-        setClass(playerClass.forValue(cInfo.unitClass));
+        setUnitClass(UnitClass.forValue(cInfo.unitClass));
 
         // Cancel load if no model defined
         if (cInfo.getFirstValidModel() == null) {
@@ -628,7 +628,7 @@ public class Creature extends Unit implements GirdObject {
         replaceAllUnitFlags2(UnitFlag2.forValue(unitFlags2));
         replaceAllUnitFlags3(unitFlags3.forValue(unitFlags3));
 
-        replaceAllDynamicFlags(UnitDynFlags.forValue(dynamicFlags));
+        replaceAllDynamicFlags(UnitDynFlag.forValue(dynamicFlags));
 
         setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().stateAnimID), global.getDB2Mgr().GetEmptyAnimStateID());
 
@@ -738,7 +738,7 @@ public class Creature extends Unit implements GirdObject {
                     break;
                 }
 
-                var now = gameTime.GetGameTime();
+                var now = GameTime.getGameTime();
 
                 if (getRespawnTime() <= now) {
                     // Delay respawn if spawn group is not active
@@ -803,7 +803,7 @@ public class Creature extends Unit implements GirdObject {
                     }
                 }
 
-                if (getCorpseRemoveTime() <= gameTime.GetGameTime()) {
+                if (getCorpseRemoveTime() <= GameTime.getGameTime()) {
                     removeCorpse(false);
                     Log.outDebug(LogFilter.unit, "Removing corpse... {0} ", getEntry());
                 }
@@ -1261,7 +1261,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final boolean canResetTalents(Player player) {
-        return player.getLevel() >= 15 && player.getClass() == getCreatureTemplate().trainerClass;
+        return player.getLevel() >= 15 && player.getUnitClass() == getCreatureTemplate().trainerClass;
     }
 
 
@@ -1355,8 +1355,8 @@ public class Creature extends Unit implements GirdObject {
 
         clearUnitState(UnitState.AttackPlayer);
 
-        if (isAlive() && hasDynamicFlag(UnitDynFlags.Tapped)) {
-            replaceAllDynamicFlags(UnitDynFlags.forValue(getCreatureTemplate().dynamicFlags));
+        if (isAlive() && hasDynamicFlag(UnitDynFlag.Tapped)) {
+            replaceAllDynamicFlags(UnitDynFlag.forValue(getCreatureTemplate().dynamicFlags));
         }
 
         if (isPet() || isGuardian()) // update pets' speed for catchup OOC speed
@@ -1407,7 +1407,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final void startPickPocketRefillTimer() {
-        pickpocketLootRestore = gameTime.GetGameTime() + WorldConfig.getIntValue(WorldCfg.CreaturePickpocketRefill);
+        pickpocketLootRestore = GameTime.getGameTime() + WorldConfig.getIntValue(WorldCfg.CreaturePickpocketRefill);
     }
 
     public final void resetPickPocketRefillTimer() {
@@ -1425,7 +1425,7 @@ public class Creature extends Unit implements GirdObject {
 
         if (unit == null) {
             getTapList().clear();
-            removeDynamicFlag(UnitDynFlags.Lootable.getValue() | UnitDynFlags.Tapped.getValue());
+            removeDynamicFlag(UnitDynFlag.Lootable.getValue() | UnitDynFlag.Tapped.getValue());
 
             return;
         }
@@ -1460,7 +1460,7 @@ public class Creature extends Unit implements GirdObject {
         }
 
         if (getTapList().size() >= SharedConst.CreatureTappersSoftCap) {
-            setDynamicFlag(UnitDynFlags.Tapped);
+            setDynamicFlag(UnitDynFlag.Tapped);
         }
     }
 
@@ -1525,7 +1525,7 @@ public class Creature extends Unit implements GirdObject {
         int unitFlags = getUnitData().flags;
         int unitFlags2 = getUnitData().flags2;
         int unitFlags3 = getUnitData().flags3;
-        var dynamicflags = UnitDynFlags.forValue((int) getObjectData().dynamicFlags);
+        var dynamicflags = UnitDynFlag.forValue((int) getObjectData().dynamicFlags);
 
         // check if it's a custom model and if not, use 0 for displayId
         var cinfo = getCreatureTemplate();
@@ -1554,8 +1554,8 @@ public class Creature extends Unit implements GirdObject {
                 unitFlags3 = 0;
             }
 
-            if (dynamicflags == UnitDynFlags.forValue(cinfo.dynamicFlags)) {
-                dynamicflags = UnitDynFlags.forValue(0);
+            if (dynamicflags == UnitDynFlag.forValue(cinfo.dynamicFlags)) {
+                dynamicflags = UnitDynFlag.forValue(0);
             }
         }
 
@@ -1666,7 +1666,7 @@ public class Creature extends Unit implements GirdObject {
         var mana = stats.generateMana(cInfo);
         setCreateMana(mana);
 
-        switch (getClass()) {
+        switch (getUnitClass()) {
             case Paladin:
             case Mage:
                 setMaxPower(powerType.mana, (int) mana);
@@ -1831,7 +1831,7 @@ public class Creature extends Unit implements GirdObject {
             return true;
         }
 
-        return !isAlive() && getCorpseRemoveTime() <= gameTime.GetGameTime();
+        return !isAlive() && getCorpseRemoveTime() <= GameTime.getGameTime();
     }
 
     @Override
@@ -1926,7 +1926,7 @@ public class Creature extends Unit implements GirdObject {
         super.setDeathState(s);
 
         if (s == deathState.JustDied) {
-            setCorpseRemoveTime(gameTime.GetGameTime() + getCorpseDelay());
+            setCorpseRemoveTime(GameTime.getGameTime() + getCorpseDelay());
             var respawnDelay = getRespawnDelay();
             var scalingMode = WorldConfig.getUIntValue(WorldCfg.RespawnDynamicMode);
 
@@ -1941,13 +1941,13 @@ public class Creature extends Unit implements GirdObject {
                 if (isDungeonBoss() && getRespawnDelay() == 0) {
                     setRespawnTime(Long.MAX_VALUE); // never respawn in this instance
                 } else {
-                    setRespawnTime(gameTime.GetGameTime() + respawnDelay + getCorpseDelay());
+                    setRespawnTime(GameTime.getGameTime() + respawnDelay + getCorpseDelay());
                 }
             } else {
                 if (isDungeonBoss() && getRespawnDelay() == 0) {
                     setRespawnTime(Long.MAX_VALUE); // never respawn in this instance
                 } else {
-                    setRespawnTime(gameTime.GetGameTime() + respawnDelay);
+                    setRespawnTime(GameTime.getGameTime() + respawnDelay);
                 }
             }
 
@@ -2025,7 +2025,7 @@ public class Creature extends Unit implements GirdObject {
                 replaceAllUnitFlags(UnitFlag.forValue(unitFlags));
                 replaceAllUnitFlags2(UnitFlag2.forValue(unitFlags2));
                 replaceAllUnitFlags3(unitFlags3.forValue(unitFlags3));
-                replaceAllDynamicFlags(UnitDynFlags.forValue(dynamicFlags));
+                replaceAllDynamicFlags(UnitDynFlag.forValue(dynamicFlags));
 
                 removeUnitFlag(UnitFlag.IN_COMBAT);
 
@@ -2163,7 +2163,7 @@ public class Creature extends Unit implements GirdObject {
                     respawnDelay = tempRef_respawnDelay.refArgValue;
                 }
 
-                setRespawnTime(gameTime.GetGameTime() + respawnDelay);
+                setRespawnTime(GameTime.getGameTime() + respawnDelay);
                 saveRespawnTime();
             }
 
@@ -2435,7 +2435,7 @@ public class Creature extends Unit implements GirdObject {
             return;
         }
 
-        var thisRespawnTime = forceDelay != 0 ? gameTime.GetGameTime() + forceDelay : getRespawnTime();
+        var thisRespawnTime = forceDelay != 0 ? GameTime.getGameTime() + forceDelay : getRespawnTime();
         getMap().saveRespawnTime(SpawnObjectType.CREATURE, getSpawnId(), getEntry(), thisRespawnTime, MapDefine.computeGridCoord(getHomePosition().getX(), getHomePosition().getY()).getId());
     }
 
@@ -2480,7 +2480,7 @@ public class Creature extends Unit implements GirdObject {
             }
 
             // don't check distance to home position if recently damaged, this should include taunt auras
-            if (!isWorldBoss() && (getLastDamagedTime() > gameTime.GetGameTime() || hasAuraType(AuraType.ModTaunt))) {
+            if (!isWorldBoss() && (getLastDamagedTime() > GameTime.getGameTime() || hasAuraType(AuraType.ModTaunt))) {
                 return true;
             }
         }
@@ -2663,7 +2663,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final void allLootRemovedFromCorpse() {
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         // Do not reset corpse remove time if corpse is already removed
         if (getCorpseRemoveTime() <= now) {
@@ -2733,7 +2733,7 @@ public class Creature extends Unit implements GirdObject {
         var cInfo = getCreatureTemplate();
         var scaling = cInfo.getLevelScaling(getMap().getDifficultyID());
 
-        return global.getDB2Mgr().EvaluateExpectedStat(ExpectedStatType.CreatureAutoAttackDps, level, cInfo.getHealthScalingExpansion(), scaling.contentTuningId, playerClass.forValue(cInfo.unitClass));
+        return global.getDB2Mgr().EvaluateExpectedStat(ExpectedStatType.CreatureAutoAttackDps, level, cInfo.getHealthScalingExpansion(), scaling.contentTuningId, UnitClass.forValue(cInfo.unitClass));
     }
 
     @Override
@@ -2862,7 +2862,7 @@ public class Creature extends Unit implements GirdObject {
             return vItem.getMaxcount();
         }
 
-        var ptime = gameTime.GetGameTime();
+        var ptime = GameTime.getGameTime();
 
         if (vCount.getLastIncrementTime() + vItem.getIncrtime() <= ptime) {
             var pProto = global.getObjectMgr().getItemTemplate(vItem.getItem());
@@ -2904,7 +2904,7 @@ public class Creature extends Unit implements GirdObject {
             return new_count;
         }
 
-        var ptime = gameTime.GetGameTime();
+        var ptime = GameTime.getGameTime();
 
         if (vCount.getLastIncrementTime() + vItem.getIncrtime() <= ptime) {
             var pProto = global.getObjectMgr().getItemTemplate(vItem.getItem());
@@ -3309,7 +3309,7 @@ public class Creature extends Unit implements GirdObject {
                 }
             }
 
-            setRespawnTime(gameTime.GetGameTime() + RandomUtil.URand(4, 7));
+            setRespawnTime(GameTime.getGameTime() + RandomUtil.URand(4, 7));
         }
 
         if (getRespawnTime() != 0) {
@@ -3552,7 +3552,7 @@ public class Creature extends Unit implements GirdObject {
     private long getMaxHealthByLevel(int level) {
         var cInfo = getCreatureTemplate();
         var scaling = cInfo.getLevelScaling(getMap().getDifficultyID());
-        var baseHealth = global.getDB2Mgr().EvaluateExpectedStat(ExpectedStatType.CreatureHealth, level, cInfo.healthScalingExpansion, scaling.contentTuningId, playerClass.forValue(cInfo.unitClass));
+        var baseHealth = global.getDB2Mgr().EvaluateExpectedStat(ExpectedStatType.CreatureHealth, level, cInfo.healthScalingExpansion, scaling.contentTuningId, UnitClass.forValue(cInfo.unitClass));
 
         return (long) (baseHealth * cInfo.ModHealth * cInfo.modHealthExtra);
     }
@@ -3641,24 +3641,14 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final int getLootId() {
-        if (lootid != null) {
-            return lootid.intValue();
+        if (lootId != null) {
+            return lootId;
         }
 
         return getCreatureTemplate().lootId;
     }
 
-    public final void setLootId(int value) {
-        lootid = value;
-    }
 
-    public final HashMap<ObjectGuid, loot> getPersonalLoot() {
-        return personalLoot;
-    }
-
-    public final void setPersonalLoot(HashMap<ObjectGuid, loot> value) {
-        personalLoot = value;
-    }
 
     public final MovementGeneratorType getDefaultMovementType() {
         return defaultMovementType;
@@ -3778,7 +3768,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final boolean getCanGeneratePickPocketLoot() {
-        return pickpocketLootRestore <= gameTime.GetGameTime();
+        return pickpocketLootRestore <= GameTime.getGameTime();
     }
 
     public final boolean isFullyLooted() {
@@ -3829,7 +3819,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final long getRespawnTimeEx() {
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         if (getRespawnTime() > now) {
             return getRespawnTime();
@@ -4131,7 +4121,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final void setRespawnTime(int respawn) {
-        setRespawnTime(respawn != 0 ? gameTime.GetGameTime() + respawn : 0);
+        setRespawnTime(respawn != 0 ? GameTime.getGameTime() + respawn : 0);
     }
 
     private void setRespawnTime(long value) {

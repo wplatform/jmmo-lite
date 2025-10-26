@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.bank;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class AutoBankReagent extends ClientPacket {
+public class AutoBankReagent extends ClientPacket {
     public invUpdate inv = new invUpdate();
     public byte slot;
     public byte packSlot;

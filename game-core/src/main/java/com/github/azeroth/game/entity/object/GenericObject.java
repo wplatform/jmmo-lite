@@ -1,7 +1,7 @@
 package com.github.azeroth.game.entity.object;
 
 
-import Time.GameTime;
+import com.github.azeroth.time.GameTime;
 import com.badlogic.gdx.utils.IntArray;
 import com.github.azeroth.common.Assert;
 import com.github.azeroth.common.EnumFlag;
@@ -52,19 +52,19 @@ public abstract class GenericObject {
 
 
 
-    private final EntityMarkUpdater entityMarkUpdater = new EntityMarkUpdater(this);
+    protected final EntityMarkUpdater entityMarkUpdater = new EntityMarkUpdater(this);
     //UF::UpdateField<UF::ObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID.OBJECT> m_objectData;
 
-    protected final ObjectData objectData;
+    protected final ObjectData objectData = new ObjectData();
 
     protected boolean objectUpdated;
-    protected final EnumFlag<TypeMask> objectType;
-    protected final TypeId objectTypeId;
-    protected final CreateObjectBits updateFlag;
+    protected final EnumFlag<TypeMask> objectType = EnumFlag.of(TypeMask.class, 0);
+    protected TypeId objectTypeId;
+    protected final CreateObjectBits updateFlag = new CreateObjectBits();
     protected MovementInfo movementInfo;
 
 
-    private final ObjectGuid guid;
+    private ObjectGuid guid;
     private boolean inWorld;
     private boolean newObject;
     private boolean destroyedObject;
@@ -72,14 +72,6 @@ public abstract class GenericObject {
 
 
 
-    protected GenericObject(ObjectGuid guid, EnumFlag<TypeMask> objectType, TypeId objectTypeId, CreateObjectBits updateFlag) {
-        this.guid = guid;
-        this.objectTypeId = objectTypeId;
-        this.objectType = objectType;
-        this.updateFlag = updateFlag;
-        this.objectData = new ObjectData();
-        this.objectData.addPropertyChangeListener(entityMarkUpdater);
-    }
 
     private static float applyPercentModFloatVar(float var, float val, boolean apply) {
         if (val == -100.0f)     // prevent set var to zero
@@ -127,7 +119,7 @@ public abstract class GenericObject {
         inWorld = true;
 
         // synchronize values mirror with values array (changes will send in updatecreate opcode any way
-        Assert.state(!objectUpdated);
+        Assert.isTrue(!objectUpdated);
         clearUpdateMask(false);
     }
 

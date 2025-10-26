@@ -4,18 +4,18 @@ import bgs.protocol.authentication.v1.AuthenticationServiceProto;
 import bgs.protocol.challenge.v1.ChallengeServiceProto;
 import bnet.protocol.EntityProto;
 import bnet.protocol.RpcProto;
-import com.github.azeroth.service.auth.domain.AccountBanned;
-import com.github.azeroth.service.auth.domain.BattlenetAccount;
-import com.github.azeroth.service.auth.domain.BattlenetAccountBan;
+import com.github.azeroth.auth.domain.AccountBanned;
+import com.github.azeroth.auth.domain.BNetAccount;
+import com.github.azeroth.auth.domain.BattlenetAccountBan;
 import com.github.azeroth.utils.RandomUtil;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
-import com.github.azeroth.service.auth.dto.AccountInfo;
-import com.github.azeroth.service.auth.dto.GameAccount;
+import com.github.azeroth.auth.dto.AccountInfo;
+import com.github.azeroth.auth.dto.GameAccount;
 import com.github.azeroth.service.auth.repository.AccountBannedRepository;
 import com.github.azeroth.service.auth.repository.BattlenetAccountBanRepository;
-import com.github.azeroth.service.auth.repository.BattlenetAccountRepository;
+import com.github.azeroth.auth.repository.BNetAccountRepository;
 import com.github.azeroth.common.RpcErrorCode;
 import com.github.azeroth.portal.boot.LoginRestProperties;
 import com.github.azeroth.portal.realm.ClientBuild;
@@ -43,7 +43,7 @@ public class AuthenticationService implements AuthenticationServiceProto.Authent
     private final AuthenticationServiceProto.AuthenticationListener.Interface authenticationListener = AuthenticationServiceProto.AuthenticationListener.newStub(new DefaultRpcChannel());
     private final ChallengeServiceProto.ChallengeListener.Interface challengeListener = ChallengeServiceProto.ChallengeListener.newStub(new DefaultRpcChannel());
 
-    private final BattlenetAccountRepository battlenetAccountRepo;
+    private final BNetAccountRepository battlenetAccountRepo;
     private final BattlenetAccountBanRepository battlenetAccountBanRepo;
     private final AccountBannedRepository accountBannedRepo;
     private final LoginRestProperties loginRestProperties;
@@ -144,14 +144,14 @@ public class AuthenticationService implements AuthenticationServiceProto.Authent
         }
         String loginTicket = request.getWebCredentials().toStringUtf8();
 
-        Optional<BattlenetAccount> accountByTicket = battlenetAccountRepo.queryByLoginTicket(loginTicket);
+        Optional<BNetAccount> accountByTicket = battlenetAccountRepo.queryByLoginTicket(loginTicket);
 
         if (accountByTicket.isEmpty()) {
             statusController.setFailed(RpcErrorCode.ERROR_DENIED);
             done.run(RpcProto.NoData.newBuilder().build());
             return;
         }
-        BattlenetAccount account = accountByTicket.get();
+        BNetAccount account = accountByTicket.get();
         AccountInfo accountInfo = new AccountInfo(account);
 
         if (System.currentTimeMillis() - account.getLoginTicketExpiry() < 0) {

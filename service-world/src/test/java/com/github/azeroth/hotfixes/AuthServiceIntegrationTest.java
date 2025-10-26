@@ -1,8 +1,6 @@
 package com.github.azeroth.hotfixes;
 
 
-import com.github.azeroth.service.auth.domain.*;
-import com.github.azeroth.service.auth.repository.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

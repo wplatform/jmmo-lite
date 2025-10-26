@@ -1,7 +1,6 @@
 package com.github.azeroth.game.chat.commands;
 
 
-import com.github.azeroth.game.account.RBACData;
 import com.github.azeroth.game.chat.AccountIdentifier;
 import com.github.azeroth.game.chat.CommandHandler;
 

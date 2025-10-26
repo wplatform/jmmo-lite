@@ -13,32 +13,32 @@ public final class PlayerClassMask {
 
 
     public static final PlayerClassMask ALL_PLAYABLE = PlayerClassMask.of(
-            (1 << (PlayerClass.WARRIOR.ordinal() - 1))
-                    | (1 << (PlayerClass.PALADIN.ordinal() - 1))
-                    | (1 << (PlayerClass.HUNTER.ordinal() - 1))
-                    | (1 << (PlayerClass.ROGUE.ordinal() - 1))
-                    | (1 << (PlayerClass.PRIEST.ordinal() - 1))
-                    | (1 << (PlayerClass.DEATH_KNIGHT.ordinal() - 1))
-                    | (1 << (PlayerClass.SHAMAN.ordinal() - 1))
-                    | (1 << (PlayerClass.MAGE.ordinal() - 1))
-                    | (1 << (PlayerClass.WARLOCK.ordinal() - 1))
-                    | (1 << (PlayerClass.MONK.ordinal() - 1))
-                    | (1 << (PlayerClass.DRUID.ordinal() - 1))
-                    | (1 << (PlayerClass.DEMON_HUNTER.ordinal() - 1))
+            (1 << (UnitClass.WARRIOR.ordinal() - 1))
+                    | (1 << (UnitClass.PALADIN.ordinal() - 1))
+                    | (1 << (UnitClass.HUNTER.ordinal() - 1))
+                    | (1 << (UnitClass.ROGUE.ordinal() - 1))
+                    | (1 << (UnitClass.PRIEST.ordinal() - 1))
+                    | (1 << (UnitClass.DEATH_KNIGHT.ordinal() - 1))
+                    | (1 << (UnitClass.SHAMAN.ordinal() - 1))
+                    | (1 << (UnitClass.MAGE.ordinal() - 1))
+                    | (1 << (UnitClass.WARLOCK.ordinal() - 1))
+                    | (1 << (UnitClass.MONK.ordinal() - 1))
+                    | (1 << (UnitClass.DRUID.ordinal() - 1))
+                    | (1 << (UnitClass.DEMON_HUNTER.ordinal() - 1))
     );
 
 
     public static final PlayerClassMask WAND_USERS = PlayerClassMask.of(
-            (1 << (PlayerClass.PRIEST.ordinal() - 1))
-                    | (1 << (PlayerClass.MAGE.ordinal() - 1))
-                    | (1 << (PlayerClass.WARLOCK.ordinal() - 1))
+            (1 << (UnitClass.PRIEST.ordinal() - 1))
+                    | (1 << (UnitClass.MAGE.ordinal() - 1))
+                    | (1 << (UnitClass.WARLOCK.ordinal() - 1))
     );
 
 
 
     private int rawValue;
 
-    public boolean hasPlayerClass(PlayerClass klass) {
+    public boolean hasPlayerClass(UnitClass klass) {
         return (rawValue & (1 << (klass.ordinal() -1))) != 0;
     }
 

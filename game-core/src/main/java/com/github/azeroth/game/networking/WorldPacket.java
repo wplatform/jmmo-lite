@@ -6,12 +6,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.github.azeroth.exeception.ValueOverflowException;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.networking.opcode.ClientOpCode;
 import com.github.azeroth.game.networking.opcode.OpCode;
 import com.github.azeroth.game.networking.opcode.ServerOpCode;
 import com.github.azeroth.utils.StringUtil;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.DefaultByteBufHolder;
+import io.netty.buffer.Unpooled;
 import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;
@@ -36,12 +37,12 @@ public class WorldPacket extends DefaultByteBufHolder {
     }
 
     protected WorldPacket(ServerOpCode opcode) {
-        super(ByteBufAllocator.DEFAULT.buffer());
+        super(Unpooled.buffer());
         this.opcode = opcode;
     }
 
     protected WorldPacket(ServerOpCode opcode, int estimatedSize) {
-        super(ByteBufAllocator.DEFAULT.buffer(estimatedSize));
+        super(Unpooled.buffer(estimatedSize));
         this.opcode = opcode;
     }
 
@@ -62,8 +63,8 @@ public class WorldPacket extends DefaultByteBufHolder {
         return new WorldPacket(opcode, estimatedSize);
     }
 
-    public static WorldPacket newClientToServer(ByteBuf byteBuf) {
-        return new WorldPacket(byteBuf);
+    public static ClientPacket newClientToServer(ClientOpCode opcode, ByteBuf byteBuf) {
+        return ClientPacketFactory.create(opcode, byteBuf);
     }
 
     public static WorldPacket wrap(ByteBuf byteBuf) {
@@ -101,11 +102,6 @@ public class WorldPacket extends DefaultByteBufHolder {
     public final int readUShort() {
         resetBitPos();
         return content().readUnsignedShort();
-    }
-
-    public final int readInt() {
-        resetBitPos();
-        return content().readInt();
     }
 
 
@@ -228,8 +224,10 @@ public class WorldPacket extends DefaultByteBufHolder {
     public final Instant readPackedTime() {
         int int32 = readInt32();
 
-        LocalDateTime dateTime = LocalDateTime.of(((int32 >> 24) & 0x1F) + 2000,
-                ((int32 >> 20) & 0xF) + 1, (int) ((int32 >> 14) & 0x3F) + 1,
+        LocalDateTime dateTime = LocalDateTime.of(
+                ((int32 >> 24) & 0x1F) + 2000,
+                ((int32 >> 20) & 0xF) + 1,
+                (int) ((int32 >> 14) & 0x3F) + 1,
                 (int32 >> 6) & 0x1F, int32 & 0x3F, 0);
 
         return dateTime.toInstant(ZoneOffset.UTC);
@@ -388,14 +386,15 @@ public class WorldPacket extends DefaultByteBufHolder {
         }
     }
 
+    public final void writeBits(String value, int bits) {
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        writeBits(bytes.length, bits);
+
+    }
+
     public final void writePackedTime(Instant time) {
         LocalDateTime dateTime = LocalDateTime.from(time);
-        int packetTime = (dateTime.getYear() - 2000) << 24
-                | (dateTime.getMonthValue() - 1) << 20
-                | (dateTime.getDayOfMonth() - 1) << 14
-                | dateTime.getDayOfWeek().getValue() << 11
-                | dateTime.getHour() << 6
-                | dateTime.getMinute();
+        int packetTime = (dateTime.getYear() - 2000) << 24 | (dateTime.getMonthValue() - 1) << 20 | (dateTime.getDayOfMonth() - 1) << 14 | dateTime.getDayOfWeek().getValue() << 11 | dateTime.getHour() << 6 | dateTime.getMinute();
         writeInt32(packetTime);
     }
 
@@ -405,7 +404,7 @@ public class WorldPacket extends DefaultByteBufHolder {
 
 
     public final void setInt32(int index, int value) {
-         content().setInt(index, value);
+        content().setInt(index, value);
     }
 
 

@@ -89,7 +89,7 @@ public class BattleField extends ZoneScript {
             } else // No more vacant places
             {
                 // todo Send a packet to announce it to player
-                m_PlayersWillBeKick[player.getTeamId()].put(player.getGUID(), gameTime.GetGameTime() + 10);
+                m_PlayersWillBeKick[player.getTeamId()].put(player.getGUID(), GameTime.getGameTime() + 10);
                 invitePlayerToQueue(player);
             }
         } else {
@@ -165,7 +165,7 @@ public class BattleField extends ZoneScript {
 
             // Kick players who chose not to accept invitation to the battle
             if (m_uiKickDontAcceptTimer <= diff) {
-                var now = gameTime.GetGameTime();
+                var now = GameTime.getGameTime();
 
                 for (var team = 0; team < SharedConst.PvpTeamsCount; team++) {
                     for (var pair : m_InvitedPlayers[team].entrySet()) {
@@ -754,7 +754,7 @@ public class BattleField extends ZoneScript {
                         invitePlayerToWar(player);
                     } else // Battlefield is full of players
                     {
-                        m_PlayersWillBeKick[player.getTeamId()].put(player.getGUID(), gameTime.GetGameTime() + 10);
+                        m_PlayersWillBeKick[player.getTeamId()].put(player.getGUID(), GameTime.getGameTime() + 10);
                     }
                 }
             }
@@ -780,7 +780,7 @@ public class BattleField extends ZoneScript {
         // If the player does not match minimal level requirements for the battlefield, kick him
         if (player.getLevel() < m_MinLevel) {
             if (!m_PlayersWillBeKick[player.getTeamId()].containsKey(player.getGUID())) {
-                m_PlayersWillBeKick[player.getTeamId()].put(player.getGUID(), gameTime.GetGameTime() + 10);
+                m_PlayersWillBeKick[player.getTeamId()].put(player.getGUID(), GameTime.getGameTime() + 10);
             }
 
             return;
@@ -792,7 +792,7 @@ public class BattleField extends ZoneScript {
         }
 
         m_PlayersWillBeKick[player.getTeamId()].remove(player.getGUID());
-        m_InvitedPlayers[player.getTeamId()].put(player.getGUID(), gameTime.GetGameTime() + m_TimeForAcceptInvite);
+        m_InvitedPlayers[player.getTeamId()].put(player.getGUID(), GameTime.getGameTime() + m_TimeForAcceptInvite);
         playerAcceptInviteToWar(player);
     }
 

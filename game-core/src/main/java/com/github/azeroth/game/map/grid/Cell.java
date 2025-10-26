@@ -81,7 +81,7 @@ public class Cell {
 
     public final int getGridId() {
         //Create a grid coordinate and call the coordinate.getId() is same as gridX * MapDefine.MAX_NUMBER_OF_GRIDS + gridY
-        Assert.state(gridX < MapDefine.MAX_NUMBER_OF_GRIDS && gridY < MapDefine.MAX_NUMBER_OF_GRIDS, "x = {}, y = {}", gridX, gridY);
+        Assert.isTrue(gridX < MapDefine.MAX_NUMBER_OF_GRIDS && gridY < MapDefine.MAX_NUMBER_OF_GRIDS, "x = {}, y = {}", gridX, gridY);
         return gridX * MapDefine.MAX_NUMBER_OF_GRIDS + gridY;
     }
 

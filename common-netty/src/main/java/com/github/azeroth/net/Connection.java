@@ -13,19 +13,13 @@ public interface Connection {
 
     static Connection from(Channel channel) {
         Objects.requireNonNull(channel, "channel");
-        if (channel.hasAttr(CommonNetty.CONNECTION)) {
-            return channel.attr(CommonNetty.CONNECTION)
-                    .get();
-        }
-        return new CommonNetty.SimpleConnection(channel).bind();
+        return channel.attr(CommonNetty.CONNECTION).get();
     }
 
     default  <T extends Connection> T as(Class<T> clazz) {
         Objects.requireNonNull(clazz, "clazz");
         if (clazz.isAssignableFrom(this.getClass())) {
-            @SuppressWarnings("unchecked")
-            T thiz = (T) this;
-            return thiz;
+            return clazz.cast(this);
         }
         return null;
     }

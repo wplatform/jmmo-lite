@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.item;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class ReadItem extends ClientPacket {
+public class ReadItem extends ClientPacket {
     public byte packSlot;
     public byte slot;
 

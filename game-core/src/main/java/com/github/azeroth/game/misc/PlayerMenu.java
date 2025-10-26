@@ -1,20 +1,23 @@
 package com.github.azeroth.game.misc;
 
 
+import com.github.azeroth.game.domain.gossip.GossipOptionStatus;
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.object.WorldObject;
-import game.ObjectManager;
-import game.Quest;
-import game.WorldSession;
+import com.github.azeroth.game.networking.packet.npc.ClientGossipOption;
+import com.github.azeroth.game.networking.packet.npc.GossipMessagePkt;
+import com.github.azeroth.game.world.WorldSession;
+
+import static java.util.logging.Logger.global;
 
 public class PlayerMenu {
-    private final gossipMenu gossipMenu = new gossipMenu();
-    private final questMenu questMenu = new questMenu();
+    private final GossipMenu gossipMenu = new GossipMenu();
+    private final QuestMenu questMenu = new QuestMenu();
     private final WorldSession session;
-    private final interactionData interactionData = new interactionData();
+    private final InteractionData interactionData = new InteractionData();
 
     public PlayerMenu(WorldSession session) {
-        session = session;
-
+        this.session = session;
         if (session != null) {
             gossipMenu.setLocale(session.getSessionDbLocaleIndex());
         }
@@ -33,6 +36,7 @@ public class PlayerMenu {
         packet.gossipGUID = objectGUID;
         packet.gossipID = gossipMenu.getMenuId();
 
+
         var addon = global.getObjectMgr().getGossipMenuAddon(packet.gossipID);
 
         if (addon != null) {
@@ -45,9 +49,8 @@ public class PlayerMenu {
             packet.textID = (int) text.getData().SelectRandomElementByWeight(data -> data.probability).broadcastTextID;
         }
 
-
-        for (var(index, item) : gossipMenu.getMenuItems()) {
-            ClientGossipOptions opt = new ClientGossipOptions();
+        gossipMenu.getMenuItems().forEach((index, item) -> {
+            ClientGossipOption opt = new ClientGossipOption();
             opt.gossipOptionID = item.gossipOptionId;
             opt.optionNPC = item.optionNpc;
             opt.optionFlags = (byte) (item.BoxCoded ? 1 : 0); // makes pop up box password
@@ -61,6 +64,11 @@ public class PlayerMenu {
             opt.spellID = item.spellId;
             opt.overrideIconID = item.overrideIconId;
             packet.gossipOptions.add(opt);
+
+        });
+
+        for (var(index, item) : gossipMenu.getMenuItems()) {
+
         }
 
         for (byte i = 0; i < questMenu.getMenuItemCount(); ++i) {

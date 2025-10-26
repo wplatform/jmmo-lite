@@ -4,7 +4,7 @@ package com.github.azeroth.game.networking.packet.loot;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class LootRollPacket extends ClientPacket {
+public class LootRollPacket extends ClientPacket {
     public ObjectGuid lootObj = ObjectGuid.EMPTY;
     public byte lootListID;
     public RollVote rollType = RollVote.values()[0];

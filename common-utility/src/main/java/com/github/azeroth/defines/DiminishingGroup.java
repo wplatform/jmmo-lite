@@ -2,15 +2,13 @@ package com.github.azeroth.defines;
 
 // Diminishing Return Groups
 public enum DiminishingGroup {
-    DIMINISHING_NONE,
-    DIMINISHING_ROOT,
-    DIMINISHING_STUN,
-    DIMINISHING_INCAPACITATE,
-    DIMINISHING_DISORIENT,
-    DIMINISHING_SILENCE,
-    DIMINISHING_AOE_KNOCKBACK,
-    DIMINISHING_TAUNT,
-    DIMINISHING_LIMITONLY,
-
-    DIMINISHING_MAX
+    NONE,
+    ROOT,
+    STUN,
+    INCAPACITATE,
+    DISORIENT,
+    SILENCE,
+    AOE_KNOCKBACK,
+    TAUNT,
+    LIMIT_ONLY
 }

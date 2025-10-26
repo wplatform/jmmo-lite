@@ -26,15 +26,4 @@ public final class AddOnInfo {
             data.readUInt8(); // null terminator
         }
     }
-
-    public AddOnInfo clone() {
-        AddOnInfo varCopy = new AddOnInfo();
-
-        varCopy.name = this.name;
-        varCopy.version = this.version;
-        varCopy.loaded = this.loaded;
-        varCopy.disabled = this.disabled;
-
-        return varCopy;
-    }
 }

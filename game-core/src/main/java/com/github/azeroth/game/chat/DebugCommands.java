@@ -877,7 +877,7 @@ class DebugCommands {
             return false;
         }
 
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         if (daily) {
             global.getWorldMgr().dailyReset();

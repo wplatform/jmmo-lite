@@ -190,7 +190,7 @@ public class PlayerAI extends UnitAI {
             return false;
         }
 
-        return switch (who.getClass()) {
+        return switch (who.getUnitClass()) {
             case Paladin -> who.getPrimarySpecialization() == TalentSpecialization.PaladinHoly;
             case Priest ->
                     who.getPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.getPrimarySpecialization() == TalentSpecialization.PriestHoly;
@@ -206,7 +206,7 @@ public class PlayerAI extends UnitAI {
             return false;
         }
 
-        switch (who.getClass()) {
+        switch (who.getUnitClass()) {
             case Warrior:
             case Paladin:
             case Rogue:

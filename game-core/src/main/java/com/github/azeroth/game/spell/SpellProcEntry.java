@@ -4,7 +4,7 @@ package com.github.azeroth.game.spell;
 public class SpellProcEntry {
     private SpellschoolMask schoolMask = spellSchoolMask.values()[0];
     private spellFamilyNames spellFamilyName = SpellFamilyNames.values()[0];
-    private flagArray128 spellFamilyMask = new flagArray128(4);
+    private Flag128 spellFamilyMask = new Flag128(4);
     private procFlagsInit procFlags;
     private ProcFlagsSpellType spellTypeMask = ProcFlagsSpellType.values()[0];
     private ProcFlagsSpellPhase spellPhaseMask = ProcFlagsSpellPhase.values()[0];
@@ -32,11 +32,11 @@ public class SpellProcEntry {
         spellFamilyName = value;
     }
 
-    public final FlagArray128 getSpellFamilyMask() {
+    public final Flag128 getSpellFamilyMask() {
         return spellFamilyMask;
     }
 
-    public final void setSpellFamilyMask(FlagArray128 value) {
+    public final void setSpellFamilyMask(Flag128 value) {
         spellFamilyMask = value;
     }
 

@@ -10,7 +10,7 @@ import com.github.azeroth.game.domain.object.enums.HighGuid;
 import com.github.azeroth.game.entity.unit.declinedName;
 import com.github.azeroth.game.networking.packet.battlepet.PetBattleSlotUpdates;
 import com.github.azeroth.game.spell.CastSpellExtraArgs;
-import game.WorldSession;
+import com.github.azeroth.game.world.WorldSession;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -505,7 +505,7 @@ public class BattlePetMgr {
         }
 
         pet.packetInfo.name = name;
-        pet.nameTimestamp = gameTime.GetGameTime();
+        pet.nameTimestamp = GameTime.getGameTime();
 
         pet.declinedName = new declinedName();
 

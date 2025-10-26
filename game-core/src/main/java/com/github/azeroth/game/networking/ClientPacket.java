@@ -9,4 +9,19 @@ public abstract class ClientPacket extends WorldPacket {
     }
 
     public abstract void read();
+
+
+    public static final class Null extends ClientPacket {
+
+        private Null(ByteBuf data) {
+            super(data);
+        }
+
+        @Override
+        public void read() {
+
+        }
+    }
+
+    ;
 }

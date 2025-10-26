@@ -72,7 +72,7 @@ public class EnumCharactersResult extends ServerPacket {
         public String name;
         public byte listPosition; // Order of the character in list
         public byte raceId;
-        public PlayerClass classId = playerClass.values()[0];
+        public PlayerClass classId = UnitClass.values()[0];
         public byte sexId;
         public Array<ChrCustomizationChoice> customizations = new Array<ChrCustomizationChoice>(72);
         public byte experienceLevel;
@@ -104,7 +104,7 @@ public class EnumCharactersResult extends ServerPacket {
             UUID = ObjectGuid.create(HighGuid.Player, fields.<Long>Read(0));
             name = fields.<String>Read(1);
             raceId = fields.<Byte>Read(2);
-            classId = playerClass.forValue(fields.<Byte>Read(3));
+            classId = UnitClass.forValue(fields.<Byte>Read(3));
             sexId = fields.<Byte>Read(4);
             experienceLevel = fields.<Byte>Read(5);
             zoneId = fields.<Integer>Read(6);
@@ -117,14 +117,14 @@ public class EnumCharactersResult extends ServerPacket {
                 guildGuid = ObjectGuid.create(HighGuid.Guild, guildId);
             }
 
-            var playerFlags = playerFlags.forValue(fields.<Integer>Read(12));
+            var PlayerFlag = PlayerFlag.forValue(fields.<Integer>Read(12));
             var atLoginFlags = AtLoginFlags.forValue(fields.<SHORT>Read(13));
 
             if (atLoginFlags.hasFlag(AtLoginFlags.Resurrect)) {
                 playerFlags = playerFlags.forValue(playerFlags.getValue() & ~playerFlags.Ghost.getValue());
             }
 
-            if (playerFlags.hasFlag(playerFlags.Ghost)) {
+            if (playerFlags.hasFlag(PlayerFlag.Ghost)) {
                 flags = CharacterFlags.forValue(flags.getValue() | CharacterFlags.Ghost.getValue());
             }
 
@@ -153,7 +153,7 @@ public class EnumCharactersResult extends ServerPacket {
             firstLogin = atLoginFlags.hasFlag(AtLoginFlags.firstLogin);
 
             // show pet at selection character in character list only for non-ghost character
-            if (!playerFlags.hasFlag(playerFlags.Ghost) && (classId == playerClass.Warlock || classId == playerClass.Hunter || classId == playerClass.Deathknight)) {
+            if (!PlayerFlag.hasFlag(PlayerFlag.Ghost) && (classId == UnitClass.Warlock || classId == UnitClass.Hunter || classId == UnitClass.DEATH_KNIGHT)) {
                 var creatureInfo = global.getObjectMgr().getCreatureTemplate(fields.<Integer>Read(14));
 
                 if (creatureInfo != null) {

@@ -429,7 +429,7 @@ class GameObjectCommands {
         handler.sendSysMessage(SysMessage.GameobjectDetail, guidLow, objectInfo.name, guidLow, id, x, y, z, mapId, o, phaseId, phaseGroup);
 
         if (target) {
-            var curRespawnDelay = (int) (target.getRespawnTimeEx() - gameTime.GetGameTime());
+            var curRespawnDelay = (int) (target.getRespawnTimeEx() - GameTime.getGameTime());
 
             if (curRespawnDelay < 0) {
                 curRespawnDelay = 0;

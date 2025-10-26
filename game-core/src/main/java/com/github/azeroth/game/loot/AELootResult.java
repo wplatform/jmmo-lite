@@ -1,6 +1,7 @@
 package com.github.azeroth.game.loot;
 
 
+import com.github.azeroth.defines.LootType;
 import com.github.azeroth.game.entity.item.Item;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.HashMap;
 
 public class AELootResult {
     private final ArrayList<ResultValue> byOrder = new ArrayList<>();
-    private final HashMap<item, Integer> byItem = new HashMap<item, Integer>();
+    private final HashMap<Item, Integer> byItem = new HashMap<>();
 
     public final void add(Item item, byte count, LootType lootType, int dungeonEncounterId) {
         var id = byItem.get(item);

@@ -7,11 +7,9 @@ import com.github.azeroth.character.service.repository.CharacterRepository;
 import com.github.azeroth.common.Assert;
 import com.github.azeroth.common.Logs;
 import com.github.azeroth.common.YieldResult;
-import com.github.azeroth.dbc.defines.Difficulty;
-import com.github.azeroth.dbc.defines.DifficultyFlag;
-import com.github.azeroth.dbc.defines.MapFlag2;
-import com.github.azeroth.dbc.defines.SummonPropertyFlag;
+import com.github.azeroth.dbc.defines.*;
 import com.github.azeroth.dbc.domain.DifficultyEntry;
+import com.github.azeroth.dbc.domain.MapDifficulty;
 import com.github.azeroth.dbc.domain.MapEntry;
 import com.github.azeroth.dbc.domain.SummonProperty;
 import com.github.azeroth.defines.LineOfSightChecks;
@@ -61,7 +59,6 @@ import com.github.azeroth.game.phasing.MultiPersonalPhaseTracker;
 import com.github.azeroth.game.domain.phasing.PhaseShift;
 import com.github.azeroth.game.phasing.PhasingHandler;
 import com.github.azeroth.game.pools.SpawnedPoolData;
-import com.github.azeroth.game.server.WorldConfig;
 import com.github.azeroth.game.world.World;
 import com.github.azeroth.time.IntervalTimer;
 import com.github.azeroth.time.PeriodicTimer;
@@ -401,9 +398,9 @@ public class Map {
 
 
     private <T extends WorldObject & GirdObject> void removeFromGrid(T obj) {
-        Assert.state(obj.isInGrid());
+        Assert.isTrue(obj.isInGrid());
         Coordinate coordinate = MapDefine.computeCellCoordinate(obj.getLocation().getX(), obj.getLocation().getY());
-        Assert.state(coordinate.isCoordinateValid());
+        Assert.isTrue(coordinate.isCoordinateValid());
         Cell cell = new Cell(coordinate);
         removeFromGrid(obj, cell);
     }
@@ -419,9 +416,9 @@ public class Map {
     }
 
     private <T extends WorldObject & GirdObject> void addToGrid(T obj) {
-        Assert.state(!obj.isInGrid());
+        Assert.isTrue(!obj.isInGrid());
         Coordinate coordinate = MapDefine.computeCellCoordinate(obj.getLocation().getX(), obj.getLocation().getY());
-        Assert.state(coordinate.isCoordinateValid());
+        Assert.isTrue(coordinate.isCoordinateValid());
         Cell cell = new Cell(coordinate);
 
         addToGrid(obj, cell);
@@ -835,7 +832,7 @@ public class Map {
         if (player.isInGrid()) {
             removeFromGrid(player);
         } else {
-            Assert.state(remove); //maybe deleted in logoutplayer when player is not in a map
+            Assert.isTrue(remove); //maybe deleted in logoutplayer when player is not in a map
         }
 
         getActivePlayers().remove(player);
@@ -994,7 +991,7 @@ public class Map {
 
     public final void gameObjectRelocation(GameObject go, float x, float y, float z, float orientation, boolean respawnRelocationOnFail) {
 
-        Assert.state(checkGridIntegrity(go, false));
+        Assert.isTrue(checkGridIntegrity(go, false));
         var newCell = new Cell(x, y);
 
         if (!respawnRelocationOnFail && nGrids.get(newCell.getGridId()) == null) {
@@ -1440,11 +1437,11 @@ public class Map {
     }
 
     public final void respawn(RespawnInfo info, SQLTransaction dbTrans) {
-        if (info.getRespawnTime() <= gameTime.GetGameTime()) {
+        if (info.getRespawnTime() <= GameTime.getGameTime()) {
             return;
         }
 
-        info.setRespawnTime(gameTime.GetGameTime());
+        info.setRespawnTime(GameTime.getGameTime());
         saveRespawnInfoDB(info, dbTrans);
     }
 
@@ -2256,7 +2253,7 @@ public class Map {
     }
 
     public final void removeOldCorpses() {
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         ArrayList<ObjectGuid> corpses = new ArrayList<>();
 
@@ -2483,6 +2480,10 @@ public class Map {
         return null;
     }
 
+    private MapDifficulty getMapDifficulty() {
+        return world.getDbcObjectManager().getMapDifficultyData(getId(), getDifficultyID());
+    }
+
     public final ItemContext getDifficultyLootItemContext() {
         var mapDifficulty = getMapDifficulty();
 
@@ -2490,13 +2491,13 @@ public class Map {
             return itemContext.forValue((byte) mapDifficulty.itemContext);
         }
 
-        var difficulty = CliDB.DifficultyStorage.get(getDifficultyID());
+        var difficulty = world.getDbcObjectManager().difficulty(getDifficultyID().ordinal());
 
         if (difficulty != null) {
-            return itemContext.forValue(difficulty.itemContext);
+            return ItemContext.values()[difficulty.getItemContext()];
         }
 
-        return itemContext.NONE;
+        return ItemContext.NONE;
     }
 
     public final void addWorldObject(WorldObject obj) {
@@ -2913,7 +2914,7 @@ public class Map {
 
     private void switchGridContainers(Creature obj, boolean on) {
 
-        Assert.state(!obj.isAlwaysStoredInWorldObjectGridContainer());
+        Assert.isTrue(!obj.isAlwaysStoredInWorldObjectGridContainer());
 
         WorldLocation loc = obj.getLocation();
         var p = MapDefine.computeCellCoordinate(loc.getX(), loc.getY());
@@ -3519,7 +3520,7 @@ public class Map {
         var linkedTime = getLinkedRespawnTime(thisGUID);
 
         if (linkedTime != 0) {
-            var now = gameTime.GetGameTime();
+            var now = GameTime.getGameTime();
             long respawnTime;
 
             if (linkedTime == Long.MAX_VALUE) {
@@ -3680,7 +3681,7 @@ public class Map {
     }
 
     private void processRespawns() {
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         while (!respawnTimes.isEmpty()) {
             var next = respawnTimes.first();
@@ -3938,7 +3939,7 @@ public class Map {
             sa.ownerGUID = ownerGUID;
 
             sa.script = script.value;
-            scriptSchedule.put(gameTime.GetGameTime() + script.key, sa);
+            scriptSchedule.put(GameTime.getGameTime() + script.key, sa);
 
             if (script.key == 0) {
                 immedScript = true;
@@ -3969,7 +3970,7 @@ public class Map {
         sa.ownerGUID = ownerGUID;
 
         sa.script = script;
-        scriptSchedule.put(gameTime.GetGameTime() + delay, sa);
+        scriptSchedule.put(GameTime.getGameTime() + delay, sa);
 
         global.getMapMgr().IncreaseScheduledScriptsCount();
 
@@ -4213,7 +4214,7 @@ public class Map {
         var iter = scriptSchedule.FirstOrDefault();
 
         while (!scriptSchedule.isEmpty()) {
-            if (iter.key > gameTime.GetGameTime()) {
+            if (iter.key > GameTime.getGameTime()) {
                 break; // we are a sorted dictionary, once we hit this second we can break all other are going to be greater.
             }
 

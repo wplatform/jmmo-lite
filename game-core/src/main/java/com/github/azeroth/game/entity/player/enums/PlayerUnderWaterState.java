@@ -1,11 +1,13 @@
 package com.github.azeroth.game.entity.player.enums;
 
+import com.github.azeroth.common.EnumFlag;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 // 2^n values, Player::m_isunderwater is a bitmask. These are Trinity internal values, they are never send to any client
+@Getter
 @RequiredArgsConstructor
-public
-enum PlayerUnderWaterState {
+public enum PlayerUnderWaterState implements EnumFlag.FlagValue {
     NONE(0x00),
     IN_WATER(0x01),             // terrain type is water and player is afflicted by it
     IN_LAVA(0x02),             // terrain type is lava and player is afflicted by it

@@ -3,8 +3,9 @@ package com.github.azeroth.defines;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 // SkillLine.db2 (9.0.2.37176)
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum SkillType {
     NONE(0),
 
@@ -314,5 +315,13 @@ public enum SkillType {
     JUNKYARD_TINKERING(2720),
     RACIAL_ZANDALARI_TROLL(2721),
     RACIAL_KUL_TIRAN(2723);
-    public final int value;
+    public final short value;
+
+    SkillType(int value) {
+        this.value = (short) value;
+    }
+
+    public static SkillType valueOf(short value) {
+        return Arrays.stream(values()).filter(v -> v.value == value).findFirst().orElseThrow(() -> new IllegalArgumentException("SkillType not found: " + value));
+    }
 }

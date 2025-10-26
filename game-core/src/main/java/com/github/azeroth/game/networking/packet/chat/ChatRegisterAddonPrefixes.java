@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.chat;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class ChatRegisterAddonPrefixes extends ClientPacket {
+public class ChatRegisterAddonPrefixes extends ClientPacket {
     public String[] prefixes = new String[64];
 
     public ChatRegisterAddonPrefixes(WorldPacket packet) {

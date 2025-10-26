@@ -4,7 +4,7 @@ import com.github.azeroth.game.networking.ServerPacket;
 
 public class LootAllPassed extends ServerPacket {
     public ObjectGuid lootObj = ObjectGuid.EMPTY;
-    public LootitemData item = new lootItemData();
+    public LootitemData item = new LootItemData();
 
     public LootAllPassed() {
         super(ServerOpcode.LootAllPassed);

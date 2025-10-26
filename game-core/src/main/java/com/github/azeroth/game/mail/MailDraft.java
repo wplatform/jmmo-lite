@@ -120,7 +120,7 @@ public class MailDraft {
 
         var mailId = global.getObjectMgr().generateMailID();
 
-        var deliver_time = gameTime.GetGameTime() + deliver_delay;
+        var deliver_time = GameTime.getGameTime() + deliver_delay;
 
         //expire time if COD 3 days, if no COD 30 days, if auction sale pending 1 hour
         int expire_delay;
@@ -227,7 +227,7 @@ public class MailDraft {
             m_money = 1000000;
         }
 
-        Loot mailLoot = new loot(null, ObjectGuid.Empty, LootType.NONE, null);
+        Loot mailLoot = new Loot(null, ObjectGuid.Empty, LootType.NONE, null);
 
         // can be empty
         mailLoot.fillLoot(m_mailTemplateId, LootStorage.MAIL, receiver, true, true, LootModes.Default, itemContext.NONE);

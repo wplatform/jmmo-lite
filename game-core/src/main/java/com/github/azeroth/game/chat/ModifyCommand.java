@@ -199,7 +199,7 @@ class ModifyCommand {
         target.replaceAllUnitFlags(UnitFlag.forValue(flag));
         target.replaceAllNpcFlags(NPCFlags.forValue(npcflag & 0xFFFFFFFF));
         target.replaceAllNpcFlags2(NPCFlags2.forValue(npcflag >> 32));
-        target.replaceAllDynamicFlags(UnitDynFlags.forValue(dyflag));
+        target.replaceAllDynamicFlags(UnitDynFlag.forValue(dyflag));
 
         return true;
     }
@@ -709,7 +709,7 @@ class ModifyCommand {
             return false;
         }
 
-        var info = global.getObjectMgr().getPlayerInfo(target.getRace(), target.getClass());
+        var info = global.getObjectMgr().getPlayerInfo(target.getRace(), target.getUnitClass());
 
         if (info == null) {
             return false;
@@ -758,7 +758,7 @@ class ModifyCommand {
         for (var option : options) {
             var optionReq = CliDB.ChrCustomizationReqStorage.get(option.ChrCustomizationReqID);
 
-            if (optionReq != null && !worldSession.meetsChrCustomizationReq(optionReq, target.getClass(), false, customizations)) {
+            if (optionReq != null && !worldSession.meetsChrCustomizationReq(optionReq, target.getUnitClass(), false, customizations)) {
                 continue;
             }
 
@@ -768,7 +768,7 @@ class ModifyCommand {
             for (var choiceForOption : choicesForOption) {
                 var choiceReq = CliDB.ChrCustomizationReqStorage.get(choiceForOption.ChrCustomizationReqID);
 
-                if (choiceReq != null && !worldSession.meetsChrCustomizationReq(choiceReq, target.getClass(), false, customizations)) {
+                if (choiceReq != null && !worldSession.meetsChrCustomizationReq(choiceReq, target.getUnitClass(), false, customizations)) {
                     continue;
                 }
 

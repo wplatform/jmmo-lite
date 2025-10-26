@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.battlenet;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class BattlenetRequest extends ClientPacket {
+public class BattlenetRequest extends ClientPacket {
     public methodCall method = new methodCall();
     public byte[] data;
 

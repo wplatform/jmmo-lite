@@ -1,10 +1,5 @@
 package com.github.azeroth.defines;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-
 public enum Power {
 
     HEALTH(-2),
@@ -39,6 +34,46 @@ public enum Power {
     MAX_POWERS(28),
     POWER_ALL(127);
 
-    public final int index;
+    public final byte index;
 
+    Power(int index) {
+        this.index = (byte) index;
+    }
+
+    public static Power valueOf(byte index) {
+        return switch (index) {
+            case -2 -> HEALTH;
+            case 0 -> MANA;
+            case 1 -> RAGE;
+            case 2 -> FOCUS;
+            case 3 -> ENERGY;
+            case 4 -> COMBO_POINTS;
+            case 5 -> RUNES;
+            case 6 -> RUNIC_POWER;
+            case 7 -> SOUL_SHARDS;
+            case 8 -> LUNAR_POWER;
+            case 9 -> HOLY_POWER;
+            case 10 -> ALTERNATE_POWER;
+            case 11 -> MAELSTROM;
+            case 12 -> CHI;
+            case 13 -> INSANITY;
+            case 14 -> BURNING_EMBERS;
+            case 15 -> DEMONIC_FURY;
+            case 16 -> ARCANE_CHARGES;
+            case 17 -> FURY;
+            case 18 -> PAIN;
+            case 19 -> ESSENCE;
+            case 20 -> RUNE_BLOOD;
+            case 21 -> RUNE_FROST;
+            case 22 -> RUNE_UNHOLY;
+            case 23 -> ALTERNATE_QUEST;
+            case 24 -> ALTERNATE_ENCOUNTER;
+            case 25 -> ALTERNATE_MOUNT;
+            case 26 -> BALANCE;
+            case 27 -> HAPPINESS;
+            case 28 -> MAX_POWERS;
+            case 127 -> POWER_ALL;
+            default -> throw new IllegalArgumentException("Unknown power index: " + index);
+        };
+    }
 }

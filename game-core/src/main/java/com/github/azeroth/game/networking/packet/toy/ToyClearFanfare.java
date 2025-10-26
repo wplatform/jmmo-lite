@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.toy;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class ToyClearFanfare extends ClientPacket {
+public class ToyClearFanfare extends ClientPacket {
     public int itemID;
 
     public toyClearFanfare(WorldPacket packet) {

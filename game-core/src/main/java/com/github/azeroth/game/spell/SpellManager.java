@@ -1682,7 +1682,7 @@ public final class SpellManager {
 
                 baseProcEntry.setSchoolMask(spellSchoolMask.forValue(result.<Integer>Read(1)));
                 baseProcEntry.setSpellFamilyName(SpellFamilyNames.forValue(result.<Integer>Read(2)));
-                baseProcEntry.setSpellFamilyMask(new flagArray128(result.<Integer>Read(3), result.<Integer>Read(4), result.<Integer>Read(5), result.<Integer>Read(6)));
+                baseProcEntry.setSpellFamilyMask(new Flag128(result.<Integer>Read(3), result.<Integer>Read(4), result.<Integer>Read(5), result.<Integer>Read(6)));
                 baseProcEntry.setProcFlags(new ProcFlagsInit(result.<Integer>Read(7), result.<Integer>Read(8), 2));
                 baseProcEntry.setSpellTypeMask(ProcFlagsSpellType.forValue(result.<Integer>Read(9)));
                 baseProcEntry.setSpellPhaseMask(ProcFlagsSpellPhase.forValue(result.<Integer>Read(10)));
@@ -2889,7 +2889,7 @@ public final class SpellManager {
                 effect.EffectMiscValue[1] = effectsResult.<Integer>Read(25);
                 effect.EffectRadiusIndex[0] = effectsResult.<Integer>Read(26);
                 effect.EffectRadiusIndex[1] = effectsResult.<Integer>Read(27);
-                effect.EffectSpellClassMask = new flagArray128(effectsResult.<Integer>Read(28), effectsResult.<Integer>Read(29), effectsResult.<Integer>Read(30), effectsResult.<Integer>Read(31));
+                effect.EffectSpellClassMask = new Flag128(effectsResult.<Integer>Read(28), effectsResult.<Integer>Read(29), effectsResult.<Integer>Read(30), effectsResult.<Integer>Read(31));
                 effect.ImplicitTarget[0] = effectsResult.<SHORT>Read(32);
                 effect.ImplicitTarget[1] = effectsResult.<SHORT>Read(33);
 
@@ -3029,7 +3029,7 @@ public final class SpellManager {
                 spellInfo.setMaxTargetLevel(spellsResult.<Integer>Read(69));
                 spellInfo.setMaxAffectedTargets(spellsResult.<Integer>Read(70));
                 spellInfo.setSpellFamilyName(SpellFamilyNames.forValue(spellsResult.<Integer>Read(71)));
-                spellInfo.setSpellFamilyFlags(new flagArray128(spellsResult.<Integer>Read(72), spellsResult.<Integer>Read(73), spellsResult.<Integer>Read(74), spellsResult.<Integer>Read(75)));
+                spellInfo.setSpellFamilyFlags(new Flag128(spellsResult.<Integer>Read(72), spellsResult.<Integer>Read(73), spellsResult.<Integer>Read(74), spellsResult.<Integer>Read(75)));
                 spellInfo.setDmgClass(SpellDmgClass.forValue(spellsResult.<Integer>Read(76)));
                 spellInfo.setPreventionType(SpellPreventionType.forValue(spellsResult.<Integer>Read(77)));
                 spellInfo.setRequiredAreasId(spellsResult.<Integer>Read(78));

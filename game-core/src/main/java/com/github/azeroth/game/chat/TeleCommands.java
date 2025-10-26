@@ -206,7 +206,7 @@ class TeleCommands {
                 target.saveRecallPosition(); // save only in non-flight case
             }
 
-            target.teleportTo(new worldLocation(mapId, pos));
+            target.teleportTo(new WorldLocation(mapId, pos));
         } else {
             // check offline security
             if (handler.hasLowerSecurity(null, player.getGUID())) {
@@ -217,7 +217,7 @@ class TeleCommands {
 
             handler.sendSysMessage(SysMessage.TeleportingTo, nameLink, handler.getSysMessage(SysMessage.Offline), locationName);
 
-            player.savePositionInDB(new worldLocation(mapId, pos), global.getTerrainMgr().getZoneId(PhasingHandler.EMPTY_PHASE_SHIFT, new worldLocation(mapId, pos)), player.getGUID(), null);
+            player.savePositionInDB(new WorldLocation(mapId, pos), global.getTerrainMgr().getZoneId(PhasingHandler.EMPTY_PHASE_SHIFT, new WorldLocation(mapId, pos)), player.getGUID(), null);
         }
 
         return true;
@@ -248,7 +248,7 @@ class TeleCommands {
                     var result = DB.characters.query(stmt);
 
                     if (!result.isEmpty()) {
-                        WorldLocation loc = new worldLocation(result.<SHORT>Read(0), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4), 0.0f);
+                        WorldLocation loc = new WorldLocation(result.<SHORT>Read(0), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4), 0.0f);
                         int zoneId = result.<SHORT>Read(1);
 
                         player.savePositionInDB(loc, zoneId, player.getGUID());

@@ -2,14 +2,14 @@ package com.github.azeroth.game.loot;
 
 
 import com.github.azeroth.game.domain.condition.Condition;
-import com.github.azeroth.game.entity.player.Player;
+
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 
 public class LootStore {
-    private final EnumMap<Integer, LootTemplate> m_LootTemplates = new HashMap<Integer, LootTemplate>();
+    private final EnumMap<Integer, LootType> m_LootTemplates = new HashMap<Integer, LootType>();
     private final String m_name;
     private final String m_entryName;
     private final boolean m_ratesAllowed;
@@ -25,9 +25,8 @@ public class LootStore {
         m_ratesAllowed = ratesAllowed;
     }
 
-    public final int loadAndCollectLootIds(tangible.OutObject<ArrayList<Integer>> lootIdSet) {
+    public final int loadAndCollectLootIds(ArrayList<Integer> lootIdSet) {
         var count = loadLootTable();
-        lootIdSet.outArgValue = new ArrayList<>();
 
         for (var tab : m_LootTemplates.entrySet()) {
             lootIdSet.outArgValue.add(tab.getKey());
@@ -89,14 +88,8 @@ public class LootStore {
         return false;
     }
 
-    public final LootTemplate getLootFor(int loot_id) {
-        var tab = m_LootTemplates.get(loot_id);
-
-        if (tab == null) {
-            return null;
-        }
-
-        return tab;
+    public final LootType getLootFor(int loot_id) {
+        return m_LootTemplates.get(loot_id);
     }
 
     public final void resetConditions() {
@@ -106,7 +99,7 @@ public class LootStore {
         }
     }
 
-    public final LootTemplate getLootForConditionFill(int loot_id) {
+    public final LootType getLootForConditionFill(int loot_id) {
         var tab = m_LootTemplates.get(loot_id);
 
         if (tab == null) {
@@ -175,7 +168,7 @@ public class LootStore {
             // Looking for the template of the entry
             // often entries are put together
             if (m_LootTemplates.isEmpty() || !m_LootTemplates.containsKey(entry)) {
-                m_LootTemplates.put(entry, new LootTemplate());
+                m_LootTemplates.put(entry, new LootType());
             }
 
             // Adds current row to the template

@@ -415,7 +415,7 @@ public class SupportManager {
     }
 
     public final void updateLastChange() {
-        lastChange = (long) gameTime.GetGameTime();
+        lastChange = (long) GameTime.getGameTime();
     }
 
     public final int generateBugId() {
@@ -431,7 +431,7 @@ public class SupportManager {
     }
 
     private long getAge(long t) {
-        return (gameTime.GetGameTime() - (long) t) / time.Day;
+        return (GameTime.getGameTime() - (long) t) / time.Day;
     }
 
     private Iterable<Map.entry<Integer, ComplaintTicket>> getComplaintsByPlayerGuid(ObjectGuid playerGuid) {

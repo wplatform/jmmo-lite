@@ -1,11 +1,16 @@
 package com.github.azeroth.game.entity.player;
 
 
+import com.github.azeroth.auth.dto.RBACPermissions;
+import com.github.azeroth.common.EnumFlag;
 import com.github.azeroth.common.Logs;
 import com.github.azeroth.dbc.defines.Difficulty;
 import com.github.azeroth.dbc.defines.DifficultyFlag;
 import com.github.azeroth.dbc.domain.MapEntry;
 import com.github.azeroth.defines.*;
+import com.github.azeroth.defines.LootItemType;
+import com.github.azeroth.defines.LootType;
+import com.github.azeroth.game.battleground.BattlegroundSpell;
 import com.github.azeroth.game.condition.ConditionManager;
 import com.github.azeroth.game.domain.areatrigger.AreaTriggerStruct;
 import com.github.azeroth.game.CleaningFlags;
@@ -16,7 +21,6 @@ import com.github.azeroth.game.achievement.PlayerAchievementMgr;
 import com.github.azeroth.game.ai.IUnitAI;
 import com.github.azeroth.game.ai.PlayerAI;
 import com.github.azeroth.game.battleground.Battleground;
-import com.github.azeroth.game.battleground.BattlegroundQueueTypeId;
 import com.github.azeroth.game.battlepet.BattlePet;
 import com.github.azeroth.game.chat.Channel;
 import com.github.azeroth.game.chat.ChannelManager;
@@ -24,26 +28,31 @@ import com.github.azeroth.game.chat.CustomChatTextBuilder;
 import com.github.azeroth.game.domain.creature.CreatureTemplate;
 import com.github.azeroth.game.domain.map.MapDb2Entries;
 import com.github.azeroth.game.domain.map.MapDefine;
+import com.github.azeroth.game.domain.map.enums.TransferAbortReason;
 import com.github.azeroth.game.domain.object.ObjectDefine;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.WorldLocation;
+import com.github.azeroth.game.domain.object.enums.TypeId;
 import com.github.azeroth.game.domain.object.enums.TypeMask;
+import com.github.azeroth.game.domain.pet.PetStable;
 import com.github.azeroth.game.domain.player.AccessRequirement;
 import com.github.azeroth.game.domain.player.PlayerLoginQueryLoad;
 import com.github.azeroth.game.domain.player.SpellModValues;
 import com.github.azeroth.game.domain.quest.QuestObjectiveType;
 import com.github.azeroth.game.domain.quest.QuestStatus;
 import com.github.azeroth.game.domain.quest.QuestStatusData;
-import com.github.azeroth.game.domain.unit.NPCFlag;
+import com.github.azeroth.game.domain.unit.*;
 import com.github.azeroth.game.entity.corpse.Corpse;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.entity.gobject.Transport;
 import com.github.azeroth.game.entity.item.*;
 import com.github.azeroth.game.entity.item.enums.BuyResult;
+import com.github.azeroth.game.entity.item.enums.InventoryResult;
 import com.github.azeroth.game.entity.object.*;
 import com.github.azeroth.game.entity.object.update.*;
+import com.github.azeroth.game.entity.pet.Pet;
 import com.github.azeroth.game.entity.player.enums.*;
 import com.github.azeroth.game.entity.player.model.*;
 import com.github.azeroth.game.entity.scene.SceneMgr;
@@ -76,29 +85,25 @@ import com.github.azeroth.game.networking.packet.spell.SetSpellModifier;
 import com.github.azeroth.game.networking.packet.spell.SpellModifierData;
 import com.github.azeroth.game.networking.packet.spell.SpellModifierInfo;
 import com.github.azeroth.game.pvp.OutdoorPvP;
+import com.github.azeroth.game.quest.Quest;
+import com.github.azeroth.game.quest.QuestObjectiveCriteriaManager;
 import com.github.azeroth.game.reputation.ReputationMgr;
-import com.github.azeroth.game.listener.ScriptManager;
-import com.github.azeroth.game.listener.interfaces.iitem.IItemOnCastItemCombatSpell;
-import com.github.azeroth.game.listener.interfaces.iitem.IItemOnQuestAccept;
-import com.github.azeroth.game.listener.interfaces.iitem.IItemOnRemove;
-import com.github.azeroth.game.listener.interfaces.iplayer.*;
-import com.github.azeroth.game.listener.interfaces.iquest.IQuestOnQuestObjectiveChange;
-import com.github.azeroth.game.listener.interfaces.iquest.IQuestOnQuestStatusChange;
 import com.github.azeroth.game.spell.*;
 import com.github.azeroth.game.spell.auras.enums.AuraType;
 import com.github.azeroth.game.spell.enums.SpellModOp;
+import com.github.azeroth.time.GameTime;
 import com.github.azeroth.utils.MathUtil;
 
-import game.WorldSession;
+import com.github.azeroth.game.world.WorldSession;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
-import static com.github.azeroth.game.entity.objects.update.ObjectFields.*;
-import static com.github.azeroth.game.entity.player.PlayerDefine.PLAYER_BYTES_4_OFFSET_ARENA_FACTION;
-import static com.github.azeroth.game.entity.player.PlayerDefine.PLAYER_BYTES_4_OFFSET_PVP_TITLE;
+import static com.github.azeroth.game.domain.object.enums.TypeId.*;
+import static com.github.azeroth.game.entity.player.PlayerDefine.*;
 
 @Setter
 @Getter
@@ -111,10 +116,10 @@ public class Player extends Unit implements GirdObject {
     private final ArrayList<Item> itemDuration = new ArrayList<>();
     private final ArrayList<ObjectGuid> itemSoulboundTradeable = new ArrayList<>();
     private final ArrayList<ObjectGuid> refundableItems = new ArrayList<>();
-    private final VoidStorageItem[] voidStorageItems = new VoidStorageItem[SharedConst.VoidStorageMaxSlot];
-    private final Item[] items = new Item[PlayerSlot.count.getValue()];
+    private final VoidStorageItem[] voidStorageItems = new VoidStorageItem[VOID_STORAGE_MAX_SLOT];
+    private final Item[] items = new Item[PLAYER_SLOTS_COUNT];
     //PVP
-    private final BgBattlegroundQueueIdRec[] battlegroundQueueIdRecs = new BgBattlegroundQueueIdRec[SharedConst.MaxPlayerBGQueues];
+    private final BgBattlegroundQueueIdRec[] battlegroundQueueIdRecs = new BgBattlegroundQueueIdRec[PLAYER_MAX_BATTLEGROUND_QUEUES];
     private final BgData bgData;
     //Groups/Raids
     private final GroupReference group = new GroupReference();
@@ -127,31 +132,31 @@ public class Player extends Unit implements GirdObject {
     //Spell
     private final HashMap<Integer, PlayerSpell> spells = new HashMap<Integer, PlayerSpell>();
 
-    private final HashMap<Integer, SkillStatusData> skillStatus = new HashMap<Integer, SkillStatusData>();
+    private final EnumMap<SkillType, SkillStatusData> skillStatus = new EnumMap<>(SkillType.class);
 
     private final HashMap<Integer, PlayerCurrency> currencyStorage = new HashMap<Integer, PlayerCurrency>();
 
-    private final MultiMap<Integer, Integer> overrideSpells = new MultiMap<Integer, Integer>();
+    private final HashMap<Integer, Set<Integer>> overrideSpells = new HashMap<Integer, Set<Integer>>();
 
     private final HashMap<Integer, StoredAuraTeleportLocation> storedAuraTeleportLocations = new HashMap<Integer, StoredAuraTeleportLocation>();
     //Mail
-    private final ArrayList<MAIL> mail = new ArrayList<>();
+    private final ArrayList<Mail> mail = new ArrayList<>();
 
     private final HashMap<Long, Item> mailItems = new HashMap<>();
 
     private final RestMgr restMgr;
     //Combat
-    private final int[] baseRatingValue = new int[CombatRating.max.getValue()];
-    private final double[] auraBaseFlatMod = new double[BaseModGroup.End.getValue()];
-    private final double[] auraBasePctMod = new double[BaseModGroup.End.getValue()];
+    private final int[] baseRatingValue = new int[CombatRating.values().length];
+    private final float[] auraBaseFlatMod = new float[BaseModGroup.values().length];
+    private final float[] auraBasePctMod = new float[BaseModGroup.values().length];
     //Quest
-    private final ArrayList<Integer> timedquests = new ArrayList<>();
+    private final ArrayList<Integer> timedQuests = new ArrayList<>();
 
-    private final ArrayList<Integer> weeklyquests = new ArrayList<>();
+    private final ArrayList<Integer> weeklyQuests = new ArrayList<>();
 
-    private final ArrayList<Integer> monthlyquests = new ArrayList<>();
+    private final ArrayList<Integer> monthlyQuests = new ArrayList<>();
 
-    private final HashMap<Integer, HashMap<Integer, Long>> seasonalquests = new HashMap<Integer, HashMap<Integer, Long>>();
+    private final HashMap<Integer, HashMap<Integer, Long>> seasonalQuests = new HashMap<Integer, HashMap<Integer, Long>>();
 
     private final HashMap<Integer, QuestStatusData> mQuestStatus = new HashMap<Integer, QuestStatusData>();
 
@@ -161,20 +166,18 @@ public class Player extends Unit implements GirdObject {
 
     private final ArrayList<Integer> rewardedQuests = new ArrayList<>();
 
-    private final HashMap<Integer, QuestSaveType> rewardedQuestsSave = new HashMap<Integer, QuestSaveType>();
+    private final HashMap<Integer, QuestSaveType> rewardedQuestsSave = new HashMap<>();
     private final CinematicManager cinematicMgr;
     //Core
     private final WorldSession session;
-    private final QuestObjectiveCriteriaManager questObjectiveCriteriaManager;
+    private final QuestObjectiveCriteriaManager questObjectiveCriteriaManager = new QuestObjectiveCriteriaManager(this);
     private final WorldLocation homeBind = new WorldLocation();
     private final SceneMgr sceneMgr;
-    private final HashMap<ObjectGuid, loot> aeLootView = new HashMap<ObjectGuid, loot>();
+    private final HashMap<ObjectGuid, Loot> aeLootView = new HashMap<>();
     private final ArrayList<LootRoll> lootRolls = new ArrayList<>(); // loot rolls waiting for answer
-    private final CufProfile[] cufProfiles = new CufProfile[PlayerConst.MaxCUFProfiles];
-    private final double[] powerFraction = new double[PowerType.MaxPerClass.getValue()];
-    private final int[] mirrorTimer = new int[3];
-    private final TimeTracker groupUpdateTimer;
-    private final long logintime;
+    private final CufProfile[] cufProfiles = new CufProfile[MAX_CUF_PROFILES];
+    private final int[] mirrorTimer = new int[MAX_TIMERS];
+    private final Instant loginTime;
     private final HashMap<Integer, PlayerSpellState> traitConfigStates = new HashMap<Integer, PlayerSpellState>();
 
     private final HashMap<Integer, ActionButton> actionButtons = new HashMap<>();
@@ -184,7 +187,7 @@ public class Player extends Unit implements GirdObject {
     private final float[] dodge_cap = {65.631440f, 65.631440f, 145.560408f, 145.560408f, 150.375940f, 65.631440f, 145.560408f, 150.375940f, 150.375940f, 145.560408f, 116.890707f, 145.560408f, 145.560408f, 0.0f};
     public PvpInfo pvpInfo = new PvpInfo();
     QuestObjectiveType Type;
-    int ObjectID;
+
     private PlayerSocial social;
 
     private int weaponProficiency;
@@ -201,7 +204,7 @@ public class Player extends Unit implements GirdObject {
     private int contestedPvPTimer;
     private boolean usePvpItemLevels;
     private PlayerGroup groupInvite;
-    private GroupUpdateFlags groupUpdateFlags = GroupUpdateFlags.values()[0];
+    private final EnumFlag<GroupUpdateFlag> groupUpdateFlags = EnumFlag.of(GroupUpdateFlag.NONE);
     private boolean bPassOnGroupLoot;
 
     private int pendingBindId;
@@ -219,11 +222,11 @@ public class Player extends Unit implements GirdObject {
     private TeleportToOptions teleportOptions = TeleportToOptions.values()[0];
     private boolean semaphoreTeleportNear;
     private boolean semaphoreTeleportFar;
-    private PlayerDelayedOperations delayedOperations = PlayerDelayedOperations.values()[0];
+    private EnumFlag<PlayerDelayedOperation>  delayedOperations;
     private boolean canDelayTeleport;
     private boolean hasDelayedTeleport;
-    private PlayerUnderwaterState mirrorTimerFlags = PlayerUnderwaterState.values()[0];
-    private PlayerUnderwaterState mirrorTimerFlagsLast = PlayerUnderwaterState.values()[0];
+    private EnumFlag<PlayerUnderWaterState> mirrorTimerFlags = EnumFlag.of(PlayerUnderWaterState.NONE);
+    private EnumFlag<PlayerUnderWaterState> mirrorTimerFlagsLast = EnumFlag.of(PlayerUnderWaterState.NONE);
     //Stats
     private int baseSpellPower;
 
@@ -238,7 +241,7 @@ public class Player extends Unit implements GirdObject {
     private int oldpetspell;
     private long nextMailDelivereTime;
     //Pets
-    private PetStable petStable;
+    private PetStable petStable = new PetStable();
 
     private int temporaryUnsummonedPetNumber;
 
@@ -279,7 +282,6 @@ public class Player extends Unit implements GirdObject {
     private boolean advancedCombatLoggingEnabled;
     private WorldLocation corpseLocation;
     private long createTime;
-    private PlayerCreateMode createMode = PlayerCreateMode.values()[0];
 
     private int nextSave;
 
@@ -290,7 +292,7 @@ public class Player extends Unit implements GirdObject {
     private SpecializationInfo specializationInfo;
     private Team team = Team.values()[0];
     private ReputationMgr reputationMgr;
-    private PlayerExtraFlags extraFlags = PlayerExtraFlags.values()[0];
+    private final EnumFlag<PlayerExtraFlag> extraFlags = EnumFlag.of(PlayerExtraFlag.class, 0);
 
     private int zoneUpdateId;
 
@@ -333,13 +335,13 @@ public class Player extends Unit implements GirdObject {
     private boolean autoAcceptQuickJoin;
     private boolean overrideScreenFlash;
     //Gossip
-    private PlayerMenu playerTalkClass;
+    private final PlayerMenu playerTalkClass;
     private String autoReplyMsg;
     private boolean instanceValid;
     //Movement
     private PlayerTaxi taxi = new PlayerTaxi();
 
-    private byte[] forcedSpeedChanges = new byte[UnitMoveType.max.getValue()];
+    private byte[] forcedSpeedChanges = new byte[UnitMoveType.values().length];
 
     private byte movementForceModMagnitudeChanges;
     private Spell spellModTakingSpell;
@@ -349,57 +351,47 @@ public class Player extends Unit implements GirdObject {
     private boolean mailsUpdated;
     private ArrayList<PetAura> petAuras = new ArrayList<>();
     private DuelInfo duel;
-    private PlayerData playerData = new PlayerData();
-    private ActivePlayerData activePlayerData = new ActivePlayerData();
+    private final PlayerData playerData = new PlayerData();
+    private final ActivePlayerData activePlayerData = new ActivePlayerData();
     private ArrayList<ObjectGuid> clientGuiDs = new ArrayList<>();
     private ArrayList<ObjectGuid> visibleTransports = new ArrayList<>();
     private WorldObject seer;
-    private AtLoginFlags loginFlags = AtLoginFlags.values()[0];
+    private AtLoginFlags loginFlags = AtLoginFlags.NONE;
     private boolean itemUpdateQueueBlocked;
     private boolean isDebugAreaTriggers;
 
     public Player(WorldSession session) {
-        super(true);
-        setObjectTypeMask(TypeMask.forValue(getObjectTypeMask().getValue() | TypeMask.player.getValue()));
+
+        objectType.addFlag(TypeMask.PLAYER);
         setObjectTypeId(TypeId.PLAYER);
 
-        setPlayerData(new playerData());
-        setActivePlayerData(new activePlayerData());
 
-        session = session;
+        this.session = session;
 
         // players always accept
-        if (!getSession().hasPermission(RBACPermissions.CanFilterWhispers)) {
+        if (!getSession().hasPermission(RBACPermissions.CAN_FILTER_WHISPERS)) {
             setAcceptWhispers(true);
         }
 
-        zoneUpdateId = (int) 0xffffffff;
+        zoneUpdateId = 0xffffffff;
         nextSave = WorldConfig.getUIntValue(WorldCfg.IntervalSave);
-        customizationsChanged = false;
-
-        setGroupInvite(null);
-
-        setLoginFlags(AtLoginFlags.NONE);
-        setPlayerTalkClass(new PlayerMenu(session));
+        playerTalkClass = new PlayerMenu(session);
         currentBuybackSlot = InventorySlots.BuyBackStart;
 
-        for (byte i = 0; i < MirrorTimerType.max.getValue(); i++) {
-            _mirrorTimer[i] = -1;
-        }
+        Arrays.fill(mirrorTimer, -1);
 
-        logintime = gameTime.GetGameTime();
-        lastTick = logintime;
+        loginTime = GameTime.getGameTime();
+        lastTick = loginTime;
 
         dungeonDifficulty = Difficulty.NORMAL;
-        raidDifficulty = Difficulty.NormalRaid;
-        legacyRaidDifficulty = Difficulty.Raid10N;
-        setInstanceValid(true);
-
+        raidDifficulty = Difficulty.NORMAL_RAID;
+        legacyRaidDifficulty = Difficulty.NORMAL_RAID;
+        instanceValid = true;
         specializationInfo = new SpecializationInfo();
 
         for (byte i = 0; i < (byte) BaseModGroup.End.getValue(); ++i) {
-            _auraBaseFlatMod[i] = 0.0f;
-            _auraBasePctMod[i] = 1.0f;
+            auraBaseFlatMod[i] = 0.0f;
+            auraBasePctMod[i] = 1.0f;
         }
 
         for (var i = 0; i < SpellModOp.max.getValue(); ++i) {
@@ -411,7 +403,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // Honor System
-        lastHonorUpdateTime = gameTime.GetGameTime();
+        lastHonorUpdateTime = GameTime.getGameTime();
 
         setUnitMovedByMe(this);
         setPlayerMovingMe(this);
@@ -429,8 +421,6 @@ public class Player extends Unit implements GirdObject {
         questObjectiveCriteriaManager = new QuestObjectiveCriteriaManager(this);
         sceneMgr = new SceneMgr(this);
 
-        _battlegroundQueueIdRecs[0] = new BgBattlegroundQueueIdRec();
-        _battlegroundQueueIdRecs[1] = new BgBattlegroundQueueIdRec();
 
         bgData = new BgData();
 
@@ -476,8 +466,8 @@ public class Player extends Unit implements GirdObject {
         return gender.getValue() <= getGender().getValue().Female;
     }
 
-    public static boolean isValidClass(PlayerClass _class) {
-        return (boolean) ((1 << (_class.getValue() - 1)) & playerClass.ClassMaskAllPlayable.getValue());
+    public static boolean isValidClass(UnitClass _class) {
+        return (boolean) ((1 << (_class.getValue() - 1)) & UnitClass.ClassMaskAllPlayable.getValue());
     }
 
     public static boolean isValidRace(Race _race) {
@@ -648,9 +638,9 @@ public class Player extends Unit implements GirdObject {
             // Define the required variables
             int charDeleteMinLvl;
 
-            if (characterInfo.classId == playerClass.Deathknight) {
+            if (characterInfo.classId == UnitClass.DEATH_KNIGHT) {
                 charDeleteMinLvl = WorldConfig.getUIntValue(WorldCfg.ChardeleteDeathKnightMinLevel);
-            } else if (characterInfo.classId == playerClass.DemonHunter) {
+            } else if (characterInfo.classId == UnitClass.DemonHunter) {
                 charDeleteMinLvl = WorldConfig.getUIntValue(WorldCfg.ChardeleteDemonHunterMinLevel);
             } else {
                 charDeleteMinLvl = WorldConfig.getUIntValue(WorldCfg.ChardeleteMinLevel);
@@ -1123,7 +1113,7 @@ public class Player extends Unit implements GirdObject {
         Log.outInfo(LogFilter.player, "Player:DeleteOldChars: Deleting all character which have been deleted {0} days before...", keepDays);
 
         var stmt = DB.characters.GetPreparedStatement(CharStatements.SEL_CHAR_OLD_CHARS);
-        stmt.AddValue(0, (int) (gameTime.GetGameTime() - keepDays * time.Day));
+        stmt.AddValue(0, (int) (GameTime.getGameTime() - keepDays * time.Day));
         var result = DB.characters.query(stmt);
 
         if (!result.isEmpty()) {
@@ -1160,7 +1150,7 @@ public class Player extends Unit implements GirdObject {
         stmt.AddValue(0, guid.getCounter());
         var result = DB.characters.query(stmt);
 
-        loc.outArgValue = new worldLocation();
+        loc.outArgValue = new WorldLocation();
         inFlight.outArgValue = false;
 
         if (result.isEmpty()) {
@@ -1584,7 +1574,7 @@ public class Player extends Unit implements GirdObject {
             return;
         }
 
-        var creature_guid = pRewardSource.isTypeId(TypeId.UNIT) ? pRewardSource.getGUID() : ObjectGuid.Empty;
+        var creature_guid = pRewardSource.isTypeId(UNIT) ? pRewardSource.getGUID() : ObjectGuid.Empty;
 
         // prepare data for near group iteration
         var group = getGroup();
@@ -1761,7 +1751,7 @@ public class Player extends Unit implements GirdObject {
     @Override
     public float getBlockPercent(int attackerLevel) {
         var blockArmor = (float) getActivePlayerData().shieldBlock;
-        var armorConstant = global.getDB2Mgr().EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, playerClass.NONE);
+        var armorConstant = global.getDB2Mgr().EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, UnitClass.NONE);
 
         if ((blockArmor + armorConstant) == 0) {
             return 0;
@@ -1851,7 +1841,7 @@ public class Player extends Unit implements GirdObject {
                 opponent.updateCriteria(CriteriaType.WinDuel, 1);
 
                 // Credit for quest Death's Challenge
-                if (getClass() == playerClass.Deathknight && opponent.getQuestStatus(12733) == QuestStatus.INCOMPLETE) {
+                if (getUnitClass() == UnitClass.DEATH_KNIGHT && opponent.getQuestStatus(12733) == QuestStatus.INCOMPLETE) {
                     opponent.castSpell(getDuel().getOpponent(), 52994, true);
                 }
 
@@ -1902,9 +1892,9 @@ public class Player extends Unit implements GirdObject {
     //PVP
     public final void setPvPDeath(boolean on) {
         if (on) {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.PVPDeath.getValue());
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() | PlayerExtraFlag.PVPDeath.getValue());
         } else {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() & ~PlayerExtraFlags.PVPDeath.getValue());
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() & ~PlayerExtraFlag.PVPDeath.getValue());
         }
     }
 
@@ -1914,7 +1904,7 @@ public class Player extends Unit implements GirdObject {
 
     public final void resetContestedPvP() {
         clearUnitState(UnitState.AttackPlayer);
-        removePlayerFlag(playerFlags.ContestedPVP);
+        removePlayerFlag(PlayerFlag.ContestedPVP);
         contestedPvPTimer = 0;
     }
 
@@ -1931,7 +1921,7 @@ public class Player extends Unit implements GirdObject {
 
         if (!hasUnitState(UnitState.AttackPlayer)) {
             addUnitState(UnitState.AttackPlayer);
-            setPlayerFlag(playerFlags.ContestedPVP);
+            setPlayerFlag(PlayerFlag.ContestedPVP);
             // call MoveInLineOfSight for nearby contested guards
             AIRelocationNotifier notifier = new AIRelocationNotifier(this, gridType.World);
             Cell.visitGrid(this, notifier, getVisibilityRange());
@@ -1969,7 +1959,7 @@ public class Player extends Unit implements GirdObject {
 
         if (pvpInfo.endTimer <= currTime) {
             pvpInfo.endTimer = 0;
-            removePlayerFlag(playerFlags.PVPTimer);
+            removePlayerFlag(PlayerFlag.PVPTimer);
         }
 
         updatePvP(false);
@@ -1984,7 +1974,7 @@ public class Player extends Unit implements GirdObject {
             setPvP(state);
             pvpInfo.endTimer = 0;
         } else {
-            pvpInfo.endTimer = gameTime.GetGameTime();
+            pvpInfo.endTimer = GameTime.getGameTime();
             setPvP(state);
         }
     }
@@ -2023,8 +2013,8 @@ public class Player extends Unit implements GirdObject {
             }
         } else // in friendly area
         {
-            if (isPvP() && !hasPlayerFlag(playerFlags.InPVP) && pvpInfo.endTimer == 0) {
-                pvpInfo.endTimer = gameTime.GetGameTime(); // start toggle-off
+            if (isPvP() && !hasPlayerFlag(PlayerFlag.InPVP) && pvpInfo.endTimer == 0) {
+                pvpInfo.endTimer = GameTime.getGameTime(); // start toggle-off
             }
         }
     }
@@ -2289,7 +2279,7 @@ public class Player extends Unit implements GirdObject {
 
     private void initPvP() {
         // pvp flag should stay after relog
-        if (hasPlayerFlag(playerFlags.InPVP)) {
+        if (hasPlayerFlag(PlayerFlag.InPVP)) {
             updatePvP(true, true);
         }
     }
@@ -2336,57 +2326,50 @@ public class Player extends Unit implements GirdObject {
         }
     }
 
-    public final PetStable getPetStable() {
-        if (petStable == null) {
-            petStable = new PetStable();
-        }
-
-        return petStable;
-    }
 
     public final byte getCUFProfilesCount() {
         return (byte) cufProfiles.count(p -> p != null);
     }
 
     public final boolean getHasSummonPending() {
-        return summonExpire >= gameTime.GetGameTime();
+        return summonExpire >= GameTime.getGameTime();
     }
 
     //GM
     public final boolean isDeveloper() {
-        return hasPlayerFlag(playerFlags.Developer);
+        return hasPlayerFlag(PlayerFlag.Developer);
     }
 
     public final void setDeveloper(boolean on) {
         if (on) {
-            setPlayerFlag(playerFlags.Developer);
+            setPlayerFlag(PlayerFlag.DEVELOPER);
         } else {
-            removePlayerFlag(playerFlags.Developer);
+            removePlayerFlag(PlayerFlag.DEVELOPER);
         }
     }
 
     public final boolean isAcceptWhispers() {
-        return extraFlags.hasFlag(PlayerExtraFlags.AcceptWhispers);
+        return extraFlags.hasFlag(PlayerExtraFlag.ACCEPT_WHISPERS);
     }
 
     public final void setAcceptWhispers(boolean on) {
         if (on) {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.AcceptWhispers.getValue());
+            extraFlags.addFlag(PlayerExtraFlag.ACCEPT_WHISPERS);
         } else {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() & ~PlayerExtraFlags.AcceptWhispers.getValue());
+            extraFlags.removeFlag(PlayerExtraFlag.ACCEPT_WHISPERS);
         }
     }
 
     public final boolean isGameMaster() {
-        return extraFlags.hasFlag(PlayerExtraFlags.GMOn);
+        return extraFlags.hasFlag(PlayerExtraFlag.GMOn);
     }
 
     public final void setGameMaster(boolean on) {
         if (on) {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.GMOn.getValue());
+            extraFlags.addFlag(PlayerExtraFlag.GM_ON);
             setFaction(35);
-            setPlayerFlag(playerFlags.GM);
-            setUnitFlag2(UnitFlag2.AllowCheatSpells);
+            setPlayerFlag(PlayerFlag.GM);
+            setUnitFlag2(UnitFlag2.ALLOW_CHEAT_SPELLS);
 
             var pet = getCurrentPet();
 
@@ -2404,9 +2387,9 @@ public class Player extends Unit implements GirdObject {
         } else {
             PhasingHandler.setAlwaysVisible(this, hasAuraType(AuraType.PhaseAlwaysVisible), false);
 
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() & ~PlayerExtraFlags.GMOn.getValue());
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() & ~PlayerExtraFlag.GMOn.getValue());
             restoreFaction();
-            removePlayerFlag(playerFlags.GM);
+            removePlayerFlag(PlayerFlag.GM);
             removeUnitFlag2(UnitFlag2.AllowCheatSpells);
 
             var pet = getCurrentPet();
@@ -2438,39 +2421,39 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean isGMChat() {
-        return extraFlags.hasFlag(PlayerExtraFlags.GMChat);
+        return extraFlags.hasFlag(PlayerExtraFlag.GMChat);
     }
 
     public final void setGMChat(boolean on) {
         if (on) {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.GMChat.getValue());
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() | PlayerExtraFlag.GMChat.getValue());
         } else {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() & ~PlayerExtraFlags.GMChat.getValue());
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() & ~PlayerExtraFlag.GMChat.getValue());
         }
     }
 
     public final boolean isTaxiCheater() {
-        return extraFlags.hasFlag(PlayerExtraFlags.TaxiCheat);
+        return extraFlags.hasFlag(PlayerExtraFlag.TaxiCheat);
     }
 
     public final void setTaxiCheater(boolean on) {
         if (on) {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.TaxiCheat.getValue());
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() | PlayerExtraFlag.TaxiCheat.getValue());
         } else {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() & ~PlayerExtraFlags.TaxiCheat.getValue());
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() & ~PlayerExtraFlag.TaxiCheat.getValue());
         }
     }
 
     public final boolean isGMVisible() {
-        return !extraFlags.hasFlag(PlayerExtraFlags.GMInvisible);
+        return !extraFlags.hasFlag(PlayerExtraFlag.GMInvisible);
     }
 
     public final void setGMVisible(boolean on) {
         if (on) {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() & ~PlayerExtraFlags.GMInvisible.getValue()); //remove flag
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() & ~PlayerExtraFlag.GMInvisible.getValue()); //remove flag
             getServerSideVisibility().setValue(ServerSideVisibilityType.GM, AccountTypes.player);
         } else {
-            extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.GMInvisible.getValue()); //add flag
+            extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() | PlayerExtraFlag.GMInvisible.getValue()); //add flag
 
             setAcceptWhispers(false);
             setGameMaster(true);
@@ -2554,7 +2537,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final Team getEffectiveTeam() {
-        return hasPlayerFlagEx(playerFlagsEx.MercenaryMode) ? (getTeam() == Team.ALLIANCE ? Team.HORDE : Team.ALLIANCE) : getTeam();
+        return hasPlayerFlagEx(PlayerFlagEx.MercenaryMode) ? (getTeam() == Team.ALLIANCE ? Team.HORDE : Team.ALLIANCE) : getTeam();
     }
 
     public final TeamId getEffectiveTeamId() {
@@ -2645,11 +2628,11 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean isAFK() {
-        return hasPlayerFlag(playerFlags.AFK);
+        return hasPlayerFlag(PlayerFlag.AFK);
     }
 
     public final boolean isDND() {
-        return hasPlayerFlag(playerFlags.DND);
+        return hasPlayerFlag(PlayerFlag.DND);
     }
 
     public final boolean isMaxLevel() {
@@ -2692,10 +2675,6 @@ public class Player extends Unit implements GirdObject {
 
     public final ReputationMgr getReputationMgr() {
         return reputationMgr;
-    }
-
-    public final PlayerCreateMode getCreateMode() {
-        return createMode;
     }
 
     public final byte getCinematic() {
@@ -2768,7 +2747,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean isReagentBankUnlocked() {
-        return hasPlayerFlagEx(playerFlagsEx.ReagentBankUnlocked);
+        return hasPlayerFlagEx(PlayerFlagEx.ReagentBankUnlocked);
     }
 
     public final int getFreePrimaryProfessionPoints() {
@@ -2803,7 +2782,7 @@ public class Player extends Unit implements GirdObject {
 
     @Override
     public Gender getNativeGender() {
-        return gender.forValue((byte) ((byte) getPlayerData().nativeSex));
+        return Gender.valueOf(playerData.getNativeSex());
     }
 
     @Override
@@ -2872,13 +2851,13 @@ public class Player extends Unit implements GirdObject {
     }
 
     private boolean isWarModeDesired() {
-        return hasPlayerFlag(playerFlags.WarModeDesired);
+        return hasPlayerFlag(PlayerFlag.WarModeDesired);
     }
 
     public final void setWarModeDesired(boolean enabled) {
         // Only allow to toggle on when in stormwind/orgrimmar, and to toggle off in any rested place.
         // Also disallow when in combat
-        if ((enabled == isWarModeDesired()) || isInCombat() || !hasPlayerFlag(playerFlags.Resting)) {
+        if ((enabled == isWarModeDesired()) || isInCombat() || !hasPlayerFlag(PlayerFlag.Resting)) {
             return;
         }
 
@@ -2892,10 +2871,10 @@ public class Player extends Unit implements GirdObject {
         }
 
         if (enabled) {
-            setPlayerFlag(playerFlags.WarModeDesired);
+            setPlayerFlag(PlayerFlag.WarModeDesired);
             setPvP(true);
         } else {
-            removePlayerFlag(playerFlags.WarModeDesired);
+            removePlayerFlag(PlayerFlag.WarModeDesired);
             setPvP(false);
         }
 
@@ -2903,7 +2882,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private boolean isWarModeActive() {
-        return hasPlayerFlag(playerFlags.WarModeActive);
+        return hasPlayerFlag(PlayerFlag.WarModeActive);
     }
 
     //Pet - Summons - Vehicles
@@ -3048,7 +3027,7 @@ public class Player extends Unit implements GirdObject {
 
         var position = createInfo.useNPE && info.createPositionNpe != null ? info.createPositionNpe.getValue() : info.createPosition;
 
-        createTime = gameTime.GetGameTime();
+        createTime = GameTime.getGameTime();
         createMode = createInfo.useNPE && info.createPositionNpe != null ? PlayerCreateMode.NPE : PlayerCreateMode.NORMAL;
 
         getLocation().relocate(position.loc);
@@ -3083,7 +3062,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         setRace(createInfo.raceId);
-        setClass(createInfo.classId);
+        setUnitClass(createInfo.classId);
         setGender(createInfo.sex);
         setPowerType(powertype, false);
         initDisplayIds();
@@ -3112,7 +3091,7 @@ public class Player extends Unit implements GirdObject {
         setUpdateFieldValue(getValues().modifyValue(getActivePlayerData()).modifyValue(getActivePlayerData().coinage), (long) WorldConfig.getIntValue(WorldCfg.StartPlayerMoney));
 
         // Played time
-        lastTick = gameTime.GetGameTime();
+        lastTick = GameTime.getGameTime();
         playedTimeTotal = 0;
         playedTimeLevel = 0;
 
@@ -3181,7 +3160,7 @@ public class Player extends Unit implements GirdObject {
         }
         // all item positions resolved
 
-        var defaultSpec = global.getDB2Mgr().GetDefaultChrSpecializationForClass(getClass());
+        var defaultSpec = global.getDB2Mgr().GetDefaultChrSpecializationForClass(getUnitClass());
 
         if (defaultSpec != null) {
             setActiveTalentGroup(defaultSpec.orderIndex);
@@ -3202,7 +3181,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // undelivered mail
-        if (nextMailDelivereTime != 0 && nextMailDelivereTime <= gameTime.GetGameTime()) {
+        if (nextMailDelivereTime != 0 && nextMailDelivereTime <= GameTime.getGameTime()) {
             sendNewMail();
             setUnReadMails(getUnReadMails() + 1);
 
@@ -3223,7 +3202,7 @@ public class Player extends Unit implements GirdObject {
         super.update(diff);
         setCanDelayTeleport(false);
 
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         updatePvPFlag(now);
 
@@ -3269,8 +3248,8 @@ public class Player extends Unit implements GirdObject {
             DB.Login.execute(stmt);
         }
 
-        if (!timedquests.isEmpty()) {
-            for (var id : timedquests) {
+        if (!timedQuests.isEmpty()) {
+            for (var id : timedQuests) {
                 var q_status = mQuestStatus.get(id);
 
                 if (q_status.timer <= diff) {
@@ -3345,7 +3324,7 @@ public class Player extends Unit implements GirdObject {
             }
         }
 
-        if (hasPlayerFlag(playerFlags.Resting)) {
+        if (hasPlayerFlag(PlayerFlag.Resting)) {
             restMgr.update(diff);
         }
 
@@ -3697,7 +3676,7 @@ public class Player extends Unit implements GirdObject {
 
     //Taxi
     public final void initTaxiNodesForLevel() {
-        getTaxi().initTaxiNodesForLevel(getRace(), getClass(), getLevel());
+        getTaxi().initTaxiNodesForLevel(getRace(), getUnitClass(), getLevel());
     }
 
     //Cheat Commands
@@ -3827,7 +3806,7 @@ public class Player extends Unit implements GirdObject {
             return;
         }
 
-        if (charm.isTypeId(TypeId.UNIT)) {
+        if (charm.isTypeId(UNIT)) {
             if (charm.toCreature().hasUnitTypeMask(UnitTypeMask.Puppet)) {
                 ((Puppet) charm).unSummon();
             } else if (charm.isVehicle()) {
@@ -3877,7 +3856,7 @@ public class Player extends Unit implements GirdObject {
         PetSpells petSpells = new PetSpells();
         petSpells.petGUID = charm.getGUID();
 
-        if (charm.isTypeId(TypeId.UNIT)) {
+        if (charm.isTypeId(UNIT)) {
             petSpells.reactState = charm.toCreature().getReactState();
             petSpells.commandState = charmInfo.getCommandState();
         }
@@ -3895,7 +3874,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // Cooldowns
-        if (!charm.isTypeId(TypeId.PLAYER)) {
+        if (!charm.isTypeId(PLAYER)) {
             charm.getSpellHistory().writePacket(petSpells);
         }
 
@@ -4449,7 +4428,7 @@ public class Player extends Unit implements GirdObject {
 
     // Calculates how many reputation points player gains in victim's enemy factions
     public final void rewardReputation(Unit victim, float rate) {
-        if (!victim || victim.isTypeId(TypeId.PLAYER)) {
+        if (!victim || victim.isTypeId(PLAYER)) {
             return;
         }
 
@@ -4622,7 +4601,7 @@ public class Player extends Unit implements GirdObject {
             if (isHasDelayedTeleport()) {
                 setSemaphoreTeleportNear(true);
                 //lets save teleport destination for player
-                teleportDest = new worldLocation(mapid, x, y, z, orientation);
+                teleportDest = new WorldLocation(mapid, x, y, z, orientation);
                 teleportInstanceId = null;
                 teleportOptions = options;
 
@@ -4645,7 +4624,7 @@ public class Player extends Unit implements GirdObject {
             }
 
             // this will be used instead of the current location in SaveToDB
-            teleportDest = new worldLocation(mapid, x, y, z, orientation);
+            teleportDest = new WorldLocation(mapid, x, y, z, orientation);
             teleportInstanceId = null;
             teleportOptions = options;
             setFallInformation(0, getLocation().getZ());
@@ -4659,8 +4638,9 @@ public class Player extends Unit implements GirdObject {
                 sendTeleportPacket(teleportDest);
             }
         } else {
-            if (getClass() == playerClass.Deathknight && getLocation().getMapId() == 609 && !isGameMaster() && !hasSpell(50977)) {
-                sendTransferAborted(mapid, TransferAbortReason.UniqueMessage, (byte) 1);
+            
+            if (getUnitClass() == UnitClass.DEATH_KNIGHT && getLocation().getMapId() == 609 && !isGameMaster() && !hasSpell(50977)) {
+                sendTransferAborted(mapid, TransferAbortReason.UNIQUE_MESSAGE, (byte) 1);
 
                 return false;
             }
@@ -4694,7 +4674,7 @@ public class Player extends Unit implements GirdObject {
             if (isHasDelayedTeleport()) {
                 setSemaphoreTeleportFar(true);
                 //lets save teleport destination for player
-                teleportDest = new worldLocation(mapid, x, y, z, orientation);
+                teleportDest = new WorldLocation(mapid, x, y, z, orientation);
                 teleportInstanceId = instanceId;
                 teleportOptions = options;
 
@@ -4774,7 +4754,7 @@ public class Player extends Unit implements GirdObject {
                 oldmap.removePlayerFromMap(this, false);
             }
 
-            teleportDest = new worldLocation(mapid, x, y, z, orientation);
+            teleportDest = new WorldLocation(mapid, x, y, z, orientation);
             teleportInstanceId = instanceId;
             teleportOptions = options;
             setFallInformation(0, getLocation().getZ());
@@ -4808,26 +4788,26 @@ public class Player extends Unit implements GirdObject {
         return teleportTo(bgData.getJoinPos());
     }
 
-    public final int getStartLevel(Race race, PlayerClass playerClass) {
-        return getStartLevel(race, playerClass, null);
+    public final int getStartLevel(Race race, UnitClass klass) {
+        return getStartLevel(race, klass, null);
     }
 
-    public final int getStartLevel(Race race, PlayerClass playerClass, Integer characterTemplateId) {
+    public final int getStartLevel(Race race, UnitClass klass, Integer characterTemplateId) {
         var startLevel = WorldConfig.getUIntValue(WorldCfg.StartPlayerLevel);
 
         if (CliDB.ChrRacesStorage.get(race).getFlags().hasFlag(ChrRacesFlag.IsAlliedRace)) {
             startLevel = WorldConfig.getUIntValue(WorldCfg.StartAlliedRaceLevel);
         }
 
-        if (playerClass == playerClass.Deathknight) {
+        if (klass == klass.Deathknight) {
             if (race == race.PandarenAlliance || race == race.PandarenHorde) {
                 startLevel = Math.max(WorldConfig.getUIntValue(WorldCfg.StartAlliedRaceLevel), startLevel);
             } else {
                 startLevel = Math.max(WorldConfig.getUIntValue(WorldCfg.StartDeathKnightPlayerLevel), startLevel);
             }
-        } else if (playerClass == playerClass.DemonHunter) {
+        } else if (klass == klass.DemonHunter) {
             startLevel = Math.max(WorldConfig.getUIntValue(WorldCfg.StartDemonHunterPlayerLevel), startLevel);
-        } else if (playerClass == playerClass.Evoker) {
+        } else if (klass == klass.Evoker) {
             startLevel = Math.max(WorldConfig.getUIntValue(WorldCfg.StartEvokerPlayerLevel), startLevel);
         }
 
@@ -4980,8 +4960,8 @@ public class Player extends Unit implements GirdObject {
             return;
         }
 
-        summonExpire = gameTime.GetGameTime() + PlayerConst.MaxPlayerSummonDelay;
-        summonLocation = new worldLocation(summoner.getLocation());
+        summonExpire = GameTime.getGameTime() + PlayerConst.MaxPlayerSummonDelay;
+        summonLocation = new WorldLocation(summoner.getLocation());
         summonInstanceId = summoner.getInstanceId();
 
         SummonRequest summonRequest = new SummonRequest();
@@ -5055,7 +5035,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // expire and auto declined
-        if (summonExpire < gameTime.GetGameTime()) {
+        if (summonExpire < GameTime.getGameTime()) {
             broadcastSummonResponse(false);
 
             return;
@@ -5101,7 +5081,7 @@ public class Player extends Unit implements GirdObject {
 
         var menuItemBounds = global.getObjectMgr().getGossipMenuItemsMapBounds(menuId);
 
-        if (source.isTypeId(TypeId.UNIT)) {
+        if (source.isTypeId(UNIT)) {
             if (showQuests && source.toUnit().isQuestGiver()) {
                 prepareQuestMenu(source.getGUID());
             }
@@ -5150,19 +5130,19 @@ public class Player extends Unit implements GirdObject {
                         break;
                     case Stablemaster:
                     case PetSpecializationMaster:
-                        if (getClass() != playerClass.Hunter) {
+                        if (getUnitClass() != UnitClass.Hunter) {
                             canTalk = false;
                         }
 
                         break;
                     case DisableXPGain:
-                        if (hasPlayerFlag(playerFlags.NoXPGain) || isMaxLevel()) {
+                        if (hasPlayerFlag(PlayerFlag.NoXPGain) || isMaxLevel()) {
                             canTalk = false;
                         }
 
                         break;
                     case EnableXPGain:
-                        if (!hasPlayerFlag(playerFlags.NoXPGain) || isMaxLevel()) {
+                        if (!hasPlayerFlag(PlayerFlag.NoXPGain) || isMaxLevel()) {
                             canTalk = false;
                         }
 
@@ -5217,7 +5197,7 @@ public class Player extends Unit implements GirdObject {
             return;
         }
 
-        if (source.isTypeId(TypeId.UNIT) || source.isTypeId(TypeId.gameObject)) {
+        if (source.isTypeId(UNIT) || source.isTypeId(TypeId.gameObject)) {
             if (getPlayerTalkClass().getGossipMenu().isEmpty() && !getPlayerTalkClass().getQuestMenu().isEmpty()) {
                 sendPreparedQuest(source);
 
@@ -5359,13 +5339,13 @@ public class Player extends Unit implements GirdObject {
             case DisableXPGain:
                 getPlayerTalkClass().sendCloseGossip();
                 castSpell(null, PlayerConst.SpellExperienceEliminated, true);
-                setPlayerFlag(playerFlags.NoXPGain);
+                setPlayerFlag(PlayerFlag.NoXPGain);
 
                 break;
             case EnableXPGain:
                 getPlayerTalkClass().sendCloseGossip();
                 removeAura(PlayerConst.SpellExperienceEliminated);
-                removePlayerFlag(playerFlags.NoXPGain);
+                removePlayerFlag(PlayerFlag.NoXPGain);
 
                 break;
             case SpecializationMaster:
@@ -5581,7 +5561,7 @@ public class Player extends Unit implements GirdObject {
     public final void updateNextMailTimeAndUnreads() {
         // calculate next delivery time (min. from non-delivered mails
         // and recalculate unReadMail
-        var cTime = gameTime.GetGameTime();
+        var cTime = GameTime.getGameTime();
         nextMailDelivereTime = 0;
         setUnReadMails(0);
 
@@ -5597,7 +5577,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void addNewMailDeliverTime(long deliver_time) {
-        if (deliver_time <= gameTime.GetGameTime()) // ready now
+        if (deliver_time <= GameTime.getGameTime()) // ready now
         {
             setUnReadMails(getUnReadMails() + 1);
             sendNewMail();
@@ -6115,14 +6095,14 @@ public class Player extends Unit implements GirdObject {
         // speed change, land walk
 
         // remove death flag + set aura
-        removePlayerFlag(playerFlags.IsOutOfBounds);
+        removePlayerFlag(PlayerFlag.IsOutOfBounds);
 
         // This must be called always even on Players with race != RACE_NIGHTELF in case of faction change
         removeAura(20584); // speed bonuses
         removeAura(8326); // SPELL_AURA_GHOST
 
         if (getSession().isARecruiter() || (getSession().getRecruiterId() != 0)) {
-            setDynamicFlag(UnitDynFlags.ReferAFriend);
+            setDynamicFlag(UnitDynFlag.ReferAFriend);
         }
 
         setDeathState(deathState.Alive);
@@ -6210,7 +6190,7 @@ public class Player extends Unit implements GirdObject {
 
         setDeathState(deathState.Corpse);
 
-        replaceAllDynamicFlags(UnitDynFlags.NONE);
+        replaceAllDynamicFlags(UnitDynFlag.NONE);
 
         if (!CliDB.MapStorage.get(getLocation().getMapId()).Instanceable() && !hasAuraType(AuraType.PreventResurrection)) {
             setPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
@@ -6229,7 +6209,7 @@ public class Player extends Unit implements GirdObject {
             sendCorpseReclaimDelay(corpseReclaimDelay);
         }
 
-        ScriptManager.getInstance().<IPlayerOnDeath>ForEach(getClass(), a -> a.OnDeath(this));
+        ScriptManager.getInstance().<IPlayerOnDeath>ForEach(getUnitClass(), a -> a.OnDeath(this));
         // don't create corpse at this moment, player might be falling
 
         // update visibility
@@ -6241,7 +6221,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void spawnCorpseBones(boolean triggerSave) {
-        corpseLocation = new worldLocation();
+        corpseLocation = new WorldLocation();
 
         if (getMap().convertCorpseToBones(getGUID())) {
             if (triggerSave && !getSession().getPlayerLogoutWithSave()) // at logout we will already store the player
@@ -6305,7 +6285,7 @@ public class Player extends Unit implements GirdObject {
             teleportTo(homeBind);
         }
 
-        removePlayerFlag(playerFlags.IsOutOfBounds);
+        removePlayerFlag(PlayerFlag.IsOutOfBounds);
     }
 
     public final int getCorpseReclaimDelay(boolean pvp) {
@@ -6317,7 +6297,7 @@ public class Player extends Unit implements GirdObject {
             return 0;
         }
 
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
         // 0..2 full period
         // should be ceil(x)-1 but not floor(x)
         var count = (long) ((now < _deathExpireTime - 1) ? (_deathExpireTime - 1 - now) / PlayerConst.DeathExpireStep : 0);
@@ -6392,12 +6372,12 @@ public class Player extends Unit implements GirdObject {
 
         // this enables pet details window (Shift+P)
         pet.getCharmInfo().setPetNumber(petNumber, true);
-        pet.setClass(playerClass.Mage);
+        pet.setClass(UnitClass.Mage);
         pet.SetPetExperience(0);
         pet.SetPetNextLevelExperience(1000);
         pet.setFullHealth();
         pet.setFullPower(powerType.mana);
-        pet.setPetNameTimestamp((int) gameTime.GetGameTime());
+        pet.setPetNameTimestamp((int) GameTime.getGameTime());
 
         map.addToMap(pet.toCreature());
 
@@ -6834,10 +6814,10 @@ public class Player extends Unit implements GirdObject {
         if (guildId != 0) {
             setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().guildGUID), ObjectGuid.create(HighGuid.Guild, guildId));
             setUpdateFieldValue(getValues().modifyValue(getActivePlayerData()).modifyValue(getActivePlayerData().guildClubMemberID), getGUID().getCounter());
-            setPlayerFlag(playerFlags.GuildLevelEnabled);
+            setPlayerFlag(PlayerFlag.GuildLevelEnabled);
         } else {
             setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().guildGUID), ObjectGuid.Empty);
-            removePlayerFlag(playerFlags.GuildLevelEnabled);
+            removePlayerFlag(PlayerFlag.GuildLevelEnabled);
         }
 
         global.getCharacterCacheStorage().updateCharacterGuildId(getGUID(), guildId);
@@ -6860,11 +6840,11 @@ public class Player extends Unit implements GirdObject {
             guild.updateMemberData(this, GuildMemberData.level, level);
         }
 
-        var info = global.getObjectMgr().getPlayerLevelInfo(getRace(), getClass(), level);
+        var info = global.getObjectMgr().getPlayerLevelInfo(getRace(), getUnitClass(), level);
 
         int basemana;
         tangible.OutObject<Integer> tempOut_basemana = new tangible.OutObject<Integer>();
-        global.getObjectMgr().getPlayerClassLevelInfo(getClass(), level, tempOut_basemana);
+        global.getObjectMgr().getPlayerClassLevelInfo(getUnitClass(), level, tempOut_basemana);
         basemana = tempOut_basemana.outArgValue;
 
         LevelUpInfo packet = new LevelUpInfo();
@@ -6884,8 +6864,8 @@ public class Player extends Unit implements GirdObject {
             packet.StatDelta[i.getValue()] = info.getStats()[i.getValue()] - (int) getCreateStat(i);
         }
 
-        packet.numNewTalents = (int) (global.getDB2Mgr().GetNumTalentsAtLevel(level, getClass()) - global.getDB2Mgr().GetNumTalentsAtLevel(oldLevel, getClass()));
-        packet.numNewPvpTalentSlots = global.getDB2Mgr().GetPvpTalentNumSlotsAtLevel(level, getClass()) - global.getDB2Mgr().GetPvpTalentNumSlotsAtLevel(oldLevel, getClass());
+        packet.numNewTalents = (int) (global.getDB2Mgr().GetNumTalentsAtLevel(level, getUnitClass()) - global.getDB2Mgr().GetNumTalentsAtLevel(oldLevel, getUnitClass()));
+        packet.numNewPvpTalentSlots = global.getDB2Mgr().GetPvpTalentNumSlotsAtLevel(level, getUnitClass()) - global.getDB2Mgr().GetPvpTalentNumSlotsAtLevel(oldLevel, getUnitClass());
 
         sendPacket(packet);
 
@@ -6952,14 +6932,14 @@ public class Player extends Unit implements GirdObject {
 
         pushQuests();
 
-        global.getScriptMgr().<IPlayerOnLevelChanged>ForEach(getClass(), p -> p.OnLevelChanged(this, oldLevel));
+        global.getScriptMgr().<IPlayerOnLevelChanged>ForEach(getUnitClass(), p -> p.OnLevelChanged(this, oldLevel));
     }
 
     public final void toggleAFK() {
         if (isAFK()) {
-            removePlayerFlag(playerFlags.AFK);
+            removePlayerFlag(PlayerFlag.AFK);
         } else {
-            setPlayerFlag(playerFlags.AFK);
+            setPlayerFlag(PlayerFlag.AFK);
         }
 
         // afk player not allowed in Battleground
@@ -6970,9 +6950,9 @@ public class Player extends Unit implements GirdObject {
 
     public final void toggleDND() {
         if (isDND()) {
-            removePlayerFlag(playerFlags.DND);
+            removePlayerFlag(PlayerFlag.DND);
         } else {
-            setPlayerFlag(playerFlags.DND);
+            setPlayerFlag(PlayerFlag.DND);
         }
     }
 
@@ -7182,8 +7162,8 @@ public class Player extends Unit implements GirdObject {
         var TimeSpeed = 0.01666667f;
         LoginSetTimeSpeed loginSetTimeSpeed = new LoginSetTimeSpeed();
         loginSetTimeSpeed.newSpeed = TimeSpeed;
-        loginSetTimeSpeed.gameTime = (int) gameTime.GetGameTime();
-        loginSetTimeSpeed.serverTime = (int) gameTime.GetGameTime();
+        loginSetTimeSpeed.gameTime = (int) GameTime.getGameTime();
+        loginSetTimeSpeed.serverTime = (int) GameTime.getGameTime();
         loginSetTimeSpeed.gameTimeHolidayOffset = 0; // @todo
         loginSetTimeSpeed.serverTimeHolidayOffset = 0; // @todo
         sendPacket(loginSetTimeSpeed);
@@ -7356,7 +7336,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void saveRecallPosition() {
-        recallLocation = new worldLocation(getLocation());
+        recallLocation = new WorldLocation(getLocation());
         recallInstanceId = getInstanceId();
     }
 
@@ -7376,10 +7356,10 @@ public class Player extends Unit implements GirdObject {
 
         int basemana;
         tangible.OutObject<Integer> tempOut_basemana = new tangible.OutObject<Integer>();
-        global.getObjectMgr().getPlayerClassLevelInfo(getClass(), getLevel(), tempOut_basemana);
+        global.getObjectMgr().getPlayerClassLevelInfo(getUnitClass(), getLevel(), tempOut_basemana);
         basemana = tempOut_basemana.outArgValue;
 
-        var info = global.getObjectMgr().getPlayerLevelInfo(getRace(), getClass(), getLevel());
+        var info = global.getObjectMgr().getPlayerLevelInfo(getRace(), getUnitClass(), getLevel());
 
         var exp_max_lvl = (int) global.getObjectMgr().getMaxLevelForExpansion(getSession().getExpansion());
         var conf_max_lvl = WorldConfig.getIntValue(WorldCfg.MaxPlayerLevel);
@@ -7512,7 +7492,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // Reset no reagent cost field
-        setNoRegentCostMask(new flagArray128());
+        setNoRegentCostMask(new Flag128());
 
         // Init data for form but skip reapply item mods for form
         initDataForForm(reapplyMods);
@@ -7535,7 +7515,7 @@ public class Player extends Unit implements GirdObject {
         setUnitFlag2(UnitFlag2.RegeneratePower); // must be set
 
         // cleanup player flags (will be re-applied if need at aura load), to avoid have ghost flag without ghost aura, for example.
-        removePlayerFlag(playerFlags.AFK.getValue() | playerFlags.DND.getValue().getValue() | playerFlags.GM.getValue().getValue().getValue() | playerFlags.Ghost.getValue().getValue().getValue());
+        removePlayerFlag(PlayerFlag.AFK.getValue() | PlayerFlag.DND.getValue().getValue() | playerFlags.GM.getValue().getValue().getValue() | playerFlags.Ghost.getValue().getValue().getValue());
 
         removeVisFlag(UnitVisFlags.All); // one form stealth modified bytes
         removePvpFlag(UnitPVPStateFlags.FFAPvp.getValue() | UnitPVPStateFlags.Sanctuary.getValue());
@@ -7652,15 +7632,15 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean hasRaceChanged() {
-        return extraFlags.hasFlag(PlayerExtraFlags.HasRaceChanged);
+        return extraFlags.hasFlag(PlayerExtraFlag.HasRaceChanged);
     }
 
     public final void setHasRaceChanged() {
-        extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.HasRaceChanged.getValue());
+        extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() | PlayerExtraFlag.HasRaceChanged.getValue());
     }
 
     public final boolean hasBeenGrantedLevelsFromRaF() {
-        return extraFlags.hasFlag(PlayerExtraFlags.GrantedLevelsFromRaf);
+        return extraFlags.hasFlag(PlayerExtraFlag.GrantedLevelsFromRaf);
     }
 
 
@@ -7685,15 +7665,15 @@ public class Player extends Unit implements GirdObject {
     //}
 
     public final void setBeenGrantedLevelsFromRaF() {
-        extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.GrantedLevelsFromRaf.getValue());
+        extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() | PlayerExtraFlag.GrantedLevelsFromRaf.getValue());
     }
 
     public final boolean hasLevelBoosted() {
-        return extraFlags.hasFlag(PlayerExtraFlags.LevelBoosted);
+        return extraFlags.hasFlag(PlayerExtraFlag.LevelBoosted);
     }
 
     public final void setHasLevelBoosted() {
-        extraFlags = PlayerExtraFlags.forValue(extraFlags.getValue() | PlayerExtraFlags.LevelBoosted.getValue());
+        extraFlags = PlayerExtraFlag.forValue(extraFlags.getValue() | PlayerExtraFlag.LevelBoosted.getValue());
     }
 
     public final void giveXP(int xp, Unit victim) {
@@ -7713,7 +7693,7 @@ public class Player extends Unit implements GirdObject {
             return;
         }
 
-        if (victim != null && victim.isTypeId(TypeId.UNIT) && !victim.toCreature().getHasLootRecipient()) {
+        if (victim != null && victim.isTypeId(UNIT) && !victim.toCreature().getHasLootRecipient()) {
             return;
         }
 
@@ -7847,7 +7827,7 @@ public class Player extends Unit implements GirdObject {
 
                         break;
                     case ItemEnchantmentType.Totem:
-                        if (getClass() == playerClass.Shaman) {
+                        if (getUnitClass() == UnitClass.Shaman) {
                             amount += enchantmentEntry.EffectScalingPoints[i] * item.getTemplate().getDelay() / 1000.0f;
                         }
 
@@ -8057,7 +8037,7 @@ public class Player extends Unit implements GirdObject {
         if (node.flags.hasFlag(TaxiNodeFlags.UseFavoriteMount) && preferredMountDisplay != 0) {
             mount_display_id = preferredMountDisplay;
         } else {
-            mount_display_id = global.getObjectMgr().getTaxiMountDisplayId(sourcenode, getTeam(), npc == null || (sourcenode == 315 && getClass() == playerClass.Deathknight));
+            mount_display_id = global.getObjectMgr().getTaxiMountDisplayId(sourcenode, getTeam(), npc == null || (sourcenode == 315 && getUnitClass() == UnitClass.DEATH_KNIGHT));
         }
 
         // in spell case allow 0 model
@@ -8336,7 +8316,7 @@ public class Player extends Unit implements GirdObject {
             }
 
             // skip wrong class and race skill saved in SkillRaceClassInfo.dbc
-            if (global.getDB2Mgr().GetSkillRaceClassInfo(_spell_idx.skillLine, getRace(), getClass()) == null) {
+            if (global.getDB2Mgr().GetSkillRaceClassInfo(_spell_idx.skillLine, getRace(), getUnitClass()) == null) {
                 continue;
             }
 
@@ -8866,11 +8846,11 @@ public class Player extends Unit implements GirdObject {
             getObjectData().writeUpdate(buffer, flags, this, target);
         }
 
-        if (getValues().hasChanged(TypeId.UNIT)) {
+        if (getValues().hasChanged(UNIT)) {
             getUnitData().writeUpdate(buffer, flags, this, target);
         }
 
-        if (getValues().hasChanged(TypeId.PLAYER)) {
+        if (getValues().hasChanged(PLAYER)) {
             getPlayerData().writeUpdate(buffer, flags, this, target);
         }
 
@@ -9394,7 +9374,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // Runes act as cooldowns, and they don't need to send any data
-        if (getClass() == playerClass.Deathknight) {
+        if (getUnitClass() == UnitClass.DEATH_KNIGHT) {
             int regeneratedRunes = 0;
             var regenIndex = 0;
 
@@ -9510,7 +9490,7 @@ public class Player extends Unit implements GirdObject {
             }
         }
 
-        addvalue += _powerFraction[powerIndex];
+        addvalue += powerFraction[powerIndex];
         var integerValue = (int) Math.abs(addvalue);
 
         var forcesSetPower = false;
@@ -9530,19 +9510,19 @@ public class Player extends Unit implements GirdObject {
         if (addvalue < 0.0f) {
             if (curValue > minPower + integerValue) {
                 curValue -= integerValue;
-                _powerFraction[powerIndex] = addvalue + integerValue;
+                powerFraction[powerIndex] = addvalue + integerValue;
             } else {
                 curValue = minPower;
-                _powerFraction[powerIndex] = 0;
+                powerFraction[powerIndex] = 0;
                 forcesSetPower = true;
             }
         } else {
             if (curValue + integerValue <= maxPower) {
                 curValue += integerValue;
-                _powerFraction[powerIndex] = addvalue - integerValue;
+                powerFraction[powerIndex] = addvalue - integerValue;
             } else {
                 curValue = maxPower;
-                _powerFraction[powerIndex] = 0;
+                powerFraction[powerIndex] = 0;
                 forcesSetPower = true;
             }
         }
@@ -9817,14 +9797,14 @@ public class Player extends Unit implements GirdObject {
         // prevent existence 2 corpse for player
         spawnCorpseBones();
 
-        Corpse corpse = new Corpse((boolean) (extraFlags.getValue() & PlayerExtraFlags.PVPDeath.getValue()) ? CorpseType.ResurrectablePVP : CorpseType.ResurrectablePVE);
+        Corpse corpse = new Corpse((boolean) (extraFlags.getValue() & PlayerExtraFlag.PVPDeath.getValue()) ? CorpseType.ResurrectablePVP : CorpseType.ResurrectablePVE);
         setPvPDeath(false);
 
         if (!corpse.create(getMap().generateLowGuid(HighGuid.Corpse), this)) {
             return null;
         }
 
-        corpseLocation = new worldLocation(getLocation());
+        corpseLocation = new WorldLocation(getLocation());
 
         CorpseFlags flags = CorpseFlags.forValue(0);
 
@@ -9842,7 +9822,7 @@ public class Player extends Unit implements GirdObject {
 
         corpse.setRace((byte) getRace().getValue());
         corpse.setSex((byte) getNativeGender().getValue());
-        corpse.setClass((byte) getClass().getValue());
+        corpse.setClass((byte) getUnitClass().getValue());
         corpse.setCustomizations(getPlayerData().customizations);
         corpse.replaceAllFlags(flags);
         corpse.setDisplayId(getNativeDisplayId());
@@ -9879,13 +9859,13 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void updateCorpseReclaimDelay() {
-        var pvp = extraFlags.hasFlag(PlayerExtraFlags.PVPDeath);
+        var pvp = extraFlags.hasFlag(PlayerExtraFlag.PVPDeath);
 
         if ((pvp && !WorldConfig.getBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) || (!pvp && !WorldConfig.getBoolValue(WorldCfg.DeathCorpseReclaimDelayPve))) {
             return;
         }
 
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         if (now < deathExpireTime) {
             // full and partly periods 1..3
@@ -9912,7 +9892,7 @@ public class Player extends Unit implements GirdObject {
             return -1;
         }
 
-        var pvp = corpse ? corpse.getCorpseType() == CorpseType.ResurrectablePVP : (extraFlags.getValue() & PlayerExtraFlags.PVPDeath.getValue()) != 0;
+        var pvp = corpse ? corpse.getCorpseType() == CorpseType.ResurrectablePVP : (extraFlags.getValue() & PlayerExtraFlag.PVPDeath.getValue()) != 0;
 
         int delay;
 
@@ -9932,7 +9912,7 @@ public class Player extends Unit implements GirdObject {
             }
 
             var expected_time = corpse.getGhostTime() + PlayerConst.copseReclaimDelay[count];
-            var now = gameTime.GetGameTime();
+            var now = GameTime.getGameTime();
 
             if (now >= expected_time) {
                 return -1;
@@ -10160,7 +10140,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void beforeVisibilityDestroy(WorldObject obj, Player p) {
-        if (!obj.isTypeId(TypeId.UNIT)) {
+        if (!obj.isTypeId(UNIT)) {
             return;
         }
 
@@ -10238,7 +10218,7 @@ public class Player extends Unit implements GirdObject {
     public final void updateVisibilityOf(WorldObject target) {
         if (haveAtClient(target)) {
             if (!canSeeOrDetect(target, false, true)) {
-                if (target.isTypeId(TypeId.UNIT)) {
+                if (target.isTypeId(UNIT)) {
                     beforeVisibilityDestroy(target.toCreature(), this);
                 }
 
@@ -10838,7 +10818,7 @@ public class Player extends Unit implements GirdObject {
             if (hasAtLoginFlag(AtLoginFlags.Resurrect)) {
                 resurrectPlayer(0.5f);
             } else if (!result.isEmpty()) {
-                corpseLocation = new worldLocation(result.<SHORT>Read(0), result.<Float>Read(1), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4));
+                corpseLocation = new WorldLocation(result.<SHORT>Read(0), result.<Float>Read(1), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4));
 
                 if (!CliDB.MapStorage.get(corpseLocation.getMapId()).Instanceable()) {
                     setPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
@@ -10983,7 +10963,7 @@ public class Player extends Unit implements GirdObject {
         var accountId = result.<Integer>Read(fieldIndex++);
         var name = result.<String>Read(fieldIndex++);
         var race = race.forValue(result.<Byte>Read(fieldIndex++));
-        var class_ = playerClass.forValue(result.<Byte>Read(fieldIndex++));
+        var class_ = UnitClass.forValue(result.<Byte>Read(fieldIndex++));
         var gender = gender.forValue(result.<Byte>Read(fieldIndex++));
         var level = result.<Byte>Read(fieldIndex++);
         var xp = result.<Integer>Read(fieldIndex++);
@@ -11015,7 +10995,7 @@ public class Player extends Unit implements GirdObject {
         var trans_z = result.<Float>Read(fieldIndex++);
         var trans_o = result.<Float>Read(fieldIndex++);
         var transguid = result.<Long>Read(fieldIndex++);
-        var extra_flags = PlayerExtraFlags.forValue(result.<SHORT>Read(fieldIndex++));
+        var extra_flags = PlayerExtraFlag.forValue(result.<SHORT>Read(fieldIndex++));
         var summonedPetNumber = result.<Integer>Read(fieldIndex++);
         var at_login = result.<SHORT>Read(fieldIndex++);
         var zone = result.<SHORT>Read(fieldIndex++);
@@ -11094,14 +11074,14 @@ public class Player extends Unit implements GirdObject {
         }
 
         setRace(race);
-        setClass(class_);
+        setUnitClass(class_);
         setGender(gender);
 
         // check if race/class combination is valid
-        var info = global.getObjectMgr().getPlayerInfo(getRace(), getClass());
+        var info = global.getObjectMgr().getPlayerInfo(getRace(), getUnitClass());
 
         if (info == null) {
-            Log.outError(LogFilter.player, "Player {0} has wrong race/class ({1}/{2}), can't be loaded.", guid.toString(), getRace(), getClass());
+            Log.outError(LogFilter.player, "Player {0} has wrong race/class ({1}/{2}), can't be loaded.", guid.toString(), getRace(), getUnitClass());
 
             return false;
         }
@@ -11156,7 +11136,7 @@ public class Player extends Unit implements GirdObject {
 
         setLoginFlags(AtLoginFlags.forValue(at_login));
 
-        if (!getSession().validateAppearance(getRace(), getClass(), gender, customizations)) {
+        if (!getSession().validateAppearance(getRace(), getUnitClass(), gender, customizations)) {
             Log.outError(LogFilter.player, "Player {0} has wrong Appearance values (Hair/Skin/Color), can't be loaded.", guid.toString());
 
             return false;
@@ -11443,7 +11423,7 @@ public class Player extends Unit implements GirdObject {
 
         saveRecallPosition();
 
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
         var logoutTime = logout_time;
 
         setUpdateFieldValue(getValues().modifyValue(getPlayerData()).modifyValue(getPlayerData().logoutTime), logoutTime);
@@ -11505,14 +11485,14 @@ public class Player extends Unit implements GirdObject {
         setActiveTalentGroup(activeTalentGroup);
         var primarySpec = CliDB.ChrSpecializationStorage.get(getPrimarySpecialization());
 
-        if (primarySpec == null || primarySpec.classID != (byte) getClass().getValue() || getActiveTalentGroup() >= MAX_SPECIALIZATIONS) {
+        if (primarySpec == null || primarySpec.classID != (byte) getUnitClass().getValue() || getActiveTalentGroup() >= MAX_SPECIALIZATIONS) {
             resetTalentSpecialization();
         }
 
         var chrSpec = CliDB.ChrSpecializationStorage.get(lootSpecId);
 
         if (chrSpec != null) {
-            if (chrSpec.classID == (int) getClass().getValue()) {
+            if (chrSpec.classID == (int) getUnitClass().getValue()) {
                 setLootSpecId(lootSpecId);
             }
         }
@@ -11612,7 +11592,7 @@ public class Player extends Unit implements GirdObject {
         var loadedPowers = 0;
 
         for (Power i = 0; i.getValue() < powerType.max.getValue(); ++i) {
-            if (global.getDB2Mgr().GetPowerIndexByClass(i, getClass()) != powerType.max.getValue()) {
+            if (global.getDB2Mgr().GetPowerIndexByClass(i, getUnitClass()) != powerType.max.getValue()) {
                 var savedPower = powers[loadedPowers];
                 var maxPower = getUnitData().maxPower.get(loadedPowers);
                 setPower(i, savedPower > maxPower ? maxPower : savedPower);
@@ -11655,7 +11635,7 @@ public class Player extends Unit implements GirdObject {
 
                     break; // enable
                 case 2: // save state
-                    if (extra_flags.hasFlag(PlayerExtraFlags.GMOn)) {
+                    if (extra_flags.hasFlag(PlayerExtraFlag.GMOn)) {
                         setGameMaster(true);
                     }
 
@@ -11671,7 +11651,7 @@ public class Player extends Unit implements GirdObject {
                 case 1:
                     break; // visible
                 case 2: // save state
-                    if (extra_flags.hasFlag(PlayerExtraFlags.GMInvisible)) {
+                    if (extra_flags.hasFlag(PlayerExtraFlag.GMInvisible)) {
                         setGMVisible(false);
                     }
 
@@ -11687,7 +11667,7 @@ public class Player extends Unit implements GirdObject {
 
                     break; // enable
                 case 2: // save state
-                    if (extra_flags.hasFlag(PlayerExtraFlags.GMChat)) {
+                    if (extra_flags.hasFlag(PlayerExtraFlag.GMChat)) {
                         setGMChat(true);
                     }
 
@@ -11703,7 +11683,7 @@ public class Player extends Unit implements GirdObject {
 
                     break; // enable
                 case 2: // save state
-                    if (extra_flags.hasFlag(PlayerExtraFlags.AcceptWhispers)) {
+                    if (extra_flags.hasFlag(PlayerExtraFlag.AcceptWhispers)) {
                         setAcceptWhispers(true);
                     }
 
@@ -11715,7 +11695,7 @@ public class Player extends Unit implements GirdObject {
 
         // RaF stuff.
         if (getSession().isARecruiter() || (getSession().getRecruiterId() != 0)) {
-            setDynamicFlag(UnitDynFlags.ReferAFriend);
+            setDynamicFlag(UnitDynFlag.ReferAFriend);
         }
 
         _LoadDeclinedNames(holder.GetResult(PlayerLoginQueryLoad.declinedNames));
@@ -11839,7 +11819,7 @@ public class Player extends Unit implements GirdObject {
             stmt.AddValue(index++, getSession().getAccountId());
             stmt.AddValue(index++, getName());
             stmt.AddValue(index++, (byte) getRace().getValue());
-            stmt.AddValue(index++, (byte) getClass().getValue());
+            stmt.AddValue(index++, (byte) getUnitClass().getValue());
             stmt.AddValue(index++, (byte) getNativeGender().getValue()); // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
             stmt.AddValue(index++, getLevel());
             stmt.AddValue(index++, getXP());
@@ -11886,7 +11866,7 @@ public class Player extends Unit implements GirdObject {
             stmt.AddValue(index++, playedTimeTotal);
             stmt.AddValue(index++, playedTimeLevel);
             stmt.AddValue(index++, finiteAlways((float) restMgr.getRestBonus(RestTypes.XP)));
-            stmt.AddValue(index++, gameTime.GetGameTime());
+            stmt.AddValue(index++, GameTime.getGameTime());
             stmt.AddValue(index++, (hasPlayerFlag(playerFlags.Resting) ? 1 : 0));
             //save, far from tavern/city
             //save, but in tavern/city
@@ -11977,7 +11957,7 @@ public class Player extends Unit implements GirdObject {
             stmt = DB.characters.GetPreparedStatement(CharStatements.UPD_CHARACTER);
             stmt.AddValue(index++, getName());
             stmt.AddValue(index++, (byte) getRace().getValue());
-            stmt.AddValue(index++, (byte) getClass().getValue());
+            stmt.AddValue(index++, (byte) getUnitClass().getValue());
             stmt.AddValue(index++, (byte) getNativeGender().getValue()); // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
             stmt.AddValue(index++, getLevel());
             stmt.AddValue(index++, getXP());
@@ -12036,7 +12016,7 @@ public class Player extends Unit implements GirdObject {
             stmt.AddValue(index++, playedTimeTotal);
             stmt.AddValue(index++, playedTimeLevel);
             stmt.AddValue(index++, finiteAlways((float) restMgr.getRestBonus(RestTypes.XP)));
-            stmt.AddValue(index++, gameTime.GetGameTime());
+            stmt.AddValue(index++, GameTime.getGameTime());
             stmt.AddValue(index++, (hasPlayerFlag(playerFlags.Resting) ? 1 : 0));
             //save, far from tavern/city
             //save, but in tavern/city
@@ -12215,7 +12195,7 @@ public class Player extends Unit implements GirdObject {
         stmt.AddValue(3, global.getWorldMgr().getRealmId().index);
         stmt.AddValue(4, getName());
         stmt.AddValue(5, getGUID().getCounter());
-        stmt.AddValue(6, gameTime.GetGameTime());
+        stmt.AddValue(6, GameTime.getGameTime());
         loginTransaction.append(stmt);
 
         // save pet (hunter pet level and experience and all type pets health/mana).
@@ -12542,10 +12522,10 @@ public class Player extends Unit implements GirdObject {
                 var max = result.<SHORT>Read(2);
                 var professionSlot = result.<Byte>Read(3);
 
-                var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(skill, race, getClass());
+                var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(skill, race, getUnitClass());
 
                 if (rcEntry == null) {
-                    Log.outError(LogFilter.player, String.format("Player::_LoadSkills: Player '%1$s' (%2$s, Race: %3$s, Class: %4$s) has forbidden skill %5$s for his race/class combination", getName(), getGUID(), race, getClass(), skill));
+                    Log.outError(LogFilter.player, String.format("Player::_LoadSkills: Player '%1$s' (%2$s, Race: %3$s, Class: %4$s) has forbidden skill %5$s for his race/class combination", getName(), getGUID(), race, getUnitClass(), skill));
                     skillStatus.put(skill, new SkillStatusData((int) skillStatus.size(), SkillState.Deleted));
 
                     continue;
@@ -12762,10 +12742,10 @@ public class Player extends Unit implements GirdObject {
     }
 
     private boolean _LoadHomeBind(SQLResult result) {
-        var info = global.getObjectMgr().getPlayerInfo(getRace(), getClass());
+        var info = global.getObjectMgr().getPlayerInfo(getRace(), getUnitClass());
 
         if (info == null) {
-            Log.outError(LogFilter.player, "Player (Name {0}) has incorrect race/class ({1}/{2}) pair. Can't be loaded.", getName(), getRace(), getClass());
+            Log.outError(LogFilter.player, "Player (Name {0}) has incorrect race/class ({1}/{2}) pair. Can't be loaded.", getName(), getRace(), getUnitClass());
 
             return false;
         }
@@ -12920,10 +12900,10 @@ public class Player extends Unit implements GirdObject {
                     if (quest.limitTime != 0 && !getQuestRewardStatus(questId)) {
                         addTimedQuest(questId);
 
-                        if (endTime <= gameTime.GetGameTime()) {
+                        if (endTime <= GameTime.getGameTime()) {
                             questStatusData.timer = 1;
                         } else {
-                            questStatusData.timer = (int) ((endTime - gameTime.GetGameTime()) * time.InMilliseconds);
+                            questStatusData.timer = (int) ((endTime - GameTime.getGameTime()) * time.InMilliseconds);
                         }
                     } else {
                         endTime = 0;
@@ -13099,7 +13079,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void _LoadWeeklyQuestStatus(SQLResult result) {
-        weeklyquests.clear();
+        weeklyQuests.clear();
 
         if (!result.isEmpty()) {
             do {
@@ -13110,7 +13090,7 @@ public class Player extends Unit implements GirdObject {
                     continue;
                 }
 
-                weeklyquests.add(quest_id);
+                weeklyQuests.add(quest_id);
                 var questBit = global.getDB2Mgr().GetQuestUniqueBitFlag(quest_id);
 
                 if (questBit != 0) {
@@ -13125,7 +13105,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void _LoadSeasonalQuestStatus(SQLResult result) {
-        seasonalquests.clear();
+        seasonalQuests.clear();
 
         if (!result.isEmpty()) {
             do {
@@ -13138,11 +13118,11 @@ public class Player extends Unit implements GirdObject {
                     continue;
                 }
 
-                if (!seasonalquests.containsKey(event_id)) {
-                    seasonalquests.put(event_id, new HashMap<Integer, Long>());
+                if (!seasonalQuests.containsKey(event_id)) {
+                    seasonalQuests.put(event_id, new HashMap<Integer, Long>());
                 }
 
-                seasonalquests.get(event_id).put(quest_id, completedTime);
+                seasonalQuests.get(event_id).put(quest_id, completedTime);
 
                 var questBit = global.getDB2Mgr().GetQuestUniqueBitFlag(quest_id);
 
@@ -13162,7 +13142,7 @@ public class Player extends Unit implements GirdObject {
         stmt.AddValue(0, getGUID().getCounter());
         var result = DB.characters.query(stmt);
 
-        monthlyquests.clear();
+        monthlyQuests.clear();
 
         if (!result.isEmpty()) {
             do {
@@ -13173,7 +13153,7 @@ public class Player extends Unit implements GirdObject {
                     continue;
                 }
 
-                monthlyquests.add(quest_id);
+                monthlyQuests.add(quest_id);
                 var questBit = global.getDB2Mgr().GetQuestUniqueBitFlag(quest_id);
 
                 if (questBit != 0) {
@@ -13302,7 +13282,7 @@ public class Player extends Unit implements GirdObject {
 //			}
 
         for (int i = 0; i < MAX_SPECIALIZATIONS - 1; ++i) {
-            var spec = global.getDB2Mgr().GetChrSpecializationByIndex(getClass(), i);
+            var spec = global.getDB2Mgr().GetChrSpecializationByIndex(getUnitClass(), i);
 
             if (spec != null) {
                 if (hasConfigForSpec((int) spec.id)) {
@@ -13360,7 +13340,7 @@ public class Player extends Unit implements GirdObject {
         do {
             var spec = result.<Byte>Read(0);
 
-            if (spec >= MAX_SPECIALIZATIONS || global.getDB2Mgr().GetChrSpecializationByIndex(getClass(), spec) == null) {
+            if (spec >= MAX_SPECIALIZATIONS || global.getDB2Mgr().GetChrSpecializationByIndex(getUnitClass(), spec) == null) {
                 continue;
             }
 
@@ -13496,7 +13476,7 @@ public class Player extends Unit implements GirdObject {
                     continue;
                 }
 
-                WorldLocation location = new worldLocation(result.<Integer>Read(1), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4), result.<Float>Read(5));
+                WorldLocation location = new WorldLocation(result.<Integer>Read(1), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4), result.<Float>Read(5));
 
                 if (!MapDefine.isValidMapCoordinatei(location)) {
                     Log.outError(LogFilter.spells, String.format("Player._LoadStoredAuraTeleportLocations: Player %1$s (%2$s) spell (ID: %3$s) has invalid position on map %4$s, %5$s.", getName(), getGUID(), spellId, location.getMapId(), location));
@@ -13667,7 +13647,7 @@ public class Player extends Unit implements GirdObject {
         // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell FROM character_Battleground_data WHERE guid = ?
         bgData.setBgInstanceId(result.<Integer>Read(0));
         bgData.setBgTeam(result.<SHORT>Read(1));
-        bgData.setJoinPos(new worldLocation(result.<SHORT>Read(6), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4), result.<Float>Read(5)));
+        bgData.setJoinPos(new WorldLocation(result.<SHORT>Read(6), result.<Float>Read(2), result.<Float>Read(3), result.<Float>Read(4), result.<Float>Read(5)));
         bgData.getTaxiPath()[0] = result.<Integer>Read(7);
         bgData.getTaxiPath()[1] = result.<Integer>Read(8);
         bgData.setMountSpell(result.<Integer>Read(9));
@@ -14255,7 +14235,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void _SaveWeeklyQuestStatus(SQLTransaction trans) {
-        if (!weeklyQuestChanged || weeklyquests.isEmpty()) {
+        if (!weeklyQuestChanged || weeklyQuests.isEmpty()) {
             return;
         }
 
@@ -14264,7 +14244,7 @@ public class Player extends Unit implements GirdObject {
         stmt.AddValue(0, getGUID().getCounter());
         trans.append(stmt);
 
-        for (var quest_id : weeklyquests) {
+        for (var quest_id : weeklyQuests) {
             stmt = DB.characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_WEEKLY);
             stmt.AddValue(0, getGUID().getCounter());
             stmt.AddValue(1, quest_id);
@@ -14286,12 +14266,12 @@ public class Player extends Unit implements GirdObject {
 
         seasonalQuestChanged = false;
 
-        if (seasonalquests.isEmpty()) {
+        if (seasonalQuests.isEmpty()) {
             return;
         }
 
 
-        for (var(eventId, dictionary) : seasonalquests) {
+        for (var(eventId, dictionary) : seasonalQuests) {
 
             for (var(questId, completedTime) : dictionary) {
                 stmt = DB.characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_SEASONAL);
@@ -14305,7 +14285,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void _SaveMonthlyQuestStatus(SQLTransaction trans) {
-        if (!monthlyQuestChanged || monthlyquests.isEmpty()) {
+        if (!monthlyQuestChanged || monthlyQuests.isEmpty()) {
             return;
         }
 
@@ -14314,7 +14294,7 @@ public class Player extends Unit implements GirdObject {
         stmt.AddValue(0, getGUID().getCounter());
         trans.append(stmt);
 
-        for (var questId : monthlyquests) {
+        for (var questId : monthlyQuests) {
             stmt = DB.characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_MONTHLY);
             stmt.AddValue(0, getGUID().getCounter());
             stmt.AddValue(1, questId);
@@ -14745,207 +14725,12 @@ public class Player extends Unit implements GirdObject {
         DB.characters.execute(stmt);
     }
 
-    public final boolean getAutoAcceptQuickJoin() {
-        return autoAcceptQuickJoin;
-    }
-
-    public final void setAutoAcceptQuickJoin(boolean value) {
-        autoAcceptQuickJoin = value;
-    }
-
-    public final boolean getOverrideScreenFlash() {
-        return overrideScreenFlash;
-    }
-
-    public final void setOverrideScreenFlash(boolean value) {
-        overrideScreenFlash = value;
-    }
-
-    public final PlayerMenu getPlayerTalkClass() {
-        return playerTalkClass;
-    }
-
-    public final void setPlayerTalkClass(PlayerMenu value) {
-        playerTalkClass = value;
-    }
-
-    public final String getAutoReplyMsg() {
-        return autoReplyMsg;
-    }
-
-    public final void setAutoReplyMsg(String value) {
-        autoReplyMsg = value;
-    }
-
-    public final ArrayList<ItemSetEffect> getItemSetEff() {
-        return itemSetEff;
-    }
-
-    public final ArrayList<item> getItemUpdateQueue() {
-        return itemUpdateQueue;
-    }
-
-    public final boolean getInstanceValid() {
-        return instanceValid;
-    }
-
-    public final void setInstanceValid(boolean value) {
-        instanceValid = value;
-    }
-
-    public final PlayerTaxi getTaxi() {
-        return taxi;
-    }
-
-    public final void setTaxi(PlayerTaxi value) {
-        taxi = value;
-    }
-
-
-    public final byte[] getForcedSpeedChanges() {
-        return forcedSpeedChanges;
-    }
-
-
-    public final void setForcedSpeedChanges(byte[] value) {
-        forcedSpeedChanges = value;
-    }
-
-
-    public final byte getMovementForceModMagnitudeChanges() {
-        return movementForceModMagnitudeChanges;
-    }
-
-
-    public final void setMovementForceModMagnitudeChanges(byte value) {
-        movementForceModMagnitudeChanges = value;
-    }
-
-    public final Spell getSpellModTakingSpell() {
-        return spellModTakingSpell;
-    }
-
-    public final void setSpellModTakingSpell(Spell value) {
-        spellModTakingSpell = value;
-    }
-
-    public final float getEmpoweredSpellMinHoldPct() {
-        return empoweredSpellMinHoldPct;
-    }
-
-    public final void setEmpoweredSpellMinHoldPct(float value) {
-        empoweredSpellMinHoldPct = value;
-    }
-
-
-    public final byte getUnReadMails() {
-        return unReadMails;
-    }
-
-
-    public final void setUnReadMails(byte value) {
-        unReadMails = value;
-    }
-
-    public final boolean getMailsUpdated() {
-        return mailsUpdated;
-    }
-
-    public final void setMailsUpdated(boolean value) {
-        mailsUpdated = value;
-    }
-
-    public final ArrayList<PetAura> getPetAuras() {
-        return petAuras;
-    }
-
-    public final void setPetAuras(ArrayList<PetAura> value) {
-        petAuras = value;
-    }
-
-    public final DuelInfo getDuel() {
-        return duel;
-    }
-
-    public final void setDuel(DuelInfo value) {
-        duel = value;
-    }
-
-    public final PlayerData getPlayerData() {
-        return playerData;
-    }
-
-    public final void setPlayerData(PlayerData value) {
-        playerData = value;
-    }
-
-    public final ActivePlayerData getActivePlayerData() {
-        return activePlayerData;
-    }
-
-    public final void setActivePlayerData(ActivePlayerData value) {
-        activePlayerData = value;
-    }
-
-    public final ArrayList<ObjectGuid> getClientGuiDs() {
-        return clientGuiDs;
-    }
-
-    public final void setClientGuiDs(ArrayList<ObjectGuid> value) {
-        clientGuiDs = value;
-    }
-
-    public final ArrayList<ObjectGuid> getVisibleTransports() {
-        return visibleTransports;
-    }
-
-    public final void setVisibleTransports(ArrayList<ObjectGuid> value) {
-        visibleTransports = value;
-    }
-
-    public final AtLoginFlags getLoginFlags() {
-        return loginFlags;
-    }
-
-    public final void setLoginFlags(AtLoginFlags value) {
-        loginFlags = value;
-    }
-
-    public final boolean getItemUpdateQueueBlocked() {
-        return itemUpdateQueueBlocked;
-    }
-
-    public final void setItemUpdateQueueBlocked(boolean value) {
-        itemUpdateQueueBlocked = value;
-    }
-
-    public final boolean isDebugAreaTriggers() {
-        return isDebugAreaTriggers;
-    }
-
-    public final void setDebugAreaTriggers(boolean value) {
-        isDebugAreaTriggers = value;
-    }
-
-    public final WorldSession getSession() {
-        return session;
-    }
-
-    public final PlayerSocial getSocial() {
-        return social;
-    }
 
     public final boolean isUsingLfg() {
         return global.getLFGMgr().getState(getGUID()) != LfgState.NONE;
     }
 
-    public final PlayerGroup getGroupInvite() {
-        return groupInvite;
-    }
 
-    public final void setGroupInvite(PlayerGroup value) {
-        groupInvite = value;
-    }
 
     public final PlayerGroup getGroup() {
         return group.refManager();
@@ -14963,12 +14748,9 @@ public class Player extends Unit implements GirdObject {
         return group.getSubGroup();
     }
 
-    public final GroupUpdateFlags getGroupUpdateFlag() {
-        return groupUpdateFlags;
-    }
 
-    public final void setGroupUpdateFlag(GroupUpdateFlags flag) {
-        groupUpdateFlags = GroupUpdateFlags.forValue(groupUpdateFlags.getValue() | flag.getValue());
+    public final void setGroupUpdateFlag(GroupUpdateFlag flag) {
+        groupUpdateFlags.addFlag(flag);
     }
 
     public final PlayerGroup getOriginalGroup() {
@@ -16189,7 +15971,7 @@ public class Player extends Unit implements GirdObject {
                         // TODO: when you right-click already equipped item it throws EQUIP_ERR_PROFICIENCY_NEEDED.
                         // In fact it's a visual bug, everything works properly... I need sniffs of operations with
                         // binded to account items from off server.
-                        switch (getClass()) {
+                        switch (getUnitClass()) {
                             case Hunter:
                             case Shaman:
                                 allowEquip = (itemSkill == SkillType.MAIL);
@@ -16326,7 +16108,7 @@ public class Player extends Unit implements GirdObject {
                 _ApplyItemMods(pItem, slot, true);
 
                 if (pProto != null && isInCombat() && (pProto.getClass() == itemClass.Weapon || pProto.getInventoryType() == inventoryType.Relic) && weaponChangeTimer == 0) {
-                    var cooldownSpell = getClass() == playerClass.Rogue ? 6123 : 6119;
+                    var cooldownSpell = getUnitClass() == UnitClass.Rogue ? 6123 : 6119;
                     var spellProto = global.getSpellMgr().getSpellInfo(cooldownSpell, Difficulty.NONE);
 
                     if (spellProto == null) {
@@ -17569,9 +17351,9 @@ public class Player extends Unit implements GirdObject {
     }
 
 
-    public final Item getItemByPos(byte bag, byte slot) {
-        if (bag == InventorySlots.Bag0 && slot < PlayerSlot.End.getValue() && (slot < InventorySlots.BuyBackStart || slot >= InventorySlots.BuyBackEnd)) {
-            return _items[slot];
+    public final Item getItemByPos(short bag, short slot) {
+        if (bag == INVENTORY_SLOT_BAG_0 && slot < PLAYER_SLOT_END && (slot < BUYBACK_SLOT_START || slot >= BUYBACK_SLOT_END)) {
+            return items[slot];
         }
 
         var pBag = getBagByPos(bag);
@@ -17848,7 +17630,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         if (proto.getClass() == itemClass.armor && proto.getInventoryType() != inventoryType.Cloak) {
-            var classesEntry = CliDB.ChrClassesStorage.get(getClass());
+            var classesEntry = CliDB.ChrClassesStorage.get(getUnitClass());
 
             if ((classesEntry.ArmorTypeMask & 1 << proto.getSubClass()) == 0) {
                 return InventoryResult.ClientLockedOut;
@@ -17891,8 +17673,8 @@ public class Player extends Unit implements GirdObject {
             Log.outDebug(LogFilter.player, "STORAGE: AddItemToBuyBackSlot item = {0}, slot = {1}", pItem.getEntry(), slot);
 
             _items[slot] = pItem;
-            var time = gameTime.GetGameTime();
-            var etime = (int) (time - logintime + (30 * 3600));
+            var time = GameTime.getGameTime();
+            var etime = (int) (time - loginTime + (30 * 3600));
             var eslot = slot - InventorySlots.BuyBackStart;
 
             setInvSlot(slot, pItem.getGUID());
@@ -19215,85 +18997,60 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final int getFreeInventorySlotCount() {
-        return getFreeInventorySlotCount(ItemSearchLocation.Inventory);
+        return getFreeInventorySlotCount(EnumFlag.of(ItemSearchLocation.Inventory));
     }
 
-    public final int getFreeInventorySlotCount(ItemSearchLocation location) {
+    public final int getFreeInventorySlotCount(EnumFlag<ItemSearchLocation> location) {
         int freeSlotCount = 0;
 
         if (location.hasFlag(ItemSearchLocation.Equipment)) {
-            for (var i = EquipmentSlot.start; i < EquipmentSlot.End; ++i) {
-                if (getItemByPos(InventorySlots.Bag0, i) == null) {
+            for (var i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+                if (getItemByPos(INVENTORY_SLOT_BAG_0, i) == null)
                     ++freeSlotCount;
-                }
-            }
 
-            for (var i = ProfessionSlots.start; i < ProfessionSlots.End; ++i) {
-                if (!getItemByPos(InventorySlots.Bag0, i)) {
+            for (var i = PROFESSION_SLOT_START; i < PROFESSION_SLOT_END; ++i)
+                if (getItemByPos(INVENTORY_SLOT_BAG_0, i) == null)
                     ++freeSlotCount;
-                }
-            }
         }
 
         if (location.hasFlag(ItemSearchLocation.Inventory)) {
-            var inventoryEnd = InventorySlots.ItemStart + getInventorySlotCount();
-
-            for (var i = InventorySlots.ItemStart; i < inventoryEnd; ++i) {
-                if (getItemByPos(InventorySlots.Bag0, i) == null) {
+            var inventoryEnd = INVENTORY_SLOT_ITEM_START + getInventorySlotCount();
+            for (var i = INVENTORY_SLOT_BAG_START; i < inventoryEnd; ++i)
+                if (getItemByPos(INVENTORY_SLOT_BAG_0, i) == null)
                     ++freeSlotCount;
-                }
-            }
 
-            for (var i = InventorySlots.BagStart; i < InventorySlots.BagEnd; ++i) {
-                var bag = getBagByPos(i);
-
-                if (bag != null) {
-                    for (byte j = 0; j < bag.getBagSize(); ++j) {
-                        if (bag.getItemByPos(j) == null) {
+            for (var i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i) {
+                Bag bag = getBagByPos(i);
+                if (bag != null)
+                    for (var j = 0; j < bag.getBagSize(); ++j)
+                        if (bag.getItemByPos((byte) j) == null)
                             ++freeSlotCount;
-                        }
-                    }
-                }
             }
+
         }
 
         if (location.hasFlag(ItemSearchLocation.Bank)) {
-            for (var i = InventorySlots.BankItemStart; i < InventorySlots.BankItemEnd; ++i) {
-                if (getItemByPos(InventorySlots.Bag0, i) == null) {
+            for (var i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i) {
+                if (getItemByPos(INVENTORY_SLOT_BAG_0, i) == null)
                     ++freeSlotCount;
-                }
             }
 
-            for (var i = InventorySlots.BankBagStart; i < InventorySlots.BankBagEnd; ++i) {
-                var bag = getBagByPos(i);
-
-                if (bag != null) {
-                    for (byte j = 0; j < bag.getBagSize(); ++j) {
-                        if (bag.getItemByPos(j) == null) {
+            for (var i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i) {
+                Bag bag = getBagByPos(i);
+                if (bag != null)
+                    for (var j = 0; j < bag.getBagSize(); ++j)
+                        if (bag.getItemByPos((byte) j) == null)
                             ++freeSlotCount;
-                        }
-                    }
-                }
             }
         }
 
         if (location.hasFlag(ItemSearchLocation.ReagentBank)) {
-            for (var i = InventorySlots.ReagentBagStart; i < InventorySlots.ReagentBagEnd; ++i) {
-                var bag = getBagByPos(i);
-
-                if (bag != null) {
-                    for (byte j = 0; j < bag.getBagSize(); ++j) {
-                        if (bag.getItemByPos(j) == null) {
+            for (var i = REAGENT_BAG_SLOT_START; i < REAGENT_BAG_SLOT_END; ++i) {
+                Bag bag = getBagByPos(i);
+                if (bag != null)
+                    for (var j = 0; j < bag.getBagSize(); ++j)
+                        if (bag.getItemByPos((byte) j) == null)
                             ++freeSlotCount;
-                        }
-                    }
-                }
-            }
-
-            for (var i = InventorySlots.ReagentStart; i < InventorySlots.ReagentEnd; ++i) {
-                if (getItemByPos(InventorySlots.Bag0, i) == null) {
-                    ++freeSlotCount;
-                }
             }
         }
 
@@ -19305,36 +19062,35 @@ public class Player extends Unit implements GirdObject {
         int freeSpace = 0;
 
         // Check backpack
-        for (var slot = InventorySlots.ItemStart; slot < InventorySlots.ItemEnd; ++slot) {
-            var item = getItemByPos(InventorySlots.Bag0, slot);
-
+        for (var slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; ++slot) {
+            Item item = getItemByPos(INVENTORY_SLOT_BAG_0, slot);
             if (item == null) {
                 freeSpace += 1;
             }
         }
 
         // Check bags
-        for (var i = InventorySlots.BagStart; i < InventorySlots.BagEnd; i++) {
+        for (var i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++) {
             var bag = getBagByPos(i);
-
             if (bag != null) {
                 freeSpace += bag.getFreeSlots();
             }
         }
-
         return freeSpace;
+
     }
 
     //Bags
-    public final Bag getBagByPos(byte bag) {
-        if ((bag >= InventorySlots.BagStart && bag < InventorySlots.BagEnd) || (bag >= InventorySlots.BankBagStart && bag < InventorySlots.BankBagEnd) || (bag >= InventorySlots.ReagentBagStart && bag < InventorySlots.ReagentBagEnd)) {
-            var item = getItemByPos(InventorySlots.Bag0, bag);
+    public final Bag getBagByPos(short bag) {
+        if ((bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END)
+                || (bag >= BANK_SLOT_BAG_START && bag < BANK_SLOT_BAG_END)
+                || (bag >= REAGENT_BAG_SLOT_START && bag < REAGENT_BAG_SLOT_END)) {
 
+            Item item = getItemByPos(INVENTORY_SLOT_BAG_0, bag);
             if (item != null) {
-                return item.getAsBag();
+                return item.toBag();
             }
         }
-
         return null;
     }
 
@@ -20499,7 +20255,7 @@ public class Player extends Unit implements GirdObject {
             repopAtGraveyard();
         }
 
-        corpseLocation = new worldLocation();
+        corpseLocation = new WorldLocation();
 
         // We have to convert player corpse to bones, not to be able to resurrect there
         // SpawnCorpseBones isn't handy, 'cos it saves player while he in BG
@@ -20512,7 +20268,7 @@ public class Player extends Unit implements GirdObject {
         // Now we must make bones lootable, and send player loot
         bones.setCorpseDynamicFlag(CorpseDynFlags.Lootable);
 
-        bones.setLoot(new loot(getMap(), bones.getGUID(), LootType.Insignia, looterPlr.getGroup()));
+        bones.setLoot(new Loot(getMap(), bones.getGUID(), LootType.Insignia, looterPlr.getGroup()));
 
         // For AV Achievement
         var bg = getBattleground();
@@ -21540,7 +21296,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // item can't be added
-        Log.outError(LogFilter.player, "STORAGE: Can't equip or store initial item {0} for race {1} class {2}, error msg = {3}", itemId, getRace(), getClass(), msg);
+        Log.outError(LogFilter.player, "STORAGE: Can't equip or store initial item {0} for race {1} class {2}, error msg = {3}", itemId, getRace(), getUnitClass(), msg);
 
         return false;
     }
@@ -22749,7 +22505,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void autoStoreLoot(byte bag, byte slot, int loot_id, LootStore store, ItemContext context, boolean broadcast, boolean createdByPlayer) {
-        Loot loot = new loot(null, ObjectGuid.Empty, LootType.NONE, null);
+        Loot loot = new Loot(null, ObjectGuid.Empty, LootType.NONE, null);
         loot.fillLoot(loot_id, store, this, true, false, LootModes.Default, context);
 
         loot.autoStore(this, bag, slot, broadcast, createdByPlayer);
@@ -23092,7 +22848,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void sendRaidInfo() {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         var instanceLocks = global.getInstanceLockMgr().getInstanceLocksForPlayer(getGUID());
 
@@ -23534,15 +23290,6 @@ public class Player extends Unit implements GirdObject {
         return global.getBattlegroundMgr().getBattleground(getBattlegroundId(), bgData.getBgTypeId());
     }
 
-    public final boolean getHasFreeBattlegroundQueueId() {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), null)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     public final WorldLocation getBattlegroundEntryPoint() {
         return bgData.getJoinPos();
@@ -23567,8 +23314,8 @@ public class Player extends Unit implements GirdObject {
     //PvP
     public final void updateHonorFields() {
         // called when rewarding honor and at each save
-        var now = gameTime.GetGameTime();
-        var today = (gameTime.GetGameTime() / time.Day) * time.Day;
+        var now = GameTime.getGameTime();
+        var today = (GameTime.getGameTime() / time.Day) * time.Day;
 
         if (lastHonorUpdateTime < today) {
             var yesterday = today - time.Day;
@@ -23599,7 +23346,7 @@ public class Player extends Unit implements GirdObject {
     public final boolean rewardHonor(Unit victim, int groupsize, int honor, boolean pvptoken) {
         // do not reward honor in arenas, but enable onkill spellproc
         if (getInArena()) {
-            if (!victim || victim == this || !victim.isTypeId(TypeId.PLAYER)) {
+            if (!victim || victim == this || !victim.isTypeId(PLAYER)) {
                 return false;
             }
 
@@ -23677,7 +23424,7 @@ public class Player extends Unit implements GirdObject {
                 // and those in a lifetime
                 applyModUpdateFieldValue(getValues().modifyValue(getActivePlayerData()).modifyValue(getActivePlayerData().lifetimeHonorableKills), 1, true);
                 updateCriteria(CriteriaType.honorableKills);
-                updateCriteria(CriteriaType.DeliverKillingBlowToClass, (int) victim.getClass().getValue());
+                updateCriteria(CriteriaType.DeliverKillingBlowToClass, (int) victim.getUnitClass().getValue());
                 updateCriteria(CriteriaType.DeliverKillingBlowToRace, (int) victim.getRace().getValue());
                 updateCriteria(CriteriaType.PVPKillInArea, getAreaId());
                 updateCriteria(CriteriaType.EarnHonorableKill, 1, 0, 0, victim);
@@ -23735,7 +23482,7 @@ public class Player extends Unit implements GirdObject {
                 return true;
             }
 
-            if (victim != null && victim.isTypeId(TypeId.PLAYER)) {
+            if (victim != null && victim.isTypeId(PLAYER)) {
                 // Check if allowed to receive it in current map
                 var mapType = WorldConfig.getIntValue(WorldCfg.PvpTokenMapType);
 
@@ -23826,37 +23573,36 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean inBattlegroundQueue(boolean ignoreArena) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opNotEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), null) && (!ignoreArena || _battlegroundQueueIdRecs[i].getBgQueueTypeId().battlemasterListId != (short) getBattlegroundTypeId().AA.getValue())) {
+        for (var i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+            if (battlegroundQueueIdRecs[i].bgQueueTypeId != BATTLEGROUND_QUEUE_NONE
+                    && (!ignoreArena || battlegroundQueueIdRecs[i].bgQueueTypeId.BattlemasterListId != BATTLEGROUND_AA))
                 return true;
-            }
-        }
+        return false;
 
         return false;
     }
 
     public final BattlegroundQueueTypeId getBattlegroundQueueTypeId(int index) {
-        if (index < SharedConst.MaxPlayerBGQueues) {
-            return _battlegroundQueueIdRecs[index].getBgQueueTypeId();
+        if (index < PLAYER_MAX_BATTLEGROUND_QUEUES) {
+            return battlegroundQueueIdRecs[index].getBgQueueTypeId();
         }
 
         return null;
     }
 
     public final int getBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
                 return i;
             }
         }
-
-        return SharedConst.MaxPlayerBGQueues;
+        return PLAYER_MAX_BATTLEGROUND_QUEUES;
     }
 
     public final boolean isInvitedForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
-                return _battlegroundQueueIdRecs[i].getInvitedToInstance() != 0;
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
+                return battlegroundQueueIdRecs[i].getInvitedToInstance() != 0;
             }
         }
 
@@ -23864,7 +23610,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean inBattlegroundQueueForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) {
-        return getBattlegroundQueueIndex(bgQueueTypeId) < SharedConst.MaxPlayerBGQueues;
+        return getBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES;
     }
 
     public final void setBattlegroundId(int val, BattlegroundTypeId bgTypeId) {
@@ -23873,27 +23619,27 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final int addBattlegroundQueueId(BattlegroundQueueTypeId val) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), null) || BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), val)) {
-                _battlegroundQueueIdRecs[i].setBgQueueTypeId(val);
-                _battlegroundQueueIdRecs[i].setInvitedToInstance(0);
-                _battlegroundQueueIdRecs[i].setJoinTime((int) gameTime.GetGameTime());
-                _battlegroundQueueIdRecs[i].setMercenary(hasAura(BattlegroundConst.SpellMercenaryContractHorde) || hasAura(BattlegroundConst.SpellMercenaryContractAlliance));
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), null) || Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), val)) {
+                battlegroundQueueIdRecs[i].setBgQueueTypeId(val);
+                battlegroundQueueIdRecs[i].setInvitedToInstance(0);
+                battlegroundQueueIdRecs[i].setJoinTime((int) GameTime.getGameTime());
+                battlegroundQueueIdRecs[i].setMercenary(hasAura(BattlegroundSpell.MERCENARY_CONTRACT_HORDE) || hasAura(BattlegroundSpell.MERCENARY_CONTRACT_ALLIANCE));
 
                 return i;
             }
         }
 
-        return SharedConst.MaxPlayerBGQueues;
+        return PLAYER_MAX_BATTLEGROUND_QUEUES;
     }
 
     public final void removeBattlegroundQueueId(BattlegroundQueueTypeId val) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), val)) {
-                _battlegroundQueueIdRecs[i].setBgQueueTypeId(null);
-                _battlegroundQueueIdRecs[i].setInvitedToInstance(0);
-                _battlegroundQueueIdRecs[i].setJoinTime(0);
-                _battlegroundQueueIdRecs[i].setMercenary(false);
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), val)) {
+                battlegroundQueueIdRecs[i].setBgQueueTypeId(null);
+                battlegroundQueueIdRecs[i].setInvitedToInstance(0);
+                battlegroundQueueIdRecs[i].setJoinTime(0);
+                battlegroundQueueIdRecs[i].setMercenary(false);
 
                 return;
             }
@@ -23901,16 +23647,16 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void setInviteForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, int instanceId) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
-                _battlegroundQueueIdRecs[i].setInvitedToInstance(instanceId);
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
+                battlegroundQueueIdRecs[i].setInvitedToInstance(instanceId);
             }
         }
     }
 
     public final boolean isInvitedForBattlegroundInstance(int instanceId) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (_battlegroundQueueIdRecs[i].getInvitedToInstance() == instanceId) {
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (battlegroundQueueIdRecs[i].getInvitedToInstance() == instanceId) {
                 return true;
             }
         }
@@ -23919,9 +23665,9 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean isMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
-                return _battlegroundQueueIdRecs[i].getMercenary();
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
+                return battlegroundQueueIdRecs[i].getMercenary();
             }
         }
 
@@ -23929,9 +23675,9 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final int getBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
-                return _battlegroundQueueIdRecs[i].getJoinTime();
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
+                return battlegroundQueueIdRecs[i].getJoinTime();
             }
         }
 
@@ -23962,7 +23708,7 @@ public class Player extends Unit implements GirdObject {
             bgData.getTaxiPath()[1] = getTaxi().getTaxiDestination();
 
             // On taxi we don't need check for dungeon
-            bgData.setJoinPos(new worldLocation(getLocation().getMapId(), getLocation().getX(), getLocation().getY(), getLocation().getZ(), getLocation().getO()));
+            bgData.setJoinPos(new WorldLocation(getLocation().getMapId(), getLocation().getX(), getLocation().getY(), getLocation().getZ(), getLocation().getO()));
         } else {
             bgData.clearTaxiPath();
 
@@ -23989,13 +23735,13 @@ public class Player extends Unit implements GirdObject {
             }
             // If new entry point is not BG or arena set it
             else if (!getMap().isBattlegroundOrArena()) {
-                bgData.setJoinPos(new worldLocation(getLocation().getMapId(), getLocation().getX(), getLocation().getY(), getLocation().getZ(), getLocation().getO()));
+                bgData.setJoinPos(new WorldLocation(getLocation().getMapId(), getLocation().getX(), getLocation().getY(), getLocation().getZ(), getLocation().getO()));
             }
         }
 
         if (bgData.getJoinPos().getMapId() == 0xFFFFFFFF) // In error cases use homebind position
         {
-            bgData.setJoinPos(new worldLocation(getHomeBind()));
+            bgData.setJoinPos(new WorldLocation(getHomeBind()));
         }
     }
 
@@ -24283,9 +24029,9 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void setMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, boolean mercenary) {
-        for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i) {
-            if (BattlegroundQueueTypeId.opEquals(_battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
-                _battlegroundQueueIdRecs[i].setMercenary(mercenary);
+        for (byte i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i) {
+            if (Objects.equals(battlegroundQueueIdRecs[i].getBgQueueTypeId(), bgQueueTypeId)) {
+                battlegroundQueueIdRecs[i].setMercenary(mercenary);
             }
         }
     }
@@ -24323,7 +24069,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void removeTimedQuest(int questId) {
-        timedquests.remove((Integer) questId);
+        timedQuests.remove((Integer) questId);
     }
 
     public final ArrayList<Integer> getRewardedQuests() {
@@ -24467,11 +24213,11 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void resetWeeklyQuestStatus() {
-        if (weeklyquests.isEmpty()) {
+        if (weeklyQuests.isEmpty()) {
             return;
         }
 
-        for (var questId : weeklyquests) {
+        for (var questId : weeklyQuests) {
             var questBit = global.getDB2Mgr().GetQuestUniqueBitFlag(questId);
 
             if (questBit != 0) {
@@ -24479,7 +24225,7 @@ public class Player extends Unit implements GirdObject {
             }
         }
 
-        weeklyquests.clear();
+        weeklyQuests.clear();
         // DB data deleted in caller
         weeklyQuestChanged = false;
     }
@@ -24488,7 +24234,7 @@ public class Player extends Unit implements GirdObject {
         // DB data deleted in caller
         seasonalQuestChanged = false;
 
-        var eventList = seasonalquests.get(event_id);
+        var eventList = seasonalQuests.get(event_id);
 
         if (eventList == null) {
             return;
@@ -24508,16 +24254,16 @@ public class Player extends Unit implements GirdObject {
         }
 
         if (eventList.isEmpty()) {
-            seasonalquests.remove(event_id);
+            seasonalQuests.remove(event_id);
         }
     }
 
     public final void resetMonthlyQuestStatus() {
-        if (monthlyquests.isEmpty()) {
+        if (monthlyQuests.isEmpty()) {
             return;
         }
 
-        for (var questId : monthlyquests) {
+        for (var questId : monthlyQuests) {
             var questBit = global.getDB2Mgr().GetQuestUniqueBitFlag(questId);
 
             if (questBit != 0) {
@@ -24525,7 +24271,7 @@ public class Player extends Unit implements GirdObject {
             }
         }
 
-        monthlyquests.clear();
+        monthlyQuests.clear();
         // DB data deleted in caller
         monthlyQuestChanged = false;
     }
@@ -24818,7 +24564,7 @@ public class Player extends Unit implements GirdObject {
 
     public final boolean canRewardQuest(Quest quest, boolean msg) {
         // quest is disabled
-        if (global.getDisableMgr().isDisabledFor(DisableType.Quest, quest.id, this)) {
+        if (worldContext.getDisableManager().isDisabledFor(DisableType.Quest, quest.id, this)) {
             return false;
         }
 
@@ -24867,7 +24613,7 @@ public class Player extends Unit implements GirdObject {
                     }
 
                     break;
-                case Money:
+                case MoneyUnit:
                     if (!hasEnoughMoney(obj.amount)) {
                         return false;
                     }
@@ -25091,13 +24837,13 @@ public class Player extends Unit implements GirdObject {
 
         if (limittime != 0) {
             // shared timed quest
-            if (questGiver != null && questGiver.isTypeId(TypeId.PLAYER)) {
+            if (questGiver != null && questGiver.isTypeId(PLAYER)) {
                 limittime = questGiver.toPlayer().mQuestStatus.get(questId).Timer / time.InMilliseconds;
             }
 
             addTimedQuest(questId);
             questStatusData.timer = limittime * time.InMilliseconds;
-            endTime = gameTime.GetGameTime() + limittime;
+            endTime = GameTime.getGameTime() + limittime;
         } else {
             questStatusData.timer = 0;
         }
@@ -25123,7 +24869,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         setQuestSlotEndTime(logSlot, endTime);
-        setQuestSlotAcceptTime(logSlot, gameTime.GetGameTime());
+        setQuestSlotAcceptTime(logSlot, GameTime.getGameTime());
 
         questStatusSave.put(questId, QuestSaveType.Default);
 
@@ -25884,7 +25630,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean satisfyQuestTimed(Quest qInfo, boolean msg) {
-        if (!timedquests.isEmpty() && qInfo.limitTime != 0) {
+        if (!timedQuests.isEmpty() && qInfo.limitTime != 0) {
             if (msg) {
                 sendCanTakeQuestResponse(QuestFailedReasons.OnlyOneTimed);
                 Log.outDebug(LogFilter.Server, "SatisfyQuestTimed: Sent QuestFailedReasons.OnlyOneTimed (questId: {0}) because player is already on a timed quest.", qInfo.id);
@@ -25950,20 +25696,20 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean satisfyQuestWeek(Quest qInfo, boolean msg) {
-        if (!qInfo.isWeekly() || weeklyquests.isEmpty()) {
+        if (!qInfo.isWeekly() || weeklyQuests.isEmpty()) {
             return true;
         }
 
         // if not found in cooldown list
-        return !weeklyquests.contains(qInfo.id);
+        return !weeklyQuests.contains(qInfo.id);
     }
 
     public final boolean satisfyQuestSeasonal(Quest qInfo, boolean msg) {
-        if (!qInfo.isSeasonal() || seasonalquests.isEmpty()) {
+        if (!qInfo.isSeasonal() || seasonalQuests.isEmpty()) {
             return true;
         }
 
-        var list = seasonalquests.get(qInfo.getEventIdForQuest());
+        var list = seasonalQuests.get(qInfo.getEventIdForQuest());
 
         if (list == null || list.isEmpty()) {
             return true;
@@ -25988,12 +25734,12 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final boolean satisfyQuestMonth(Quest qInfo, boolean msg) {
-        if (!qInfo.isMonthly() || monthlyquests.isEmpty()) {
+        if (!qInfo.isMonthly() || monthlyQuests.isEmpty()) {
             return true;
         }
 
         // if not found in cooldown list
-        return !monthlyquests.contains(qInfo.id);
+        return !monthlyQuests.contains(qInfo.id);
     }
 
     public final boolean giveQuestSourceItem(Quest quest) {
@@ -26187,8 +25933,8 @@ public class Player extends Unit implements GirdObject {
         if (qInfo.isSeasonal()) {
             var eventId = qInfo.getEventIdForQuest();
 
-            if (seasonalquests.containsKey(eventId)) {
-                seasonalquests.get(eventId).remove(questId);
+            if (seasonalQuests.containsKey(eventId)) {
+                seasonalQuests.get(eventId).remove(questId);
                 seasonalQuestChanged = true;
             }
         }
@@ -26676,7 +26422,7 @@ public class Player extends Unit implements GirdObject {
                             objectiveIsNowComplete = getReputationMgr().getReputation(objectId) + addCount <= objective.amount;
 
                             break;
-                        case Money:
+                        case MoneyUnit:
                             objectiveIsNowComplete = getMoney() + addCount >= objective.amount;
 
                             break;
@@ -26925,7 +26671,7 @@ public class Player extends Unit implements GirdObject {
                 }
 
                 break;
-            case Money:
+            case MoneyUnit:
                 if (!hasEnoughMoney(objective.amount)) {
                     return false;
                 }
@@ -27317,7 +27063,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private void addTimedQuest(int questId) {
-        timedquests.add(questId);
+        timedQuests.add(questId);
     }
 
 
@@ -27572,11 +27318,11 @@ public class Player extends Unit implements GirdObject {
         if (qQuest != null) {
             if (!qQuest.isDFQuest()) {
                 addDynamicUpdateFieldValue(getValues().modifyValue(getActivePlayerData()).modifyValue(getActivePlayerData().dailyQuestsCompleted), quest_id);
-                lastDailyQuestTime = gameTime.GetGameTime(); // last daily quest time
+                lastDailyQuestTime = GameTime.getGameTime(); // last daily quest time
                 dailyQuestChanged = true;
             } else {
                 dfQuests.add(quest_id);
-                lastDailyQuestTime = gameTime.GetGameTime();
+                lastDailyQuestTime = GameTime.getGameTime();
                 dailyQuestChanged = true;
             }
         }
@@ -27584,7 +27330,7 @@ public class Player extends Unit implements GirdObject {
 
 
     private void setWeeklyQuestStatus(int quest_id) {
-        weeklyquests.add(quest_id);
+        weeklyQuests.add(quest_id);
         weeklyQuestChanged = true;
     }
 
@@ -27596,17 +27342,17 @@ public class Player extends Unit implements GirdObject {
             return;
         }
 
-        if (!seasonalquests.containsKey(quest.getEventIdForQuest())) {
-            seasonalquests.put(quest.getEventIdForQuest(), new HashMap<Integer, Long>());
+        if (!seasonalQuests.containsKey(quest.getEventIdForQuest())) {
+            seasonalQuests.put(quest.getEventIdForQuest(), new HashMap<Integer, Long>());
         }
 
-        seasonalquests.get(quest.getEventIdForQuest()).put(quest_id, gameTime.GetGameTime());
+        seasonalQuests.get(quest.getEventIdForQuest()).put(quest_id, GameTime.getGameTime());
         seasonalQuestChanged = true;
     }
 
 
     private void setMonthlyQuestStatus(int quest_id) {
-        monthlyquests.add(quest_id);
+        monthlyQuests.add(quest_id);
         monthlyQuestChanged = true;
     }
 
@@ -27670,7 +27416,7 @@ public class Player extends Unit implements GirdObject {
             }
 
             var pskill = pair.getKey();
-            var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(pskill, getRace(), getClass());
+            var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(pskill, getRace(), getUnitClass());
 
             if (rcEntry == null) {
                 continue;
@@ -27695,11 +27441,11 @@ public class Player extends Unit implements GirdObject {
 
 
     public final short getSkillValue(SkillType skill) {
-        if (skill == 0) {
+        if (skill == SkillType.NONE) {
             return 0;
         }
 
-        SkillInfo skillInfo = getActivePlayerData().skill;
+        SkillInfo skillInfo = activePlayerData.getSkill();
 
         var skillStatusData = skillStatus.get(skill);
 
@@ -28754,7 +28500,7 @@ public class Player extends Unit implements GirdObject {
 
             if (skillEntry.ParentSkillLineID != 0) {
                 if (skillEntry.ParentTierIndex > 0) {
-                    var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(skillEntry.ParentSkillLineID, getRace(), getClass());
+                    var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(skillEntry.ParentSkillLineID, getRace(), getUnitClass());
 
                     if (rcEntry != null) {
                         var tier = global.getObjectMgr().getSkillTier(rcEntry.SkillTierID);
@@ -29384,10 +29130,10 @@ public class Player extends Unit implements GirdObject {
         //    return;
 
         // learn default race/class spells
-        var info = global.getObjectMgr().getPlayerInfo(getRace(), getClass());
+        var info = global.getObjectMgr().getPlayerInfo(getRace(), getUnitClass());
 
         for (var tspell : info.getCustomSpells()) {
-            Log.outDebug(LogFilter.player, "PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", getClass(), getRace(), tspell);
+            Log.outDebug(LogFilter.player, "PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", getUnitClass(), getRace(), tspell);
 
             if (!isInWorld()) // will send in INITIAL_SPELLS in list anyway at map add
             {
@@ -29401,7 +29147,7 @@ public class Player extends Unit implements GirdObject {
 
     public final void learnDefaultSkills() {
         // learn default race/class skills
-        var info = global.getObjectMgr().getPlayerInfo(getRace(), getClass());
+        var info = global.getObjectMgr().getPlayerInfo(getRace(), getUnitClass());
 
         for (var rcInfo : info.getSkills()) {
             if (hasSkill(SkillType.forValue(rcInfo.SkillID))) {
@@ -29430,7 +29176,7 @@ public class Player extends Unit implements GirdObject {
 
                 if (rcInfo.flags.hasFlag(SkillRaceClassInfoFlags.AlwaysMaxValue)) {
                     skillValue = maxValue;
-                } else if (getClass() == playerClass.Deathknight) {
+                } else if (getUnitClass() == UnitClass.DEATH_KNIGHT) {
                     skillValue = (short) Math.min(Math.max(1, (getLevel() - 1) * 5), maxValue);
                 }
 
@@ -29449,7 +29195,7 @@ public class Player extends Unit implements GirdObject {
 
                 if (rcInfo.flags.hasFlag(SkillRaceClassInfoFlags.AlwaysMaxValue)) {
                     skillValue = maxValue;
-                } else if (getClass() == playerClass.Deathknight) {
+                } else if (getUnitClass() == UnitClass.DEATH_KNIGHT) {
                     skillValue = (short) Math.min(Math.max(1, (getLevel() - 1) * 5), maxValue);
                 }
 
@@ -29773,7 +29519,7 @@ public class Player extends Unit implements GirdObject {
 
     public final void addStoredAuraTeleportLocation(int spellId) {
         StoredAuraTeleportLocation storedLocation = new StoredAuraTeleportLocation();
-        storedLocation.setLoc(new worldLocation(getLocation()));
+        storedLocation.setLoc(new WorldLocation(getLocation()));
         storedLocation.setCurrentState(StoredAuraTeleportLocation.state.changed);
 
         storedAuraTeleportLocations.put(spellId, storedLocation);
@@ -30275,7 +30021,7 @@ public class Player extends Unit implements GirdObject {
 
 
 
-        if (getClass() != PlayerClass.DEATH_KNIGHT) {
+        if (getUnitClass() != UnitClass.DEATH_KNIGHT) {
             return;
         }
 
@@ -30317,7 +30063,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void updateAllRunesRegen() {
-        if (getClass() != playerClass.Deathknight) {
+        if (getUnitClass() != UnitClass.DEATH_KNIGHT) {
             return;
         }
 
@@ -30348,7 +30094,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // Check no reagent use mask
-        FlagArray128 noReagentMask = new flagArray128();
+        Flag128 noReagentMask = new Flag128();
         noReagentMask.set(0, getActivePlayerData().noReagentCostMask.get(0));
         noReagentMask.set(1, getActivePlayerData().noReagentCostMask.get(1));
         noReagentMask.set(2, getActivePlayerData().noReagentCostMask.get(2));
@@ -30357,7 +30103,7 @@ public class Player extends Unit implements GirdObject {
         return spellInfo.getSpellFamilyFlags() & noReagentMask;
     }
 
-    public final void setNoRegentCostMask(FlagArray128 mask) {
+    public final void setNoRegentCostMask(Flag128 mask) {
         for (byte i = 0; i < 4; ++i) {
 
             setUpdateFieldValue(ref getValues().modifyValue(getActivePlayerData()).modifyValue(getActivePlayerData().noReagentCostMask, i), mask.get(i));
@@ -30569,7 +30315,7 @@ public class Player extends Unit implements GirdObject {
         int family;
 
         if (myClassOnly) {
-            var clsEntry = CliDB.ChrClassesStorage.get(getClass());
+            var clsEntry = CliDB.ChrClassesStorage.get(getUnitClass());
 
             if (clsEntry == null) {
                 return;
@@ -30722,7 +30468,7 @@ public class Player extends Unit implements GirdObject {
 
     private void removeSpecializationSpells() {
         for (int i = 0; i < MAX_SPECIALIZATIONS; ++i) {
-            var specialization = global.getDB2Mgr().GetChrSpecializationByIndex(getClass(), i);
+            var specialization = global.getDB2Mgr().GetChrSpecializationByIndex(getUnitClass(), i);
 
             if (specialization != null) {
                 var specSpells = global.getDB2Mgr().GetSpecializationSpells(specialization.id);
@@ -30753,7 +30499,7 @@ public class Player extends Unit implements GirdObject {
         int i = 0;
 
         for (var skillLine : CliDB.SkillLineStorage.values()) {
-            var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(skillLine.id, getRace(), getClass());
+            var rcEntry = global.getDB2Mgr().GetSkillRaceClassInfo(skillLine.id, getRace(), getUnitClass());
 
             if (rcEntry != null) {
                 setSkillLineId(i, (short) skillLine.id);
@@ -31617,7 +31363,7 @@ public class Player extends Unit implements GirdObject {
 
                 // Runeforging special case
                 if ((_spell_idx.AcquireMethod == AbilityLearnType.OnSkillLearn && !hasSkill(SkillType.forValue(_spell_idx.skillLine))) || ((_spell_idx.skillLine == SkillType.Runeforging.getValue()) && _spell_idx.TrivialSkillLineRankHigh == 0)) {
-                    var rcInfo = global.getDB2Mgr().GetSkillRaceClassInfo(_spell_idx.skillLine, getRace(), getClass());
+                    var rcInfo = global.getDB2Mgr().GetSkillRaceClassInfo(_spell_idx.skillLine, getRace(), getUnitClass());
 
                     if (rcInfo != null) {
                         learnDefaultSkill(rcInfo);
@@ -31736,7 +31482,7 @@ public class Player extends Unit implements GirdObject {
             flatMod.modIndex = pctMod.modIndex = (byte) i;
 
             for (byte j = 0; j < 128; ++j) {
-                FlagArray128 mask = new flagArray128();
+                Flag128 mask = new Flag128();
                 mask.set(j / 32, 1 << (j % 32));
 
                 SpellModifierData flatData = new SpellModifierData();
@@ -32042,7 +31788,7 @@ public class Player extends Unit implements GirdObject {
         // Get base of Mana Pool in sBaseMPGameTable
         int basemana;
         tangible.OutObject<Integer> tempOut_basemana = new tangible.OutObject<Integer>();
-        global.getObjectMgr().getPlayerClassLevelInfo(getClass(), getLevel(), tempOut_basemana);
+        global.getObjectMgr().getPlayerClassLevelInfo(getUnitClass(), getLevel(), tempOut_basemana);
         basemana = tempOut_basemana.outArgValue;
         double base_regen = basemana / 100.0f;
 
@@ -32104,7 +31850,7 @@ public class Player extends Unit implements GirdObject {
         float val2;
         float level = getLevel();
 
-        var entry = CliDB.ChrClassesStorage.get(getClass());
+        var entry = CliDB.ChrClassesStorage.get(getUnitClass());
         var unitMod = ranged ? UnitMods.AttackPowerRanged : UnitMods.attackPower;
 
         if (!hasAuraType(AuraType.OverrideAttackPowerBySpPct)) {
@@ -32323,7 +32069,7 @@ public class Player extends Unit implements GirdObject {
                         applyAttackTimePercentMod(WeaponAttackType.BaseAttack, newVal, true);
                         applyAttackTimePercentMod(WeaponAttackType.OffAttack, newVal, true);
 
-                        if (getClass() == playerClass.Deathknight) {
+                        if (getUnitClass() == UnitClass.DEATH_KNIGHT) {
                             updateAllRunesRegen();
                         }
 
@@ -32410,7 +32156,7 @@ public class Player extends Unit implements GirdObject {
         // No proof that CR_VERSATILITY_DAMAGE_DONE is allways = ActivePlayerData::Versatility
         setUpdateFieldValue(getValues().modifyValue(getActivePlayerData()).modifyValue(getActivePlayerData().versatility), getActivePlayerData().combatRatings.get(CombatRating.VersatilityDamageDone.getValue()));
 
-        if (getClass() == playerClass.Hunter) {
+        if (getUnitClass() == UnitClass.Hunter) {
             updateDamagePhysical(WeaponAttackType.RangedAttack);
         } else {
             updateDamagePhysical(WeaponAttackType.BaseAttack);
@@ -32441,7 +32187,7 @@ public class Player extends Unit implements GirdObject {
     public final void updateParryPercentage() {
         // No parry
         double value = 0.0f;
-        var pclass = getClass().getValue() - 1;
+        var pclass = getUnitClass().getValue() - 1;
 
         if (getCanParry() && parry_cap[pclass] > 0.0f) {
             double nondiminishing = 5.0f;
@@ -32451,7 +32197,7 @@ public class Player extends Unit implements GirdObject {
             nondiminishing += getTotalAuraModifier(AuraType.ModParryPercent);
 
             // apply diminishing formula to diminishing parry chance
-            value = calculateDiminishingReturns(parry_cap, getClass(), nondiminishing, diminishing);
+            value = calculateDiminishingReturns(parry_cap, getUnitClass(), nondiminishing, diminishing);
 
             if (WorldConfig.getBoolValue(WorldCfg.StatsLimitsEnable)) {
                 value = value > WorldConfig.getFloatValue(WorldCfg.StatsLimitsParry) ? WorldConfig.getFloatValue(WorldCfg.StatsLimitsParry) : value;
@@ -32469,7 +32215,7 @@ public class Player extends Unit implements GirdObject {
         // Dodge from rating
         diminishing += getRatingBonusValue(CombatRating.Dodge);
         // apply diminishing formula to diminishing dodge chance
-        var value = calculateDiminishingReturns(dodge_cap, getClass(), nondiminishing, diminishing);
+        var value = calculateDiminishingReturns(dodge_cap, getUnitClass(), nondiminishing, diminishing);
 
         if (WorldConfig.getBoolValue(WorldCfg.StatsLimitsEnable)) {
             value = value > WorldConfig.getFloatValue(WorldCfg.StatsLimitsDodge) ? WorldConfig.getFloatValue(WorldCfg.StatsLimitsDodge) : value;
@@ -32596,7 +32342,7 @@ public class Player extends Unit implements GirdObject {
 
     @Override
     public int getPowerIndex(Power powerType) {
-        return global.getDB2Mgr().GetPowerIndexByClass(powerType, getClass());
+        return global.getDB2Mgr().GetPowerIndexByClass(powerType, getUnitClass());
     }
 
     @Override
@@ -32708,7 +32454,7 @@ public class Player extends Unit implements GirdObject {
         setUpdateFieldValue(ref getValues().modifyValue(getActivePlayerData()).modifyValue(getActivePlayerData().combatRatings, CombatRating.ArmorPenetration.getValue()), (int) amount);
     }
 
-    private double calculateDiminishingReturns(float[] capArray, PlayerClass playerClass, double nonDiminishValue, double diminishValue) {
+    private double calculateDiminishingReturns(float[] capArray, UnitClass klass, double nonDiminishValue, double diminishValue) {
         float[] m_diminishing_k = {0.9560f, 0.9560f, 0.9880f, 0.9880f, 0.9830f, 0.9560f, 0.9880f, 0.9830f, 0.9830f, 0.9830f, 0.9720f, 0.9830f, 0.9880f, 1.0f};
 
         //  1     1     k              cx
@@ -32721,7 +32467,7 @@ public class Player extends Unit implements GirdObject {
         // x  is chance before DR (diminishValue)
         // x' is chance after DR (our result)
 
-        var classIdx = (byte) playerClass.getValue() - 1;
+        var classIdx = (byte) klass.getValue() - 1;
 
         var k = m_diminishing_k[classIdx];
         var c = capArray[classIdx];
@@ -32812,7 +32558,7 @@ public class Player extends Unit implements GirdObject {
         if (specialization != null) {
             primaryStatPriority = (byte) specialization.PrimaryStatPriority;
         } else {
-            primaryStatPriority = CliDB.ChrClassesStorage.get(getClass()).PrimaryStatPriority;
+            primaryStatPriority = CliDB.ChrClassesStorage.get(getUnitClass()).PrimaryStatPriority;
         }
 
 
@@ -32890,7 +32636,7 @@ public class Player extends Unit implements GirdObject {
             resetTalentSpecialization();
         }
 
-        var talentTiers = global.getDB2Mgr().GetNumTalentsAtLevel(level, getClass());
+        var talentTiers = global.getDB2Mgr().GetNumTalentsAtLevel(level, getUnitClass());
 
         if (level < 10) {
             // Remove all talent points
@@ -32899,7 +32645,7 @@ public class Player extends Unit implements GirdObject {
             if (!getSession().hasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed)) {
                 for (var t = talentTiers; t < PlayerConst.maxTalentTiers; ++t) {
                     for (int c = 0; c < PlayerConst.MaxTalentColumns; ++c) {
-                        for (var talent : global.getDB2Mgr().GetTalentsByPosition(getClass(), t, c)) {
+                        for (var talent : global.getDB2Mgr().GetTalentsByPosition(getUnitClass(), t, c)) {
                             removeTalent(talent);
                         }
                     }
@@ -32911,7 +32657,7 @@ public class Player extends Unit implements GirdObject {
 
         if (!getSession().hasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed)) {
             for (byte spec = 0; spec < MAX_SPECIALIZATIONS; ++spec) {
-                for (var slot = global.getDB2Mgr().GetPvpTalentNumSlotsAtLevel(level, getClass()); slot < PlayerConst.MaxPvpTalentSlots; ++slot) {
+                for (var slot = global.getDB2Mgr().GetPvpTalentNumSlotsAtLevel(level, getUnitClass()); slot < PlayerConst.MaxPvpTalentSlots; ++slot) {
                     var pvpTalent = CliDB.PvpTalentStorage.get(getPvpTalentMap(spec)[slot]);
 
                     if (pvpTalent != null) {
@@ -33016,7 +32762,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         // prevent learn talent for different class (cheating)
-        if (talentInfo.classID != (byte) getClass().getValue()) {
+        if (talentInfo.classID != (byte) getUnitClass().getValue()) {
             return TalentLearnResult.FailedUnknown;
         }
 
@@ -33035,7 +32781,7 @@ public class Player extends Unit implements GirdObject {
         // We need to make sure that if player is in one of these defined specs he will not learn the other choice
         TalentRecord bestSlotMatch = null;
 
-        for (var talent : global.getDB2Mgr().GetTalentsByPosition(getClass(), talentInfo.TierID, talentInfo.ColumnIndex)) {
+        for (var talent : global.getDB2Mgr().GetTalentsByPosition(getUnitClass(), talentInfo.TierID, talentInfo.ColumnIndex)) {
             if (talent.specID == 0) {
                 bestSlotMatch = talent;
             } else if (talent.specID == getPrimarySpecialization()) {
@@ -33051,7 +32797,7 @@ public class Player extends Unit implements GirdObject {
 
         // Check if player doesn't have any talent in current tier
         for (int c = 0; c < PlayerConst.MaxTalentColumns; ++c) {
-            for (var talent : global.getDB2Mgr().GetTalentsByPosition(getClass(), talentInfo.TierID, c)) {
+            for (var talent : global.getDB2Mgr().GetTalentsByPosition(getUnitClass(), talentInfo.TierID, c)) {
                 if (talent.specID != 0 && talent.specID != getPrimarySpecialization()) {
                     continue;
                 }
@@ -33099,7 +32845,7 @@ public class Player extends Unit implements GirdObject {
 
     public final void resetTalentSpecialization() {
         // Reset only talents that have different spells for each spec
-        var class_ = getClass();
+        var class_ = getUnitClass();
 
         for (int t = 0; t < PlayerConst.maxTalentTiers; ++t) {
             for (int c = 0; c < PlayerConst.MaxTalentColumns; ++c) {
@@ -33114,7 +32860,7 @@ public class Player extends Unit implements GirdObject {
         resetPvpTalents();
         removeSpecializationSpells();
 
-        var defaultSpec = global.getDB2Mgr().GetDefaultChrSpecializationForClass(getClass());
+        var defaultSpec = global.getDB2Mgr().GetDefaultChrSpecializationForClass(getUnitClass());
         setPrimarySpecialization(defaultSpec.id);
         setActiveTalentGroup(defaultSpec.orderIndex);
 
@@ -33151,7 +32897,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final int getDefaultSpecId() {
-        return global.getDB2Mgr().GetDefaultChrSpecializationForClass(getClass()).id;
+        return global.getDB2Mgr().GetDefaultChrSpecializationForClass(getUnitClass()).id;
     }
 
     public final void activateTalentGroup(ChrSpecializationRecord spec) {
@@ -33197,7 +32943,7 @@ public class Player extends Unit implements GirdObject {
             // unlearn only talents for character class
             // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
             // to prevent unexpected lost normal learned spell skip another class talents
-            if (talentInfo.classID != getClass().getValue()) {
+            if (talentInfo.classID != getUnitClass().getValue()) {
                 continue;
             }
 
@@ -33270,7 +33016,7 @@ public class Player extends Unit implements GirdObject {
 
         for (var talentInfo : CliDB.TalentStorage.values()) {
             // learn only talents for character class
-            if (talentInfo.classID != getClass().getValue()) {
+            if (talentInfo.classID != getUnitClass().getValue()) {
                 continue;
             }
 
@@ -33397,32 +33143,32 @@ public class Player extends Unit implements GirdObject {
 
     public final int getNextResetTalentsCost() {
         // The first time reset costs 1 gold
-        if (getTalentResetCost() < 1 * MoneyConstants.gold) {
-            return 1 * MoneyConstants.gold;
+        if (getTalentResetCost() < 1 * MoneyUnit.gold) {
+            return 1 * MoneyUnit.gold;
         }
         // then 5 gold
-        else if (getTalentResetCost() < 5 * MoneyConstants.gold) {
-            return 5 * MoneyConstants.gold;
+        else if (getTalentResetCost() < 5 * MoneyUnit.gold) {
+            return 5 * MoneyUnit.gold;
         }
         // After that it increases in increments of 5 gold
-        else if (getTalentResetCost() < 10 * MoneyConstants.gold) {
-            return 10 * MoneyConstants.gold;
+        else if (getTalentResetCost() < 10 * MoneyUnit.gold) {
+            return 10 * MoneyUnit.gold;
         } else {
-            var months = (long) (gameTime.GetGameTime() - getTalentResetTime()) / time.Month;
+            var months = (long) (GameTime.getGameTime() - getTalentResetTime()) / time.Month;
 
             if (months > 0) {
                 // This cost will be reduced by a rate of 5 gold per month
-                var new_cost = (int) (getTalentResetCost() - 5 * MoneyConstants.Gold * months);
+                var new_cost = (int) (getTalentResetCost() - 5 * MoneyUnit.Gold * months);
 
                 // to a minimum of 10 gold.
-                return new_cost < 10 * MoneyConstants.Gold ? 10 * MoneyConstants.Gold : new_cost;
+                return new_cost < 10 * MoneyUnit.Gold ? 10 * MoneyUnit.Gold : new_cost;
             } else {
                 // After that it increases in increments of 5 gold
-                var new_cost = getTalentResetCost() + 5 * MoneyConstants.gold;
+                var new_cost = getTalentResetCost() + 5 * MoneyUnit.gold;
 
                 // until it hits a cap of 50 gold.
-                if (new_cost > 50 * MoneyConstants.gold) {
-                    new_cost = 50 * MoneyConstants.gold;
+                if (new_cost > 50 * MoneyUnit.gold) {
+                    new_cost = 50 * MoneyUnit.gold;
                 }
 
                 return new_cost;
@@ -33460,7 +33206,7 @@ public class Player extends Unit implements GirdObject {
             // unlearn only talents for character class
             // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
             // to prevent unexpected lost normal learned spell skip another class talents
-            if (talentInfo.classID != (int) getClass().getValue()) {
+            if (talentInfo.classID != (int) getUnitClass().getValue()) {
                 continue;
             }
 
@@ -33483,7 +33229,7 @@ public class Player extends Unit implements GirdObject {
             updateCriteria(CriteriaType.TotalRespecs, 1);
 
             setTalentResetCost(cost);
-            setTalentResetTime(gameTime.GetGameTime());
+            setTalentResetTime(GameTime.getGameTime());
         }
 
         return true;
@@ -33494,7 +33240,7 @@ public class Player extends Unit implements GirdObject {
         packet.info.primarySpecialization = getPrimarySpecialization();
 
         for (byte i = 0; i < MAX_SPECIALIZATIONS; ++i) {
-            var spec = global.getDB2Mgr().GetChrSpecializationByIndex(getClass(), i);
+            var spec = global.getDB2Mgr().GetChrSpecializationByIndex(getUnitClass(), i);
 
             if (spec == null) {
                 continue;
@@ -33604,7 +33350,7 @@ public class Player extends Unit implements GirdObject {
             return TalentLearnResult.FailedUnknown;
         }
 
-        if (global.getDB2Mgr().GetRequiredLevelForPvpTalentSlot(slot, getClass()) > getLevel()) {
+        if (global.getDB2Mgr().GetRequiredLevelForPvpTalentSlot(slot, getUnitClass()) > getLevel()) {
             return TalentLearnResult.FailedUnknown;
         }
 

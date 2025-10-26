@@ -3,6 +3,7 @@ package com.github.azeroth.portal.handler;
 
 import bnet.protocol.MethodOptionsProto;
 import bnet.protocol.RpcProto;
+import com.github.azeroth.common.YieldResult;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
@@ -28,7 +29,7 @@ public class DefaultPortalRpcHandler implements PortalRpcHandler {
     @Override
     public void handle(NettyInbound in, NettyOutbound out, Service service) {
         RpcPacket packet = in.receiveObject(RpcPacket.class);
-        AtomicReference<DefaultRpcController> controller = new AtomicReference<>();
+        YieldResult<DefaultRpcController> controller = YieldResult.ofNull();
         in.withConnection(connection -> {
             controller.set(new DefaultRpcController(connection));
         });

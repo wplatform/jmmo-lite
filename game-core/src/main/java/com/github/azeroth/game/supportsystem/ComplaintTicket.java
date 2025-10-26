@@ -132,7 +132,7 @@ public class ComplaintTicket extends Ticket {
 
     @Override
     public String formatViewMessageString(CommandHandler handler, boolean detailed) {
-        var curTime = (long) gameTime.GetGameTime();
+        var curTime = (long) GameTime.getGameTime();
 
         StringBuilder ss = new StringBuilder();
         ss.append(handler.getParsedString(SysMessage.CommandTicketlistguid, idProtected));

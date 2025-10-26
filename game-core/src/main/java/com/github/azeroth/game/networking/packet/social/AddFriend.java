@@ -1,13 +1,13 @@
 package com.github.azeroth.game.networking.packet.social;
 
 import com.github.azeroth.game.networking.ClientPacket;
-import com.github.azeroth.game.networking.WorldPacket;
+import io.netty.buffer.ByteBuf;
 
 public class AddFriend extends ClientPacket {
     public String notes;
     public String name;
 
-    public AddFriend(WorldPacket packet) {
+    public AddFriend(ByteBuf packet) {
         super(packet);
     }
 

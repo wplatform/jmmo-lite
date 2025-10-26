@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor(staticName = "of")
-@NoArgsConstructor(staticName = "of")
+@NoArgsConstructor(staticName = "ofNull")
 public class YieldResult<T> {
 
     private T value;

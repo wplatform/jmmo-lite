@@ -465,7 +465,7 @@ class ListCommands {
                 var gridY = ri.getGridId() / MapDefine.MaxGrids;
                 var gridX = ri.getGridId() % MapDefine.MaxGrids;
 
-                var respawnTime = ri.getRespawnTime() > gameTime.GetGameTime() ? time.secsToTimeString((long) (ri.getRespawnTime() - gameTime.GetGameTime()), TimeFormat.ShortText, false) : stringOverdue;
+                var respawnTime = ri.getRespawnTime() > GameTime.getGameTime() ? time.secsToTimeString((long) (ri.getRespawnTime() - GameTime.getGameTime()), TimeFormat.ShortText, false) : stringOverdue;
 
 
                 handler.sendSysMessage(String.format("%1$s | %2$s | [{2:2},{3:2}] | %5$s (%6$s) | %7$s%8$s", ri.getSpawnId(), ri.getEntry(), gridX, gridY, getZoneName(respawnZoneId, locale), respawnZoneId, respawnTime, (map.isSpawnGroupActive(data.getSpawnGroupData().getGroupId()) ? "" : " (inactive)")));

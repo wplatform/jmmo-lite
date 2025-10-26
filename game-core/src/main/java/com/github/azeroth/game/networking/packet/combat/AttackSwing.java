@@ -1,14 +1,16 @@
 package com.github.azeroth.game.networking.packet.combat;
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.ClientPacket;
-import com.github.azeroth.game.networking.WorldPacket;
+import io.netty.buffer.ByteBuf;
 
 public class AttackSwing extends ClientPacket {
-    public ObjectGuid victim = ObjectGuid.EMPTY;
+    public ObjectGuid victim;
 
-    public AttackSwing(WorldPacket packet) {
-        super(packet);
+    public AttackSwing(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {

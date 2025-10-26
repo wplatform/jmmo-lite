@@ -1,6 +1,8 @@
 package com.github.azeroth.game.dungeonfinding;
 
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -680,7 +682,7 @@ public class LFGQueue {
         }
 
         // Create a new proposal
-        proposal.cancelTime = gameTime.GetGameTime() + SharedConst.LFGTimeProposal;
+        proposal.cancelTime = GameTime.getGameTime() + SharedConst.LFGTimeProposal;
         proposal.state = LfgProposalState.Initiating;
         proposal.leader = ObjectGuid.Empty;
         proposal.dungeonId = proposalDungeons.SelectRandom();

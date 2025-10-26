@@ -172,7 +172,7 @@ public class ArenaTeam {
         ArenaTeamMember newMember = new ArenaTeamMember();
         newMember.name = playerName;
         newMember.guid = playerGuid;
-        newMember.class = (byte) playerClass.getValue();
+        newMember.class = (byte) UnitClass.getValue();
         newMember.seasonGames = 0;
         newMember.weekGames = 0;
         newMember.seasonWins = 0;

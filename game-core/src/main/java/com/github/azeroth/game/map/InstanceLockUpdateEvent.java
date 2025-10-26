@@ -6,7 +6,7 @@ public final class InstanceLockUpdateEvent {
     public String newData;
 
     public int instanceCompletedEncountersMask;
-    public DungeonEncounterRecord completedEncounter;
+    public DungeonEncounter completedEncounter;
 
     public Integer entranceWorldSafeLocId = null;
 
@@ -14,7 +14,7 @@ public final class InstanceLockUpdateEvent {
     }
 
 
-    public InstanceLockUpdateEvent(int instanceId, String newData, int instanceCompletedEncountersMask, DungeonEncounterRecord completedEncounter, Integer entranceWorldSafeLocId) {
+    public InstanceLockUpdateEvent(int instanceId, String newData, int instanceCompletedEncountersMask, DungeonEncounter completedEncounter, Integer entranceWorldSafeLocId) {
         instanceId = instanceId;
         newData = newData;
         instanceCompletedEncountersMask = instanceCompletedEncountersMask;

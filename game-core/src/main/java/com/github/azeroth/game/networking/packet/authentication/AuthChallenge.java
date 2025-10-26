@@ -1,14 +1,15 @@
 package com.github.azeroth.game.networking.packet.authentication;
 
 import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 public class AuthChallenge extends ServerPacket {
-    public byte[] challenge = new byte[16];
-    public byte[] dosChallenge = new byte[32]; // Encryption seeds
+    public byte[] challenge;
+    public byte[] dosChallenge; // Encryption seeds
     public byte dosZeroBits;
 
     public AuthChallenge() {
-        super(ServerOpcode.AuthChallenge);
+        super(ServerOpCode.SMSG_AUTH_CHALLENGE);
     }
 
     @Override

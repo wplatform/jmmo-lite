@@ -46,11 +46,12 @@ final class ChannelOperationsHandler extends ChannelInboundHandlerAdapter {
         // When AbstractNioChannel.AbstractNioUnsafe.finishConnect/fulfillConnectPromise,
         // fireChannelActive will be triggered regardless that the channel might be closed in the meantime
         if (ctx.channel().isActive()) {
-            Connection c = Connection.from(ctx.channel());
-            listener.onStateChange(c, ConnectionObserver.State.CONNECTED);
-            ChannelOperations<?, ?> ops = opsFactory.create(c, listener, null);
-            ops.bind();
-            listener.onStateChange(ops, ConnectionObserver.State.CONFIGURED);
+            ChannelOperations<?, ?> ops = opsFactory.create(ctx.channel(), listener, null);
+            if (ops != null) {
+                listener.onStateChange(ops, ConnectionObserver.State.CONNECTED);
+                ops.bind();
+                listener.onStateChange(ops, ConnectionObserver.State.CONFIGURED);
+            }
         }
     }
 
@@ -72,8 +73,7 @@ final class ChannelOperationsHandler extends ChannelInboundHandlerAdapter {
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
-        if (evt instanceof SslCloseCompletionEvent) {
-            SslCloseCompletionEvent sslCloseCompletionEvent = (SslCloseCompletionEvent) evt;
+        if (evt instanceof SslCloseCompletionEvent sslCloseCompletionEvent) {
 
             // When a close_notify is received, the SSLHandler fires an SslCloseCompletionEvent.SUCCESS event,
             // so if the event is success and if the channel is still active (not closing for example),
@@ -96,9 +96,8 @@ final class ChannelOperationsHandler extends ChannelInboundHandlerAdapter {
         try {
             Connection connection = Connection.from(ctx.channel());
             ChannelOperations<?, ?> ops = connection.as(ChannelOperations.class);
-
             if (ops != null) {
-                opsFactory.create(connection, listener, msg).onInboundNext(ctx, msg);
+                ops.onInboundNext(ctx, msg);
             } else {
                 if (msg instanceof DecoderResultProvider) {
                     DecoderResult decoderResult = ((DecoderResultProvider) msg).decoderResult();

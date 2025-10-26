@@ -4,12 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
+@AllArgsConstructor(staticName = "of")
 public class ConditionId {
-
     public int sourceGroup;
     public int sourceEntry;
     public int sourceId;
-
-
 }

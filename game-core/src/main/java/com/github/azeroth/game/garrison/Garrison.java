@@ -292,7 +292,7 @@ public class Garrison {
         if (placeBuildingResult.result == GarrisonError.success) {
             placeBuildingResult.buildingInfo.garrPlotInstanceID = garrPlotInstanceId;
             placeBuildingResult.buildingInfo.garrBuildingID = garrBuildingId;
-            placeBuildingResult.buildingInfo.timeBuilt = gameTime.GetGameTime();
+            placeBuildingResult.buildingInfo.timeBuilt = GameTime.getGameTime();
 
             var plot = getPlot(garrPlotInstanceId);
             int oldBuildingId = 0;
@@ -373,7 +373,7 @@ public class Garrison {
                 placeBuildingResult.result = GarrisonError.success;
                 placeBuildingResult.buildingInfo.garrPlotInstanceID = garrPlotInstanceId;
                 placeBuildingResult.buildingInfo.garrBuildingID = restored;
-                placeBuildingResult.buildingInfo.timeBuilt = gameTime.GetGameTime();
+                placeBuildingResult.buildingInfo.timeBuilt = GameTime.getGameTime();
                 placeBuildingResult.buildingInfo.active = true;
 
                 plot.setBuildingInfo(placeBuildingResult.buildingInfo, owner);
@@ -577,7 +577,7 @@ public class Garrison {
     }
 
     private void enter() {
-        WorldLocation loc = new worldLocation(siteLevel.mapID);
+        WorldLocation loc = new WorldLocation(siteLevel.mapID);
         loc.relocate(owner.getLocation());
         owner.teleportTo(loc, TeleportToOptions.Seamless);
     }
@@ -586,7 +586,7 @@ public class Garrison {
         var map = CliDB.MapStorage.get(siteLevel.mapID);
 
         if (map != null) {
-            WorldLocation loc = new worldLocation((int) map.ParentMapID);
+            WorldLocation loc = new WorldLocation((int) map.ParentMapID);
             loc.relocate(owner.getLocation());
             owner.teleportTo(loc, TeleportToOptions.Seamless);
         }
@@ -706,7 +706,7 @@ public class Garrison {
             if (packetInfo != null) {
                 var building = CliDB.GarrBuildingStorage.get(packetInfo.garrBuildingID);
 
-                if (packetInfo.timeBuilt + building.BuildSeconds <= gameTime.GetGameTime()) {
+                if (packetInfo.timeBuilt + building.BuildSeconds <= GameTime.getGameTime()) {
                     return true;
                 }
             }

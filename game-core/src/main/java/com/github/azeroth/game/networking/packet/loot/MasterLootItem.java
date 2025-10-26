@@ -4,7 +4,7 @@ import com.github.azeroth.game.entity.ObjectGuid;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class MasterLootItem extends ClientPacket {
+public class MasterLootItem extends ClientPacket {
     public Array<lootRequest> loot = new Array<LootRequest>(1000);
     public ObjectGuid target = ObjectGuid.EMPTY;
 

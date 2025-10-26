@@ -12,7 +12,7 @@ import com.github.azeroth.game.listener.interfaces.iplayer.IPlayerOnMapChanged;
 class LFGPlayerScript extends ScriptObjectAutoAdd implements IPlayerOnLogout, IPlayerOnLogin, IPlayerOnMapChanged {
     public LFGPlayerScript() {
         super("LFGPlayerScript");
-    }    private final playerClass playerClass = playerClass.NONE;
+    }    private final playerClass playerClass = UnitClass.NONE;
 
     public final PlayerClass getPlayerClass() {
         return playerClass;

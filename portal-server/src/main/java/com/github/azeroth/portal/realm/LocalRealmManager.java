@@ -1,10 +1,10 @@
 package com.github.azeroth.portal.realm;
 
-import com.github.azeroth.service.auth.domain.BuildAuthKey;
+import com.github.azeroth.auth.domain.BuildAuthKey;
 import com.github.azeroth.service.auth.domain.BuildAuthKeyId;
-import com.github.azeroth.service.auth.domain.BuildInfo;
-import com.github.azeroth.service.auth.repository.BuildInfoRepository;
-import com.github.azeroth.service.auth.repository.RealmListRepository;
+import com.github.azeroth.auth.domain.BuildInfo;
+import com.github.azeroth.auth.repository.BuildInfoRepository;
+import com.github.azeroth.auth.repository.RealmListRepository;
 import com.github.azeroth.common.Logs;
 import com.github.azeroth.portal.boot.PortalProperties;
 import com.github.azeroth.utils.SecureUtils;

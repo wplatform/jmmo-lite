@@ -290,7 +290,7 @@ public class AuctionHouseObject {
     }
 
     public final void update() {
-        var curTime = gameTime.GetSystemTime();
+        var curTime = GameTime.getSystemTime();
         var curTimeSteady = gameTime.Now();
         /**- Handle expired auctions
          */
@@ -1094,7 +1094,7 @@ public class AuctionHouseObject {
         if ((owner || global.getCharacterCacheStorage().hasCharacterCacheEntry(auction.owner))) // && !sAuctionBotConfig.IsBotChar(auction.owner))
         {
             ByteBuffer tempBuffer = new byteBuffer();
-            tempBuffer.writePackedTime(gameTime.GetGameTime() + WorldConfig.getIntValue(WorldCfg.MailDeliveryDelay));
+            tempBuffer.writePackedTime(GameTime.getGameTime() + WorldConfig.getIntValue(WorldCfg.MailDeliveryDelay));
             var eta = tempBuffer.readUInt();
 
             (new MailDraft(global.getAuctionHouseMgr().buildItemAuctionMailSubject(AuctionMailType.Invoice, auction), global.getAuctionHouseMgr().buildAuctionInvoiceMailBody(auction.bidder, auction.bidAmount, auction.buyoutOrUnitPrice, (int) auction.deposit, calculateAuctionHouseCut(auction.bidAmount), WorldConfig.getUIntValue(WorldCfg.MailDeliveryDelay), eta))).sendMailTo(trans, new MailReceiver(owner, auction.owner), new MailSender(this), MailCheckMask.Copied);

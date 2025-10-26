@@ -1,8 +1,5 @@
 package com.github.azeroth.game.domain.unit;
 
-import com.github.azeroth.defines.SpellMissInfo;
-import com.github.azeroth.game.domain.unit.UnitMod;
-
 
 public interface UnitDefine {
 
@@ -53,8 +50,8 @@ public interface UnitDefine {
     float MIN_MELEE_REACH = 2.0f;
     float NOMINAL_MELEE_RANGE = 5.0f;
     float MELEE_RANGE = (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2); //center to center for players
-    float BASE_MINDAMAGE = 1.0f;
-    float BASE_MAXDAMAGE = 2.0f;
+    float BASE_MIN_DAMAGE = 1.0f;
+    float BASE_MAX_DAMAGE = 2.0f;
     int BASE_ATTACK_TIME = 2000;
 
     int MAX_EQUIPMENT_ITEMS = 3;

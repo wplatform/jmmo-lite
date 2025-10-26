@@ -2,6 +2,8 @@ package com.github.azeroth.defines;
 
 import com.github.azeroth.common.Locale;
 
+import java.util.Set;
+
 public interface SharedDefine {
 
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
@@ -30,7 +32,7 @@ public interface SharedDefine {
 
     int MIN_SPECIALIZATION_LEVEL = 10;
     int MAX_SPECIALIZATIONS = 4;
-    int PET_SPEC_OVERRIDE_CLASS_INDEX = PlayerClass.values().length;
+    int PET_SPEC_OVERRIDE_CLASS_INDEX = UnitClass.values().length;
 
     int MAX_NPC_TEXT_OPTIONS = 8;
 
@@ -55,14 +57,18 @@ public interface SharedDefine {
 
 
     int MAX_UNIT_CLASSES = 4;
-    int CLASS_MASK_ALL_CREATURES = (1 << (UnitClass.WARRIOR.getValue() - 1))
-            | (1 << (UnitClass.PALADIN.getValue() - 1))
-            | (1 << (UnitClass.ROGUE.getValue() - 1))
-            | (1 << (UnitClass.MAGE.getValue() - 1));
 
-    int CLASS_MASK_WAND_USERS = (1 << (PlayerClass.PRIEST.ordinal() - 1))
-            | (1 << (PlayerClass.MAGE.ordinal() - 1))
-            | (1 << (PlayerClass.WARLOCK.ordinal() - 1));
+    Set<UnitClass> UNIT_CLASSES = Set.of(UnitClass.WARRIOR, UnitClass.PALADIN, UnitClass.ROGUE, UnitClass.MAGE);
+
+
+    int CLASS_MASK_ALL_CREATURES = (1 << (UnitClass.WARRIOR.ordinal() - 1))
+            | (1 << (UnitClass.PALADIN.ordinal() - 1))
+            | (1 << (UnitClass.ROGUE.ordinal() - 1))
+            | (1 << (UnitClass.MAGE.ordinal() - 1));
+
+    int CLASS_MASK_WAND_USERS = (1 << (UnitClass.PRIEST.ordinal() - 1))
+            | (1 << (UnitClass.MAGE.ordinal() - 1))
+            | (1 << (UnitClass.WARLOCK.ordinal() - 1));
 
     int PLAYER_MAX_BATTLEGROUND_QUEUES = 3;
     int MIN_REPUTATION_RANK = ReputationRank.HATED.ordinal();
@@ -155,20 +161,20 @@ public interface SharedDefine {
     int CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CreatureType.MECHANICAL.ordinal() - 1)) | (1 << (CreatureType.ELEMENTAL.ordinal() - 1));
 
 
-    static PlayerClass classByQuestSort(QuestSort questSort) {
+    static UnitClass classByQuestSort(QuestSort questSort) {
         return switch (questSort) {
-            case WARLOCK -> PlayerClass.WARLOCK;
-            case WARRIOR -> PlayerClass.WARRIOR;
-            case SHAMAN -> PlayerClass.SHAMAN;
-            case PALADIN -> PlayerClass.PALADIN;
-            case MAGE -> PlayerClass.MAGE;
-            case ROGUE -> PlayerClass.ROGUE;
-            case HUNTER -> PlayerClass.HUNTER;
-            case PRIEST -> PlayerClass.PRIEST;
-            case DRUID -> PlayerClass.DRUID;
-            case DEATH_KNIGHT -> PlayerClass.DEATH_KNIGHT;
-            case DEMON_HUNTER -> PlayerClass.DEMON_HUNTER;
-            default -> PlayerClass.NONE;
+            case WARLOCK -> UnitClass.WARLOCK;
+            case WARRIOR -> UnitClass.WARRIOR;
+            case SHAMAN -> UnitClass.SHAMAN;
+            case PALADIN -> UnitClass.PALADIN;
+            case MAGE -> UnitClass.MAGE;
+            case ROGUE -> UnitClass.ROGUE;
+            case HUNTER -> UnitClass.HUNTER;
+            case PRIEST -> UnitClass.PRIEST;
+            case DRUID -> UnitClass.DRUID;
+            case DEATH_KNIGHT -> UnitClass.DEATH_KNIGHT;
+            case DEMON_HUNTER -> UnitClass.DEMON_HUNTER;
+            default -> UnitClass.NONE;
         };
     }
 

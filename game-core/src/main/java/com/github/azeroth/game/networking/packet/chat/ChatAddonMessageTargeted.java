@@ -4,7 +4,7 @@ import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.ClientPacket;
 import io.netty.buffer.ByteBuf;
 
-class ChatAddonMessageTargeted extends ClientPacket {
+public class ChatAddonMessageTargeted extends ClientPacket {
     public String target;
     public ChatAddonMessageParams params = new ChatAddonMessageParams();
     public ObjectGuid channelGUID = null; // not optional in the packet. Optional for api reasons

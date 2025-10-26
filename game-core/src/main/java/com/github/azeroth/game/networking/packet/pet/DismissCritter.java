@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.pet;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class DismissCritter extends ClientPacket {
+public class DismissCritter extends ClientPacket {
     public ObjectGuid critterGUID = ObjectGuid.EMPTY;
 
     public DismissCritter(WorldPacket packet) {

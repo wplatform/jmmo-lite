@@ -4,20 +4,22 @@ package com.github.azeroth.game.group;
 import com.github.azeroth.common.Pair;
 import com.github.azeroth.dbc.defines.Difficulty;
 import com.github.azeroth.dbc.domain.MapEntry;
+import com.github.azeroth.defines.ItemQuality;
+import com.github.azeroth.defines.LootMethod;
 import com.github.azeroth.defines.RemoveMethod;
 import com.github.azeroth.game.battlefield.BattleField;
 import com.github.azeroth.game.battleground.Battleground;
-import com.github.azeroth.game.battleground.BattlegroundQueueTypeId;
 import com.github.azeroth.game.domain.object.ObjectDefine;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.domain.map.MapDefine;
+import com.github.azeroth.game.networking.ServerPacket;
 import com.github.azeroth.game.networking.packet.party.PartyLFGInfo;
 import com.github.azeroth.game.networking.packet.party.PartyUpdate;
 import com.github.azeroth.game.listener.interfaces.igroup.*;
 import com.github.azeroth.reference.RefManager;
-import game.WorldSession;
+import com.github.azeroth.game.world.WorldSession;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -210,10 +212,9 @@ public class PlayerGroup extends RefManager<PlayerGroup, Player, GroupReference>
     }
 
     public final ObjectGuid getLooterGuid() {
-        if (getLootMethod() == lootMethod.FreeForAll) {
-            return ObjectGuid.Empty;
+        if (getLootMethod() == LootMethod.FREE_FOR_ALL) {
+            return ObjectGuid.EMPTY;
         }
-
         return looterGuid;
     }
 
@@ -289,7 +290,7 @@ public class PlayerGroup extends RefManager<PlayerGroup, Player, GroupReference>
         leaderGuid = leaderGuid;
         leaderFactionGroup = player.getFactionGroupForRace(leader.getRace());
         leaderName = leader.getName();
-        leader.setPlayerFlag(playerFlags.GroupLeader);
+        leader.setPlayerFlag(PlayerFlag.GroupLeader);
 
         if (isBGGroup() || isBFGroup()) {
             groupFlags = GroupFlags.MaskBgRaid;
@@ -598,7 +599,7 @@ public class PlayerGroup extends RefManager<PlayerGroup, Player, GroupReference>
         member.guid = player.getGUID();
         member.name = player.getName();
         member.race = player.getRace();
-        member.class = (byte) player.getClass().getValue();
+        member.class = (byte) player.getUnitClass().getValue();
         member.group = subGroup;
         member.flags = GroupMemberFlags.forValue(0);
         member.roles = LfgRoles.forValue(0);
@@ -887,10 +888,10 @@ public class PlayerGroup extends RefManager<PlayerGroup, Player, GroupReference>
         var oldLeader = global.getObjAccessor().findConnectedPlayer(leaderGuid);
 
         if (oldLeader) {
-            oldLeader.removePlayerFlag(playerFlags.GroupLeader);
+            oldLeader.removePlayerFlag(PlayerFlag.GroupLeader);
         }
 
-        newLeader.setPlayerFlag(playerFlags.GroupLeader);
+        newLeader.setPlayerFlag(PlayerFlag.GroupLeader);
         leaderGuid = newLeader.getGUID();
         leaderFactionGroup = player.getFactionGroupForRace(newLeader.getRace());
         leaderName = newLeader.getName();

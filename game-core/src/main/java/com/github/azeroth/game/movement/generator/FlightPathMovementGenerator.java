@@ -149,7 +149,7 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
             }
         }
 
-        owner.removePlayerFlag(playerFlags.TaxiBenchmark);
+        owner.removePlayerFlag(PlayerFlag.TaxiBenchmark);
     }
 
 

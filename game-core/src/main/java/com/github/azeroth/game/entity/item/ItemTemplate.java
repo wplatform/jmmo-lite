@@ -6,14 +6,12 @@ import com.github.azeroth.dbc.domain.ChrSpecialization;
 import com.github.azeroth.dbc.domain.ItemEffect;
 import com.github.azeroth.dbc.domain.ItemEntry;
 import com.github.azeroth.dbc.domain.ItemSparse;
-import com.github.azeroth.defines.PlayerClass;
+import com.github.azeroth.defines.UnitClass;
 import com.github.azeroth.defines.SharedDefine;
 import com.github.azeroth.defines.SkillType;
 import com.github.azeroth.game.entity.item.enums.*;
 import com.github.azeroth.game.entity.player.Player;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -72,9 +70,9 @@ public class ItemTemplate {
         this.basicData = item;
         this.extendedData = sparse;
 
-        specializations[0] = new BitSet(PlayerClass.values().length * SharedDefine.MAX_SPECIALIZATIONS);
-        specializations[1] = new BitSet(PlayerClass.values().length * SharedDefine.MAX_SPECIALIZATIONS);
-        specializations[2] = new BitSet(PlayerClass.values().length * SharedDefine.MAX_SPECIALIZATIONS);
+        specializations[0] = new BitSet(UnitClass.values().length * SharedDefine.MAX_SPECIALIZATIONS);
+        specializations[1] = new BitSet(UnitClass.values().length * SharedDefine.MAX_SPECIALIZATIONS);
+        specializations[2] = new BitSet(UnitClass.values().length * SharedDefine.MAX_SPECIALIZATIONS);
     }
 
     public static int calculateItemSpecBit(ChrSpecialization spec) {

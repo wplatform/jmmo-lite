@@ -16,7 +16,6 @@ dependencies {
     implementation libs.netty.transport.native.epoll
     implementation libs.gdx
     implementation project(':common-netty')
-    implementation project(':common-utility')
-    implementation project(':service-auth')
-    implementation project(':service-hotfixes')
+    implementation project(':game-core')
+    implementation project(':game-script')
 }

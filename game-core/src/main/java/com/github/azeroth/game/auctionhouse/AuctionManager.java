@@ -4,6 +4,7 @@ package game;
 import com.github.azeroth.game.entity.item.Item;
 import com.github.azeroth.game.entity.item.ItemTemplate;
 import com.github.azeroth.game.entity.player.Player;
+import com.github.azeroth.time.GameTime;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -337,11 +338,11 @@ public class AuctionManager {
                 var auction = getAuctionsById(pendingAuction.auctionHouseId).getAuction(pendingAuction.auctionId);
 
                 if (auction != null) {
-                    auction.endTime = gameTime.GetSystemTime();
+                    auction.endTime = GameTime.getSystemTime();
                 }
 
                 var stmt = DB.characters.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
-                stmt.AddValue(0, (int) gameTime.GetGameTime());
+                stmt.AddValue(0, (int) GameTime.getGameTime());
                 stmt.AddValue(1, pendingAuction.auctionId);
                 trans.append(stmt);
                 ++auctionIndex;
@@ -376,11 +377,11 @@ public class AuctionManager {
                     var auction = getAuctionsById(pendingAuction.auctionHouseId).getAuction(pendingAuction.auctionId);
 
                     if (auction != null) {
-                        auction.endTime = gameTime.GetSystemTime();
+                        auction.endTime = GameTime.getSystemTime();
                     }
 
                     var stmt = DB.characters.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
-                    stmt.AddValue(0, (int) gameTime.GetGameTime());
+                    stmt.AddValue(0, (int) GameTime.getGameTime());
                     stmt.AddValue(1, pendingAuction.auctionId);
                     trans.append(stmt);
                 }

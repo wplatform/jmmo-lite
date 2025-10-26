@@ -9,7 +9,7 @@ public class StartLootRoll extends ServerPacket {
     public Lootmethod method = lootMethod.values()[0];
     public RollMask validRolls = RollMask.values()[0];
     public Array<LootRollIneligibilityReason> lootRollIneligibleReason = new Array<LootRollIneligibilityReason>(4);
-    public LootitemData item = new lootItemData();
+    public LootitemData item = new LootItemData();
 
     public StartLootRoll() {
         super(ServerOpcode.StartLootRoll);

@@ -5,6 +5,8 @@ import com.github.azeroth.common.LocalizedString;
 import com.github.azeroth.dbc.db2.Db2Field;
 import com.github.azeroth.dbc.db2.Db2DataBind;
 import com.github.azeroth.dbc.db2.Db2Type;
+import com.github.azeroth.defines.PlayerClassMask;
+import com.github.azeroth.defines.RaceMask;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -110,7 +112,6 @@ public class PlayerCondition implements DbcEntity {
     private LocalizedString failureDescription;
 
     @Id
-
     @Column("ID")
     private int id;
 
@@ -136,7 +137,7 @@ public class PlayerCondition implements DbcEntity {
     private Integer skillLogic;
 
     @Column("LanguageID")
-    private Byte languageID;
+    private Short languageID;
 
     @Column("MinLanguage")
     private Byte minLanguage;
@@ -547,8 +548,91 @@ public class PlayerCondition implements DbcEntity {
     private Integer movementFlags2;
 
     @Id
-
     @Column("VerifiedBuild")
     private Integer verifiedBuild;
 
+
+    public RaceMask getRaceMask() {
+        return RaceMask.of(raceMask);
+    }
+
+    public short[] getSkillID() {
+        return new short[]{skillID1, skillID2, skillID3, skillID4};
+    }
+
+    public int[] getItemID() {
+        return new int[]{itemID1, itemID2, itemID3, itemID4};
+    }
+
+    public int[] getItemCount() {
+        return new int[]{itemCount1, itemCount2, itemCount3, itemCount4};
+    }
+
+    public int[] getCurrencyID() {
+        return new int[]{currencyID1, currencyID2, currencyID3, currencyID4};
+    }
+
+    public int[] getCurrencyCount() {
+        return new int[]{currencyCount1, currencyCount2, currencyCount3, currencyCount4};
+    }
+
+    public int[] getQuestKillMonster() {
+        return new int[]{questKillMonster1, questKillMonster2, questKillMonster3, questKillMonster4, questKillMonster5, questKillMonster6};
+    }
+
+    public int[] getMovementFlags() {
+        return new int[]{movementFlags1, movementFlags2};
+    }
+
+    public int[] getExplored() {
+        return new int[]{explored1, explored2};
+    }
+
+    public int[] getTime() {
+        return new int[]{time1, time2};
+    }
+
+    public int[] getAuraSpellID() {
+        return new int[]{auraSpellID1, auraSpellID2, auraSpellID3, auraSpellID4};
+    }
+
+    public int[] getAuraStacks() {
+        return new int[]{auraStacks1, auraStacks2, auraStacks3, auraStacks4};
+    }
+
+    public int[] getAchievement() {
+        return new int[]{achievement1, achievement2, achievement3, achievement4};
+    }
+
+    public int[] getLfgStatus() {
+        return new int[]{lfgStatus1, lfgStatus2, lfgStatus3, lfgStatus4};
+    }
+
+    public int[] getLfgCompare() {
+        return new int[]{lfgCompare1, lfgCompare2, lfgCompare3, lfgCompare4};
+    }
+
+    public int[] getLfgValue() {
+        return new int[]{lfgValue1, lfgValue2, lfgValue3, lfgValue4};
+    }
+
+    public int[] getAreaID() {
+        return new int[]{areaID1, areaID2, areaID3, areaID4};
+    }
+
+    public short[] getMinSkill() {
+        return new short[]{minSkill1, minSkill2, minSkill3, minSkill4};
+    }
+
+    public short[] getMaxSkill() {
+        return new short[]{maxSkill1, maxSkill2, maxSkill3, maxSkill4};
+    }
+
+    public int[] getMinFactionID() {
+        return new int[]{minFactionID1, minFactionID2, minFactionID3};
+    }
+
+    public byte[] getMinReputation() {
+        return new byte[]{minReputation1, minReputation2, minReputation3};
+    }
 }

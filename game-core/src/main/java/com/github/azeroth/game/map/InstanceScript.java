@@ -1,10 +1,12 @@
 package com.github.azeroth.game.map;
 
 
+import com.github.azeroth.dbc.domain.DungeonEncounter;
 import com.github.azeroth.game.ai.BossAI;
 import com.github.azeroth.game.ai.CreatureAI;
 import com.github.azeroth.game.domain.instance.EncounterState;
 import com.github.azeroth.game.domain.map.MapDefine;
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.entity.object.WorldObject;
@@ -19,7 +21,7 @@ import java.util.Objects;
 
 
 public class InstanceScript extends ZoneScript {
-    private final HashMap<Integer, bossInfo> bosses = new HashMap<Integer, bossInfo>();
+    private final HashMap<Integer, BossInfo> bosses = new HashMap<>();
     private final ArrayList<PersistentInstanceScriptValueBase> persistentScriptValues = new ArrayList<>();
     private final MultiMap<Integer, DoorInfo> doors = new MultiMap<Integer, DoorInfo>();
     private final HashMap<Integer, MinionInfo> minions = new HashMap<Integer, MinionInfo>();
@@ -36,7 +38,7 @@ public class InstanceScript extends ZoneScript {
     private byte combatResurrectionCharges; // the counter for available battle resurrections
     private boolean combatResurrectionTimerStarted;
 
-    private instanceMap instance;
+    private InstanceMap instance;
 
     public InstanceScript(InstanceMap map) {
         setInstance(map);
@@ -293,7 +295,7 @@ public class InstanceScript extends ZoneScript {
                     }
                 }
 
-                DungeonEncounterRecord dungeonEncounter = null;
+                DungeonEncounter dungeonEncounter = null;
 
                 switch (state) {
                     case InProgress: {
@@ -676,11 +678,11 @@ public class InstanceScript extends ZoneScript {
         }
     }
 
-    public final DungeonEncounterRecord getBossDungeonEncounter(int id) {
+    public final DungeonEncounter getBossDungeonEncounter(int id) {
         return id < bosses.size() ? bosses.get(id).getDungeonEncounterForDifficulty(getInstance().getDifficultyID()) : null;
     }
 
-    public final DungeonEncounterRecord getBossDungeonEncounter(Creature creature) {
+    public final DungeonEncounter getBossDungeonEncounter(Creature creature) {
         CreatureAI tempVar = creature.getAI();
         var bossAi = tempVar instanceof BossAI ? (BossAI) tempVar : null;
 

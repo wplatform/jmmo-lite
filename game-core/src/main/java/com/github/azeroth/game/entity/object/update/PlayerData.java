@@ -12,127 +12,92 @@ import java.util.List;
 @Getter
 public final class PlayerData extends UpdateMaskObject {
 
-    @ChangeMark(blockBit = 0, bit = 1)
-    private final List<ChrCustomizationChoice> customizations = new Dynamic<>(0, 1, this);
-    @ChangeMark(blockBit = 0, bit = 2)
-    private final List<ArenaCooldown> arenaCooldowns = new Dynamic<>(0, 2, this);
-    @ChangeMark(blockBit = 0, bit = 3)
-    private final List<Integer> visualItemReplacements = new Dynamic<>(0, 3, this);
+    @ChangeMark(blockBit = 0, bit = 1, type = FieldType.DYNAMIC)
+    List<ChrCustomizationChoice> customizations;
+    @ChangeMark(blockBit = 0, bit = 2, type = FieldType.DYNAMIC)
+    List<ArenaCooldown> arenaCooldowns;
+    @ChangeMark(blockBit = 0, bit = 3, type = FieldType.DYNAMIC)
+    List<Integer> visualItemReplacements;
     @ChangeMark(blockBit = 0, bit = 4)
-    private ObjectGuid duelArbiter;
+    ObjectGuid duelArbiter;
     @ChangeMark(blockBit = 0, bit = 5)
-    private ObjectGuid wowAccount;
+    ObjectGuid wowAccount;
     @ChangeMark(blockBit = 0, bit = 6)
-    private ObjectGuid bnetAccount;
+    ObjectGuid bnetAccount;
     @ChangeMark(blockBit = 0, bit = 7)
-    private long guildClubMemberID;
+    long guildClubMemberID;
     @ChangeMark(blockBit = 0, bit = 8)
-    private ObjectGuid lootTargetGUID;
+    ObjectGuid lootTargetGUID;
     @ChangeMark(blockBit = 0, bit = 9)
-    private int playerFlags;
+    int playerFlags;
     @ChangeMark(blockBit = 0, bit = 10)
-    private int playerFlagsEx;
+    int playerFlagsEx;
     @ChangeMark(blockBit = 0, bit = 11)
-    private int guildRankID;
+    int guildRankID;
     @ChangeMark(blockBit = 0, bit = 12)
-    private int guildDeleteDate;
+    int guildDeleteDate;
     @ChangeMark(blockBit = 0, bit = 13)
-    private int guildLevel;
+    int guildLevel;
     @ChangeMark(blockBit = 0, bit = 14)
-    private byte numBankSlots;
+    int numBankSlots;
     @ChangeMark(blockBit = 0, bit = 15)
-    private byte nativeSex;
+    int nativeSex;
     @ChangeMark(blockBit = 0, bit = 16)
-    private byte inebriation;
+    int inebriation;
     @ChangeMark(blockBit = 0, bit = 17)
-    private byte pvpTitle;
+    int pvpTitle;
     @ChangeMark(blockBit = 0, bit = 18)
-    private byte arenaFaction;
+    byte arenaFaction;
     @ChangeMark(blockBit = 0, bit = 19)
-    private byte pvpRank;
+    byte pvpRank;
     @ChangeMark(blockBit = 0, bit = 20)
-    private int field_88;
+    int field_88;
     @ChangeMark(blockBit = 0, bit = 21)
-    private int duelTeam;
+    int duelTeam;
     @ChangeMark(blockBit = 0, bit = 22)
-    private int guildTimeStamp;
+    int guildTimeStamp;
     @ChangeMark(blockBit = 0, bit = 23)
-    private int playerTitle;
+    int playerTitle;
     @ChangeMark(blockBit = 0, bit = 24)
-    private int fakeInebriation;
+    int fakeInebriation;
     @ChangeMark(blockBit = 0, bit = 25)
-    private int virtualPlayerRealm;
+    int virtualPlayerRealm;
     @ChangeMark(blockBit = 0, bit = 26)
-    private int currentSpecID;
+    int currentSpecID;
     @ChangeMark(blockBit = 0, bit = 27)
-    private int taxiMountAnimKitID;
+    int taxiMountAnimKitID;
     @ChangeMark(blockBit = 0, bit = 28)
-    private byte currentBattlePetBreedQuality;
+    byte currentBattlePetBreedQuality;
     @ChangeMark(blockBit = 0, bit = 29)
-    private int honorLevel;
+    int honorLevel;
     @ChangeMark(blockBit = 0, bit = 30)
-    private long logoutTime;
+    long logoutTime;
     @ChangeMark(blockBit = 0, bit = 31)
-    private String name;
+    String name;
     @ChangeMark(blockBit = 32, bit = 33)
-    private int field_13C;
+    int field_13C;
     @ChangeMark(blockBit = 32, bit = 34)
-    private int field_140;
+    int field_140;
     @ChangeMark(blockBit = 32, bit = 35)
-    private int currentBattlePetSpeciesID;
+    int currentBattlePetSpeciesID;
     @ChangeMark(blockBit = 32, bit = 36)
-    private DungeonScoreSummary dungeonScore;
-    @ChangeMark(blockBit = 32, bit = 37)
-    OptionalUpdateField<UF::DeclinedNames, 32, 37> DeclinedNames;
-    FieldType<CustomTabardInfo, 32, 38> PersonalTabard;
-    Array<Byte> PartyType = new Array<>(2, 39, 40, this);
-    Array<QuestLog> QuestLog = new Array<>(25, 42, 43, this);
-    Array<VisibleItem> VisibleItems = new Array<>(19, 68, 69, this);
-    Array<Float> AvgItemLevel = new Array<>(6, 88, 89, this);
-    Array<ZonePlayerForcedReaction> ForcedReactions = new Array<>(32, 95, 96, this);
-    Array<Integer> Field_3120 = new Array<>(19, 128, 129, this);
-
-
-
-
-    public FieldType<Boolean> hasQuestSession = new FieldType<>(0, 1);
-    public FieldType<Boolean> hasLevelLink = new FieldType<>(0, 2);
-    public Dynamic<ChrCustomizationChoice> customizations = new Dynamic<ChrCustomizationChoice>(0, 3);
-    public Dynamic<questLog> questSessionQuestLog = new Dynamic<questLog>(0, 4);
-    public Dynamic<ArenaCooldown> arenaCooldowns = new Dynamic<ArenaCooldown>(0, 5);
-    public Dynamic<Integer> visualItemReplacements = new Dynamic<Integer>(0, 6);
-    public FieldType<ObjectGuid> duelArbiter = new FieldType<>(0, 7);
-    public FieldType<ObjectGuid> wowAccount = new FieldType<>(0, 8);
-    public FieldType<ObjectGuid> lootTargetGUID = new FieldType<>(0, 9);
-    public FieldType<Integer> playerFlags = new FieldType<>(0, 10);
-    public FieldType<Integer> playerFlagsEx = new FieldType<>(0, 11);
-    public FieldType<Integer> guildRankID = new FieldType<>(0, 12);
-    public FieldType<Integer> guildDeleteDate = new FieldType<>(0, 13);
-    public FieldType<Integer> guildLevel = new FieldType<>(0, 14);
-    public FieldType<Byte> partyType = new FieldType<>(0, 15);
-    public FieldType<Byte> nativeSex = new FieldType<>(0, 16);
-    public FieldType<Byte> inebriation = new FieldType<>(0, 17);
-    public FieldType<Byte> pvpTitle = new FieldType<>(0, 18);
-    public FieldType<Byte> arenaFaction = new FieldType<>(0, 19);
-    public FieldType<Integer> duelTeam = new FieldType<>(0, 20);
-    public FieldType<Integer> guildTimeStamp = new FieldType<>(0, 21);
-    public FieldType<Integer> playerTitle = new FieldType<>(0, 22);
-    public FieldType<Integer> fakeInebriation = new FieldType<>(0, 23);
-    public FieldType<Integer> virtualPlayerRealm = new FieldType<>(0, 24);
-    public FieldType<Integer> currentSpecID = new FieldType<>(0, 25);
-    public FieldType<Integer> taxiMountAnimKitID = new FieldType<>(0, 26);
-    public FieldType<Byte> currentBattlePetBreedQuality = new FieldType<>(0, 27);
-    public FieldType<Integer> honorLevel = new FieldType<>(0, 28);
-    public FieldType<Long> logoutTime = new FieldType<>(0, 29);
-    public FieldType<Integer> field_B0 = new FieldType<>(0, 30);
-    public FieldType<Integer> field_B4 = new FieldType<>(0, 31);
-    public FieldType<CTROptions> ctrOptions = new FieldType<>(32, 33);
-    public FieldType<Integer> covenantID = new FieldType<>(32, 34);
-    public FieldType<Integer> soulbindID = new FieldType<>(32, 35);
-    public FieldType<dungeonScoreSummary> dungeonScore = new FieldType<>(32, 36);
-    public Array<questLog> questLog = new Array<questLog>(125, 37, 38);
-    public Array<VisibleItem> visibleItems = new Array<VisibleItem>(19, 163, 164);
-    public Array<Float> avgItemLevel = new Array<Float>(6, 183, 184);
+    DungeonScoreSummary dungeonScore;
+    @ChangeMark(blockBit = 32, bit = 37, type = FieldType.OPTIONAL)
+    DeclinedNames declinedNames;
+    @ChangeMark(blockBit = 32, bit = 38)
+    CustomTabardInfo personalTabard;
+    @ChangeMark(size = 2, bit = 39, firstElementBit = 40, type = FieldType.ARRAY)
+    List<Byte> partyType;
+    @ChangeMark(size = 25, bit = 39, firstElementBit = 40, type = FieldType.ARRAY)
+    List<QuestLog> questLog;
+    @ChangeMark(size = 19, bit = 68, firstElementBit = 69, type = FieldType.ARRAY)
+    List<VisibleItem> visibleItems;
+    @ChangeMark(size = 6, bit = 88, firstElementBit = 89, type = FieldType.ARRAY)
+    List<Float> avgItemLevel;
+    @ChangeMark(size = 32, bit = 95, firstElementBit = 96, type = FieldType.ARRAY)
+    List<ZonePlayerForcedReaction> forcedReactions;
+    @ChangeMark(size = 19, bit = 128, firstElementBit = 129, type = FieldType.ARRAY)
+    List<Integer> field_3120;
 
 
     public PlayerData() {

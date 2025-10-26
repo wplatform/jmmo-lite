@@ -13,8 +13,6 @@ import com.github.azeroth.utils.RandomUtil;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
-
 
 
 public class CreatureTemplate {
@@ -62,7 +60,7 @@ public class CreatureTemplate {
     public EnumFlag<UnitFlag3> unitFlags3;
     public int dynamicFlags;
     public CreatureFamily family;
-    public PlayerClass trainerClass;
+    public UnitClass trainerClass;
     public CreatureType type;
     public EnumFlag<CreatureTypeFlag> typeFlags;
     public EnumFlag<CreatureTypeFlag2> typeFlags2;

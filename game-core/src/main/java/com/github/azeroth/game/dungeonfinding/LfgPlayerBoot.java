@@ -1,6 +1,8 @@
 package com.github.azeroth.game.dungeonfinding;
 
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
+
 import java.util.HashMap;
 
 public class LfgPlayerBoot {

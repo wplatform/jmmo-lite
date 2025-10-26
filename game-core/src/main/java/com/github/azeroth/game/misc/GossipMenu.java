@@ -2,17 +2,19 @@ package com.github.azeroth.game.misc;
 
 
 import com.github.azeroth.game.domain.gossip.GossipMenuOption;
-import game.*;
+import com.github.azeroth.game.domain.gossip.GossipOptionFlag;
+import com.github.azeroth.game.domain.gossip.GossipOptionNpc;
+
 
 import java.util.Locale;
 import java.util.TreeMap;
 
 
 public class GossipMenu {
-    private final TreeMap<Integer, GossipMenuItem> menuItems = new TreeMap<Integer, GossipMenuItem>();
+    private final TreeMap<Integer, GossipMenuItem> menuItems = new TreeMap<>();
     private int menuId;
 
-    public final int addMenuItem(int gossipOptionId, int orderIndex, GossipOptionNpc optionNpc, String optionText, int language, GossipOptionFlags flags, Integer gossipNpcOptionId, int actionMenuId, int actionPoiId, boolean boxCoded, int boxMoney, String boxText, Integer spellId, Integer overrideIconId, int sender, int action) {
+    public final int addMenuItem(int gossipOptionId, int orderIndex, GossipOptionNpc optionNpc, String optionText, int language, GossipOptionFlag flags, Integer gossipNpcOptionId, int actionMenuId, int actionPoiId, boolean boxCoded, int boxMoney, String boxText, Integer spellId, Integer overrideIconId, int sender, int action) {
         // Find a free new id - script case
         if (orderIndex == -1) {
             orderIndex = 0;

@@ -37,6 +37,5 @@ public enum UnitMod {
     ATTACK_POWER_RANGED,
     DAMAGE_MAINHAND,
     DAMAGE_OFFHAND,
-    DAMAGE_RANGED,
-    END
+    DAMAGE_RANGED
 }

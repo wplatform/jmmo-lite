@@ -94,8 +94,8 @@ public class RestMgr {
 
         if (oldRestMask == 0 && restFlagMask != 0) // only set flag/time on the first rest state
         {
-            restTime = gameTime.GetGameTime();
-            player.setPlayerFlag(playerFlags.Resting);
+            restTime = GameTime.getGameTime();
+            player.setPlayerFlag(PlayerFlag.Resting);
         }
 
         if (triggerId != 0) {
@@ -110,7 +110,7 @@ public class RestMgr {
         if (oldRestMask != 0 && restFlagMask == 0) // only remove flag/time on the last rest state remove
         {
             restTime = 0;
-            player.removePlayerFlag(playerFlags.Resting);
+            player.removePlayerFlag(PlayerFlag.Resting);
         }
     }
 

@@ -15,7 +15,7 @@ public class LfgQueueData {
     public String bestCompatible = "";
 
     public LfgQueueData() {
-        joinTime = gameTime.GetGameTime();
+        joinTime = GameTime.getGameTime();
         tanks = SharedConst.LFGTanksNeeded;
         healers = SharedConst.LFGHealersNeeded;
         dps = SharedConst.LFGDPSNeeded;

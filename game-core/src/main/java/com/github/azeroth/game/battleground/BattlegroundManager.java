@@ -1,7 +1,8 @@
 package com.github.azeroth.game.battleground;
 
 
-import Framework.Threading.*;
+
+import com.github.azeroth.defines.BattlegroundQueueTypeId;
 import com.github.azeroth.game.domain.condition.DisableType;
 import com.github.azeroth.game.arena.*;
 import com.github.azeroth.game.battleground.zones.BgArathiBasin;
@@ -838,7 +839,7 @@ public class BattlegroundManager {
         }
 
         public static boolean opEquals(ScheduledQueueUpdate right, ScheduledQueueUpdate left) {
-            return left.arenaMatchmakerRating == right.arenaMatchmakerRating && BattlegroundQueueTypeId.opEquals(left.queueId, right.queueId) && left.bracketId == right.bracketId;
+            return left.arenaMatchmakerRating == right.arenaMatchmakerRating && Objects.equals(left.queueId, right.queueId) && left.bracketId == right.bracketId;
         }
 
         public static boolean opNotEquals(ScheduledQueueUpdate right, ScheduledQueueUpdate left) {

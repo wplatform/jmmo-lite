@@ -3,8 +3,9 @@ package com.github.azeroth.defines;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 // Languages.db2 (9.2.0.42423)
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Language {
     LANG_UNIVERSAL(0),
     LANG_ORCISH(1),
@@ -49,6 +50,13 @@ public enum Language {
     LANG_BASSALIM(296),
     LANG_EMBEDDED_LANGUAGES(297),
     LANG_UNKNOWABLE(298);
-    public final int value;
+    public final short value;
 
+    Language(int value) {
+        this.value = (short) value;
+    }
+
+    public static Language valueOf(short value) {
+        return Arrays.stream(values()).filter(language -> language.value == value).findFirst().orElseThrow(() -> new IllegalArgumentException("Unknown language value: " + value));
+    }
 }

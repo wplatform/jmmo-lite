@@ -6,7 +6,7 @@ import com.github.azeroth.game.networking.WorldPacket;
 import java.util.ArrayList;
 
 
-class LootItemPkt extends ClientPacket {
+public class LootItemPkt extends ClientPacket {
     public ArrayList<lootRequest> loot = new ArrayList<>();
 
     public LootItemPkt(WorldPacket packet) {

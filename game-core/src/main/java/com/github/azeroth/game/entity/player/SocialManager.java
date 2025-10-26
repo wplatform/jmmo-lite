@@ -1,30 +1,37 @@
 package com.github.azeroth.game.entity.player;
 
 
+import com.github.azeroth.defines.UnitClass;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.world.WorldContext;
+import lombok.RequiredArgsConstructor;
+
 import java.util.HashMap;
 
 
+@RequiredArgsConstructor
 public class SocialManager {
     public static final int FRIEND_LIMIT_MAX = 50;
     public static final int IGNORE_LIMIT = 50;
-    private final HashMap<ObjectGuid, PlayerSocial> socialMap = new HashMap<ObjectGuid, PlayerSocial>();
+    private final HashMap<ObjectGuid, PlayerSocial> socialMap = new HashMap<>();
 
-    private SocialManager() {
-    }
 
-    public static void getFriendInfo(Player player, ObjectGuid friendGuid, FriendInfo friendInfo) {
-        if (!player) {
+    private final WorldContext worldContext;
+
+    public void getFriendInfo(Player player, ObjectGuid friendGuid, FriendInfo friendInfo) {
+        if (player == null) {
             return;
         }
 
         friendInfo.status = FriendStatus.Offline;
         friendInfo.area = 0;
         friendInfo.level = 0;
-        friendInfo.class = playerClass.forValue(0);
+        friendInfo.playerClass = UnitClass.NONE;
 
-        var target = global.getObjAccessor().findPlayer(friendGuid);
+        var target = worldContext.findPlayer(friendGuid);
 
-        if (!target) {
+        if (target == null) {
             return;
         }
 

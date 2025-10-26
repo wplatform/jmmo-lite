@@ -7,688 +7,559 @@ import com.github.azeroth.dbc.defines.UnitConditionVariable;
 import com.github.azeroth.dbc.defines.WorldStateExpressionFunction;
 import com.github.azeroth.dbc.domain.PlayerCondition;
 import com.github.azeroth.dbc.domain.WorldStateExpression;
+import com.github.azeroth.defines.*;
 import com.github.azeroth.game.domain.condition.*;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.domain.object.enums.TypeId;
 import com.github.azeroth.game.entity.player.Player;
+import com.github.azeroth.game.entity.player.PlayerDefine;
+import com.github.azeroth.game.entity.player.enums.EquipmentSlot;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.loot.LootStorage;
 import com.github.azeroth.game.loot.LootTemplate;
 import com.github.azeroth.game.map.grid.GridMapTypeMask;
 import com.github.azeroth.game.spell.AuraFlags;
+import com.github.azeroth.game.spell.auras.enums.AuraType;
+import com.github.azeroth.game.world.WorldContext;
 
 import java.util.*;
 
 public final class ConditionManager {
-    private final EnumMap<ConditionSourceType,Map<ConditionId, List<Condition>>> conditionStore = new EnumMap<>(ConditionSourceType.class);
+    public static EnumMap<ConditionSourceType, Map<ConditionId, List<Condition>>> conditionStore = new EnumMap<>(ConditionSourceType.class);
+    Set<Integer> spellsUsedInSpellClickConditions = new HashSet<>();
+
     public ConditionTypeInfo[] staticConditionTypeData = {
-            new ConditionTypeInfo("None",                      false, false, false, false ),
-            new ConditionTypeInfo("Aura",                       true,  true,  true, false ),
-            new ConditionTypeInfo("Item Stored",                true,  true,  true, false ),
-            new ConditionTypeInfo("Item Equipped",              true, false, false, false ),
-            new ConditionTypeInfo("Zone",                       true, false, false, false ),
-            new ConditionTypeInfo("Reputation",                 true,  true, false, false ),
-            new ConditionTypeInfo("Team",                       true, false, false, false ),
-            new ConditionTypeInfo("Skill",                      true,  true, false, false ),
-            new ConditionTypeInfo("Quest Rewarded",             true, false, false, false ),
-            new ConditionTypeInfo("Quest Taken",                true, false, false, false ),
-            new ConditionTypeInfo("Drunken",                    true, false, false, false ),
-            new ConditionTypeInfo("WorldState",                 true,  true, false, false ),
-            new ConditionTypeInfo("Active Event",               true, false, false, false ),
-            new ConditionTypeInfo("Instance Info",              true,  true,  true, false ),
-            new ConditionTypeInfo("Quest None",                 true, false, false, false ),
-            new ConditionTypeInfo("Class",                      true, false, false, false ),
-            new ConditionTypeInfo("Race",                       true, false, false, false ),
-            new ConditionTypeInfo("Achievement",                true, false, false, false ),
-            new ConditionTypeInfo("Title",                      true, false, false, false ),
-            new ConditionTypeInfo("SpawnMask",                  true, false, false, false ),
-            new ConditionTypeInfo("Gender",                     true, false, false, false ),
-            new ConditionTypeInfo("Unit State",                 true, false, false, false ),
-            new ConditionTypeInfo("Map",                        true, false, false, false ),
-            new ConditionTypeInfo("Area",                       true, false, false, false ),
-            new ConditionTypeInfo("CreatureType",               true, false, false, false ),
-            new ConditionTypeInfo("Spell Known",                true, false, false, false ),
-            new ConditionTypeInfo("Phase",                      true, false, false, false ),
-            new ConditionTypeInfo("Level",                      true,  true, false, false ),
-            new ConditionTypeInfo("Quest Completed",            true, false, false, false ),
-            new ConditionTypeInfo("Near Creature",              true,  true,  true, false ),
-            new ConditionTypeInfo("Near GameObject",            true,  true, false, false ),
-            new ConditionTypeInfo("Object Entry or Guid",       true,  true,  true, false ),
-            new ConditionTypeInfo("Object TypeMask",            true, false, false, false ),
-            new ConditionTypeInfo("Relation",                   true,  true, false, false ),
-            new ConditionTypeInfo("Reaction",                   true,  true, false, false ),
-            new ConditionTypeInfo("Distance",                   true,  true,  true, false ),
-            new ConditionTypeInfo("Alive",                     false, false, false, false ),
-            new ConditionTypeInfo("Health Value",               true,  true, false, false ),
-            new ConditionTypeInfo("Health Pct",                 true,  true, false, false ),
-            new ConditionTypeInfo("Realm Achievement",          true, false, false, false ),
-            new ConditionTypeInfo("In Water",                  false, false, false, false ),
-            new ConditionTypeInfo("Terrain Swap",               true, false, false, false ),
-            new ConditionTypeInfo("Sit/stand state",            true,  true, false, false ),
-            new ConditionTypeInfo("Daily Quest Completed",      true, false, false, false ),
-            new ConditionTypeInfo("Charmed",                   false, false, false, false ),
-            new ConditionTypeInfo("Pet type",                   true, false, false, false ),
-            new ConditionTypeInfo("On Taxi",                   false, false, false, false ),
-            new ConditionTypeInfo("Quest state mask",           true,  true, false, false ),
-            new ConditionTypeInfo("Quest objective progress",   true, false,  true, false ),
-            new ConditionTypeInfo("Map Difficulty",             true, false, false, false ),
-            new ConditionTypeInfo("Is GameMaster",              true, false, false, false ),
-            new ConditionTypeInfo("Object Entry or Guid",       true,  true,  true, false ),
-            new ConditionTypeInfo("Object TypeMask",            true, false, false, false ),
-            new ConditionTypeInfo("BattlePet Species Learned",  true,  true,  true, false ),
-            new ConditionTypeInfo("On Scenario Step",           true, false, false, false ),
-            new ConditionTypeInfo("Scene In Progress",          true, false, false, false ),
-            new ConditionTypeInfo("Player Condition",           true, false, false, false ),
-            new ConditionTypeInfo("Private Object",            false, false, false, false ),
-            new ConditionTypeInfo("String ID",                 false, false, false,  true ),
-            new ConditionTypeInfo("Label",                      true, false, false, false )
+            ConditionTypeInfo.of("None", false, false, false, false),
+            ConditionTypeInfo.of("Aura", true, true, true, false),
+            ConditionTypeInfo.of("Item Stored", true, true, true, false),
+            ConditionTypeInfo.of("Item Equipped", true, false, false, false),
+            ConditionTypeInfo.of("Zone", true, false, false, false),
+            ConditionTypeInfo.of("Reputation", true, true, false, false),
+            ConditionTypeInfo.of("Team", true, false, false, false),
+            ConditionTypeInfo.of("Skill", true, true, false, false),
+            ConditionTypeInfo.of("Quest Rewarded", true, false, false, false),
+            ConditionTypeInfo.of("Quest Taken", true, false, false, false),
+            ConditionTypeInfo.of("Drunken", true, false, false, false),
+            ConditionTypeInfo.of("WorldState", true, true, false, false),
+            ConditionTypeInfo.of("Active Event", true, false, false, false),
+            ConditionTypeInfo.of("Instance Info", true, true, true, false),
+            ConditionTypeInfo.of("Quest None", true, false, false, false),
+            ConditionTypeInfo.of("Class", true, false, false, false),
+            ConditionTypeInfo.of("Race", true, false, false, false),
+            ConditionTypeInfo.of("Achievement", true, false, false, false),
+            ConditionTypeInfo.of("Title", true, false, false, false),
+            ConditionTypeInfo.of("SpawnMask", true, false, false, false),
+            ConditionTypeInfo.of("Gender", true, false, false, false),
+            ConditionTypeInfo.of("Unit State", true, false, false, false),
+            ConditionTypeInfo.of("Map", true, false, false, false),
+            ConditionTypeInfo.of("Area", true, false, false, false),
+            ConditionTypeInfo.of("CreatureType", true, false, false, false),
+            ConditionTypeInfo.of("Spell Known", true, false, false, false),
+            ConditionTypeInfo.of("Phase", true, false, false, false),
+            ConditionTypeInfo.of("Level", true, true, false, false),
+            ConditionTypeInfo.of("Quest Completed", true, false, false, false),
+            ConditionTypeInfo.of("Near Creature", true, true, true, false),
+            ConditionTypeInfo.of("Near GameObject", true, true, false, false),
+            ConditionTypeInfo.of("Object Entry or Guid", true, true, true, false),
+            ConditionTypeInfo.of("Object TypeMask", true, false, false, false),
+            ConditionTypeInfo.of("Relation", true, true, false, false),
+            ConditionTypeInfo.of("Reaction", true, true, false, false),
+            ConditionTypeInfo.of("Distance", true, true, true, false),
+            ConditionTypeInfo.of("Alive", false, false, false, false),
+            ConditionTypeInfo.of("Health Value", true, true, false, false),
+            ConditionTypeInfo.of("Health Pct", true, true, false, false),
+            ConditionTypeInfo.of("Realm Achievement", true, false, false, false),
+            ConditionTypeInfo.of("In Water", false, false, false, false),
+            ConditionTypeInfo.of("Terrain Swap", true, false, false, false),
+            ConditionTypeInfo.of("Sit/stand state", true, true, false, false),
+            ConditionTypeInfo.of("Daily Quest Completed", true, false, false, false),
+            ConditionTypeInfo.of("Charmed", false, false, false, false),
+            ConditionTypeInfo.of("Pet type", true, false, false, false),
+            ConditionTypeInfo.of("On Taxi", false, false, false, false),
+            ConditionTypeInfo.of("Quest state mask", true, true, false, false),
+            ConditionTypeInfo.of("Quest objective progress", true, false, true, false),
+            ConditionTypeInfo.of("Map Difficulty", true, false, false, false),
+            ConditionTypeInfo.of("Is Gamemaster", true, false, false, false),
+            ConditionTypeInfo.of("Object Entry or Guid", true, true, true, false),
+            ConditionTypeInfo.of("Object TypeMask", true, false, false, false),
+            ConditionTypeInfo.of("BattlePet Species Learned", true, true, true, false),
+            ConditionTypeInfo.of("On Scenario Step", true, false, false, false),
+            ConditionTypeInfo.of("Scene In Progress", true, false, false, false),
+            ConditionTypeInfo.of("Player Condition", true, false, false, false),
+            ConditionTypeInfo.of("Private Object", false, false, false, false),
+            ConditionTypeInfo.of("String ID", false, false, false, true)
     };
+
+    private WorldContext worldContext;
 
     private ConditionManager() {
     }
 
-    public static int getPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status) {
+    public int getPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status) {
         if (player.getGroup() == null) {
             return 0;
         }
-
         switch (status) {
             case InLFGDungeon:
-                return global.getLFGMgr().inLfgDungeonMap(player.getGUID(), player.getLocation().getMapId(), player.getMap().getDifficultyID()) ? 1 : 0;
+                return worldContext.getLfgManager().inLfgDungeonMap(player.getGUID(), player.getLocation().getMapId(), player.getMap().getDifficultyID()) ? 1 : 0;
             case InLFGRandomDungeon:
-                return global.getLFGMgr().inLfgDungeonMap(player.getGUID(), player.getLocation().getMapId(), player.getMap().getDifficultyID()) && global.getLFGMgr().selectedRandomLfgDungeon(player.getGUID()) ? 1 : 0;
+                return worldContext.getLfgManager().inLfgDungeonMap(player.getGUID(), player.getLocation().getMapId(), player.getMap().getDifficultyID()) && worldContext.getLfgManager().selectedRandomLfgDungeon(player.getGUID()) ? 1 : 0;
             case InLFGFirstRandomDungeon: {
-                if (!global.getLFGMgr().inLfgDungeonMap(player.getGUID(), player.getLocation().getMapId(), player.getMap().getDifficultyID())) {
+                if (!worldContext.getLfgManager().inLfgDungeonMap(player.getGUID(), player.getLocation().getMapId(), player.getMap().getDifficultyID())) {
                     return 0;
                 }
-
-                var selectedRandomDungeon = global.getLFGMgr().getSelectedRandomDungeon(player.getGUID());
-
+                var selectedRandomDungeon = worldContext.getLfgManager().getSelectedRandomDungeon(player.getGUID());
                 if (selectedRandomDungeon == 0) {
                     return 0;
                 }
-
-                var reward = global.getLFGMgr().getRandomDungeonReward(selectedRandomDungeon, player.getLevel());
-
+                var reward = worldContext.getLfgManager().getRandomDungeonReward(selectedRandomDungeon, player.getLevel());
                 if (reward != null) {
-                    var quest = global.getObjectMgr().getQuestTemplate(reward.firstQuest);
-
+                    var quest = worldContext.getObjectManager().getQuestTemplate(reward.firstQuest);
                     if (quest != null) {
                         if (player.canRewardQuest(quest, false)) {
                             return 1;
                         }
                     }
                 }
-
                 return 0;
             }
-            case PartialClear:
-                break;
-            case StrangerCount:
-                break;
-            case VoteKickCount:
-                break;
-            case BootCount:
-                break;
-            case GearDiff:
-                break;
             default:
                 break;
         }
-
         return 0;
     }
 
-    public static boolean isPlayerMeetingCondition(Player player, PlayerCondition condition) {
 
-        if (condition.getMinLevel() != 0 && player.getLevel() < condition.getMinLevel())
+    boolean isPlayerMeetingCondition(Player player, int conditionId) {
+        if (conditionId == 0)
+            return true;
+
+        if (!isObjectMeetingNotGroupedConditions(ConditionSourceType.PLAYER_CONDITION, conditionId, player))
             return false;
 
-        if (condition.getMaxLevel() != 0 && player.getLevel() > condition.getMaxLevel())
+        var playerCondition = worldContext.getDbcObjectManager().playerCondition(conditionId);
+        if (playerCondition != null)
+            return isPlayerMeetingCondition(player, playerCondition);
+
+        return true;
+    }
+
+    public boolean isPlayerMeetingCondition(Player player, PlayerCondition condition) {
+
+        if (!condition.getRaceMask().isEmpty() && !condition.getRaceMask().hasRace(player.getRace()))
             return false;
 
-
-        if (condition.getRaceMask() != 0 && !(boolean) (SharedConst.GetMaskForRace(player.getRace()) & condition.raceMask)) {
+        if (condition.getClassMask() != 0 && (player.getClassMask() & condition.getClassMask()) == 0)
             return false;
-        }
 
-        if (condition.ClassMask != 0 && !(boolean) (player.getClassMask() & condition.ClassMask)) {
+        if (condition.getGender() >= 0 && player.getGender().value != condition.getGender())
             return false;
-        }
 
-        if (condition.gender >= 0 && player.getGender().getValue() != condition.gender) {
+        if (condition.getNativeGender() >= 0 && player.getNativeGender().value != condition.getNativeGender())
             return false;
-        }
 
-        if (condition.NativeGender >= 0 && player.getNativeGender() != gender.forValue(condition.NativeGender)) {
-            return false;
-        }
-
-        if (condition.powerType != -1 && condition.PowerTypeComp != 0) {
-            var requiredPowerValue = (boolean) (condition.flags & 4) ? player.getMaxPower(powerType.forValue(condition.powerType)) : condition.PowerTypeValue;
-
-            if (!playerConditionCompare(condition.PowerTypeComp, player.getPower(powerType.forValue(condition.powerType)), requiredPowerValue)) {
+        if (condition.getPowerType() != -1 && condition.getPowerTypeComp() != 0) {
+            int requiredPowerValue = (condition.getFlags() & 4) != 0 ? player.getMaxPower(Power.valueOf(condition.getPowerType())) : condition.getPowerTypeValue();
+            if (!playerConditionCompare(condition.getPowerTypeComp(), player.getPower(Power.valueOf(condition.getPowerType())), requiredPowerValue))
                 return false;
-            }
         }
 
-        if (condition.ChrSpecializationIndex >= 0 || condition.ChrSpecializationRole >= 0) {
-            var spec = CliDB.ChrSpecializationStorage.get(player.getPrimarySpecialization());
-
-            if (spec != null) {
-                if (condition.ChrSpecializationIndex >= 0 && spec.orderIndex != condition.ChrSpecializationIndex) {
-                    return false;
-                }
-
-                if (condition.ChrSpecializationRole >= 0 && spec.role != condition.ChrSpecializationRole) {
-                    return false;
-                }
-            }
-        }
-
-        boolean[] results;
-
-        if (condition.SkillID[0] != 0 || condition.SkillID[1] != 0 || condition.SkillID[2] != 0 || condition.SkillID[3] != 0) {
-            results = new boolean[condition.SkillID.length];
-
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.SkillID.length; ++i) {
-                if (condition.SkillID[i] != 0) {
-                    var skillValue = player.getSkillValue(SkillType.forValue(condition.SkillID[i]));
-                    results[i] = skillValue != 0 && skillValue > condition.MinSkill[i] && skillValue < condition.MaxSkill[i];
+        short[] skillID = condition.getSkillID();
+        short[] minSkill = condition.getMinSkill();
+        short[] maxSkill = condition.getMaxSkill();
+        if (skillID[0] != 0 || skillID[1] != 0 || skillID[2] != 0 || skillID[3] != 0) {
+            var results = new boolean[skillID.length];
+            Arrays.fill(results, true);
+            for (int i = 0; i < skillID.length; ++i) {
+                if (skillID[i] != 0) {
+                    short skillValue = player.getSkillValue(SkillType.valueOf(skillID[i]));
+                    results[i] = skillValue != 0 && skillValue > minSkill[i] && skillValue < maxSkill[i];
                 }
             }
 
-            if (!playerConditionLogic(condition.SkillLogic, results)) {
+            if (!playerConditionLogic(condition.getSkillLogic(), results))
                 return false;
-            }
         }
 
-        if (condition.LanguageID != 0) {
-            var languageSkill = 0;
-
-            if (player.hasAuraTypeWithMiscvalue(AuraType.ComprehendLanguage, condition.LanguageID)) {
+        if (condition.getLanguageID() != 0) {
+            int languageSkill = 0;
+            if (player.hasAuraTypeWithMiscvalue(AuraType.COMPREHEND_LANGUAGE, condition.getLanguageID()))
                 languageSkill = 300;
-            } else {
-                for (var languageDesc : global.getLanguageMgr().getLanguageDescById(language.forValue(condition.LanguageID))) {
-                    languageSkill = Math.max(languageSkill, player.getSkillValue(SkillType.forValue(languageDesc.skillId)));
-                }
+            else {
+                var languageManager = worldContext.getLanguageManager();
+                var languageDescById = languageManager.getLanguageDescById(Language.valueOf(condition.getLanguageID()));
+                for (var languageDesc : languageDescById)
+                    languageSkill = Math.max(languageSkill, player.getSkillValue(SkillType.valueOf(languageDesc.skillId)));
             }
 
-            if (condition.MinLanguage != 0 && languageSkill < condition.MinLanguage) {
+            if (condition.getMinLanguage() != 0 && languageSkill < condition.getMinLanguage())
                 return false;
-            }
 
-            if (condition.MaxLanguage != 0 && languageSkill > condition.MaxLanguage) {
+            if (condition.getMaxLanguage() != 0 && languageSkill > condition.getMaxLanguage())
                 return false;
-            }
         }
 
-        if (condition.MinFactionID[0] != 0 && condition.MinFactionID[1] != 0 && condition.MinFactionID[2] != 0 && condition.MaxFactionID != 0) {
-            if (condition.MinFactionID[0] == 0 && condition.MinFactionID[1] == 0 && condition.MinFactionID[2] == 0) {
-                var forcedRank = player.getReputationMgr().getForcedRankIfAny(condition.MaxFactionID);
-
-                if (forcedRank != 0) {
-                    if ((int) forcedRank.getValue() > condition.MaxReputation) {
+        int[] minFactionID = condition.getMinFactionID();
+        if (minFactionID[0] != 0 || minFactionID[1] != 0 || minFactionID[2] != 0 || condition.getMaxFactionID() != 0) {
+            if (minFactionID[0] == 0 && minFactionID[1] == 0 && minFactionID[2] == 0) {
+                ReputationRank forcedRank = player.getReputationMgr().getForcedRankIfAny(condition.getMaxFactionID());
+                if (forcedRank != null) {
+                    ReputationRank maxReputation = ReputationRank.values()[condition.getMaxReputation()];
+                    if (forcedRank.compareTo(maxReputation) > 0)
                         return false;
-                    }
-                } else if (CliDB.FactionStorage.HasRecord(condition.MaxReputation) && (int) player.getReputationRank(condition.MaxFactionID).getValue() > condition.MaxReputation) {
+                } else if (worldContext.getDbcObjectManager().faction().contains(condition.getMaxReputation())
+                        && player.getReputationRank(condition.getMaxFactionID()).compareTo(ReputationRank.values()[condition.getMaxReputation()]) > 0)
                     return false;
-                }
             } else {
-                results = new boolean[condition.MinFactionID.length + 1];
-
-                for (var i = 0; i < results.length; ++i) {
-                    results[i] = true;
-                }
-
-                for (var i = 0; i < condition.MinFactionID.length; ++i) {
-                    if (CliDB.FactionStorage.HasRecord(condition.MinFactionID[i])) {
-                        var forcedRank = player.getReputationMgr().getForcedRankIfAny(condition.MinFactionID[i]);
-
-                        if (forcedRank != 0) {
-                            results[i] = (int) forcedRank.getValue() >= condition.MinReputation[i];
-                        } else {
-                            results[i] = (int) player.getReputationRank(condition.MinFactionID[i]).getValue() >= condition.MinReputation[i];
-                        }
+                boolean[] results = new boolean[minFactionID.length + 1];
+                Arrays.fill(results, true);
+                for (int i = 0; i < minFactionID.length; ++i) {
+                    if (worldContext.getDbcObjectManager().faction().contains(minFactionID[i])) {
+                        ReputationRank forcedRank = player.getReputationMgr().getForcedRankIfAny(minFactionID[i]);
+                        byte[] minReputation = condition.getMinReputation();
+                        if (forcedRank != null)
+                            results[i] = forcedRank.compareTo(ReputationRank.values()[minReputation[i]]) >= 0;
+                        else
+                            results[i] = player.getReputationRank(minFactionID[i]).compareTo(ReputationRank.values()[minReputation[i]]) >= 0;
                     }
                 }
 
-                var forcedRank1 = player.getReputationMgr().getForcedRankIfAny(condition.MaxFactionID);
+                ReputationRank forcedRank = player.getReputationMgr().getForcedRankIfAny(condition.getMaxFactionID());
+                if (forcedRank != null) {
+                    results[3] = forcedRank.compareTo(ReputationRank.values()[condition.getMaxReputation()]) <= 0;
+                } else if (worldContext.getDbcObjectManager().faction().contains(condition.getMaxReputation()))
+                    results[3] = player.getReputationRank(condition.getMaxFactionID()).compareTo(ReputationRank.values()[condition.getMaxReputation()]) <= 0;
 
-                if (forcedRank1 != 0) {
-                    results[3] = (int) forcedRank1.getValue() <= condition.MaxReputation;
-                } else if (CliDB.FactionStorage.HasRecord(condition.MaxReputation)) {
-                    results[3] = (int) player.getReputationRank(condition.MaxFactionID).getValue() <= condition.MaxReputation;
-                }
-
-                if (!playerConditionLogic(condition.ReputationLogic, results)) {
+                if (!playerConditionLogic(condition.getReputationLogic(), results))
                     return false;
-                }
             }
         }
 
-        if (condition.CurrentPvpFaction != 0) {
+        if (condition.getCurrentPvpFaction() != 0) {
             byte team;
+            if (player.getMap().isBattlegroundOrArena())
+                team = (byte) player.getPlayerData().getArenaFaction();
+            else
+                team = (byte) (player.getTeamId() == TeamId.ALLIANCE ? 1 : 0);
 
-            if (player.getMap().isBattlegroundOrArena()) {
-                team = player.getPlayerData().arenaFaction;
-            } else {
-                team = (byte) player.getTeamId();
-            }
-
-            if (condition.CurrentPvpFaction - 1 != team) {
+            if (condition.getCurrentPvpFaction() - 1 != team)
                 return false;
-            }
         }
 
-        if (condition.PvpMedal != 0 && !(boolean) ((1 << (condition.PvpMedal - 1)) & player.getActivePlayerData().pvpMedals)) {
+        if (condition.getPvpMedal() != 0 && ((1 << (condition.getPvpMedal() - 1)) & player.getActivePlayerData().getPvpMedals()) == 0)
+            return false;
+
+        if (condition.getLifetimeMaxPVPRank() != 0 && player.getActivePlayerData().getLifetimeMaxRank() != condition.getLifetimeMaxPVPRank())
+            return false;
+
+        if (condition.getMovementFlags1() != 0 && (player.getUnitMovementFlags() & condition.getMovementFlags1()) == 0)
+            return false;
+
+        if (condition.getMovementFlags2() != 0 && (player.getExtraUnitMovementFlags() & condition.getMovementFlags2()) == 0)
+            return false;
+
+        if (condition.getWeaponSubclassMask() != 0) {
+            var mainHand = player.getItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlot.MAINHAND);
+            if (!mainHand || !((1 << mainHand -> GetTemplate()->GetSubClass()) &condition -> WeaponSubclassMask))
             return false;
         }
 
-        if (condition.LifetimeMaxPVPRank != 0 && player.getActivePlayerData().lifetimeMaxRank != condition.LifetimeMaxPVPRank) {
-            return false;
-        }
-
-        if (condition.MovementFlags[0] != 0 && !(boolean) ((int) player.getUnitMovementFlags().getValue() & condition.MovementFlags[0])) {
-            return false;
-        }
-
-        if (condition.MovementFlags[1] != 0 && !(boolean) ((int) player.getUnitMovementFlags2().getValue() & condition.MovementFlags[1])) {
-            return false;
-        }
-
-        if (condition.WeaponSubclassMask != 0) {
-            var mainHand = player.getItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
-
-            if (!mainHand || !(boolean) ((1 << (int) mainHand.getTemplate().getSubClass()) & condition.WeaponSubclassMask)) {
-                return false;
-            }
-        }
-
-        if (condition.PartyStatus != 0) {
-            var group = player.getGroup();
-
-            switch (condition.PartyStatus) {
+        if (condition -> PartyStatus) {
+            Group const*group = player -> GetGroup();
+            switch (condition -> PartyStatus) {
                 case 1:
-                    if (group) {
+                    if (group)
                         return false;
-                    }
-
                     break;
                 case 2:
-                    if (!group) {
+                    if (!group)
                         return false;
-                    }
-
                     break;
                 case 3:
-                    if (!group || group.isRaidGroup()) {
+                    if (!group || group -> isRaidGroup())
                         return false;
-                    }
-
                     break;
                 case 4:
-                    if (!group || !group.isRaidGroup()) {
+                    if (!group || !group -> isRaidGroup())
                         return false;
-                    }
-
                     break;
                 case 5:
-                    if (group && group.isRaidGroup()) {
+                    if (group && group -> isRaidGroup())
                         return false;
-                    }
-
                     break;
                 default:
                     break;
             }
         }
 
-        if (condition.PrevQuestID[0] != 0) {
-            results = new boolean[condition.PrevQuestID.length];
+        if (condition -> PrevQuestID[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> PrevQuestID) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> PrevQuestID.size() ;
+            ++i)
+            results[i] = player -> IsQuestCompletedBitSet(condition -> PrevQuestID[i]);
 
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.PrevQuestID.length; ++i) {
-                var questBit = global.getDB2Mgr().GetQuestUniqueBitFlag(condition.PrevQuestID[i]);
-
-                if (questBit != 0) {
-                    results[i] = (player.getActivePlayerData().questCompleted.get(((int) questBit - 1) >> 6) & (1 << (((int) questBit - 1) & 63))) != 0;
-                }
-            }
-
-            if (!playerConditionLogic(condition.PrevQuestLogic, results)) {
+            if (!PlayerConditionLogic(condition -> PrevQuestLogic, results))
                 return false;
-            }
         }
 
-        if (condition.CurrQuestID[0] != 0) {
-            results = new boolean[condition.CurrQuestID.length];
+        if (condition -> CurrQuestID[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> CurrQuestID) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> CurrQuestID.size() ;
+            ++i)
+            if (condition -> CurrQuestID[i])
+                results[i] = player -> FindQuestSlot(condition -> CurrQuestID[i]) != MAX_QUEST_LOG_SIZE;
 
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.CurrQuestID.length; ++i) {
-                if (condition.CurrQuestID[i] != 0) {
-                    results[i] = player.findQuestSlot(condition.CurrQuestID[i]) != SharedConst.MaxQuestLogSize;
-                }
-            }
-
-            if (!playerConditionLogic(condition.CurrQuestLogic, results)) {
+            if (!PlayerConditionLogic(condition -> CurrQuestLogic, results))
                 return false;
-            }
         }
 
-        if (condition.CurrentCompletedQuestID[0] != 0) {
-            results = new boolean[condition.CurrentCompletedQuestID.length];
+        if (condition -> CurrentCompletedQuestID[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> CurrentCompletedQuestID) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> CurrentCompletedQuestID.size() ;
+            ++i)
+            if (condition -> CurrentCompletedQuestID[i])
+                results[i] = player -> GetQuestStatus(condition -> CurrentCompletedQuestID[i]) == QUEST_STATUS_COMPLETE;
 
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.CurrentCompletedQuestID.length; ++i) {
-                if (condition.CurrentCompletedQuestID[i] != 0) {
-                    results[i] = player.getQuestStatus(condition.CurrentCompletedQuestID[i]) == QuestStatus.Complete;
-                }
-            }
-
-            if (!playerConditionLogic(condition.CurrentCompletedQuestLogic, results)) {
+            if (!PlayerConditionLogic(condition -> CurrentCompletedQuestLogic, results))
                 return false;
-            }
         }
 
+        if (condition -> SpellID[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> SpellID) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> SpellID.size() ;
+            ++i)
+            if (condition -> SpellID[i])
+                results[i] = player -> HasSpell(condition -> SpellID[i]);
 
-        if (condition.SpellID[0] != 0) {
-            results = new boolean[condition.spellID.length];
-
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.spellID.length; ++i) {
-                if (condition.SpellID[i] != 0) {
-                    results[i] = player.hasSpell(condition.SpellID[i]);
-                }
-            }
-
-            if (!playerConditionLogic(condition.SpellLogic, results)) {
+            if (!PlayerConditionLogic(condition -> SpellLogic, results))
                 return false;
-            }
         }
 
-        if (condition.ItemID[0] != 0) {
-            results = new boolean[condition.itemID.length];
+        if (condition -> ItemID[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> ItemID) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> ItemID.size() ;
+            ++i)
+            if (condition -> ItemID[i])
+                results[i] = player -> GetItemCount(condition -> ItemID[i], condition -> ItemFlags != 0) >= condition -> ItemCount[i];
 
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.itemID.length; ++i) {
-                if (condition.ItemID[i] != 0) {
-                    results[i] = player.getItemCount(condition.ItemID[i], condition.ItemFlags != 0) >= condition.ItemCount[i];
-                }
-            }
-
-            if (!playerConditionLogic(condition.ItemLogic, results)) {
+            if (!PlayerConditionLogic(condition -> ItemLogic, results))
                 return false;
-            }
         }
 
-        if (condition.CurrencyID[0] != 0) {
-            results = new boolean[condition.currencyID.length];
+        if (condition -> CurrencyID[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> CurrencyID) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> CurrencyID.size() ;
+            ++i)
+            if (condition -> CurrencyID[i])
+                results[i] = player -> GetCurrencyQuantity(condition -> CurrencyID[i]) >= condition -> CurrencyCount[i];
 
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.currencyID.length; ++i) {
-                if (condition.CurrencyID[i] != 0) {
-                    results[i] = player.getCurrencyQuantity(condition.CurrencyID[i]) >= condition.CurrencyCount[i];
-                }
-            }
-
-            if (!playerConditionLogic(condition.CurrencyLogic, results)) {
+            if (!PlayerConditionLogic(condition -> CurrencyLogic, results))
                 return false;
-            }
         }
 
-        if (condition.Explored[0] != 0 || condition.Explored[1] != 0) {
-            for (var i = 0; i < condition.explored.length; ++i) {
-                var area = CliDB.AreaTableStorage.get(condition.Explored[i]);
-
-                if (area != null) {
-                    if (area.AreaBit != -1 && !(boolean) (player.getActivePlayerData().exploredZones.get(area.AreaBit / activePlayerData.EXPLOREDZONESBITS) & (1 << ((int) area.AreaBit % activePlayerData.EXPLOREDZONESBITS)))) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        if (condition.AuraSpellID[0] != 0) {
-            results = new boolean[condition.auraSpellID.length];
-
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.auraSpellID.length; ++i) {
-                if (condition.AuraSpellID[i] != 0) {
-                    if (condition.AuraStacks[i] != 0) {
-                        results[i] = player.getAuraCount(condition.AuraSpellID[i]) >= condition.AuraStacks[i];
-                    } else {
-                        results[i] = player.hasAura(condition.AuraSpellID[i]);
-                    }
-                }
-            }
-
-            if (!playerConditionLogic(condition.AuraSpellLogic, results)) {
+        if (condition -> Explored[0] || condition -> Explored[1]) {
+            for (std::size_t i = 0; i < condition -> Explored.size() ;
+            ++i)
+            if (AreaTableEntry const*area = sAreaTableStore.LookupEntry(condition -> Explored[i]))
+            if (!player -> HasExploredZone(area -> ID))
                 return false;
-            }
         }
 
-        if (condition.Time[0] != 0) {
-            var from = time.GetUnixTimeFromPackedTime(condition.Time[0]);
-            var to = time.GetUnixTimeFromPackedTime(condition.Time[1]);
-
-            if (gameTime.GetGameTime() < from || gameTime.GetGameTime() > to) {
-                return false;
-            }
-        }
-
-        if (condition.WorldStateExpressionID != 0) {
-            var worldStateExpression = CliDB.WorldStateExpressionStorage.get(condition.WorldStateExpressionID);
-
-            if (worldStateExpression == null) {
-                return false;
-            }
-
-            if (!isPlayerMeetingExpression(player, worldStateExpression)) {
-                return false;
-            }
-        }
-
-        if (condition.weatherID != 0) {
-            if (player.getMap().getZoneWeather(player.getZoneId()) != WeatherState.forValue(condition.weatherID)) {
-                return false;
-            }
-        }
-
-        if (condition.Achievement[0] != 0) {
-            results = new boolean[condition.achievement.length];
-
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.achievement.length; ++i) {
-                if (condition.Achievement[i] != 0) {
-                    // if (condition.flags & 2) { any character on account completed it } else { current character only }
-                    // TODO: part of accountwide achievements
-                    results[i] = player.hasAchieved(condition.Achievement[i]);
-                }
-            }
-
-            if (!playerConditionLogic(condition.AchievementLogic, results)) {
-                return false;
-            }
-        }
-
-        if (condition.LfgStatus[0] != 0) {
-            results = new boolean[condition.LfgStatus.length];
-
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.LfgStatus.length; ++i) {
-                if (condition.LfgStatus[i] != 0) {
-                    results[i] = playerConditionCompare(condition.LfgCompare[i], (int) getPlayerConditionLfgValue(player, PlayerConditionLfgStatus.forValue(condition.LfgStatus[i])), (int) condition.LfgValue[i]);
-                }
-            }
-
-            if (!playerConditionLogic(condition.LfgLogic, results)) {
-                return false;
-            }
-        }
-
-        if (condition.AreaID[0] != 0) {
-            results = new boolean[condition.areaID.length];
-
-            for (var i = 0; i < results.length; ++i) {
-                results[i] = true;
-            }
-
-            for (var i = 0; i < condition.areaID.length; ++i) {
-                if (condition.AreaID[i] != 0) {
-                    results[i] = player.getAreaId() == condition.AreaID[i] || player.getZoneId() == condition.AreaID[i];
-                }
-            }
-
-            if (!playerConditionLogic(condition.AreaLogic, results)) {
-                return false;
-            }
-        }
-
-        if (condition.MinExpansionLevel != -1 && player.getSession().getExpansion().getValue() < condition.MinExpansionLevel) {
-            return false;
-        }
-
-        if (condition.MaxExpansionLevel != -1 && player.getSession().getExpansion().getValue() > condition.MaxExpansionLevel) {
-            return false;
-        }
-
-        if (condition.MinExpansionLevel != -1 && condition.MinExpansionTier != -1 && !player.isGameMaster() && ((condition.MinExpansionLevel == WorldConfig.getIntValue(WorldCfg.expansion) && condition.MinExpansionTier > 0) || condition.MinExpansionLevel > WorldConfig.getIntValue(WorldCfg.expansion))) {
-            return false;
-        }
-
-        if (condition.PhaseID != 0 || condition.PhaseGroupID != 0 || condition.phaseUseFlags != 0) {
-            if (!PhasingHandler.inDbPhaseShift(player, PhaseUseFlagsValues.forValue(condition.phaseUseFlags), condition.PhaseID, condition.PhaseGroupID)) {
-                return false;
-            }
-        }
-
-        if (condition.QuestKillID != 0) {
-            var quest = global.getObjectMgr().getQuestTemplate(condition.QuestKillID);
-            var questSlot = player.findQuestSlot(condition.QuestKillID);
-
-            if (quest != null && player.getQuestStatus(condition.QuestKillID) != QuestStatus.Complete && questSlot < SharedConst.MaxQuestLogSize) {
-                results = new boolean[condition.QuestKillMonster.length];
-
-                for (var i = 0; i < results.length; ++i) {
-                    results[i] = true;
-                }
-
-                for (var i = 0; i < condition.QuestKillMonster.length; ++i) {
-                    if (condition.QuestKillMonster[i] != 0) {
-                        var questObjective = tangible.ListHelper.find(quest.objectives, objective -> objective.type == QuestObjectiveType.Monster && objective.objectID == condition.QuestKillMonster[i]);
-
-                        if (questObjective != null) {
-                            results[i] = player.getQuestSlotObjectiveData(questSlot, questObjective) >= questObjective.amount;
-                        }
-                    }
-                }
-
-                if (!playerConditionLogic(condition.QuestKillLogic, results)) {
-                    return false;
-                }
-            }
-        }
-
-        if (condition.MinAvgItemLevel != 0 && Math.floor(player.getPlayerData().avgItemLevel.get(0)) < condition.MinAvgItemLevel) {
-            return false;
-        }
-
-        if (condition.MaxAvgItemLevel != 0 && Math.floor(player.getPlayerData().avgItemLevel.get(0)) > condition.MaxAvgItemLevel) {
-            return false;
-        }
-
-        if (condition.MinAvgEquippedItemLevel != 0 && Math.floor(player.getPlayerData().avgItemLevel.get(1)) < condition.MinAvgEquippedItemLevel) {
-            return false;
-        }
-
-        if (condition.MaxAvgEquippedItemLevel != 0 && Math.floor(player.getPlayerData().avgItemLevel.get(1)) > condition.MaxAvgEquippedItemLevel) {
-            return false;
-        }
-
-        if (condition.ModifierTreeID != 0 && !player.modifierTreeSatisfied(condition.ModifierTreeID)) {
-            return false;
-        }
-
-        if (condition.covenantID != 0 && player.getPlayerData().covenantID != condition.covenantID) {
-            return false;
-        }
-
-        if (condition.traitNodeEntryID.Any(traitNodeEntryId -> traitNodeEntryId != 0)) {
-            var getTraitNodeEntryRank = short ==null ? null : short(int traitNodeEntryId) ->
+        if (condition -> AuraSpellID[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> AuraSpellID) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> AuraSpellID.size() ;
+            ++i)
             {
-                for (var traitConfig : player.getActivePlayerData().traitConfigs) {
-                    if (TraitConfigType.forValue((int) traitConfig.type) == TraitConfigType.Combat) {
-                        if (player.getActivePlayerData().activeCombatTraitConfigID != traitConfig.ID || !(TraitCombatConfigFlags.forValue((int) traitConfig.combatConfigFlags)).hasFlag(TraitCombatConfigFlags.ActiveForSpec)) {
-                            continue;
-                        }
-                    }
-
-                    for (var traitEntry : traitConfig.entries) {
-                        if (traitEntry.traitNodeEntryID == traitNodeEntryId) {
-                            return (short) traitEntry.rank;
-                        }
-                    }
-                }
-
-                return null;
-            };
-
-            results = new boolean[condition.traitNodeEntryID.length];
-            Array.Fill(results, true);
-
-            for (var i = 0; i < condition.traitNodeEntryID.count(); ++i) {
-                if (condition.TraitNodeEntryID[i] == 0) {
-                    continue;
-                }
-
-                var rank = getTraitNodeEntryRank(condition.TraitNodeEntryID[i]);
-
-                if (!rank.HasValue) {
-                    results[i] = false;
-                } else if (condition.TraitNodeEntryMinRank[i] != 0 && rank < condition.TraitNodeEntryMinRank[i]) {
-                    results[i] = false;
-                } else if (condition.TraitNodeEntryMaxRank[i] != 0 && rank > condition.TraitNodeEntryMaxRank[i]) {
-                    results[i] = false;
+                if (condition -> AuraSpellID[i]) {
+                    if (condition -> AuraStacks[i])
+                        results[i] = player -> GetAuraCount(condition -> AuraSpellID[i]) >= condition -> AuraStacks[i];
+                    else
+                        results[i] = player -> HasAura(condition -> AuraSpellID[i]);
                 }
             }
 
-            if (!playerConditionLogic(condition.TraitNodeEntryLogic, results)) {
+            if (!PlayerConditionLogic(condition -> AuraSpellLogic, results))
                 return false;
+        }
+
+        if (condition -> Time[0]) {
+            WowTime time0;
+            time0.SetPackedTime(condition -> Time[0]);
+
+            if (condition -> Time[1]) {
+                WowTime time1;
+                time1.SetPackedTime(condition -> Time[1]);
+
+                if (!GameTime::GetWowTime () -> IsInRange(time0, time1))
+                return false;
+            } else if (*GameTime::GetWowTime () != time0)
+            return false;
+        }
+
+        if (condition -> WorldStateExpressionID) {
+            WorldStateExpressionEntry const*
+            worldStateExpression = sWorldStateExpressionStore.LookupEntry(condition -> WorldStateExpressionID);
+            if (!worldStateExpression)
+                return false;
+
+            if (!IsMeetingWorldStateExpression(player -> GetMap(), worldStateExpression))
+                return false;
+        }
+
+        if (condition -> WeatherID)
+            if (player ->
+
+                    GetMap()->
+
+        GetZoneWeather(player ->
+
+                GetZoneId()) !=
+
+                WeatherState(condition -> WeatherID))
+        return false;
+
+        if (condition -> Achievement[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> Achievement) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> Achievement.size() ;
+            ++i)
+            {
+                if (condition -> Achievement[i]) {
+                    // if (condition->Flags & 2) { any character on account completed it } else { current character only }
+                    // TODO: part of accountwide achievements
+                    results[i] = player -> HasAchieved(condition -> Achievement[i]);
+                }
+            }
+
+            if (!PlayerConditionLogic(condition -> AchievementLogic, results))
+                return false;
+        }
+
+        if (condition -> LfgStatus[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> LfgStatus) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> LfgStatus.size() ;
+            ++i)
+            if (condition -> LfgStatus[i])
+                results[i] = PlayerConditionCompare(condition -> LfgCompare[i],
+                        GetPlayerConditionLfgValue(player, PlayerConditionLfgStatus(condition -> LfgStatus[i])),
+                        condition -> LfgValue[i]);
+
+            if (!PlayerConditionLogic(condition -> LfgLogic, results))
+                return false;
+        }
+
+        if (condition -> AreaID[0]) {
+            std::array < bool, std::tuple_size_v < decltype(condition -> AreaID) >> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < condition -> AreaID.size() ;
+            ++i)
+            if (condition -> AreaID[i])
+                results[i] = DB2Manager::IsInArea (player -> GetAreaId(), condition -> AreaID[i]);
+
+            if (!PlayerConditionLogic(condition -> AreaLogic, results))
+                return false;
+        }
+
+        if (condition -> MinExpansionLevel != -1 && player ->
+
+                GetSession()->
+
+        GetExpansion() < condition -> MinExpansionLevel)
+        return false;
+
+        if (condition -> MaxExpansionLevel != -1 && player ->
+
+                GetSession()->
+
+        GetExpansion() > condition -> MaxExpansionLevel)
+        return false;
+
+        if (condition -> MinExpansionLevel != -1 && condition -> MinExpansionTier != -1 && !player ->
+
+                IsGameMaster()
+                        && ((condition -> MinExpansionLevel ==
+
+                        int32(sWorld ->
+
+                                getIntConfig(CONFIG_EXPANSION)) && condition -> MinExpansionTier > 0) /*TODO: implement tier*/
+                        || condition -> MinExpansionLevel >
+
+                        int32(sWorld ->
+
+                                getIntConfig(CONFIG_EXPANSION))))
+            return false;
+
+        if (condition -> PhaseID || condition -> PhaseGroupID || condition -> PhaseUseFlags)
+            if (!PhasingHandler::
+
+                    InDbPhaseShift
+        (player, condition -> PhaseUseFlags, condition -> PhaseID, condition -> PhaseGroupID))
+        return false;
+
+        if (condition -> QuestKillID) {
+            Quest const*quest = sObjectMgr -> GetQuestTemplate(condition -> QuestKillID);
+            uint16 questSlot = player -> FindQuestSlot(condition -> QuestKillID);
+            if (quest && player -> GetQuestStatus(condition -> QuestKillID) != QUEST_STATUS_COMPLETE && questSlot < MAX_QUEST_LOG_SIZE) {
+                std::array < bool, std::tuple_size_v < decltype(condition -> QuestKillMonster) >> results;
+                results.fill(true);
+                for (std::size_t i = 0; i < condition -> QuestKillMonster.size() ;
+                ++i)
+                {
+                    if (condition -> QuestKillMonster[i]) {
+                        auto objectiveItr = std::find_if
+                        (quest -> GetObjectives().begin(), quest -> GetObjectives().end(), [condition, i](QuestObjective const&
+                        objective) ->bool
+                        {
+                            return objective.Type == QUEST_OBJECTIVE_MONSTER && uint32(objective.ObjectID) == condition -> QuestKillMonster[i];
+                        });
+                        if (objectiveItr != quest -> GetObjectives().end())
+                            results[i] = player -> GetQuestSlotObjectiveData(questSlot, * objectiveItr) >=
+                        objectiveItr -> Amount;
+                    }
+                }
+
+                if (!PlayerConditionLogic(condition -> QuestKillLogic, results))
+                    return false;
             }
         }
+
+        if (condition -> MinAvgItemLevel &&
+
+                int32(std::floor (player -> m_playerData -> AvgItemLevel[0])) <
+        condition -> MinAvgItemLevel)
+        return false;
+
+        if (condition -> MaxAvgItemLevel &&
+
+                int32(std::floor (player -> m_playerData -> AvgItemLevel[0]))>
+        condition -> MaxAvgItemLevel)
+        return false;
+
+        if (condition -> MinAvgEquippedItemLevel &&
+
+                uint32(std::floor (player -> m_playerData -> AvgItemLevel[1])) <
+        condition -> MinAvgEquippedItemLevel)
+        return false;
+
+        if (condition -> MaxAvgEquippedItemLevel &&
+
+                uint32(std::floor (player -> m_playerData -> AvgItemLevel[1]))>
+        condition -> MaxAvgEquippedItemLevel)
+        return false;
+
+        if (condition -> ModifierTreeID && !player ->
+
+                ModifierTreeSatisfied(condition -> ModifierTreeID))
+            return false;
 
         return true;
     }
@@ -842,7 +713,7 @@ public final class ConditionManager {
             case Race:
                 return unit.getRace().getValue();
             case Class:
-                return unit.getClass().getValue();
+                return unit.getUnitClass().getValue();
             case Level:
                 return (int) unit.getLevel();
             case IsSelf:
@@ -1165,9 +1036,9 @@ public final class ConditionManager {
             case HOLIDAY_ACTIVE:
                 return global.getGameEventMgr().isHolidayActive(HolidayIds.forValue(arg1)) ? 1 : 0;
             case TIMER_CURRENT_TIME:
-                return (int) gameTime.GetGameTime();
+                return (int) GameTime.getGameTime();
             case WEEK_NUMBER:
-                var now = gameTime.GetGameTime();
+                var now = GameTime.getGameTime();
                 int raidOrigin = 1135695600;
                 var region = CliDB.CfgRegionsStorage.get(global.getWorldMgr().getRealmId().Region);
 
@@ -1331,37 +1202,40 @@ public final class ConditionManager {
 
     public boolean isObjectMeetToConditionList(ConditionSourceInfo sourceInfo, List<Condition> conditions) {
         //     groupId, groupCheckPassed
-        HashMap<Integer, Boolean> elseGroupStore = new HashMap<Integer, Boolean>();
+        Map<Integer, Boolean> elseGroupStore = new HashMap<Integer, Boolean>();
 
         for (var condition : conditions) {
-            Log.outDebug(LogFilter.condition, "ConditionMgr.IsPlayerMeetToConditionList condType: {} val1: {}", condition.conditionType, condition.conditionValue1);
+            Logs.CONDITION.debug("ConditionMgr::IsPlayerMeetToConditionList {} val1: {}", condition, condition.conditionValue1);
 
             if (condition.isLoaded()) {
+
                 //! Find ElseGroup in ElseGroupStore
-                //! If not found, add an entry in the store and set to true (placeholder)
-                if (!elseGroupStore.containsKey(condition.elseGroup)) {
-                    elseGroupStore.put(condition.elseGroup, true);
-                } else if (!elseGroupStore.get(condition.elseGroup)) //! If another condition in this group was unmatched before this, don't bother checking (the group is false anyway)
-                {
+                elseGroupStore.putIfAbsent(condition.elseGroup, true);
+                Boolean groupStatus = elseGroupStore.get(condition.elseGroup);
+
+                if (!groupStatus) //! If another condition in this group was unmatched before this, don't bother checking (the group is false anyway)
                     continue;
-                }
 
-                if (condition.referenceId != 0) //handle reference
+                if (condition.referenceId != 0)//handle reference
                 {
-                    var refe = conditionReferenceStorage.get(condition.referenceId);
+                    var ref = conditionStore.get(ConditionSourceType.REFERENCE_CONDITION).get(ConditionId.of(condition.referenceId, 0, 0));
+                    if (ref != null) {
+                        boolean condMeets = isObjectMeetToConditionList(sourceInfo, ref);
+                        if (condition.negativeCondition)
+                            condMeets = !condMeets;
 
-                    if (!refe.isEmpty()) {
-                        if (!isObjectMeetToConditionList(sourceInfo, refe)) {
+                        if (!condMeets)
                             elseGroupStore.put(condition.elseGroup, false);
-                        }
                     } else {
-                        Log.outDebug(LogFilter.condition, "IsPlayerMeetToConditionList: Reference template -{} not found", condition.referenceId); //checked at loading, should never happen
+                        Logs.CONDITION.debug("ConditionMgr::IsPlayerMeetToConditionList {} Reference template -{} not found",
+                                condition, condition.referenceId); // checked at loading, should never happen
                     }
+
                 } else //handle normal condition
                 {
-                    if (!condition.meets(sourceInfo)) {
+                    if (!Conditions.condition(condition).test(sourceInfo))
                         elseGroupStore.put(condition.elseGroup, false);
-                    }
+
                 }
             }
         }
@@ -1427,9 +1301,9 @@ public final class ConditionManager {
 
     public boolean isObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, int entry, ConditionSourceInfo sourceInfo) {
         if (sourceType != ConditionSourceType.NONE) {
-            var conditions = conditionStore.get(sourceType).get(new ConditionId(0,entry,0));
+            var conditions = conditionStore.get(sourceType).get(ConditionId.of(0, entry, 0));
             if (!conditions.isEmpty()) {
-                Logs.CONDITION.debug( "GetConditionsForNotGroupedEntry: found conditions for type {} and entry {}", sourceType, entry);
+                Logs.CONDITION.debug("GetConditionsForNotGroupedEntry: found conditions for type {} and entry {}", sourceType, entry);
                 return isObjectMeetToConditions(sourceInfo, conditions);
             }
         }
@@ -1467,8 +1341,7 @@ public final class ConditionManager {
 
     public boolean isObjectMeetingSpellClickConditions(int creatureId, int spellId, WorldObject clicker, WorldObject target) {
         var conditions = conditionStore.get(ConditionSourceType.SPELL_CLICK_EVENT).get(new ConditionId(creatureId, spellId, 0));
-        if (conditions != null)
-        {
+        if (conditions != null) {
             Logs.CONDITION.debug("IsObjectMeetingSpellClickConditions: found conditions for SpellClickEvent entry {} spell {}", creatureId, spellId);
             ConditionSourceInfo sourceInfo = new ConditionSourceInfo(clicker, target);
             return isObjectMeetToConditions(sourceInfo, conditions);
@@ -1901,8 +1774,8 @@ public final class ConditionManager {
     private boolean canHaveConditionType(ConditionSourceType sourceType, ConditionType conditionType) {
         if (Objects.requireNonNull(sourceType) == ConditionSourceType.SPAWN_GROUP) {
             return switch (conditionType) {
-                case NONE, ACTIVE_EVENT, INSTANCE_INFO, MAP_ID, WORLD_STATE, REALM_ACHIEVEMENT, DIFFICULTY_ID, SCENARIO_STEP ->
-                        true;
+                case NONE, ACTIVE_EVENT, INSTANCE_INFO, MAP_ID, WORLD_STATE, REALM_ACHIEVEMENT, DIFFICULTY_ID,
+                     SCENARIO_STEP -> true;
                 default -> false;
             };
         }

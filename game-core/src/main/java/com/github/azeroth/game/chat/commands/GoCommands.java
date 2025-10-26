@@ -124,7 +124,7 @@ class GoCommands {
         var spawn = spawns.get(0);
         var mapId = spawn.mapId;
 
-        if (!player.teleportTo(new worldLocation(mapId, spawn.spawnPoint))) {
+        if (!player.teleportTo(new WorldLocation(mapId, spawn.spawnPoint))) {
             var mapName = CliDB.MapStorage.get(mapId).MapName[handler.getSessionDbcLocale()];
             handler.sendSysMessage(SysMessage.CommandGoBossFailed, spawn.spawnId, boss.name, boss.entry, mapName);
 
@@ -505,7 +505,7 @@ class GoCommands {
             player.saveRecallPosition(); // save only in non-flight case
         }
 
-        player.teleportTo(new worldLocation(mapId, pos));
+        player.teleportTo(new WorldLocation(mapId, pos));
 
         return true;
     }

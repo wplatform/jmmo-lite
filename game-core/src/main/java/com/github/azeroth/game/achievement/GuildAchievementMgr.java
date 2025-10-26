@@ -37,7 +37,7 @@ public class GuildAchievementMgr extends AchievementManager {
             GuildAchievementDeleted guildAchievementDeleted = new GuildAchievementDeleted();
             guildAchievementDeleted.achievementID = iter.getKey();
             guildAchievementDeleted.guildGUID = guid;
-            guildAchievementDeleted.timeDeleted = gameTime.GetGameTime();
+            guildAchievementDeleted.timeDeleted = GameTime.getGameTime();
             sendPacket(guildAchievementDeleted);
         }
 
@@ -84,7 +84,7 @@ public class GuildAchievementMgr extends AchievementManager {
         }
 
         if (!criteriaResult.isEmpty()) {
-            var now = gameTime.GetGameTime();
+            var now = GameTime.getGameTime();
 
             do {
                 var id = criteriaResult.<Integer>Read(0);
@@ -288,7 +288,7 @@ public class GuildAchievementMgr extends AchievementManager {
 
         sendAchievementEarned(achievement);
         CompletedAchievementData ca = new CompletedAchievementData();
-        ca.date = gameTime.GetGameTime();
+        ca.date = GameTime.getGameTime();
         ca.changed = true;
 
         if (achievement.flags.hasFlag(AchievementFlags.ShowGuildMembers)) {
@@ -384,7 +384,7 @@ public class GuildAchievementMgr extends AchievementManager {
         GuildAchievementEarned guildAchievementEarned = new GuildAchievementEarned();
         guildAchievementEarned.achievementID = achievement.id;
         guildAchievementEarned.guildGUID = owner.getGUID();
-        guildAchievementEarned.timeEarned = gameTime.GetGameTime();
+        guildAchievementEarned.timeEarned = GameTime.getGameTime();
         sendPacket(guildAchievementEarned);
     }
 }

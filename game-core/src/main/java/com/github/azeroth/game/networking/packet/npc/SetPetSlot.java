@@ -3,7 +3,7 @@ package com.github.azeroth.game.networking.packet.npc;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class SetPetSlot extends ClientPacket {
+public class SetPetSlot extends ClientPacket {
     public ObjectGuid stableMaster = ObjectGuid.EMPTY;
     public int petNumber;
     public byte destSlot;

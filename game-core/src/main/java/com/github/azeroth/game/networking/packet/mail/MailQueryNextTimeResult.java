@@ -49,7 +49,7 @@ public class MailQueryNextTimeResult extends ServerPacket {
                     break;
             }
 
-            timeLeft = mail.deliver_time - gameTime.GetGameTime();
+            timeLeft = mail.deliver_time - GameTime.getGameTime();
             altSenderType = (byte) mail.messageType.getValue();
             stationeryID = mail.stationery.getValue();
         }

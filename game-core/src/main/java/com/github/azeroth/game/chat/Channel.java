@@ -132,7 +132,7 @@ public class Channel {
     }
 
     public final void updateChannelInDB() {
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         if (isDirty) {
             var banlist = "";

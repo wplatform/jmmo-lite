@@ -121,7 +121,7 @@ public class BgStrandOfAncients extends Battleground {
 
         if (status == SAStatus.Warmup) {
             endRoundTimer = SATimers.roundLength;
-            updateWorldState(SAWorldStateIds.timer, (int) (gameTime.GetGameTime() + endRoundTimer));
+            updateWorldState(SAWorldStateIds.timer, (int) (GameTime.getGameTime() + endRoundTimer));
 
             if (totalTime >= SATimers.warmupLength) {
                 var c = getBGCreature(SACreatureTypes.KANRETHAD);
@@ -149,7 +149,7 @@ public class BgStrandOfAncients extends Battleground {
                 endRoundTimer = SATimers.roundLength;
             }
 
-            updateWorldState(SAWorldStateIds.timer, (int) (gameTime.GetGameTime() + endRoundTimer));
+            updateWorldState(SAWorldStateIds.timer, (int) (GameTime.getGameTime() + endRoundTimer));
 
             if (totalTime >= 60000) {
                 var c = getBGCreature(SACreatureTypes.KANRETHAD);

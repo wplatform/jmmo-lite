@@ -44,7 +44,7 @@ public class MailListEntry {
         stationeryID = mail.stationery.getValue();
         sentMoney = mail.money;
         flags = mail.checkMask.getValue();
-        daysLeft = (float) (mail.expire_time - gameTime.GetGameTime()) / time.Day;
+        daysLeft = (float) (mail.expire_time - GameTime.getGameTime()) / time.Day;
         mailTemplateID = (int) mail.mailTemplateId;
         subject = mail.subject;
         body = mail.body;

@@ -1,12 +1,18 @@
 package com.github.azeroth.game.entity.item;
 
 
+import com.github.azeroth.common.EnumFlag;
+import com.github.azeroth.dbc.defines.DbcDefine;
 import com.github.azeroth.dbc.defines.ItemContext;
+import com.github.azeroth.game.domain.object.enums.TypeId;
+import com.github.azeroth.game.domain.object.enums.TypeMask;
 import com.github.azeroth.game.entity.ArtifactPower;
 import com.github.azeroth.game.entity.SocketedGem;
 import com.github.azeroth.game.entity.UpdateMask;
 import com.github.azeroth.game.domain.object.ObjectGuid;
-import com.github.azeroth.game.entity.object.WorldObject;
+import com.github.azeroth.game.entity.item.enums.ItemUpdateState;
+import com.github.azeroth.game.entity.object.GenericObject;
+import com.github.azeroth.game.entity.object.update.EntityFragment;
 import com.github.azeroth.game.entity.object.update.ItemData;
 import com.github.azeroth.game.entity.object.update.UpdateData;
 import com.github.azeroth.game.entity.player.Player;
@@ -22,16 +28,14 @@ import java.util.HashMap;
 import java.util.locale;
 
 
-public class Item extends WorldObject {
-    public static int[] ITEMTRANSMOGRIFICATIONSLOTS = {-1, EquipmentSlot.Head, -1, EquipmentSlot.Shoulders, EquipmentSlot.Shirt, EquipmentSlot.chest, EquipmentSlot.Waist, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Wrist, EquipmentSlot.Hands, -1, -1, -1, EquipmentSlot.OffHand, EquipmentSlot.MainHand, EquipmentSlot.Cloak, EquipmentSlot.MainHand, -1, EquipmentSlot.Tabard, EquipmentSlot.chest, EquipmentSlot.MainHand, EquipmentSlot.MainHand, EquipmentSlot.OffHand, -1, -1, EquipmentSlot.MainHand, -1, -1, -1, -1, -1, -1, -1, -1};
+public class Item extends GenericObject {
 
-    private final HashMap<Integer, SHORT> artifactPowerIdToIndex = new HashMap<Integer, SHORT>();
-    private final Array<Integer> gemScalingLevels = new Array<Integer>(ItemConst.MaxGemSockets);
+    private final int[] gemScalingLevels = new int[DbcDefine.MAX_ITEM_PROTO_SOCKETS];
 
-    private ItemUpdateState updateState = ItemUpdateState.values()[0];
+    private ItemUpdateState updateState;
     private int paidExtendedCost;
     private long paidMoney;
-    private ObjectGuid refundRecipient = ObjectGuid.EMPTY;
+    private ObjectGuid refundRecipient;
     private byte slot;
     private Bag container;
     private int queuePos;
@@ -42,21 +46,21 @@ public class Item extends WorldObject {
     private int randomBonusListId; // store separately to easily find which bonus list is the one randomly given for stat rerolling
     private ObjectGuid childItem = ObjectGuid.EMPTY;
 
-    private ItemData itemData;
+    private final ItemData itemData = new ItemData();
     private boolean lootGenerated;
     private Loot loot;
     private com.github.azeroth.game.entity.item.BonusData bonusData;
 
-    public item() {
-        super(false);
-        setObjectTypeMask(TypeMask.forValue(getObjectTypeMask().getValue() | TypeMask.item.getValue()));
-        setObjectTypeId(TypeId.item);
+    public Item(ObjectGuid guid) {
+        super(guid, EnumFlag.of(TypeMask.ITEM), TypeId.ITEM, null);
 
-        setItemData(new itemData());
+
+        entityMarkUpdater.add(EntityFragment.Tag_Item, false);
+
 
         updateState = ItemUpdateState.New;
         queuePos = -1;
-        lastPlayedTimeUpdate = gameTime.GetGameTime();
+        lastPlayedTimeUpdate = GameTime.getGameTime();
     }
 
     public static void deleteFromDB(SQLTransaction trans, long itemGuid) {
@@ -853,7 +857,7 @@ public class Item extends WorldObject {
     }
 
     public final int getPlayedTime() {
-        var curtime = gameTime.GetGameTime();
+        var curtime = GameTime.getGameTime();
         var elapsed = (int) (curtime - lastPlayedTimeUpdate);
 
         return getItemData().createPlayedTime + elapsed;
@@ -2388,7 +2392,7 @@ public class Item extends WorldObject {
         // Get current played time
         int current_playtime = getItemData().createPlayedTime;
         // Calculate time elapsed since last played time update
-        var curtime = gameTime.GetGameTime();
+        var curtime = GameTime.getGameTime();
         var elapsed = (int) (curtime - lastPlayedTimeUpdate);
         var new_playtime = current_playtime + elapsed;
 

@@ -37,7 +37,7 @@ class PartyMemberFullState extends ServerPacket {
         }
 
         if (!player.isAlive()) {
-            if (player.hasPlayerFlag(playerFlags.Ghost)) {
+            if (player.hasPlayerFlag(PlayerFlag.Ghost)) {
                 memberStats.status = GroupMemberOnlineStatus.forValue(memberStats.status.getValue() | GroupMemberOnlineStatus.Ghost.getValue());
             } else {
                 memberStats.status = GroupMemberOnlineStatus.forValue(memberStats.status.getValue() | GroupMemberOnlineStatus.Dead.getValue());

@@ -39,7 +39,7 @@ public class Corpse extends WorldObject {
 
         setCorpseData(new corpseData());
 
-        time = gameTime.GetGameTime();
+        time = GameTime.getGameTime();
     }
 
     public static void deleteFromDB(ObjectGuid ownerGuid, SQLTransaction trans) {
@@ -393,7 +393,7 @@ public class Corpse extends WorldObject {
     }
 
     public final void resetGhostTime() {
-        time = gameTime.GetGameTime();
+        time = GameTime.getGameTime();
     }
 
     public final CorpseType getCorpseType() {

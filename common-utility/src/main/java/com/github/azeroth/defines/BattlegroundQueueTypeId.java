@@ -1,7 +1,9 @@
 package com.github.azeroth.defines;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+@Data
 @RequiredArgsConstructor
 public class BattlegroundQueueTypeId {
     public static final BattlegroundQueueTypeId BATTLEGROUND_QUEUE_NONE = new BattlegroundQueueTypeId((short) 0, (byte) 0, false, (byte) 0);

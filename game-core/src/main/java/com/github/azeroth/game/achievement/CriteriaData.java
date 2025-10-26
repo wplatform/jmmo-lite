@@ -149,7 +149,7 @@ public class CriteriaData {
                     return false;
                 }
 
-                if (classRace.classId != 0 && ((1 << (int) (classRace.ClassId - 1)) & playerClass.ClassMaskAllPlayable.getValue()) == 0) {
+                if (classRace.classId != 0 && ((1 << (int) (classRace.ClassId - 1)) & UnitClass.ClassMaskAllPlayable.getValue()) == 0) {
                     Logs.SQL.error("Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE ({2}) has non-existing class in value1 ({3}), ignored.", criteria.id, criteria.entry.type, dataType, classRace.classId);
 
                     return false;
@@ -354,7 +354,7 @@ public class CriteriaData {
                     return false;
                 }
 
-                if (classRace.classId != 0 && classRace.classId != (int) target.toPlayer().getClass().getValue()) {
+                if (classRace.classId != 0 && classRace.classId != (int) target.toPlayer().getUnitClass().getValue()) {
                     return false;
                 }
 
@@ -368,7 +368,7 @@ public class CriteriaData {
                     return false;
                 }
 
-                if (classRace.classId != 0 && classRace.classId != (int) source.toPlayer().getClass().getValue()) {
+                if (classRace.classId != 0 && classRace.classId != (int) source.toPlayer().getUnitClass().getValue()) {
                     return false;
                 }
 

@@ -113,6 +113,7 @@ public enum DbcObjects {
     ItemBonusTreeNode(ItemBonusTreeNode.class),
     ItemChildEquipment(ItemChildEquipment.class),
     ItemClass(ItemClassEntry.class),
+    ItemContextPickerEntry(ItemContextPickerEntry.class),
     ItemCurrencyCost(ItemCurrencyCost.class),
     ItemDamageAmmo(ItemDamageAmmo.class),
     ItemDamageOneHand(com.github.azeroth.dbc.domain.ItemDamageOneHand.class),

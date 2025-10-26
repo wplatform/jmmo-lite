@@ -30,7 +30,7 @@ public class PossessedAI extends CreatureAI {
     @Override
     public void justDied(Unit unit) {
         // We died while possessed, disable our loot
-        me.removeDynamicFlag(UnitDynFlags.Lootable);
+        me.removeDynamicFlag(UnitDynFlag.Lootable);
     }
 
     @Override

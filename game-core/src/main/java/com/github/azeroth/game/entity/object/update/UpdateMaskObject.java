@@ -16,19 +16,19 @@ public sealed abstract class UpdateMaskObject permits ActivePlayerData, AreaTrig
         CraftingOrderData, CraftingOrderItem, DynamicObjectData, GameObjectData, ItemData, ObjectData, PVPInfo,
         PlayerData, QuestLog, QuestSession, ReplayedQuest, ResearchHistory, RestInfo, ScaleCurve, SceneObjectData,
         SelectedAzeriteEssences, SkillInfo, SocketedGem, StableInfo, StablePetInfo, TraitConfig, UnitData, VendorData,
-        VisibleItem, VisualAnim, ZonePlayerForcedReaction, BankTabSettings {
+        VisibleItem, VisualAnim, ZonePlayerForcedReaction, BankTabSettings, DeclinedNames, CustomTabardInfo {
 
-    private final static HashMap<Class<?>, Map<String, ChangeMark>> FIELD_CHANGEMARKS_BY_CLASS;
+    private final static HashMap<Class<?>, Map<String, ChangeMark>> FIELD_CHANGE_MARKS_BY_CLASS;
 
     static {
         Class<?>[] permitted = UpdateMaskObject.class.getPermittedSubclasses();
-        FIELD_CHANGEMARKS_BY_CLASS = new HashMap<>(permitted.length, 1f);
+        FIELD_CHANGE_MARKS_BY_CLASS = new HashMap<>(permitted.length, 1f);
         Arrays.stream(permitted).filter(e -> Modifier.isFinal(e.getModifiers())).forEach(clazz -> {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 ChangeMark changeMark = field.getAnnotation(ChangeMark.class);
                 if (changeMark != null) {
-                    FIELD_CHANGEMARKS_BY_CLASS.compute(clazz, Functions.addToMap(field.getName(), changeMark, () -> new HashMap<>(fields.length, 1f)));
+                    FIELD_CHANGE_MARKS_BY_CLASS.compute(clazz, Functions.addToMap(field.getName(), changeMark, () -> new HashMap<>(fields.length, 1f)));
                 }
             }
         });
@@ -41,7 +41,7 @@ public sealed abstract class UpdateMaskObject permits ActivePlayerData, AreaTrig
 
     protected UpdateMaskObject(int changeMask) {
         this.changesMask = new UpdateMask(changeMask);
-        this.fieldChangeMarks = FIELD_CHANGEMARKS_BY_CLASS.get(this.getClass());
+        this.fieldChangeMarks = FIELD_CHANGE_MARKS_BY_CLASS.get(this.getClass());
 
     }
 
@@ -133,7 +133,7 @@ public sealed abstract class UpdateMaskObject permits ActivePlayerData, AreaTrig
     }
 
     protected <T> List<T> newList(String propertyName) {
-        ChangeMark changeMark = FIELD_CHANGEMARKS_BY_CLASS.get(this.getClass()).get(propertyName);
+        ChangeMark changeMark = FIELD_CHANGE_MARKS_BY_CLASS.get(this.getClass()).get(propertyName);
         return switch (changeMark.type()) {
             case ARRAY -> new Array<>(changeMark.size(), propertyName, this);
             case DYNAMIC -> new Dynamic<>(propertyName, this);

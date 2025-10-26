@@ -4,7 +4,7 @@ package com.github.azeroth.game.domain.player;
 
 import com.github.azeroth.dbc.defines.ItemContext;
 import com.github.azeroth.dbc.domain.SkillRaceClassInfo;
-import com.github.azeroth.defines.PlayerClass;
+import com.github.azeroth.defines.UnitClass;
 import com.github.azeroth.defines.Race;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import java.util.*;
 
 public class PlayerInfo {
 	public Race race;
-	public PlayerClass playClass;
+	public UnitClass playClass;
 	public int mapId;
 	public float x, y, z, o;
 	public int displayIdForMale;

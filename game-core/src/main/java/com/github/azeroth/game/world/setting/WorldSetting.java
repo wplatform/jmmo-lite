@@ -327,7 +327,7 @@ public class WorldSetting {
     public int useProcessors;
     public int processPriority;
     public int realmsStateUpdateDelay;
-    public boolean compression;
+    public byte compression;
     public int playerLimit;
     public int maxOverSpeedPings;
     public int gridUnload;

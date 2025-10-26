@@ -758,7 +758,7 @@ public enum ClientOpCode implements OpCode {
     public final int value;
 
     public static ClientOpCode valueOf(final int value) {
-        Assert.state(value != NULL_OPCODE, "Attempt to get non-existing value field:");
+        Assert.isTrue(value != NULL_OPCODE, "Attempt to get non-existing value field:");
         if (opCodeIntMap == null) {
             synchronized (ClientOpCode.class) {
                 if (opCodeIntMap == null) {
@@ -772,5 +772,8 @@ public enum ClientOpCode implements OpCode {
         }
         return opCodeIntMap.get(value);
     }
+
+
+    
 
 }

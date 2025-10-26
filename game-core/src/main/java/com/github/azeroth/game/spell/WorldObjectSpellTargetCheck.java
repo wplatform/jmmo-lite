@@ -100,7 +100,7 @@ public class WorldObjectSpellTargetCheck implements ICheck<WorldObject> {
                         return false;
                     }
 
-                    if (refUnit.getClass() != unitTarget.getClass()) {
+                    if (refUnit.getUnitClass() != unitTarget.getUnitClass()) {
                         return false;
                     }
 

@@ -1,6 +1,8 @@
 package com.github.azeroth.game.loot;
 
 
+import com.github.azeroth.dbc.defines.ItemContext;
+
 import java.util.ArrayList;
 
 class StoredLootItem {
@@ -14,7 +16,7 @@ class StoredLootItem {
     public boolean underThreshold;
     public boolean needsQuest;
     public int randomBonusListId;
-    public Itemcontext context = itemContext.values()[0];
+    public ItemContext context;
     public ArrayList<Integer> bonusListIDs = new ArrayList<>();
 
     public StoredLootItem(LootItem lootItem) {

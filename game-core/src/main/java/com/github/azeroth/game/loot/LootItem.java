@@ -2,6 +2,7 @@ package com.github.azeroth.game.loot;
 
 
 import com.github.azeroth.dbc.defines.ItemContext;
+import com.github.azeroth.defines.LootSlotType;
 import com.github.azeroth.game.domain.condition.Condition;
 import com.github.azeroth.game.entity.item.ItemEnchantmentManager;
 import com.github.azeroth.game.domain.object.ObjectGuid;
@@ -16,7 +17,7 @@ public class LootItem {
     public int lootListId;
     public int randomBonusListId;
     public ArrayList<Integer> bonusListIDs = new ArrayList<>();
-    public ItemContext context = itemContext.values()[0];
+    public ItemContext context;
     public ArrayList<Condition> conditions = new ArrayList<>(); // additional loot condition
     public ArrayList<ObjectGuid> allowedGUIDs = new ArrayList<>();
     public ObjectGuid rollWinnerGUID = ObjectGuid.EMPTY; // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
@@ -33,14 +34,14 @@ public class LootItem {
     }
 
     public LootItem(LootStoreItem li) {
-        itemid = li.itemid;
+        itemid = li.itemId;
         conditions = li.conditions;
 
         var proto = global.getObjectMgr().getItemTemplate(itemid);
         freeforall = proto != null && proto.hasFlag(ItemFlags.MultiDrop);
-        follow_loot_rules = !li.needs_quest || (proto != null && proto.getFlagsCu().hasFlag(ItemFlagsCustom.FollowLootRules));
+        follow_loot_rules = !li.needsQuest || (proto != null && proto.getFlagsCu().hasFlag(ItemFlagsCustom.FollowLootRules));
 
-        needs_quest = li.needs_quest;
+        needs_quest = li.needsQuest;
 
         randomBonusListId = ItemEnchantmentManager.generateItemRandomBonusListId(itemid);
     }

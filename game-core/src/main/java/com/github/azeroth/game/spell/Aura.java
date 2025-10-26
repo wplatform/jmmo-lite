@@ -1,6 +1,7 @@
 package com.github.azeroth.game.spell;
 
-import Time.GameTime;
+import com.github.azeroth.game.domain.object.enums.TypeId;
+import com.github.azeroth.time.GameTime;
 import com.github.azeroth.common.Assert;
 import com.github.azeroth.dbc.defines.Difficulty;
 import com.github.azeroth.dbc.domain.SpellPower;
@@ -70,7 +71,7 @@ public class Aura {
         this.castItemId = createInfo.castItemId;
         this.castItemLevel = createInfo.castItemLevel;
         this.spellCastVisual = new SpellCastVisual(createInfo.caster != null ? createInfo.caster.getCastSpellXSpellVisualId(createInfo.spellInfo) : createInfo.spellInfo.getSpellXSpellVisualId(), 0);
-        this.applyTime = GameTime.getGameTime();
+        this.applyTime = GameTime.getGAME_TIME();
         this.owner = createInfo.ower;
         this.timeCla = 0;
         this.updateTargetMapInterval = 0;
@@ -103,7 +104,7 @@ public class Aura {
     public static Aura tryRefreshStackOrCreate(AuraCreateInfo createInfo, boolean updateEffectMask) {
 
 
-        Assert.state(createInfo.caster != null || !createInfo.casterGuid.isEmpty());
+        Assert.isTrue(createInfo.caster != null || !createInfo.casterGuid.isEmpty());
         createInfo.isRefresh = false;
 
         createInfo.auraEffectMask = buildEffectMaskForOwner(createInfo.getSpellInfo(), createInfo.auraEffectMask, createInfo.ower);
@@ -296,93 +297,24 @@ public class Aura {
         return create(createInfo);
     }
 
-    public final UUID getGuid() {
-        return guid;
-    }
 
-    public final Byte getEmpoweredStage() {
-        return empoweredStage;
-    }
 
-    public final void setEmpoweredStage(Byte value) {
-        empoweredStage = value;
-    }
 
-    public final SpellInfo getSpellInfo() {
-        return spellInfo;
-    }
 
-    public final int getId() {
-        return spellInfo.getId();
-    }
 
-    public final Difficulty getCastDifficulty() {
-        return castDifficulty;
-    }
-
-    public final ObjectGuid getCastId() {
-        return castId;
-    }
-
-    public final int getCastItemId() {
-        return castItemId;
-    }
-
-    public final void setCastItemId(int value) {
-        castItemId = value;
-    }
-
-    public final int getCastItemLevel() {
-        return castItemLevel;
-    }
-
-    public final void setCastItemLevel(int value) {
-        castItemLevel = value;
-    }
-
-    public final ObjectGuid getCasterGuid() {
-        return casterGuid;
-    }
-
-    public final ObjectGuid getCastItemGuid() {
-        return castItemGuid;
-    }
-
-    public final void setCastItemGuid(ObjectGuid value) {
-        castItemGuid = value;
-    }
-
-    public final WorldObject getOwner() {
-        return owner;
-    }
 
     public final Unit getOwnerAsUnit() {
         return owner.toUnit();
     }
 
-    public final DynamicObject getDynobjOwner() {
+    public final DynamicObject getDynObjOwner() {
         return owner.toDynObject();
     }
 
-    public final long getApplyTime() {
-        return applyTime;
-    }
 
-    public final int getMaxDuration() {
-        return maxDuration;
-    }
 
-    public final void setMaxDuration(double duration) {
-        setMaxDuration((int) duration);
-    }
 
-    public final void setMaxDuration(int duration) {
-        maxDuration = duration;
-    }
 
-    public final int getDuration() {
-        return duration;
-    }
 
     public final void setDuration(double duration) {
         setDuration(duration, false, false);
@@ -414,9 +346,6 @@ public class Aura {
         setNeedClientUpdateForTargets();
     }
 
-    public final byte getStackAmount() {
-        return stackAmount;
-    }
 
     public final void setStackAmount(byte stackAmount) {
         stackAmount = stackAmount;
@@ -443,40 +372,12 @@ public class Aura {
         setNeedClientUpdateForTargets();
     }
 
-    public final byte getCasterLevel() {
-        return (byte) casterLevel;
-    }
 
-    public final boolean isRemoved() {
-        return isRemoved;
-    }
 
-    public final boolean isSingleTarget() {
-        return isSingleTarget;
-    }
 
-    public final void setSingleTarget(boolean value) {
-        isSingleTarget = value;
-    }
-
-    public final HashMap<ObjectGuid, AuraApplication> getApplicationMap() {
-        return auraApplications;
-    }
-
-    public final boolean isUsingCharges() {
-        return isUsingCharges;
-    }
-
-    public final void setUsingCharges(boolean value) {
-        isUsingCharges = value;
-    }
-
-    public final HashMap<Integer, AuraEffect> getAuraEffects() {
-        return effects;
-    }
 
     public final AuraObjectType getAuraObjType() {
-        return (owner.getObjectTypeId() == TypeId.DynamicObject) ? AuraObjectType.DynObj : AuraObjectType.unit;
+        return (owner.getObjectTypeId() == TypeId.DYNAMIC_OBJECT) ? AuraObjectType.DynObj : AuraObjectType.unit;
     }
 
     public final boolean isPassive() {
@@ -1189,6 +1090,13 @@ public class Aura {
                 effect.getValue().handleEffect(aurApp, mode, apply);
             }
         }
+    }
+
+    public int getEffectMask() {
+        int effMask = 0;
+        for (AuraEffect aurEff : getAuraEffects())
+            effMask |= 1 << aurEff.getEffIndex();
+        return effMask;
     }
 
     public final ArrayList<AuraApplication> getApplicationList() {
@@ -1960,7 +1868,7 @@ public class Aura {
                 case Rogue:
                     // Remove Vanish on stealth remove
                     if (getId() == 1784) {
-                        target.removeAurasWithFamily(SpellFamilyNames.Rogue, new flagArray128(0x0000800, 0, 0), target.getGUID());
+                        target.removeAurasWithFamily(SpellFamilyNames.Rogue, new Flag128(0x0000800, 0, 0), target.getGUID());
                     }
 
                     break;
@@ -2833,7 +2741,5 @@ public class Aura {
     public String getDebugInfo() {
         return String.format("Id: %1$s Name: '%2$s' Caster: %3$s\nOwner: %4$s", getId(), getSpellInfo().getSpellName().get(global.getWorldMgr().getDefaultDbcLocale()), getCasterGuid(), (getOwner() != null ? getOwner().getDebugInfo() : "NULL"));
     }
-
-
     ///#endregion
 }

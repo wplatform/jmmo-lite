@@ -7,14 +7,14 @@ import com.github.azeroth.utils.*;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
-import com.github.azeroth.service.auth.domain.Account;
-import com.github.azeroth.service.auth.domain.AccountLastPlayedCharacter;
+import com.github.azeroth.auth.domain.Account;
+import com.github.azeroth.auth.domain.AccountLastPlayedCharacter;
 import com.github.azeroth.service.auth.domain.Realmcharacter;
 import com.github.azeroth.service.auth.domain.Realmlist;
-import com.github.azeroth.service.auth.dto.AccountInfo;
-import com.github.azeroth.service.auth.dto.GameAccount;
+import com.github.azeroth.auth.dto.AccountInfo;
+import com.github.azeroth.auth.dto.GameAccount;
 import com.github.azeroth.service.auth.repository.AccountLastPlayedCharacterRepository;
-import com.github.azeroth.service.auth.repository.AccountRepository;
+import com.github.azeroth.auth.repository.AccountRepository;
 import com.github.azeroth.service.auth.repository.RealmcharacterRepository;
 import com.github.azeroth.common.RpcErrorCode;
 import com.github.azeroth.portal.model.RealmProto;
@@ -236,7 +236,7 @@ public class GameUtilitiesService implements GameUtilitiesServiceProto.GameUtili
 
         builder.addAttribute(AttributeProto.Attribute.newBuilder()
                 .setName("Param_RealmJoinTicket")
-                .setValue(AttributeProto.Variant.newBuilder().setBlobValue(ByteString.copyFromUtf8(account.getUsername())).build()).build());
+                .setValue(AttributeProto.Variant.newBuilder().setBlobValue(ByteString.copyFromUtf8(account.getUserName())).build()).build());
 
         builder.addAttribute(AttributeProto.Attribute.newBuilder()
                 .setName("Param_ServerAddresses")

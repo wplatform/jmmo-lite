@@ -9,18 +9,16 @@ import com.github.azeroth.portal.handler.DefaultPortalRpcHandler;
 import com.github.azeroth.portal.handler.PortalRpcHandler;
 import com.github.azeroth.portal.proto.RpcPacket;
 import io.netty.bootstrap.ServerBootstrap;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 
 @Slf4j
+@NoArgsConstructor(staticName = "create")
 public class PortalRpcServer extends TcpServer<PortalRpcServer> {
 
-
-    public static PortalRpcServer create() {
-        return new PortalRpcServer();
-    }
 
     public final PortalRpcServer route(Consumer<? super RpcRouter> routesBuilder) {
         Objects.requireNonNull(routesBuilder, "routeBuilder");
@@ -33,10 +31,6 @@ public class PortalRpcServer extends TcpServer<PortalRpcServer> {
     @Override
     protected PortalRpcServer self() {
         return this;
-    }
-
-    private PortalRpcServer() {
-        super(new ServerBootstrap());
     }
 
 

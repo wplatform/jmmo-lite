@@ -1,13 +1,17 @@
 package com.github.azeroth.game.networking.packet.toy;
 
-import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.networking.ClientPacket;
+import io.netty.buffer.ByteBuf;
 
-class AddToy extends ClientPacket {
-    public ObjectGuid guid = ObjectGuid.EMPTY;
 
-    public addToy(WorldPacket packet) {
-        super(packet);
+public class AddToy extends ClientPacket {
+    public ObjectGuid guid;
+
+    public AddToy(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {

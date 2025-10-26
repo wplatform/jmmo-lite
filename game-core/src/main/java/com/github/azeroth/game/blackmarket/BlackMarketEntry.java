@@ -62,7 +62,7 @@ public class BlackMarketEntry {
     }
 
     public final int getSecondsRemaining() {
-        return (int) (_secondsRemaining - (gameTime.GetGameTime() - global.getBlackMarketMgr().getLastUpdate()));
+        return (int) (_secondsRemaining - (GameTime.getGameTime() - global.getBlackMarketMgr().getLastUpdate()));
     }
 
     public final boolean isCompleted() {
@@ -175,6 +175,6 @@ public class BlackMarketEntry {
     } // Set when mail has been sent
 
     private long getExpirationTime() {
-        return gameTime.GetGameTime() + getSecondsRemaining();
+        return GameTime.getGameTime() + getSecondsRemaining();
     }
 }

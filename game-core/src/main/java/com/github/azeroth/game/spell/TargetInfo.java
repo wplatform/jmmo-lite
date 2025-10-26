@@ -252,7 +252,7 @@ public class TargetInfo extends TargetInfoBase {
 
                     if (p != null) {
                         tangible.RefObject<Double> tempRef_Damage = new tangible.RefObject<Double>(damageInfo.damage);
-                        global.getScriptMgr().<IPlayerOnDealDamage>ForEach(p.getClass(), d -> d.OnDamage(p, spell.unitTarget, tempRef_Damage, spell.spellInfo));
+                        global.getScriptMgr().<IPlayerOnDealDamage>ForEach(p.getUnitClass(), d -> d.OnDamage(p, spell.unitTarget, tempRef_Damage, spell.spellInfo));
                         damageInfo.damage = tempRef_Damage.refArgValue;
                     }
 

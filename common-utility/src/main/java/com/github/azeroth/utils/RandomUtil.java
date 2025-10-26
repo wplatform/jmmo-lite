@@ -1,50 +1,75 @@
 package com.github.azeroth.utils;
 
+import com.github.azeroth.common.Assert;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RandomUtil {
 
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static volatile SecureRandom SECURE_RANDOM;
+
+    private static Random random() {
+        if(SECURE_RANDOM == null) {
+            synchronized (RandomUtil.class) {
+                if(SECURE_RANDOM == null) {
+                    try {
+                        SECURE_RANDOM = SecureRandom.getInstanceStrong();
+                    } catch (NoSuchAlgorithmException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return SECURE_RANDOM;
+    }
 
     public static boolean randomBoolean() {
-        return SECURE_RANDOM.nextBoolean();
+        return random().nextBoolean();
     }
     public static byte[] randomBytes(int count) {
         byte[] bytes = new byte[count];
-        SECURE_RANDOM.nextBytes(bytes);
+        random().nextBytes(bytes);
         return bytes;
     }
+
     public static double randomDouble() {
-        return SECURE_RANDOM.nextDouble();
+        return random().nextDouble();
     }
     public static double randomDouble(double startInclusive, double endExclusive) {
-        return SECURE_RANDOM.nextDouble() * (endExclusive - startInclusive);
+        return random().nextDouble() * (endExclusive - startInclusive);
     }
     public static float randomFloat() {
-        return SECURE_RANDOM.nextFloat();
+        return random().nextFloat();
     }
-    public static float randomFloat(float startInclusive, float endExclusive) {
-        return SECURE_RANDOM.nextFloat() * (endExclusive - startInclusive);
+
+
+    public static float randomFloat(final float startInclusive, final float endExclusive) {
+        Assert.isTrue(endExclusive >= startInclusive, "Start value must be smaller or equal to end value.");
+        Assert.isTrue(startInclusive >= 0, "Both range values must be non-negative.");
+        if (startInclusive == endExclusive) {
+            return startInclusive;
+        }
+        return startInclusive + (endExclusive - startInclusive) * random().nextFloat();
     }
+
     public static int randomInt() {
-        return SECURE_RANDOM.nextInt();
+        return random().nextInt();
     }
     public static int randomInt(int startInclusive, int endExclusive) {
-        return SECURE_RANDOM.nextInt(endExclusive - startInclusive) + startInclusive;
-    }
-    public static long randomLong() {
-        return SECURE_RANDOM.nextLong();
-    }
-    public static long randomLong(long startInclusive, long endExclusive) {
-        return SECURE_RANDOM.nextLong() * (endExclusive - startInclusive);
+        Assert.isTrue(endExclusive >= startInclusive, "Start value must be smaller or equal to end value.");
+        Assert.isTrue(startInclusive >= 0, "Both range values must be non-negative.");
+        if (startInclusive == endExclusive) {
+            return startInclusive;
+        }
+        return startInclusive + random().nextInt(endExclusive - startInclusive);
     }
 
     public static <T> T random(List<T> collection) {
@@ -92,6 +117,9 @@ public class RandomUtil {
 
     public static boolean randChance(int chance) {
         return chance > randomInt(0, 100);
+    }
 
+    public static boolean randChance(float chance) {
+        return chance > randomFloat(0f, 100f);
     }
 }

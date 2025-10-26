@@ -11,7 +11,7 @@ public class BossInfo {
     private ArrayList<ObjectGuid>[] door = new ArrayList<ObjectGuid>[DoorType.max.getValue()];
     private ArrayList<ObjectGuid> minion = new ArrayList<>();
     private ArrayList<Areaboundary> boundary = new ArrayList<>();
-    private DungeonEncounterRecord[] dungeonEncounters = new DungeonEncounterRecord[MapDefine.MaxDungeonEncountersPerBoss];
+    private DungeonEncounter[] dungeonEncounters = new DungeonEncounter[MapDefine.MaxDungeonEncountersPerBoss];
 
     public bossInfo() {
         setState(EncounterState.ToBeDecided);
@@ -53,15 +53,15 @@ public class BossInfo {
         boundary = value;
     }
 
-    public final DungeonEncounterRecord[] getDungeonEncounters() {
+    public final DungeonEncounter[] getDungeonEncounters() {
         return dungeonEncounters;
     }
 
-    public final void setDungeonEncounters(DungeonEncounterRecord[] value) {
+    public final void setDungeonEncounters(DungeonEncounter[] value) {
         dungeonEncounters = value;
     }
 
-    public final DungeonEncounterRecord getDungeonEncounterForDifficulty(Difficulty difficulty) {
+    public final DungeonEncounter getDungeonEncounterForDifficulty(Difficulty difficulty) {
         return getDungeonEncounters().FirstOrDefault(dungeonEncounter ->
         {
             if (dungeonEncounter != null) {

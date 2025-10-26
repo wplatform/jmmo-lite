@@ -5,9 +5,7 @@ import com.github.azeroth.game.entity.item.Item;
 import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.listener.interfaces.iplayer.IPlayerOnChargeRecoveryTimeStart;
-import com.github.azeroth.game.listener.interfaces.iplayer.IPlayerOnCooldownEnd;
-import com.github.azeroth.game.listener.interfaces.iplayer.IPlayerOnCooldownStart;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,7 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-
+@RequiredArgsConstructor
 public class SpellHistory {
     private final Unit owner;
     private final LoopSafeDictionary<Integer, CooldownEntry> spellCooldowns = new LoopSafeDictionary<Integer, CooldownEntry>();
@@ -25,10 +23,6 @@ public class SpellHistory {
     private final MultiMap<Integer, ChargeEntry> categoryCharges = new MultiMap<Integer, ChargeEntry>();
     private final HashMap<Integer, LocalDateTime> globalCooldowns = new HashMap<Integer, LocalDateTime>();
     private HashMap<Integer, CooldownEntry> spellCooldownsBeforeDuel = new HashMap<Integer, CooldownEntry>();
-
-    public spellHistory(Unit owner) {
-        owner = owner;
-    }
 
     public final HashSet<Integer> getSpellsOnCooldown() {
         return spellCooldowns.keySet().ToHashSet();
@@ -154,7 +148,7 @@ public class SpellHistory {
     }
 
     public final void update() {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         for (var pair : categoryCooldowns) {
             if (pair.value.categoryEnd < now) {
@@ -246,7 +240,7 @@ public class SpellHistory {
     }
 
     public final void writePacket(SendSpellHistory sendSpellHistory) {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         for (var p : spellCooldowns) {
             SpellHistoryEntry historyEntry = new SpellHistoryEntry();
@@ -279,7 +273,7 @@ public class SpellHistory {
     }
 
     public final void writePacket(SendSpellCharges sendSpellCharges) {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         for (var key : categoryCharges.keySet()) {
             var list = categoryCharges.get(key);
@@ -301,7 +295,7 @@ public class SpellHistory {
     }
 
     public final void writePacket(PetSpells petSpells) {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         for (var pair : spellCooldowns) {
             PetSpellCooldown petSpellCooldown = new PetSpellCooldown();
@@ -367,7 +361,7 @@ public class SpellHistory {
         var cooldown = duration.Zero;
         var categoryCooldown = duration.Zero;
 
-        var curTime = gameTime.GetSystemTime();
+        var curTime = GameTime.getSystemTime();
         LocalDateTime catrecTime = LocalDateTime.MIN;
         LocalDateTime recTime = LocalDateTime.MIN;
         var needsCooldownPacket = false;
@@ -456,7 +450,7 @@ public class SpellHistory {
                     var categoryEntry = CliDB.SpellCategoryStorage.get(categoryId);
 
                     if (categoryEntry.flags.hasFlag(SpellCategoryFlags.CooldownExpiresAtDailyReset)) {
-                        categoryCooldown = time.UnixTimeToDateTime(global.getWorldMgr().getNextDailyQuestsResetTime()) - gameTime.GetSystemTime();
+                        categoryCooldown = time.UnixTimeToDateTime(global.getWorldMgr().getNextDailyQuestsResetTime()) - GameTime.getSystemTime();
                     }
                 }
             } else {
@@ -489,7 +483,7 @@ public class SpellHistory {
                 tangible.RefObject<LocalDateTime> tempRef_recTime = new tangible.RefObject<LocalDateTime>(recTime);
                 tangible.RefObject<LocalDateTime> tempRef_catrecTime = new tangible.RefObject<LocalDateTime>(catrecTime);
                 tangible.RefObject<Boolean> tempRef_onHold = new tangible.RefObject<Boolean>(onHold);
-                global.getScriptMgr().<IPlayerOnCooldownStart>ForEach(playerOwner.getClass(), c -> c.OnCooldownStart(playerOwner, spellInfo, itemId, categoryId, cooldown, tempRef_recTime, tempRef_catrecTime, tempRef_onHold));
+                global.getScriptMgr().<IPlayerOnCooldownStart>ForEach(playerOwner.getUnitClass(), c -> c.OnCooldownStart(playerOwner, spellInfo, itemId, categoryId, cooldown, tempRef_recTime, tempRef_catrecTime, tempRef_onHold));
                 onHold = tempRef_onHold.refArgValue;
                 catrecTime = tempRef_catrecTime.refArgValue;
                 recTime = tempRef_recTime.refArgValue;
@@ -556,7 +550,7 @@ public class SpellHistory {
     }
 
     public final void addCooldown(int spellId, int itemId, Duration cooldownDuration) {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
         addCooldown(spellId, itemId, now + cooldownDuration, 0, now);
     }
 
@@ -767,7 +761,7 @@ public class SpellHistory {
             end = cooldownEntry.categoryEnd;
         }
 
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         if (end.compareTo(now) < 0) {
             return duration.Zero;
@@ -788,7 +782,7 @@ public class SpellHistory {
 
         end = cooldownEntry.categoryEnd;
 
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         if (end.compareTo(now) < 0) {
             return duration.Zero;
@@ -804,7 +798,7 @@ public class SpellHistory {
     }
 
     public final void lockSpellSchool(SpellSchoolMask schoolMask, Duration lockoutTime) {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
         var lockoutEnd = now + lockoutTime;
 
         for (var i = 0; i < SpellSchool.max.getValue(); ++i) {
@@ -877,7 +871,7 @@ public class SpellHistory {
     }
 
     public final boolean isSchoolLocked(SpellSchoolMask schoolMask) {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         for (var i = 0; i < SpellSchool.max.getValue(); ++i) {
             if ((boolean) (spellSchoolMask.forValue(1 << i).getValue() & schoolMask.getValue())) {
@@ -902,7 +896,7 @@ public class SpellHistory {
             var charges = categoryCharges.get(chargeCategoryId);
 
             if (charges.isEmpty()) {
-                recoveryStart = gameTime.GetSystemTime();
+                recoveryStart = GameTime.getSystemTime();
             } else {
                 recoveryStart = charges.get(charges.size() - 1).rechargeEnd;
             }
@@ -911,7 +905,7 @@ public class SpellHistory {
 
             if (p != null) {
                 tangible.RefObject<Integer> tempRef_chargeRecovery = new tangible.RefObject<Integer>(chargeRecovery);
-                global.getScriptMgr().<IPlayerOnChargeRecoveryTimeStart>ForEach(p.getClass(), c -> c.OnChargeRecoveryTimeStart(p, chargeCategoryId, tempRef_chargeRecovery));
+                global.getScriptMgr().<IPlayerOnChargeRecoveryTimeStart>ForEach(p.getUnitClass(), c -> c.OnChargeRecoveryTimeStart(p, chargeCategoryId, tempRef_chargeRecovery));
                 chargeRecovery = tempRef_chargeRecovery.refArgValue;
             }
 
@@ -1021,11 +1015,11 @@ public class SpellHistory {
     }
 
     public final boolean hasGlobalCooldown(SpellInfo spellInfo) {
-        return globalCooldowns.containsKey(spellInfo.getStartRecoveryCategory()) && globalCooldowns.get(spellInfo.getStartRecoveryCategory()).compareTo(gameTime.GetSystemTime()) > 0;
+        return globalCooldowns.containsKey(spellInfo.getStartRecoveryCategory()) && globalCooldowns.get(spellInfo.getStartRecoveryCategory()).compareTo(GameTime.getSystemTime()) > 0;
     }
 
     public final void addGlobalCooldown(SpellInfo spellInfo, Duration durationMs) {
-        globalCooldowns.put(spellInfo.getStartRecoveryCategory(), gameTime.GetSystemTime() + durationMs);
+        globalCooldowns.put(spellInfo.getStartRecoveryCategory(), GameTime.getSystemTime() + durationMs);
     }
 
     public final void cancelGlobalCooldown(SpellInfo spellInfo) {
@@ -1077,7 +1071,7 @@ public class SpellHistory {
             spellCooldown.flags = SpellCooldownFlags.IncludeEventCooldowns;
 
             for (var c : spellCooldowns) {
-                var now = gameTime.GetSystemTime();
+                var now = GameTime.getSystemTime();
                 var cooldownDuration = c.value.cooldownEnd > now ? (int) (c.value.CooldownEnd - now).TotalMilliseconds : 0;
 
                 // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
@@ -1119,7 +1113,7 @@ public class SpellHistory {
     }
 
     private void modifySpellCooldown(CooldownEntry cooldownEntry, Duration cooldownMod, boolean withoutCategoryCooldown) {
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         cooldownEntry.cooldownEnd += cooldownMod;
 
@@ -1147,7 +1141,7 @@ public class SpellHistory {
 
         if (cooldownEntry.cooldownEnd.compareTo(now) <= 0) {
             if (playerOwner) {
-                global.getScriptMgr().<IPlayerOnCooldownEnd>ForEach(playerOwner.getClass(), c -> c.OnCooldownEnd(playerOwner, global.getSpellMgr().getSpellInfo(cooldownEntry.spellId), cooldownEntry.itemId, cooldownEntry.categoryId));
+                global.getScriptMgr().<IPlayerOnCooldownEnd>ForEach(playerOwner.getUnitClass(), c -> c.OnCooldownEnd(playerOwner, global.getSpellMgr().getSpellInfo(cooldownEntry.spellId), cooldownEntry.itemId, cooldownEntry.categoryId));
             }
 
             categoryCooldowns.remove(cooldownEntry.categoryId);
@@ -1168,7 +1162,7 @@ public class SpellHistory {
             return;
         }
 
-        var now = gameTime.GetSystemTime();
+        var now = GameTime.getSystemTime();
 
         for (var i = 0; i < chargeList.size(); ++i) {
             var entry = chargeList[i];

@@ -71,13 +71,13 @@ public class Guardian extends Minion {
         var petType = PetType.Max;
 
         if (isPet() && getOwnerUnit().isTypeId(TypeId.Player)) {
-            if (getOwnerUnit().getClass() == PlayerClass.Warlock || getOwnerUnit().getClass() == PlayerClass.Shaman || getOwnerUnit().getClass() == PlayerClass.Deathknight) { // Risen Ghoul
+            if (getOwnerUnit().getUnitClass() == PlayerClass.Warlock || getOwnerUnit().getUnitClass() == PlayerClass.Shaman || getOwnerUnit().getUnitClass() == PlayerClass.Deathknight) { // Risen Ghoul
                 petType = PetType.Summon;
-            } else if (getOwnerUnit().getClass() == PlayerClass.Hunter) {
+            } else if (getOwnerUnit().getUnitClass() == PlayerClass.Hunter) {
                 petType = PetType.Hunter;
                 unitTypeMask = unitTypeMask.forValue(unitTypeMask.getValue() | unitTypeMask.HunterPet.getValue());
             } else {
-                Log.outError(LogFilter.Unit, "Unknown type pet {0} is summoned by player class {1}", getEntry(), getOwnerUnit().getClass());
+                Log.outError(LogFilter.Unit, "Unknown type pet {0} is summoned by player class {1}", getEntry(), getOwnerUnit().getUnitClass());
             }
         }
         var creatureID = (petType == PetType.Hunter) ? 1 : cinfo.entry;
@@ -355,7 +355,7 @@ public class Guardian extends Minion {
         }
         //warlock's and mage's pets gain 30% of owner's intellect
         else if (stat == Stats.Intellect) {
-            if (owner.getClass() == PlayerClass.Warlock || owner.getClass() == PlayerClass.Mage) {
+            if (owner.getUnitClass() == PlayerClass.Warlock || owner.getUnitClass() == PlayerClass.Mage) {
                 ownersBonus = MathUtil.CalculatePct(owner.getStat(stat), 30);
                 value += ownersBonus;
             }

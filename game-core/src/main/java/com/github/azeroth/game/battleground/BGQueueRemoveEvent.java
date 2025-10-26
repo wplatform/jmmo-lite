@@ -1,6 +1,9 @@
 package com.github.azeroth.game.battleground;
 
 
+import com.github.azeroth.defines.BattlegroundQueueTypeId;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+
 /**
  * This class is used to remove player from BG queue after 1 minute 20 seconds from first invitation
  * We must store removeInvite time in case player left queue and joined and is invited again

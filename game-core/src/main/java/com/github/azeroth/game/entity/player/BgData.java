@@ -19,7 +19,7 @@ public class BgData {
     public BgData() {
         setBgTypeId(BattlegroundTypeId.NONE);
         clearTaxiPath();
-        setJoinPos(new worldLocation());
+        setJoinPos(new WorldLocation());
     }
 
     public final int getBgInstanceId() {

@@ -905,6 +905,14 @@ public interface DbcObjectManager {
         return itemClass().get(id);
     }
 
+    default DbcEntityStore<ItemContextPickerEntry> itemContextPickerEntry() {
+        return getEntityStore(DbcObjects.ItemContextPickerEntry);
+    }
+
+    default ItemContextPickerEntry itemContextPickerEntry(int id) {
+        return itemContextPickerEntry().get(id);
+    }
+
     default DbcEntityStore<ItemCurrencyCost> itemCurrencyCost() {
         return getEntityStore(DbcObjects.ItemCurrencyCost);
     }
@@ -2259,11 +2267,11 @@ public interface DbcObjectManager {
 
     String getClassName(int klass, Locale locale);
 
-    ChrSpecialization getChrSpecializationByIndex(PlayerClass playerClass, int index);
+    ChrSpecialization getChrSpecializationByIndex(UnitClass klass, int index);
 
-    ChrSpecialization getDefaultChrSpecializationForClass(PlayerClass playerClass);
+    ChrSpecialization getDefaultChrSpecializationForClass(UnitClass klass);
 
-    Integer getPowerIndexByClass(Power power, PlayerClass classId);
+    Integer getPowerIndexByClass(Power power, UnitClass classId);
 
 
     String getChrRaceName(Race race, Locale locale);
@@ -2282,7 +2290,7 @@ public interface DbcObjectManager {
 
     EmotesTextSound getTextSoundEmoteFor(Integer emote, Byte race, Byte gender, Byte class_);
 
-    float evaluateExpectedStat(ExpectedStatType stat, Integer level, Integer expansion, Integer contentTuningId, PlayerClass unitClass, Integer mythicPlusMilestoneSeason);
+    float evaluateExpectedStat(ExpectedStatType stat, Integer level, Integer expansion, Integer contentTuningId, UnitClass unitClass, Integer mythicPlusMilestoneSeason);
 
     List<Integer> getFactionTeamList(Integer faction);
 
@@ -2352,7 +2360,7 @@ public interface DbcObjectManager {
 
     ResponseCodes validateName(String name, Locale locale);
 
-    Integer getNumTalentsAtLevel(Integer level, PlayerClass playerClass);
+    Integer getNumTalentsAtLevel(Integer level, UnitClass klass);
 
     ParagonReputation getParagonReputation(Integer factionId);
 
@@ -2376,7 +2384,7 @@ public interface DbcObjectManager {
 
     int getRequiredHonorLevelForPvpTalent(PvpTalent talentInfo);
 
-    List<PvpTalent> getPvpTalentsByPosition(PlayerClass class_, int tier, int column);
+    List<PvpTalent> getPvpTalentsByPosition(UnitClass class_, int tier, int column);
 
 
     List<QuestLineXQuest> getQuestsForQuestLine(Integer questLineId);
@@ -2393,7 +2401,7 @@ public interface DbcObjectManager {
 
     Integer getRulesetItemUpgrade(Integer itemId);
 
-    SkillRaceClassInfo getSkillRaceClassInfo(Integer skill, Byte race, PlayerClass class_);
+    SkillRaceClassInfo getSkillRaceClassInfo(Integer skill, Byte race, UnitClass class_);
 
 
     List<SkillLine> getSkillLinesForParentSkill(Integer parentSkillId);

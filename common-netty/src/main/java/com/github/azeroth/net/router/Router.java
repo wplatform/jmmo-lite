@@ -52,8 +52,8 @@ public abstract class Router<C extends Router<C, IN, OUT>, IN extends NettyInbou
         return null;
     }
 
-    record RouteHandler<IN extends NettyInbound, OUT extends NettyOutbound>(Predicate<? super IN> condition,
-                                                                            BiConsumer<? super IN, ? super OUT> handler) implements BiConsumer<IN, OUT>, Predicate<IN> {
+    record RouteHandler<IN extends NettyInbound, OUT extends NettyOutbound>(
+            Predicate<? super IN> condition, BiConsumer<? super IN, ? super OUT> handler) implements BiConsumer<IN, OUT>, Predicate<IN> {
 
         RouteHandler(Predicate<? super IN> condition, BiConsumer<? super IN, ? super OUT> handler) {
             this.condition = Objects.requireNonNull(condition, "condition");

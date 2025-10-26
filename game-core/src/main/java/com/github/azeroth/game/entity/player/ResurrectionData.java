@@ -2,7 +2,7 @@ package com.github.azeroth.game.entity.player;
 
 public class ResurrectionData {
     private ObjectGuid guid = ObjectGuid.EMPTY;
-    private Worldlocation location = new worldLocation();
+    private Worldlocation location = new WorldLocation();
 
     private int health;
 

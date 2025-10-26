@@ -225,4 +225,7 @@ public class Condition {
         }
         return true;
     }
+
+    public boolean isLoaded() { return conditionType != ConditionType.NONE || referenceId != 0 || scriptId != 0; }
+
 }

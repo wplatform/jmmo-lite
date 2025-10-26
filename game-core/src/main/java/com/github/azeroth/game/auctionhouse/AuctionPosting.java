@@ -95,7 +95,7 @@ public class AuctionPosting {
         }
 
         // all (not optional<>)
-        auctionItem.durationLeft = (int) Math.max((EndTime - gameTime.GetSystemTime()).TotalMilliseconds, 0L);
+        auctionItem.durationLeft = (int) Math.max((EndTime - GameTime.getSystemTime()).TotalMilliseconds, 0L);
         auctionItem.deleteReason = 0;
 
         // SMSG_AUCTION_LIST_ITEMS_RESULT (only if owned)

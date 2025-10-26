@@ -5,7 +5,7 @@ import com.github.azeroth.game.entity.unit.declinedName;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class PetRename extends ClientPacket {
+public class PetRename extends ClientPacket {
     public PetrenameData renameData = new petRenameData();
 
     public PetRename(WorldPacket packet) {

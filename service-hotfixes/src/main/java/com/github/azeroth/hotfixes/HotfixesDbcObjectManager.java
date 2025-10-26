@@ -2,8 +2,8 @@ package com.github.azeroth.hotfixes;
 
 
 import com.github.azeroth.cache.*;
-import com.github.azeroth.common.Locale;
 import com.github.azeroth.common.*;
+import com.github.azeroth.common.Locale;
 import com.github.azeroth.config.IllegalConfigException;
 import com.github.azeroth.dbc.DbcObjectManager;
 import com.github.azeroth.dbc.DbcObjects;
@@ -11,10 +11,8 @@ import com.github.azeroth.dbc.db2.DB2FileException;
 import com.github.azeroth.dbc.db2.Db2DataBind;
 import com.github.azeroth.dbc.db2.Db2EntityReader;
 import com.github.azeroth.dbc.defines.*;
-
 import com.github.azeroth.dbc.domain.*;
 import com.github.azeroth.dbc.domain.ChrSpecialization;
-import com.github.azeroth.dbc.domain.CreatureFamilyEntry;
 import com.github.azeroth.dbc.model.*;
 import com.github.azeroth.defines.*;
 import com.github.azeroth.utils.MathUtil;
@@ -54,8 +52,8 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
     private Set<Tuple<Byte, Byte, Byte>> characterFacialHairStyles;
     private MapCache<Tuple<Byte, Byte, CharBaseSectionVariation>, Set<CharSection>> charSections;
     private MapCache<Integer, CharStartOutfit> charStartOutfits;
-    private final int[][] powersByClass = new int[PlayerClass.values().length][Power.MAX_POWERS.index];
-    private final ChrSpecialization[][] chrSpecializationsByIndex = new ChrSpecialization[PlayerClass.values().length + 1][MAX_SPECIALIZATIONS];
+    private final int[][] powersByClass = new int[UnitClass.values().length][Power.MAX_POWERS.index];
+    private final ChrSpecialization[][] chrSpecializationsByIndex = new ChrSpecialization[UnitClass.values().length + 1][MAX_SPECIALIZATIONS];
     private MapCache<Integer, List<DBCPosition2D>> curvePoints;
     private MapCache<EmotesTextSoundKey, EmotesTextSound> emoteTextSounds;
     private Map<Integer, List<Integer>> factionTeams;
@@ -67,7 +65,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
     private Map<Short, Integer> itemLevelDeltaToBonusListContainer;
     private Map<Integer, Set<ItemBonusTreeNode>> itemBonusTrees;
     private Map<Integer, ItemChildEquipment> itemChildEquipment;
-    private ItemClassEntry[] itemClassEntryByOldEnum = new ItemClassEntry[PlayerClass.values().length];
+    private ItemClassEntry[] itemClassEntryByOldEnum = new ItemClassEntry[UnitClass.values().length];
     private Set<Integer> itemsWithCurrencyCost;
     private Map<Integer, Set<ItemLimitCategoryCondition>> itemCategoryConditions;
     private Map<Short, Set<ItemLevelSelectorQuality>> itemLevelQualitySelectorQualities;
@@ -211,7 +209,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
             artifactPowerRanks.put(Pair.of(artifactPowerRank.getArtifactPowerID(), artifactPowerRank.getRankIndex()), artifactPowerRank);
         }
 
-        Assert.state(BATTLE_PET_SPECIES_MAX_ID >= this.battlePetSpecie().size(),
+        Assert.isTrue(BATTLE_PET_SPECIES_MAX_ID >= this.battlePetSpecie().size(),
                 "BATTLE_PET_SPECIES_MAX_ID {} must be equal to or greater than {}",
                 BATTLE_PET_SPECIES_MAX_ID, this.battlePetSpecie().size());
 
@@ -223,11 +221,11 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
         CharSectionType[] charSectionTypes = CharSectionType.values();
         CharBaseSectionVariation[] variations = CharBaseSectionVariation.values();
         for (var charBaseSection : this.charBaseSection()) {
-            Assert.state(charBaseSection.getResolutionVariationEnum() < charSectionTypes.length,
+            Assert.isTrue(charBaseSection.getResolutionVariationEnum() < charSectionTypes.length,
                     "CharSectionType length {} must be equal to or greater than {}",
                     charSectionTypes.length, charBaseSection.getResolutionVariationEnum());
 
-            Assert.state(charBaseSection.getVariationEnum() < variations.length,
+            Assert.isTrue(charBaseSection.getVariationEnum() < variations.length,
                     "CharBaseSectionVariation.length {} must be equal to or greater than {}",
                     variations.length, charBaseSection.getVariationEnum());
 
@@ -237,7 +235,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
         Map<Tuple<Byte, Byte, CharBaseSectionVariation>, Set<Pair<Byte, Byte>>> testDouble = new HashMap<>();
         for (var charSection : this.charSection()) {
 
-            Assert.state(charSection.getBaseSection() < charSectionTypes.length,
+            Assert.isTrue(charSection.getBaseSection() < charSectionTypes.length,
                     "SECTION_TYPE_MAX {} must be equal to or greater than {}",
                     charSectionTypes.length, charSection.getBaseSection());
 
@@ -260,21 +258,21 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
                 if (powersByClass[power.getClassID()][j] != Power.MAX_POWERS.index)
                     ++index;
 
-            Assert.state(power.getClassID() < PlayerClass.values().length);
-            Assert.state(power.getPowerType() < Power.MAX_POWERS.index);
+            Assert.isTrue(power.getClassID() < UnitClass.values().length);
+            Assert.isTrue(power.getPowerType() < Power.MAX_POWERS.index);
             powersByClass[power.getClassID()][power.getPowerType()] = index;
         }
 
 
         for (ChrSpecialization chrSpec : chrSpecialization())
         {
-            Assert.state(chrSpec.getClassID() < PlayerClass.values().length);
-            Assert.state(chrSpec.getOrderIndex() < MAX_SPECIALIZATIONS);
+            Assert.isTrue(chrSpec.getClassID() < UnitClass.values().length);
+            Assert.isTrue(chrSpec.getOrderIndex() < MAX_SPECIALIZATIONS);
 
             int storageIndex = chrSpec.getClassID();
             if (chrSpec.flags().hasFlag(ChrSpecializationFlag.PetOverrideSpec))
             {
-                Assert.state(chrSpec.getClassID() != 0);
+                Assert.isTrue(chrSpec.getClassID() != 0);
                 storageIndex = PET_SPEC_OVERRIDE_CLASS_INDEX;
             }
             chrSpecializationsByIndex[storageIndex][chrSpec.getOrderIndex()] = chrSpec;
@@ -368,13 +366,13 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
         itemChildEquipment = new HashMap<>();
         for (ItemChildEquipment e : itemChildEquipment()) {
-            Assert.state(itemChildEquipment.get(e.getParentItemID()) == null, "Item must have max 1 child item.");
+            Assert.isTrue(itemChildEquipment.get(e.getParentItemID()) == null, "Item must have max 1 child item.");
             itemChildEquipment.put(e.getParentItemID(), e);
         }
 
         for (ItemClassEntry itemClassEntry : itemClass()) {
-            Assert.state(itemClassEntry.getClassID() < itemClassEntryByOldEnum.length);
-            Assert.state(itemClassEntryByOldEnum[itemClassEntry.getClassID()] == null);
+            Assert.isTrue(itemClassEntry.getClassID() < itemClassEntryByOldEnum.length);
+            Assert.isTrue(itemClassEntryByOldEnum[itemClassEntry.getClassID()] == null);
             itemClassEntryByOldEnum[itemClassEntry.getClassID()] = itemClassEntry;
         }
 
@@ -395,7 +393,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
         itemModifiedAppearancesByItem = cacheProvider.newGenericMapCache("ItemModifiedAppearancesByItemCache", new TypeReference<>(){});
         for (ItemModifiedAppearance appearanceMod : itemModifiedAppearance()) {
-            Assert.state(appearanceMod.getItemAppearanceID() <= 0xFFFFFF);
+            Assert.isTrue(appearanceMod.getItemAppearanceID() <= 0xFFFFFF);
             itemModifiedAppearancesByItem.put(appearanceMod.getItemID() | (appearanceMod.getItemAppearanceModifierID() << 24), appearanceMod);
         }
 
@@ -482,7 +480,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
         nameValidators = cacheProvider.newGenericMapCache("NameValidatorsCache", new TypeReference<>() {});
         for (NamesProfanity namesProfanity : namesProfanity()) {
-            Assert.state(namesProfanity.getLanguage() < Locale.values().length);
+            Assert.isTrue(namesProfanity.getLanguage() < Locale.values().length);
 
             if (namesProfanity.getLanguage() != -1)
                 nameValidators.compute(Locale.values()[namesProfanity.getLanguage()], Functions.addToList(Pattern.compile(namesProfanity.getName())));
@@ -501,7 +499,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
         }
 
         for (NamesReservedLocale namesReserved : namesReservedLocale()) {
-            Assert.state((namesReserved.getLocaleMask() & -(1 << Locale.values().length)) == 0);
+            Assert.isTrue((namesReserved.getLocaleMask() & -(1 << Locale.values().length)) == 0);
 
             for (Locale value : Locale.values()) {
                 if (value == Locale.none) {
@@ -556,14 +554,14 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
         powerTypes = new PowerType[Power.MAX_POWERS.index];
         for (PowerType powerType : powerType())
         {
-            Assert.state(powerType.getPowerTypeEnum() < Power.MAX_POWERS.index);
-            Assert.state(powerTypes[powerType.getPowerTypeEnum()] == null);
+            Assert.isTrue(powerType.getPowerTypeEnum() < Power.MAX_POWERS.index);
+            Assert.isTrue(powerTypes[powerType.getPowerTypeEnum()] == null);
             powerTypes[powerType.getPowerTypeEnum()] = powerType;
         }
 
         for (PvpDifficulty entry : pvpDifficulty())
         {
-            Assert.state(entry.getRangeIndex() < BattlegroundBracketId.values().length,
+            Assert.isTrue(entry.getRangeIndex() < BattlegroundBracketId.values().length,
                     "PvpDifficulty bracket {} exceeded max allowed second {}",
                     entry.getRangeIndex(), BattlegroundBracketId.values().length);
         }
@@ -582,12 +580,12 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
         pvpTalentsByPosition = cacheProvider.newGenericMapCache("PvpTalentsByPositionCache", new TypeReference<>() {});
         for (PvpTalent talentInfo : pvpTalent())
         {
-            Assert.state(talentInfo.getClassID() < PlayerClass.values().length);
-            Assert.state(talentInfo.getTierID() < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least {}", talentInfo.getTierID() + 1);
-            Assert.state(talentInfo.getColumnIndex() < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least {}", talentInfo.getColumnIndex() + 1);
+            Assert.isTrue(talentInfo.getClassID() < UnitClass.values().length);
+            Assert.isTrue(talentInfo.getTierID() < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least {}", talentInfo.getTierID() + 1);
+            Assert.isTrue(talentInfo.getColumnIndex() < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least {}", talentInfo.getColumnIndex() + 1);
             if (talentInfo.getClassID() == 0)
             {
-                for (PlayerClass value : PlayerClass.values()) {
+                for (UnitClass value : UnitClass.values()) {
                     int id = value.ordinal() << 8 | talentInfo.getTierID() << 4 | talentInfo.getColumnIndex();
                     pvpTalentsByPosition.compute(id, Functions.addToList(talentInfo));
                 }
@@ -600,8 +598,8 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
         pvpTalentUnlock = new int[MAX_PVP_TALENT_TIERS][MAX_PVP_TALENT_COLUMNS];
         for (PvpTalentUnlock talentUnlock : pvpTalentUnlock())
         {
-            Assert.state(talentUnlock.getTierID() < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least {}", talentUnlock.getTierID() + 1);
-            Assert.state(talentUnlock.getColumnIndex() < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least {}", talentUnlock.getColumnIndex() + 1);
+            Assert.isTrue(talentUnlock.getTierID() < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least {}", talentUnlock.getTierID() + 1);
+            Assert.isTrue(talentUnlock.getColumnIndex() < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least {}", talentUnlock.getColumnIndex() + 1);
             pvpTalentUnlock[talentUnlock.getTierID()][talentUnlock.getColumnIndex()] = talentUnlock.getHonorLevel();
         }
 
@@ -694,9 +692,9 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
         talentsByPosition = cacheProvider.newGenericMapCache("TalentsByPositionCache", new TypeReference<>(){});
         for (Talent talentInfo : talent()) {
-            Assert.state(talentInfo.getClassID() < PlayerClass.values().length);
-            Assert.state(talentInfo.getTierID() < MAX_TALENT_TIERS, "MAX_TALENT_TIERS must be at least %u", talentInfo.getTierID() + 1);
-            Assert.state(talentInfo.getColumnIndex() < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least %u", talentInfo.getColumnIndex() + 1);
+            Assert.isTrue(talentInfo.getClassID() < UnitClass.values().length);
+            Assert.isTrue(talentInfo.getTierID() < MAX_TALENT_TIERS, "MAX_TALENT_TIERS must be at least %u", talentInfo.getTierID() + 1);
+            Assert.isTrue(talentInfo.getColumnIndex() < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least %u", talentInfo.getColumnIndex() + 1);
             int id = talentInfo.getClassID() << 8 | talentInfo.getTierID() << 4 | talentInfo.getColumnIndex();
             talentsByPosition.compute(id, Functions.addToList(talentInfo));
         }
@@ -911,13 +909,13 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
 
     @Override
-    public ChrSpecialization getChrSpecializationByIndex(PlayerClass playerClass, int index) {
-        return chrSpecializationsByIndex[playerClass.ordinal()][index];
+    public ChrSpecialization getChrSpecializationByIndex(UnitClass klass, int index) {
+        return chrSpecializationsByIndex[klass.ordinal()][index];
     }
 
     @Override
-    public ChrSpecialization getDefaultChrSpecializationForClass(PlayerClass playerClass) {
-        ChrSpecialization[] specializationsByIndex = chrSpecializationsByIndex[playerClass.ordinal()];
+    public ChrSpecialization getDefaultChrSpecializationForClass(UnitClass klass) {
+        ChrSpecialization[] specializationsByIndex = chrSpecializationsByIndex[klass.ordinal()];
         for (ChrSpecialization chrSpec : specializationsByIndex) {
             if (chrSpec.flags().hasFlag(ChrSpecializationFlag.Recommended)) {
                 return chrSpec;
@@ -927,7 +925,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
     }
 
     @Override
-    public Integer getPowerIndexByClass(Power power, PlayerClass classId) {
+    public Integer getPowerIndexByClass(Power power, UnitClass classId) {
         return powersByClass[classId.ordinal()][power.index];
     }
 
@@ -1121,7 +1119,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
     }
 
     @Override
-    public float evaluateExpectedStat(ExpectedStatType stat, Integer level, Integer expansion, Integer contentTuningId, PlayerClass unitClass, Integer mythicPlusMilestoneSeason) {
+    public float evaluateExpectedStat(ExpectedStatType stat, Integer level, Integer expansion, Integer contentTuningId, UnitClass unitClass, Integer mythicPlusMilestoneSeason) {
         return 0;
     }
 
@@ -1345,7 +1343,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
     }
 
     @Override
-    public Integer getNumTalentsAtLevel(Integer level, PlayerClass playerClass) {
+    public Integer getNumTalentsAtLevel(Integer level, UnitClass klass) {
         return 0;
     }
 
@@ -1401,13 +1399,13 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
     @Override
     public int getRequiredHonorLevelForPvpTalent(PvpTalent talentInfo) {
-        Assert.state(talentInfo != null);
+        Assert.isTrue(talentInfo != null);
         return pvpTalentUnlock[talentInfo.getTierID()][talentInfo.getColumnIndex()];
 
     }
 
     @Override
-    public List<PvpTalent> getPvpTalentsByPosition(PlayerClass class_, int tier, int column) {
+    public List<PvpTalent> getPvpTalentsByPosition(UnitClass class_, int tier, int column) {
         int id = class_.ordinal() << 8 | tier << 4 | column;
         return pvpTalentsByPosition.get(id);
     }
@@ -1450,7 +1448,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
     }
 
     @Override
-    public SkillRaceClassInfo getSkillRaceClassInfo(Integer skill, Byte race, PlayerClass class_) {
+    public SkillRaceClassInfo getSkillRaceClassInfo(Integer skill, Byte race, UnitClass class_) {
         return null;
     }
 
@@ -1610,7 +1608,7 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
     @Override
     public Set<Integer> getDefaultItemBonusTree(Integer itemId, ItemContext itemContext) {
-        return Set.of();
+        return null;
     }
 
     @Override

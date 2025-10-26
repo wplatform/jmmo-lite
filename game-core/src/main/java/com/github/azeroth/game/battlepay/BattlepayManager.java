@@ -4,7 +4,7 @@ package com.github.azeroth.game.battlepay;
 import com.github.azeroth.game.networking.packet.bpay.*;
 import game.BattlePayDataStoreMgr;
 import game.WorldConfig;
-import game.WorldSession;
+import com.github.azeroth.game.world.WorldSession;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -775,7 +775,7 @@ public class BattlepayManager {
                     player.learnSpell(110406, true);
                     player.learnSpell(104381, true);
 
-                    if (player.getClass() == playerClass.Shaman) {
+                    if (player.getUnitClass() == UnitClass.Shaman) {
                         player.equipNewItem(EquipmentSlot.Head, 199444, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 199448, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 199447, itemContext.NONE, true);
@@ -786,7 +786,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 199442, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Hunter) {
+                    if (player.getUnitClass() == UnitClass.Hunter) {
                         player.equipNewItem(EquipmentSlot.Head, 198592, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 198596, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 198595, itemContext.NONE, true);
@@ -797,7 +797,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 198590, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Mage) {
+                    if (player.getUnitClass() == UnitClass.Mage) {
                         player.equipNewItem(EquipmentSlot.Head, 198568, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 198571, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 198570, itemContext.NONE, true);
@@ -808,7 +808,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 198566, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Priest) {
+                    if (player.getUnitClass() == UnitClass.Priest) {
                         player.equipNewItem(EquipmentSlot.Head, 199420, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 199423, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 199422, itemContext.NONE, true);
@@ -819,7 +819,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 199418, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Warlock) {
+                    if (player.getUnitClass() == UnitClass.Warlock) {
                         player.equipNewItem(EquipmentSlot.Head, 199420, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 199423, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 199422, itemContext.NONE, true);
@@ -830,7 +830,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 199418, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.DemonHunter) {
+                    if (player.getUnitClass() == UnitClass.DemonHunter) {
                         player.equipNewItem(EquipmentSlot.Head, 198575, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 198578, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 198577, itemContext.NONE, true);
@@ -841,7 +841,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 198573, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Rogue) {
+                    if (player.getUnitClass() == UnitClass.Rogue) {
                         player.equipNewItem(EquipmentSlot.Head, 199427, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 199430, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 199429, itemContext.NONE, true);
@@ -852,7 +852,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 199425, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Monk) {
+                    if (player.getUnitClass() == UnitClass.Monk) {
                         player.equipNewItem(EquipmentSlot.Head, 198575, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 198578, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 198577, itemContext.NONE, true);
@@ -863,7 +863,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 198573, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Druid) {
+                    if (player.getUnitClass() == UnitClass.Druid) {
                         player.equipNewItem(EquipmentSlot.Head, 199427, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 199430, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 199429, itemContext.NONE, true);
@@ -874,7 +874,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 199425, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Warrior) {
+                    if (player.getUnitClass() == UnitClass.Warrior) {
                         player.equipNewItem(EquipmentSlot.Head, 199433, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 199440, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 199439, itemContext.NONE, true);
@@ -885,7 +885,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 199435, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Paladin) {
+                    if (player.getUnitClass() == UnitClass.Paladin) {
                         player.equipNewItem(EquipmentSlot.Head, 199433, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 199440, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 199439, itemContext.NONE, true);
@@ -896,7 +896,7 @@ public class BattlepayManager {
                         player.equipNewItem(EquipmentSlot.Feet, 199435, itemContext.NONE, true);
                     }
 
-                    if (player.getClass() == playerClass.Deathknight) {
+                    if (player.getUnitClass() == UnitClass.DEATH_KNIGHT) {
                         var quest = global.getObjectMgr().getQuestTemplate(12801);
 
                         if (global.getObjectMgr().getQuestTemplate(12801) != null) {
@@ -929,7 +929,7 @@ public class BattlepayManager {
                     }
 
                     // DRACTHYR DF
-                    if (player.getClass() == playerClass.Evoker) {
+                    if (player.getUnitClass() == UnitClass.Evoker) {
                         player.equipNewItem(EquipmentSlot.Head, 199444, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Wrist, 199448, itemContext.NONE, true);
                         player.equipNewItem(EquipmentSlot.Waist, 199447, itemContext.NONE, true);

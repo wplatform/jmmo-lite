@@ -1,13 +1,15 @@
 package com.github.azeroth.game.networking.packet.social;
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
+import io.netty.buffer.ByteBuf;
 
 public class AddIgnore extends ClientPacket {
     public String name;
-    public ObjectGuid accountGUID = ObjectGuid.EMPTY;
+    public ObjectGuid accountGUID;
 
-    public AddIgnore(WorldPacket packet) {
+    public AddIgnore(ByteBuf packet) {
         super(packet);
     }
 

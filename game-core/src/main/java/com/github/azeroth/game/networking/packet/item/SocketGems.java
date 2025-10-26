@@ -4,7 +4,7 @@ package com.github.azeroth.game.networking.packet.item;
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
 
-class SocketGems extends ClientPacket {
+public class SocketGems extends ClientPacket {
     public ObjectGuid itemGuid = ObjectGuid.EMPTY;
     public ObjectGuid[] gemItem = new ObjectGuid[ItemConst.MaxGemSockets];
 

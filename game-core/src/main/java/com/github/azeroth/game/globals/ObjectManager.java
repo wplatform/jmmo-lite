@@ -76,7 +76,7 @@ import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 import com.github.azeroth.game.domain.phasing.PhaseShift;
 import com.github.azeroth.game.phasing.PhasingHandler;
 import com.github.azeroth.game.quest.Quest;
-import com.github.azeroth.game.service.repository.*;
+import com.github.azeroth.game.repository.*;
 import com.github.azeroth.game.spell.SpellInfo;
 import com.github.azeroth.game.spell.SpellManager;
 import com.github.azeroth.game.spell.auras.enums.AuraType;
@@ -283,7 +283,7 @@ public final class ObjectManager {
     //Item
     private final HashMap<Integer, ItemTemplate> itemTemplateStorage = new HashMap<Integer, ItemTemplate>();
     //Player
-    private final HashMap<Pair<Race, PlayerClass>, PlayerInfo> playerInfo = new HashMap<>();
+    private final HashMap<Pair<Race, UnitClass>, PlayerInfo> playerInfo = new HashMap<>();
     //Pets
     private final MapCache<Integer, PetLevelInfo[]> petInfoStore;
     private final HashMap<Integer, List<String>> petHalfName0 = new HashMap<>();
@@ -501,7 +501,7 @@ public final class ObjectManager {
         classExpansionRequirementStorage.clear();
 
         HashMap<Byte, Map<Byte, Pair<Byte, Byte>>> temp = new HashMap<>();
-        var minRequirementForClass = new byte[PlayerClass.values().length];
+        var minRequirementForClass = new byte[UnitClass.values().length];
         try (Stream<ClassExpansionRequirement> raceUnlockRequirements = miscRepo.queryAllClassExpansionRequirement()) {
             raceUnlockRequirements.forEach(e -> {
                 ChrClass classEntry = dbcObjectManager.chrClass(e.classID);
@@ -543,7 +543,7 @@ public final class ObjectManager {
 
             for (var pair : race.getValue().entrySet()) {
                 ClassAvailability classAvailability = new ClassAvailability();
-                classAvailability.classID = PlayerClass.values()[pair.getKey()];
+                classAvailability.classID = UnitClass.values()[pair.getKey()];
                 classAvailability.activeExpansionLevel = pair.getValue().first();
                 classAvailability.accountExpansionLevel = pair.getValue().second();
                 classAvailability.minActiveExpansionLevel = minRequirementForClass[pair.getKey()];
@@ -583,7 +583,7 @@ public final class ObjectManager {
         return classExpansionRequirementStorage;
     }
 
-    public ClassAvailability getClassExpansionRequirement(Race raceId, PlayerClass classId) {
+    public ClassAvailability getClassExpansionRequirement(Race raceId, UnitClass classId) {
         return classExpansionRequirementStorage.stream()
                 .filter(e -> e.raceID == raceId)
                 .flatMap(e -> e.classes.stream())
@@ -593,7 +593,7 @@ public final class ObjectManager {
 
     }
 
-    public ClassAvailability getClassExpansionRequirementFallback(PlayerClass classId) {
+    public ClassAvailability getClassExpansionRequirementFallback(UnitClass classId) {
         return classExpansionRequirementStorage.stream()
                 .flatMap(e -> e.classes.stream())
                 .filter(e -> e.classID == classId)
@@ -1772,12 +1772,10 @@ public final class ObjectManager {
             });
         }
 
-
-        for (int unitLevel = 1; unitLevel <= SharedDefine.DEFAULT_MAX_LEVEL + 3; ++unitLevel)
-        {
-            for (int unitClass = 1; unitClass <= UnitClass.values().length; ++unitClass)
-            {
-                if (creatureBaseStatsStorage.get(unitLevel << 8 | unitClass) == null)
+        for (int unitLevel = 1; unitLevel <= SharedDefine.DEFAULT_MAX_LEVEL + 3; ++unitLevel) {
+            for (int unitClass = 1; unitClass <= SharedDefine.MAX_UNIT_CLASSES; ++unitClass) {
+                int unitClassMask = 1 << (unitClass - 1);
+                if (creatureBaseStatsStorage.get(unitLevel << 8 | unitClassMask) == null)
                     Logs.SQL.error("Missing base stats for creature class {} level {}", unitClass, unitLevel);
             }
         }
@@ -2531,7 +2529,7 @@ public final class ObjectManager {
             return stats;
         }
 
-        return new DefaultCreatureBaseStats();
+        return null;
     }
 
     public CreatureModelInfo getCreatureModelRandomGender(final CreatureModel model, CreatureTemplate creatureTemplate) {
@@ -4365,8 +4363,8 @@ public final class ObjectManager {
 
             Gender gender = Gender.valueOf(chrOutFitItem.getSexID());
             Race race = Race.values()[chrOutFitItem.getRaceID()];
-            PlayerClass playerClass = PlayerClass.values()[chrOutFitItem.getClassID()];
-            PlayerInfo info = playerInfo.get(Pair.of(race, playerClass));
+            UnitClass klass = UnitClass.values()[chrOutFitItem.getClassID()];
+            PlayerInfo info = playerInfo.get(Pair.of(race, klass));
 
             if (items.isEmpty() || info == null) {
                 continue;
@@ -4381,7 +4379,7 @@ public final class ObjectManager {
                     if (!itemTemplate.getEffects().isEmpty()) {
                         Short spellCategoryID = itemTemplate.getEffects().getFirst().getSpellCategoryID();
                         count = switch (SpellCategory.valueOf(spellCategoryID)) {
-                            case FOOD -> playerClass == PlayerClass.DEATH_KNIGHT ? 10 : 4;
+                            case FOOD -> klass == UnitClass.DEATH_KNIGHT ? 10 : 4;
                             case DRINK -> 2;
                         };
                     }
@@ -4404,35 +4402,35 @@ public final class ObjectManager {
                     return;
                 }
 
-                if (fields[1] >= PlayerClass.values().length) {
+                if (fields[1] >= UnitClass.values().length) {
                     Logs.SQL.error("Wrong class {} in `playercreateinfo_item` table, ignoring.", fields[1]);
                     return;
                 }
 
                 Race race = Race.values()[fields[0]];
-                PlayerClass playerClass = PlayerClass.values()[fields[1]];
+                UnitClass klass = UnitClass.values()[fields[1]];
 
                 if (getItemTemplate(fields[2]) == null) {
-                    Logs.SQL.error("Item id {} (race {} class {}) in `playercreateinfo_item` table but it does not exist, ignoring.", fields[2], race, playerClass);
+                    Logs.SQL.error("Item id {} (race {} class {}) in `playercreateinfo_item` table but it does not exist, ignoring.", fields[2], race, klass);
                     return;
                 }
 
                 if (fields[3] < 1)
                 {
-                    Logs.SQL.error("Item id {} (class {} race {}) have amount == 0 in `playercreateinfo_item` table, ignoring.", fields[2], race, playerClass);
+                    Logs.SQL.error("Item id {} (class {} race {}) have amount == 0 in `playercreateinfo_item` table, ignoring.", fields[2], race, klass);
                     return;
                 }
 
-                if (race == Race.NONE || playerClass == PlayerClass.NONE) {
+                if (race == Race.NONE || klass == UnitClass.NONE) {
                     Set<Race> racesNeedAdd = race == Race.NONE ? EnumSet.allOf(Race.class) : Set.of(race);
-                    Set<PlayerClass> playerClassNeedAdd = playerClass == PlayerClass.NONE ? EnumSet.allOf(PlayerClass.class) : Set.of(playerClass);
+                    Set<UnitClass> klassNeedAdd = klass == UnitClass.NONE ? EnumSet.allOf(UnitClass.class) : Set.of(klass);
                     for (Race aRace : racesNeedAdd) {
-                        for (PlayerClass aClass : playerClassNeedAdd) {
+                        for (UnitClass aClass : klassNeedAdd) {
                             playerCreateInfoAddItemHelper(aRace, aClass, fields[2], fields[3]);
                         }
                     }
                 } else {
-                    playerCreateInfoAddItemHelper(race, playerClass, fields[2], fields[3]);
+                    playerCreateInfoAddItemHelper(race, klass, fields[2], fields[3]);
                 }
                 count.getAndIncrement();
             });
@@ -4451,14 +4449,14 @@ public final class ObjectManager {
                 continue;
             }
             for (Race race : Race.values()) {
-                for (PlayerClass playerClass : PlayerClass.values()) {
-                    if (race == Race.NONE || playerClass == PlayerClass.NONE) {
+                for (UnitClass klass : UnitClass.values()) {
+                    if (race == Race.NONE || klass == UnitClass.NONE) {
                         continue;
                     }
-                    if (!rcInfo.raceMask().hasRace(race) || !rcInfo.classMask().hasPlayerClass(playerClass)) {
+                    if (!rcInfo.raceMask().hasRace(race) || !rcInfo.classMask().hasPlayerClass(klass)) {
                         continue;
                     }
-                    PlayerInfo info = playerInfo.get(Pair.of(race, playerClass));
+                    PlayerInfo info = playerInfo.get(Pair.of(race, klass));
                     info.skills.add(rcInfo);
                 }
             }
@@ -4485,15 +4483,15 @@ public final class ObjectManager {
                     return;
                 }
                 for (Race race : Race.values()) {
-                    for (PlayerClass playerClass : PlayerClass.values()) {
-                        if (race == Race.NONE || playerClass == PlayerClass.NONE) {
+                    for (UnitClass klass : UnitClass.values()) {
+                        if (race == Race.NONE || klass == UnitClass.NONE) {
                             continue;
                         }
                         if ((!raceMask.isEmpty() && !raceMask.hasRace(race))
-                                || (!playerClassMask.isEmpty() && !playerClassMask.hasPlayerClass(playerClass))) {
+                                || (!playerClassMask.isEmpty() && !playerClassMask.hasPlayerClass(klass))) {
                             continue;
                         }
-                        PlayerInfo info = playerInfo.get(Pair.of(race, playerClass));
+                        PlayerInfo info = playerInfo.get(Pair.of(race, klass));
                         info.customSpells.add(fields.spell);
                     }
                 }
@@ -4522,15 +4520,15 @@ public final class ObjectManager {
                     return;
                 }
                 for (Race race : Race.values()) {
-                    for (PlayerClass playerClass : PlayerClass.values()) {
-                        if (race == Race.NONE || playerClass == PlayerClass.NONE) {
+                    for (UnitClass klass : UnitClass.values()) {
+                        if (race == Race.NONE || klass == UnitClass.NONE) {
                             continue;
                         }
                         if ((!raceMask.isEmpty() && !raceMask.hasRace(race))
-                                || (!playerClassMask.isEmpty() && !playerClassMask.hasPlayerClass(playerClass))) {
+                                || (!playerClassMask.isEmpty() && !playerClassMask.hasPlayerClass(klass))) {
                             continue;
                         }
-                        PlayerInfo info = playerInfo.get(Pair.of(race, playerClass));
+                        PlayerInfo info = playerInfo.get(Pair.of(race, klass));
                         info.castSpells.add(fields.spell);
                     }
                 }
@@ -4551,14 +4549,14 @@ public final class ObjectManager {
                     return;
                 }
 
-                if (fields[1] >= PlayerClass.values().length) {
+                if (fields[1] >= UnitClass.values().length) {
                     Logs.SQL.error("Wrong class {} in `playercreateinfo_action` table, ignoring.", fields[1]);
                     return;
                 }
 
                 Race race = Race.values()[fields[0]];
-                PlayerClass playerClass = PlayerClass.values()[fields[1]];
-                PlayerInfo info = playerInfo.get(Pair.of(race, playerClass));
+                UnitClass klass = UnitClass.values()[fields[1]];
+                PlayerInfo info = playerInfo.get(Pair.of(race, klass));
                 info.actions.add(new PlayerCreateInfoAction((byte) fields[2], (byte) fields[3], fields[4]));
                 count.getAndIncrement();
             });
@@ -4590,7 +4588,7 @@ public final class ObjectManager {
         count.set(0);
         try (var items = playerRepo.streamsAllPlayerClassLevelStats()) {
             items.forEach(fields -> {
-                if (fields[0] >= PlayerClass.values().length) {
+                if (fields[0] >= UnitClass.values().length) {
                     Logs.SQL.error("Wrong class {} in `playercreateinfo_action` table, ignoring.", fields[0]);
                     return;
                 }
@@ -4605,10 +4603,10 @@ public final class ObjectManager {
                     return;
                 }
 
-                PlayerClass playerClass = PlayerClass.values()[fields[0]];
+                UnitClass klass = UnitClass.values()[fields[0]];
 
                 for (int race = 1; race < raceStatModifiers.length; race++) {
-                    PlayerInfo info = playerInfo.get(Pair.of(Race.values()[race], playerClass));
+                    PlayerInfo info = playerInfo.get(Pair.of(Race.values()[race], klass));
                     if (info == null) {
                         continue;
                     }
@@ -4625,11 +4623,11 @@ public final class ObjectManager {
         }
 
         for (Race race : Race.values()) {
-            for (PlayerClass playerClass : PlayerClass.values()) {
-                if (race == Race.NONE || playerClass == PlayerClass.NONE) {
+            for (UnitClass klass : UnitClass.values()) {
+                if (race == Race.NONE || klass == UnitClass.NONE) {
                     continue;
                 }
-                PlayerInfo info = playerInfo.get(Pair.of(race, playerClass));
+                PlayerInfo info = playerInfo.get(Pair.of(race, klass));
                 if(info == null) {
                     continue;
                 }
@@ -4639,7 +4637,7 @@ public final class ObjectManager {
                     continue;
 
                 // skip expansion classes if not playing with expansion
-                if (world.getWorldSettings().expansion.ordinal() < Expansion.WRATH_OF_THE_LICH_KING.ordinal() && playerClass == PlayerClass.DEATH_KNIGHT)
+                if (world.getWorldSettings().expansion.ordinal() < Expansion.WRATH_OF_THE_LICH_KING.ordinal() && klass == UnitClass.DEATH_KNIGHT)
                     continue;
 
                 // skip expansion races if not playing with expansion
@@ -4649,15 +4647,15 @@ public final class ObjectManager {
                 if (world.getWorldSettings().expansion.ordinal() < Expansion.MISTS_OF_PANDARIA.ordinal() && (race == Race.PANDAREN_NEUTRAL || race == Race.PANDAREN_HORDE || race == Race.PANDAREN_ALLIANCE))
                     continue;
 
-                if (world.getWorldSettings().expansion.ordinal() < Expansion.LEGION.ordinal() && playerClass == PlayerClass.DEMON_HUNTER)
+                if (world.getWorldSettings().expansion.ordinal() < Expansion.LEGION.ordinal() && klass == UnitClass.DEMON_HUNTER)
                     continue;
 
 
                 // fatal error if no level 1 data
                 if (info.levelInfo == null || info.levelInfo[0].stats[0] == 0)
                 {
-                    Logs.SQL.error("Race {} Class {} Level 1 does not have stats data!", race, playerClass);
-                    throw new IllegalStateException(StringUtil.format("Race {} Class {} Level 1 does not have stats data!", race, playerClass));
+                    Logs.SQL.error("Race {} Class {} Level 1 does not have stats data!", race, klass);
+                    throw new IllegalStateException(StringUtil.format("Race {} Class {} Level 1 does not have stats data!", race, klass));
                 }
 
                 // fill level gaps
@@ -4665,7 +4663,7 @@ public final class ObjectManager {
                 {
                     if (info.levelInfo[level].stats[0] == 0)
                     {
-                        Logs.SQL.error("Race {} Class {} Level {} does not have stats data. Using stats data of level {}.", race, playerClass, level + 1, level);
+                        Logs.SQL.error("Race {} Class {} Level {} does not have stats data. Using stats data of level {}.", race, klass, level + 1, level);
                         info.levelInfo[level] = info.levelInfo[level - 1];
                     }
                 }
@@ -4721,11 +4719,11 @@ public final class ObjectManager {
         }
     }
 
-    public PlayerInfo getPlayerInfo(Race raceId, PlayerClass classId) {
+    public PlayerInfo getPlayerInfo(Race raceId, UnitClass classId) {
         return playerInfo.get(Pair.of(raceId, classId));
     }
 
-    public int getPlayerClassLevelInfo(PlayerClass _class, int level) {
+    public int getPlayerClassLevelInfo(UnitClass _class, int level) {
         if (level < 1 || _class == null)
             throw new IllegalArgumentException();
 
@@ -4739,7 +4737,7 @@ public final class ObjectManager {
         return (int)world.getGameTableManager().getBaseMPValueForClass(level, _class);
     }
 
-    public PlayerLevelInfo getPlayerLevelInfo(Race race, PlayerClass _class, int level) {
+    public PlayerLevelInfo getPlayerLevelInfo(Race race, UnitClass _class, int level) {
         Objects.requireNonNull(race);
         Objects.requireNonNull(_class);
 
@@ -8026,8 +8024,8 @@ public final class ObjectManager {
 
     }
 
-    private void playerCreateInfoAddItemHelper(Race race, PlayerClass class_, int itemId, int count) {
-        if(race == Race.NONE || class_ == PlayerClass.NONE) {
+    private void playerCreateInfoAddItemHelper(Race race, UnitClass class_, int itemId, int count) {
+        if(race == Race.NONE || class_ == UnitClass.NONE) {
             return;
         }
         PlayerInfo info = playerInfo.get(Pair.of(race, class_));
@@ -8049,7 +8047,7 @@ public final class ObjectManager {
         }
     }
 
-    private PlayerLevelInfo buildPlayerLevelInfo(Race race, PlayerClass _class, int level) {
+    private PlayerLevelInfo buildPlayerLevelInfo(Race race, UnitClass _class, int level) {
         // base data (last known level)
         var info = playerInfo.get(Pair.of(race, _class)).levelInfo[world.getWorldSettings().maxPlayerLevel - 1];
 

@@ -13,6 +13,7 @@ dependencies {
     implementation libs.netty.transport.native.epoll
     implementation libs.netty.transport.native.kqueue
     implementation libs.netty.transport.native.iouring
+    implementation("org.apache.commons:commons-lang3:3.18.0")
 }
 
 

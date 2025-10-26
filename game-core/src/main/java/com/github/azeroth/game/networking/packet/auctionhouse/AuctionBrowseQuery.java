@@ -1,46 +1,45 @@
 package com.github.azeroth.game.networking.packet.auctionhouse;
 
 
+import com.github.azeroth.common.EnumFlag;
+import com.github.azeroth.game.auctionhouse.AuctionHouseFilterMask;
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.ClientPacket;
-import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.networking.packet.addon.AddOnInfo;
+import io.netty.buffer.ByteBuf;
 
-class AuctionBrowseQuery extends ClientPacket {
-    public ObjectGuid auctioneer = ObjectGuid.EMPTY;
+public final class AuctionBrowseQuery extends ClientPacket {
+    public ObjectGuid auctioneer;
     public int offset;
-    public byte minLevel = 1;
-    public byte maxLevel = SharedConst.maxLevel;
-    public AuctionHouseFilterMask filters = AuctionHouseFilterMask.values()[0];
+    public byte minLevel;
+    public byte maxLevel;
+    public EnumFlag<AuctionHouseFilterMask> filters;
     public byte[] knownPets;
     public byte maxPetLevel;
     public AddOnInfo taintedBy = null;
     public String name;
-    public Array<AuctionListFilterClass> itemClassFilters = new Array<AuctionListFilterClass>(7);
-    public Array<AuctionSortDef> sorts = new Array<AuctionSortDef>(2);
+    public AuctionListFilterClass[] itemClassFilters = new AuctionListFilterClass[7];
+    public AuctionSortDef[] sorts = new AuctionSortDef[2];
 
-    public AuctionBrowseQuery(WorldPacket packet) {
-        super(packet);
+    public AuctionBrowseQuery(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {
         auctioneer = this.readPackedGuid();
         offset = this.readUInt32();
-        minLevel = this.readUInt8();
-        maxLevel = this.readUInt8();
-        filters = AuctionHouseFilterMask.forValue(this.readUInt32());
+        minLevel = this.readByte();
+        maxLevel = this.readByte();
+        filters = EnumFlag.of(AuctionHouseFilterMask.class, this.readUInt32());
         var knownPetSize = this.readUInt32();
         maxPetLevel = this.readByte();
-
-        var sizeLimit = CliDB.BattlePetSpeciesStorage.GetNumRows() / 8 + 1;
-
-        if (knownPetSize >= sizeLimit) {
-            throw new RuntimeException(String.format("Attempted to read more array elements from packet %1$s than allowed %2$s", knownPetSize, sizeLimit));
-        }
 
         knownPets = new byte[knownPetSize];
 
         for (var i = 0; i < knownPetSize; ++i) {
-            KnownPets[i] = this.readUInt8();
+            knownPets[i] = this.readByte();
         }
 
         if (this.readBit()) {
@@ -52,18 +51,17 @@ class AuctionBrowseQuery extends ClientPacket {
         var sortSize = this.<Integer>readBit(2);
 
         for (var i = 0; i < sortSize; ++i) {
-            sorts.set(i, new AuctionSortDef(this));
+            sorts[i] = new AuctionSortDef(this);
         }
 
         if (taintedBy != null) {
-            taintedBy.getValue().read(this);
+            taintedBy.read(this);
         }
 
         name = this.readString(nameLength);
-
-        for (var i = 0; i < itemClassFilterCount; ++i) // AuctionListFilterClass filterClass in itemClassFilters)
-        {
-            itemClassFilters.set(i, new AuctionListFilterClass(this));
+        // AuctionListFilterClass filterClass in itemClassFilters)
+        for (var i = 0; i < itemClassFilterCount; ++i) {
+            itemClassFilters[i] = new AuctionListFilterClass(this);
         }
     }
 }

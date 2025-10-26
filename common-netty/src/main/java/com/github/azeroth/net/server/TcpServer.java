@@ -49,6 +49,10 @@ public abstract class TcpServer<T extends TcpServer<T>> {
     private boolean preferNative;
     private boolean waitForTasksToCompleteOnShutdown = true;
 
+    protected TcpServer() {
+        this.serverBootstrap = new ServerBootstrap();
+    }
+
     protected TcpServer(ServerBootstrap serverBootstrap) {
         this.serverBootstrap = serverBootstrap;
     }

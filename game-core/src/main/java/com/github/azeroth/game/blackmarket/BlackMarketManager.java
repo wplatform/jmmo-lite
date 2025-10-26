@@ -72,7 +72,7 @@ public class BlackMarketManager {
             return;
         }
 
-        lastUpdate = gameTime.GetGameTime(); //Set update time before loading
+        lastUpdate = GameTime.getGameTime(); //Set update time before loading
 
         SQLTransaction trans = new SQLTransaction();
 
@@ -106,7 +106,7 @@ public class BlackMarketManager {
 
     public final void update(boolean updateTime) {
         SQLTransaction trans = new SQLTransaction();
-        var now = gameTime.GetGameTime();
+        var now = GameTime.getGameTime();
 
         for (var entry : auctions.values()) {
             if (entry.isCompleted() && entry.bidder != 0) {

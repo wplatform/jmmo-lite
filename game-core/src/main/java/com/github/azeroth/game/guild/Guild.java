@@ -10,7 +10,7 @@ import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.listener.interfaces.iguild.*;
 import game.ObjectManager;
-import game.WorldSession;
+import com.github.azeroth.game.world.WorldSession;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,7 +81,7 @@ public class Guild {
         m_info = "";
         m_motd = "No message set.";
         m_bankMoney = 0;
-        m_createdDate = gameTime.GetGameTime();
+        m_createdDate = GameTime.getGameTime();
 
         Log.outDebug(LogFilter.guild, "GUILD: creating guild [{0}] for leader {1} ({2})", name, pLeader.getName(), m_leaderGuid);
 
@@ -1609,7 +1609,7 @@ public class Guild {
             if (!result.isEmpty()) {
                 name = result.<String>Read(0);
 
-                member.setStats(name, result.<Byte>Read(1), race.forValue(result.<Byte>Read(2)), playerClass.forValue(result.<Byte>Read(3)), gender.forValue(result.<Byte>Read(4)), result.<SHORT>Read(5), result.<Integer>Read(6), 0);
+                member.setStats(name, result.<Byte>Read(1), race.forValue(result.<Byte>Read(2)), UnitClass.forValue(result.<Byte>Read(3)), gender.forValue(result.<Byte>Read(4)), result.<SHORT>Read(5), result.<Integer>Read(6), 0);
 
                 ok = member.checkStats();
             }
@@ -2750,7 +2750,7 @@ public class Guild {
         private int m_zoneId;
         private byte m_level;
         private Race m_race = race.values()[0];
-        private PlayerClass m_class = playerClass.values()[0];
+        private PlayerClass m_class = UnitClass.values()[0];
         private GuildMemberFlags m_flags = GuildMemberFlags.values()[0];
         private long m_logoutTime;
         private int m_accountId;
@@ -2770,9 +2770,9 @@ public class Guild {
             m_guid = guid;
             m_zoneId = 0;
             m_level = 0;
-            m_class = playerClass.forValue(0);
+            m_class = UnitClass.forValue(0);
             m_flags = GuildMemberFlags.NONE;
-            m_logoutTime = (long) gameTime.GetGameTime();
+            m_logoutTime = (long) GameTime.getGameTime();
             m_accountId = 0;
             m_rankId = rankId;
             m_achievementPoints = 0;
@@ -2786,7 +2786,7 @@ public class Guild {
             m_name = player.getName();
             m_level = (byte) player.getLevel();
             m_race = player.getRace();
-            m_class = player.getClass();
+            m_class = player.getUnitClass();
             gender = player.getNativeGender();
             m_zoneId = player.getZoneId();
             m_accountId = player.getSession().getAccountId();
@@ -2840,7 +2840,7 @@ public class Guild {
 
             m_bankWithdrawMoney = field.<Long>Read(13);
 
-            setStats(field.<String>Read(14), field.<Byte>Read(15), race.forValue(field.<Byte>Read(16)), playerClass.forValue(field.<Byte>Read(17)), gender.forValue((byte) field.<Byte>Read(18)), field.<SHORT>Read(19), field.<Integer>Read(20), 0);
+            setStats(field.<String>Read(14), field.<Byte>Read(15), race.forValue(field.<Byte>Read(16)), UnitClass.forValue(field.<Byte>Read(17)), gender.forValue((byte) field.<Byte>Read(18)), field.<SHORT>Read(19), field.<Integer>Read(20), 0);
 
             m_logoutTime = field.<Long>Read(21); // character.logout_time
             m_totalActivity = 0;
@@ -2888,7 +2888,7 @@ public class Guild {
                 return 0.0f;
             }
 
-            return (float) ((gameTime.GetGameTime() - (long) getLogoutTime()) / (float) time.Day);
+            return (float) ((GameTime.getGameTime() - (long) getLogoutTime()) / (float) time.Day);
         }
 
         // Decreases amount of slots left for today.
@@ -3075,7 +3075,7 @@ public class Guild {
         }
 
         public final void updateLogoutTime() {
-            m_logoutTime = (long) gameTime.GetGameTime();
+            m_logoutTime = (long) GameTime.getGameTime();
         }
 
         public final boolean isRank(GuildRankId rankId) {
@@ -3115,7 +3115,7 @@ public class Guild {
         public LogEntry(long guildId, int guid) {
             m_guildId = guildId;
             m_guid = guid;
-            m_timestamp = gameTime.GetGameTime();
+            m_timestamp = GameTime.getGameTime();
         }
 
         public LogEntry(long guildId, int guid, long timestamp) {
@@ -3185,7 +3185,7 @@ public class Guild {
             eventEntry.playerGUID = playerGUID;
             eventEntry.otherGUID = otherGUID;
             eventEntry.transactionType = (byte) m_eventType.getValue();
-            eventEntry.transactionDate = (int) (gameTime.GetGameTime() - m_timestamp);
+            eventEntry.transactionDate = (int) (GameTime.getGameTime() - m_timestamp);
             eventEntry.rankID = m_newRank;
             packet.entry.add(eventEntry);
         }
@@ -3258,7 +3258,7 @@ public class Guild {
 
             GuildBankLogEntry bankLogEntry = new GuildBankLogEntry();
             bankLogEntry.playerGUID = logGuid;
-            bankLogEntry.timeOffset = (int) (gameTime.GetGameTime() - m_timestamp);
+            bankLogEntry.timeOffset = (int) (GameTime.getGameTime() - m_timestamp);
             bankLogEntry.entryType = (byte) m_eventType.getValue();
 
             if (hasStack) {

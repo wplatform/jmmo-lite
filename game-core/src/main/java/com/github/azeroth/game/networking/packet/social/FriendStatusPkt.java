@@ -11,7 +11,7 @@ public class FriendStatusPkt extends ServerPacket {
 
     public int virtualRealmAddress;
     public String notes;
-    public PlayerClass classID = playerClass.NONE;
+    public PlayerClass classID = UnitClass.NONE;
     public Friendstatus status = FriendStatus.values()[0];
     public ObjectGuid UUID = ObjectGuid.EMPTY;
     public ObjectGuid wowAccountGuid = ObjectGuid.EMPTY;

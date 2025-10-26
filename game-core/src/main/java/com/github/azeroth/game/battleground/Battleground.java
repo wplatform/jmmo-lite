@@ -723,7 +723,7 @@ public class Battleground extends ZoneScript implements Closeable {
 
         if (getElapsedTime() >= BattlegroundStartTimeIntervals.Delay2m.getValue()) {
             pvpMatchInitialize.duration = (int) (getElapsedTime() - BattlegroundStartTimeIntervals.Delay2m.getValue()) / time.InMilliseconds;
-            pvpMatchInitialize.startTime = gameTime.GetGameTime() - pvpMatchInitialize.duration;
+            pvpMatchInitialize.startTime = GameTime.getGameTime() - pvpMatchInitialize.duration;
         }
 
         pvpMatchInitialize.arenaFaction = (byte) (player.getBgTeam() == Team.Horde ? PvPTeamId.Horde : PvPTeamId.Alliance);
@@ -844,7 +844,7 @@ public class Battleground extends ZoneScript implements Closeable {
 
         // player is correct pointer, it is checked in WorldSession.logoutPlayer()
         m_OfflineQueue.add(player.getGUID());
-        m_Players.get(guid).offlineRemoveTime = gameTime.GetGameTime() + BattlegroundConst.MaxOfflineTime;
+        m_Players.get(guid).offlineRemoveTime = GameTime.getGameTime() + BattlegroundConst.MaxOfflineTime;
 
         if (getStatus() == BattlegroundStatus.inProgress) {
             // drop flag and handle other cleanups
@@ -1924,7 +1924,7 @@ public class Battleground extends ZoneScript implements Closeable {
             var bgPlayer = m_Players.get(guid);
 
             if (bgPlayer != null) {
-                if (bgPlayer.offlineRemoveTime <= gameTime.GetGameTime()) {
+                if (bgPlayer.offlineRemoveTime <= GameTime.getGameTime()) {
                     removePlayerAtLeave(guid, true, true); // remove player from BG
                     m_OfflineQueue.remove(0); // remove from offline queue
                 }

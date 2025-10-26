@@ -15,7 +15,7 @@ public class DynObjAura extends Aura {
         super(createInfo);
         loadScripts();
         _InitEffects(createInfo.auraEffectMask, createInfo.caster, createInfo.baseAmount);
-        getDynobjOwner().setAura(this);
+        getDynObjOwner().setAura(this);
     }
 
 
@@ -37,8 +37,8 @@ public class DynObjAura extends Aura {
     @Override
     public HashMap<unit, HashSet<Integer>> fillTargetMap(Unit caster) {
         var targets = new HashMap<unit, HashSet<Integer>>();
-        var dynObjOwnerCaster = getDynobjOwner().getCaster();
-        var radius = getDynobjOwner().getRadius();
+        var dynObjOwnerCaster = getDynObjOwner().getCaster();
+        var radius = getDynObjOwner().getRadius();
 
         for (var spellEffectInfo : getSpellInfo().getEffects()) {
             if (!hasEffect(spellEffectInfo.effectIndex)) {
@@ -55,12 +55,12 @@ public class DynObjAura extends Aura {
             ArrayList<Unit> targetList = new ArrayList<>();
             var condList = spellEffectInfo.implicitTargetConditions;
 
-            WorldObjectSpellAreaTargetCheck check = new WorldObjectSpellAreaTargetCheck(radius, getDynobjOwner().getLocation(), dynObjOwnerCaster, dynObjOwnerCaster, getSpellInfo(), selectionType, condList, SpellTargetObjectTypes.unit);
-            UnitListSearcher searcher = new UnitListSearcher(getDynobjOwner(), targetList, check, gridType.All);
-            Cell.visitGrid(getDynobjOwner(), searcher, radius);
+            WorldObjectSpellAreaTargetCheck check = new WorldObjectSpellAreaTargetCheck(radius, getDynObjOwner().getLocation(), dynObjOwnerCaster, dynObjOwnerCaster, getSpellInfo(), selectionType, condList, SpellTargetObjectTypes.unit);
+            UnitListSearcher searcher = new UnitListSearcher(getDynObjOwner(), targetList, check, gridType.All);
+            Cell.visitGrid(getDynObjOwner(), searcher, radius);
 
             // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-            tangible.ListHelper.removeAll(targetList, unit -> !unit.isSelfOrInSameMap(getDynobjOwner()));
+            tangible.ListHelper.removeAll(targetList, unit -> !unit.isSelfOrInSameMap(getDynObjOwner()));
 
             for (var unit : targetList) {
                 if (!targets.containsKey(unit)) {

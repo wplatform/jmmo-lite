@@ -7,7 +7,7 @@ public class LootRollWon extends ServerPacket {
     public ObjectGuid winner = ObjectGuid.EMPTY;
     public int roll;
     public RollVote rollType = RollVote.values()[0];
-    public LootitemData item = new lootItemData();
+    public LootitemData item = new LootItemData();
     public boolean mainSpec;
 
     public LootRollWon() {

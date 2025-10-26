@@ -1,53 +1,58 @@
 package com.github.azeroth.game.loot;
 
 
+import com.github.azeroth.defines.LootMode;
+import com.github.azeroth.game.domain.condition.Condition;
 import com.github.azeroth.game.entity.player.Player;
+import com.github.azeroth.utils.RandomUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LootTemplate {
     private final ArrayList<LootStoreItem> entries = new ArrayList<>(); // not grouped only
-    private final HashMap<Integer, LootGroup> groups = new HashMap<Integer, LootGroup>(); // groups have own (optimised) processing, grouped entries go there
+    private final HashMap<Byte, LootGroup> groups = new HashMap<>(); // groups have own (optimised) processing, grouped entries go there
 
     public final void addEntry(LootStoreItem item) {
-        if (item.groupid > 0 && item.reference == 0) // Group
-        {
-            if (!groups.containsKey(item.groupid - 1)) {
-                groups.put(item.groupid - 1, new LootGroup());
+        // Group
+        if (item.groupId > 0 && item.type != LootItemType.Reference) {
+            if (!groups.containsKey(item.groupId)) {
+                groups.put(item.groupId, new LootGroup());
             }
 
-            groups.get(item.groupid - 1).addEntry(item); // Adds new entry to the group
-        } else // Non-grouped entries and references are stored together
-        {
+            // Adds new entry to the group
+            groups.get(item.groupId).addEntry(item);
+        } else {
+            // Non-grouped entries and references are stored together
             entries.add(item);
         }
     }
 
 
-    public final void process(Loot loot, boolean rate, short lootMode, byte groupId) {
+    public final void process(Loot loot, boolean rate, LootMode lootMode, byte groupId) {
         process(loot, rate, lootMode, groupId, null);
     }
 
-    public final void process(Loot loot, boolean rate, short lootMode, byte groupId, Player personalLooter) {
-        if (groupId != 0) // Group reference uses own processing of the group
-        {
+    public final void process(Loot loot, boolean rate, LootMode lootMode, byte groupId, Player personalLooter) {
+        // Group reference uses own processing of the group
+        if (groupId != 0) {
             if (groupId > groups.size()) {
-                return; // Error message already printed at loading stage
-            }
-
-            if (groups.get(groupId - 1) == null) {
+                // Error message already printed at loading stage
                 return;
             }
 
-            groups.get(groupId - 1).process(loot, lootMode, personalLooter);
+            if (groups.get(groupId) == null) {
+                return;
+            }
+
+            groups.get(groupId).process(loot, lootMode, personalLooter);
 
             return;
         }
 
         // Rolling non-grouped items
         for (var item : entries) {
-            if (!(boolean) (item.lootmode & lootMode)) // Do not add if mode mismatch
+            if ((item.lootMode & lootMode) == 0) // Do not add if mode mismatch
             {
                 continue;
             }
@@ -64,16 +69,16 @@ public class LootTemplate {
                     continue; // Error message already printed at loading stage
                 }
 
-                var maxcount = (int) (item.maxcount * WorldConfig.getFloatValue(WorldCfg.RateDropItemReferencedAmount));
+                var maxcount = (int) (item.maxCount * WorldConfig.getFloatValue(WorldCfg.RateDropItemReferencedAmount));
 
                 for (int loop = 0; loop < maxcount; ++loop) // Ref multiplicator
                 {
-                    Referenced.process(loot, rate, lootMode, item.groupid, personalLooter);
+                    Referenced.process(loot, rate, lootMode, item.groupId, personalLooter);
                 }
             } else {
                 // Plain entries (not a reference, not grouped)
                 // Chance is already checked, just add
-                if (personalLooter == null || LootItem.allowedForPlayer(personalLooter, null, item.itemid, item.needs_quest, !item.needs_quest || global.getObjectMgr().getItemTemplate(item.itemid).hasFlag(ItemFlagsCustom.FollowLootRules), true, item.conditions)) {
+                if (personalLooter == null || LootItem.allowedForPlayer(personalLooter, null, item.itemId, item.needsQuest, !item.needsQuest || global.getObjectMgr().getItemTemplate(item.itemId).hasFlag(ItemFlagsCustom.FollowLootRules), true, item.conditions)) {
                     loot.addItem(item);
                 }
             }
@@ -87,7 +92,7 @@ public class LootTemplate {
         }
     }
 
-    public final void processPersonalLoot(HashMap<Player, loot> personalLoot, boolean rate, short lootMode) {
+    public final void processPersonalLoot(HashMap<Player, Loot> personalLoot, boolean rate, LootMode lootMode) {
 
 //		list<Player> getLootersForItem(Func<Player, bool> predicate)
 //			{
@@ -102,7 +107,7 @@ public class LootTemplate {
 
         // Rolling non-grouped items
         for (var item : entries) {
-            if ((item.lootmode & lootMode) == 0) // Do not add if mode mismatch
+            if ((item.lootMode & lootMode) == 0) // Do not add if mode mismatch
             {
                 continue;
             }
@@ -119,12 +124,12 @@ public class LootTemplate {
                     continue; // Error message already printed at loading stage
                 }
 
-                var maxcount = (int) ((float) item.maxcount * WorldConfig.getFloatValue(WorldCfg.RateDropItemReferencedAmount));
+                var maxcount = (int) ((float) item.maxCount * WorldConfig.getFloatValue(WorldCfg.RateDropItemReferencedAmount));
                 ArrayList<Player> gotLoot = new ArrayList<>();
 
                 for (int loop = 0; loop < maxcount; ++loop) // Ref multiplicator
                 {
-                    var lootersForItem = getLootersForItem(looter -> referenced.hasDropForPlayer(looter, item.groupid, true));
+                    var lootersForItem = getLootersForItem(looter -> referenced.hasDropForPlayer(looter, item.groupId, true));
 
                     // nobody can loot this, skip it
                     if (lootersForItem.isEmpty()) {
@@ -142,15 +147,14 @@ public class LootTemplate {
                     }
 
                     var chosenLooter = lootersForItem.SelectRandom();
-                    referenced.process(personalLoot.get(chosenLooter), rate, lootMode, item.groupid, chosenLooter);
+                    referenced.process(personalLoot.get(chosenLooter), rate, lootMode, item.groupId, chosenLooter);
                     gotLoot.add(chosenLooter);
                 }
             } else {
                 // Plain entries (not a reference, not grouped)
                 // Chance is already checked, just add
-                var lootersForItem = getLootersForItem(looter ->
-                {
-                    return LootItem.allowedForPlayer(looter, null, item.itemid, item.needs_quest, !item.needs_quest || global.getObjectMgr().getItemTemplate(item.itemid).hasFlag(ItemFlagsCustom.FollowLootRules), true, item.conditions);
+                var lootersForItem = getLootersForItem(looter -> {
+                    return LootItem.allowedForPlayer(looter, null, item.itemId, item.needsQuest, !item.needsQuest || global.getObjectMgr().getItemTemplate(item.itemId).hasFlag(ItemFlagsCustom.FollowLootRules), true, item.conditions);
                 });
 
                 if (!lootersForItem.isEmpty()) {
@@ -186,7 +190,7 @@ public class LootTemplate {
     public final void copyConditions(LootItem li) {
         // Copies the conditions list from a template item to a LootItem
         for (var item : entries) {
-            if (item.itemid != li.itemid) {
+            if (item.itemId != li.itemid) {
                 continue;
             }
 
@@ -224,10 +228,10 @@ public class LootTemplate {
                     continue; // Error message [should be] already printed at loading stage
                 }
 
-                if (Referenced.hasQuestDrop(store, item.groupid)) {
+                if (Referenced.hasQuestDrop(store, item.groupId)) {
                     return true;
                 }
-            } else if (item.needs_quest) {
+            } else if (item.needsQuest) {
                 return true; // quest drop found
             }
         }
@@ -271,10 +275,10 @@ public class LootTemplate {
                     continue; // Error message already printed at loading stage
                 }
 
-                if (Referenced.hasQuestDropForPlayer(store, player, item.groupid)) {
+                if (Referenced.hasQuestDropForPlayer(store, player, item.groupId)) {
                     return true;
                 }
-            } else if (player.hasQuestForItem(item.itemid)) {
+            } else if (player.hasQuestForItem(item.itemId)) {
                 return true; // active quest drop found
             }
         }
@@ -302,7 +306,7 @@ public class LootTemplate {
         for (var item : entries) {
             if (item.reference > 0) {
                 if (LootStorage.REFERENCE.getLootFor(item.reference) == null) {
-                    LootStorage.REFERENCE.reportNonExistingId(item.reference, item.itemid);
+                    LootStorage.REFERENCE.reportNonExistingId(item.reference, item.itemId);
                 } else if (ref_set != null) {
                     ref_set.remove((Integer) item.reference);
                 }
@@ -324,7 +328,7 @@ public class LootTemplate {
 
         if (!entries.isEmpty()) {
             for (var i : entries) {
-                if (i.itemid == cond.sourceEntry) {
+                if (i.itemId == cond.sourceEntry) {
                     i.conditions.add(cond);
 
                     return true;
@@ -342,7 +346,7 @@ public class LootTemplate {
 
                 if (!itemList.isEmpty()) {
                     for (var i : itemList) {
-                        if (i.itemid == cond.sourceEntry) {
+                        if (i.itemId == cond.sourceEntry) {
                             i.conditions.add(cond);
 
                             return true;
@@ -354,7 +358,7 @@ public class LootTemplate {
 
                 if (!itemList.isEmpty()) {
                     for (var i : itemList) {
-                        if (i.itemid == cond.sourceEntry) {
+                        if (i.itemId == cond.sourceEntry) {
                             i.conditions.add(cond);
 
                             return true;
@@ -369,7 +373,7 @@ public class LootTemplate {
 
     public final boolean isReference(int id) {
         for (var storeItem : entries) {
-            if (storeItem.itemid == id && storeItem.reference > 0) {
+            if (storeItem.itemId == id && storeItem.reference > 0) {
                 return true;
             }
         }
@@ -402,10 +406,10 @@ public class LootTemplate {
                     continue; // Error message already printed at loading stage
                 }
 
-                if (referenced.hasDropForPlayer(player, lootStoreItem.groupid, strictUsabilityCheck)) {
+                if (referenced.hasDropForPlayer(player, lootStoreItem.groupId, strictUsabilityCheck)) {
                     return true;
                 }
-            } else if (LootItem.allowedForPlayer(player, null, lootStoreItem.itemid, lootStoreItem.needs_quest, !lootStoreItem.needs_quest || global.getObjectMgr().getItemTemplate(lootStoreItem.itemid).hasFlag(ItemFlagsCustom.FollowLootRules), strictUsabilityCheck, lootStoreItem.conditions)) {
+            } else if (LootItem.allowedForPlayer(player, null, lootStoreItem.itemId, lootStoreItem.needsQuest, !lootStoreItem.needsQuest || global.getObjectMgr().getItemTemplate(lootStoreItem.itemId).hasFlag(ItemFlagsCustom.FollowLootRules), strictUsabilityCheck, lootStoreItem.conditions)) {
                 return true; // active quest drop found
             }
         }
@@ -435,13 +439,13 @@ public class LootTemplate {
 
         public final boolean hasQuestDrop() {
             for (var i : explicitlyChanced) {
-                if (i.needs_quest) {
+                if (i.needsQuest) {
                     return true;
                 }
             }
 
             for (var i : equalChanced) {
-                if (i.needs_quest) {
+                if (i.needsQuest) {
                     return true;
                 }
             }
@@ -451,13 +455,13 @@ public class LootTemplate {
 
         public final boolean hasQuestDropForPlayer(Player player) {
             for (var i : explicitlyChanced) {
-                if (player.hasQuestForItem(i.itemid)) {
+                if (player.hasQuestForItem(i.itemId)) {
                     return true;
                 }
             }
 
             for (var i : equalChanced) {
-                if (player.hasQuestForItem(i.itemid)) {
+                if (player.hasQuestForItem(i.itemId)) {
                     return true;
                 }
             }
@@ -470,7 +474,7 @@ public class LootTemplate {
             process(loot, lootMode, null);
         }
 
-        public final void process(Loot loot, short lootMode, Player personalLooter) {
+        public final void process(Loot loot, LootMode lootMode, Player personalLooter) {
             var item = roll(lootMode, personalLooter);
 
             if (item != null) {
@@ -500,7 +504,7 @@ public class LootTemplate {
             for (var item : explicitlyChanced) {
                 if (item.reference > 0) {
                     if (LootStorage.REFERENCE.getLootFor(item.reference) == null) {
-                        LootStorage.REFERENCE.reportNonExistingId(item.reference, item.itemid);
+                        LootStorage.REFERENCE.reportNonExistingId(item.reference, item.itemId);
                     } else if (ref_set != null) {
                         ref_set.remove((Integer) item.reference);
                     }
@@ -510,7 +514,7 @@ public class LootTemplate {
             for (var item : equalChanced) {
                 if (item.reference > 0) {
                     if (LootStorage.REFERENCE.getLootFor(item.reference) == null) {
-                        LootStorage.REFERENCE.reportNonExistingId(item.reference, item.itemid);
+                        LootStorage.REFERENCE.reportNonExistingId(item.reference, item.itemId);
                     } else if (ref_set != null) {
                         ref_set.remove((Integer) item.reference);
                     }
@@ -538,13 +542,13 @@ public class LootTemplate {
 
         public final boolean hasDropForPlayer(Player player, boolean strictUsabilityCheck) {
             for (var lootStoreItem : explicitlyChanced) {
-                if (LootItem.allowedForPlayer(player, null, lootStoreItem.itemid, lootStoreItem.needs_quest, !lootStoreItem.needs_quest || global.getObjectMgr().getItemTemplate(lootStoreItem.itemid).hasFlag(ItemFlagsCustom.FollowLootRules), strictUsabilityCheck, lootStoreItem.conditions)) {
+                if (LootItem.allowedForPlayer(player, null, lootStoreItem.itemId, lootStoreItem.needsQuest, !lootStoreItem.needsQuest || global.getObjectMgr().getItemTemplate(lootStoreItem.itemId).hasFlag(ItemFlagsCustom.FollowLootRules), strictUsabilityCheck, lootStoreItem.conditions)) {
                     return true;
                 }
             }
 
             for (var lootStoreItem : equalChanced) {
-                if (LootItem.allowedForPlayer(player, null, lootStoreItem.itemid, lootStoreItem.needs_quest, !lootStoreItem.needs_quest || global.getObjectMgr().getItemTemplate(lootStoreItem.itemid).hasFlag(ItemFlagsCustom.FollowLootRules), strictUsabilityCheck, lootStoreItem.conditions)) {
+                if (LootItem.allowedForPlayer(player, null, lootStoreItem.itemId, lootStoreItem.needsQuest, !lootStoreItem.needsQuest || global.getObjectMgr().getItemTemplate(lootStoreItem.itemId).hasFlag(ItemFlagsCustom.FollowLootRules), strictUsabilityCheck, lootStoreItem.conditions)) {
                     return true;
                 }
             }
@@ -556,7 +560,7 @@ public class LootTemplate {
             float result = 0;
 
             for (var i : explicitlyChanced) {
-                if (!i.needs_quest) {
+                if (!i.needsQuest) {
                     result += i.chance;
                 }
             }
@@ -575,17 +579,17 @@ public class LootTemplate {
         }
 
 
-        private LootStoreItem roll(short lootMode) {
+        private LootStoreItem roll(LootMode lootMode) {
             return roll(lootMode, null);
         }
 
-        private LootStoreItem roll(short lootMode, Player personalLooter) {
+        private LootStoreItem roll(LootMode lootMode, Player personalLooter) {
             var possibleLoot = explicitlyChanced;
             tangible.ListHelper.removeAll(possibleLoot, (new LootGroupInvalidSelector(lootMode, personalLooter)).Check);
 
             if (!possibleLoot.isEmpty()) // First explicitly chanced entries are checked
             {
-                var roll = (float) RandomUtil.randChance();
+                var roll = RandomUtil.randChance();
 
                 for (var item : possibleLoot) // check each explicitly chanced entry in the template and modify its chance based on quality.
                 {

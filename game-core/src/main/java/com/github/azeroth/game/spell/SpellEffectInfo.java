@@ -695,7 +695,7 @@ public class SpellEffectInfo {
                 }
 
                 var level = caster != null && caster.isUnit() ? caster.toUnit().getLevel() : 1;
-                tempValue = global.getDB2Mgr().EvaluateExpectedStat(stat, level, expansion, 0, playerClass.NONE) * BasePoints / 100.0f;
+                tempValue = global.getDB2Mgr().EvaluateExpectedStat(stat, level, expansion, 0, UnitClass.NONE) * BasePoints / 100.0f;
             }
 
             return tempValue;

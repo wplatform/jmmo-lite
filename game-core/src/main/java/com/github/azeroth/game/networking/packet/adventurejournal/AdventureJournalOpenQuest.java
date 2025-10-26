@@ -2,14 +2,16 @@ package com.github.azeroth.game.networking.packet.adventurejournal;
 
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
+import io.netty.buffer.ByteBuf;
 
-class AdventureJournalOpenQuest extends ClientPacket {
+public class AdventureJournalOpenQuest extends ClientPacket {
 
     public int adventureJournalID;
 
-    public AdventureJournalOpenQuest(WorldPacket packet) {
-        super(packet);
+    public AdventureJournalOpenQuest(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {

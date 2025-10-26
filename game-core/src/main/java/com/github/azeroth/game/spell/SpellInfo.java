@@ -276,7 +276,7 @@ public class SpellInfo {
         }
 
         // SpellClassOptionsEntry
-        setSpellFamilyFlags(new flagArray128());
+        setSpellFamilyFlags(new Flag128());
         var classOptions = data.classOptions;
 
         if (classOptions != null) {
@@ -966,11 +966,11 @@ public class SpellInfo {
     }
 
 
-    public final FlagArray128 getSpellFamilyFlags() {
+    public final Flag128 getSpellFamilyFlags() {
         return spellFamilyFlags;
     }
 
-    public final void setSpellFamilyFlags(FlagArray128 value) {
+    public final void setSpellFamilyFlags(Flag128 value) {
         spellFamilyFlags = value;
     }
 
@@ -1479,7 +1479,7 @@ public class SpellInfo {
         return false;
     }
 
-    public final boolean isAffected(SpellFamilyName familyName, FlagArray128 familyFlags) {
+    public final boolean isAffected(SpellFamilyName familyName, Flag128 familyFlags) {
         if (familyName == 0) {
             return true;
         }
@@ -2494,7 +2494,7 @@ public class SpellInfo {
                 }
 
                 // only hunter aspects have this (but not all aspects in hunter family)
-                if (getSpellFamilyFlags() & new flagArray128(0x00200000, 0x00000000, 0x00001010, 0x00000000)) {
+                if (getSpellFamilyFlags() & new Flag128(0x00200000, 0x00000000, 0x00001010, 0x00000000)) {
                     spellSpecific = SpellSpecificType.Aspect;
                 }
 
@@ -3882,7 +3882,7 @@ public class SpellInfo {
     }
 
     public boolean hasAttribute(SpellCustomAttributes customAttribute) {
-        return (attributesCu & customAttribute.value) != 0;
+        return attributesCu.hasFlag(customAttribute);
     }
 
     public final boolean canBeInterrupted(WorldObject interruptCaster, Unit interruptTarget) {

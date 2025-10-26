@@ -1,7 +1,9 @@
 package com.github.azeroth.game.loot;
 
 
-import com.github.azeroth.game.entity.item.bonusData;
+import com.github.azeroth.defines.RollMask;
+import com.github.azeroth.defines.RollVote;
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.player.Player;
 
 import java.time.Duration;
@@ -11,7 +13,7 @@ import java.util.Map;
 
 public class LootRoll {
     private static final Duration LOOT_ROLL_TIMEOUT = durationofMinutes(1);
-    private final HashMap<ObjectGuid, PlayerRollVote> m_rollVoteMap = new HashMap<ObjectGuid, PlayerRollVote>();
+    private final HashMap<ObjectGuid, PlayerRollVote> m_rollVoteMap = new HashMap<>();
 
     private Map m_map;
     private boolean m_isStarted;
@@ -421,7 +423,7 @@ public class LootRoll {
 
                 if (winnerPair.getValue().vote == RollVote.DISENCHANT) {
                     var disenchant = getItemDisenchantLoot();
-                    Loot loot = new loot(m_map, m_loot.getOwnerGUID(), LootType.Disenchanting, null);
+                    Loot loot = new Loot(m_map, m_loot.getOwnerGUID(), LootType.Disenchanting, null);
                     loot.fillLoot(disenchant.id, LootStorage.DISENCHANT, player, true, false, LootModes.Default, itemContext.NONE);
 
                     if (!loot.autoStore(player, ItemConst.NullBag, ItemConst.NullSlot, true)) {

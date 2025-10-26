@@ -199,7 +199,7 @@ class BgWarsongGluch extends Battleground {
         spawnBGObject(WSGObjectTypes.DOORH4, BattlegroundConst.RespawnOneDay);
 
         updateWorldState(WSGWorldStates.stateTimerActive, 1);
-        updateWorldState(WSGWorldStates.stateTimer, (int) (gameTime.GetGameTime() + 15 * time.Minute));
+        updateWorldState(WSGWorldStates.stateTimer, (int) (GameTime.getGameTime() + 15 * time.Minute));
 
         // players joining later are not eligibles
         triggerGameEvent(8563);

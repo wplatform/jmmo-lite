@@ -142,7 +142,7 @@ public class InstanceMap extends Map {
     @Override
     public boolean addPlayerToMap(Player player, boolean initPlayer) {
         // increase current instances (hourly limit)
-        player.addInstanceEnterTime(getInstanceId(), gameTime.GetGameTime());
+        player.addInstanceEnterTime(getInstanceId(), GameTime.getGameTime());
 
         MapDb2Entries entries = new MapDb2Entries(getEntry(), getMapDifficulty());
 
@@ -197,7 +197,7 @@ public class InstanceMap extends Map {
             scenario.update(delta);
         }
 
-        if (instanceExpireEvent != null && instanceExpireEvent.getValue().compareTo(gameTime.GetSystemTime()) < 0) {
+        if (instanceExpireEvent != null && instanceExpireEvent.getValue().compareTo(GameTime.getSystemTime()) < 0) {
             reset(InstanceResetMethod.Expire);
             instanceExpireEvent = global.getInstanceLockMgr().getNextResetTime(new MapDb2Entries(getEntry(), getMapDifficulty()));
         }

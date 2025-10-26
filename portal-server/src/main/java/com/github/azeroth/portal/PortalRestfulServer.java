@@ -7,6 +7,7 @@ import com.github.azeroth.net.server.ConnectionObserver;
 import com.github.azeroth.net.server.TcpServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.Charset;
@@ -35,8 +36,8 @@ public class PortalRestfulServer extends TcpServer<PortalRestfulServer> {
 
     private static final class ServerOperations extends HttpOperations {
 
-        public ServerOperations(Connection connection, ConnectionObserver listener) {
-            super(connection, listener);
+        public ServerOperations(Channel channel, ConnectionObserver listener) {
+            super(channel, listener);
         }
 
         @Override

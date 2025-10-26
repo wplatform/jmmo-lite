@@ -4,9 +4,11 @@ import com.github.azeroth.common.Locale;
 import com.github.azeroth.dbc.DbcObjectManager;
 import com.github.azeroth.dbc.GameTableManager;
 import com.github.azeroth.game.battlefield.BattleFieldManager;
+import com.github.azeroth.game.chat.LanguageManager;
 import com.github.azeroth.game.condition.ConditionManager;
 import com.github.azeroth.game.condition.DisableManager;
 import com.github.azeroth.game.domain.transport.TransportManager;
+import com.github.azeroth.game.dungeonfinding.LfgManager;
 import com.github.azeroth.game.entity.areatrigger.AreaTrigger;
 import com.github.azeroth.game.entity.conversation.Conversation;
 import com.github.azeroth.game.entity.corpse.Corpse;
@@ -61,6 +63,8 @@ public interface WorldContext {
     MMapManager getMMapManager();
     WorldEventPublisher getWorldEventPublisher();
     ScheduledThreadPoolExecutor getScheduledExecutor();
+    LfgManager getLfgManager();
+    LanguageManager getLanguageManager();
 
     ExecutorService getTaskExecutor();
     MapManager getMapManager();
