@@ -51,8 +51,15 @@ public class SysProperties {
 
     public static final String PORTAL_SERVER_RPC_TASK_HANDLER_THREAD_NAME =
             Utils.getProperty("portal.server.rpc.taskHandler.threadName", "portal-rpc-task-handler");
+
     public static final String PORTAL_SERVER_RPC_IO_WORKER_THREAD_NAME =
             Utils.getProperty("portal.server.rpc.ioWorker.threadName", "portal-rpc-io-worker");
+
+    public static final String World_SERVER_IO_WORKER_THREAD_NAME =
+            Utils.getProperty("world.server.ioWorker.threadName", "world-server-io-worker");
+
+    public static final String WORLD_SERVER_TASK_HANDLER_THREAD_NAME =
+            Utils.getProperty("world.server.protocol.taskHandler.threadName", "world-protocol-task-handler");
 
     public static final String CACHE_PERSISTENCE_FILE_NAME =
             Utils.getProperty("cache.persistenceFileName", "cache.db");

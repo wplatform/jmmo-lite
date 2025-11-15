@@ -1,7 +1,6 @@
 package com.github.azeroth.game.entity.object.update;
 
 
-import com.github.azeroth.common.Assert;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.WorldPacket;
 import com.github.azeroth.game.networking.opcode.ServerOpCode;
@@ -20,17 +19,8 @@ public class UpdateData {
     private int blockCount;
     private final Set<ObjectGuid> destroyGUIDs = new HashSet<>();
     private final Set<ObjectGuid> outOfRangeGUIDs = new HashSet<>();
-    private ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
+    private final ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
 
-
-    // Move constructor equivalent using Java's copy constructor pattern
-    public UpdateData(UpdateData other) {
-        this.mapId = other.mapId;
-        this.blockCount = other.blockCount;
-        this.outOfRangeGUIDs.addAll(other.outOfRangeGUIDs);
-        this.destroyGUIDs.addAll(other.destroyGUIDs);
-        this.buffer = other.buffer.duplicate();
-    }
 
     public void addDestroyObject(ObjectGuid guid) {
         destroyGUIDs.add(guid);
@@ -54,7 +44,7 @@ public class UpdateData {
             // Calculate packet capacity
             int estimatedSize = 4 + 2 + 1 + (2 + 4 + 17 * (destroyGUIDs.size() + outOfRangeGUIDs.size())) + buffer.readableBytes();
 
-            WorldPacket packet =WorldPacket.newServerToClient(ServerOpCode.SMSG_UPDATE_OBJECT, estimatedSize);
+            WorldPacket packet = WorldPacket.newServerToClient(ServerOpCode.SMSG_UPDATE_OBJECT, estimatedSize);
 
             // Write packet content
             packet.writeInt16(mapId);

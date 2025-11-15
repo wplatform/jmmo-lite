@@ -4,7 +4,7 @@ package com.github.azeroth.game.domain.condition;
 public enum DisableType {
     SPELL,
     QUEST,
-    map,
+    MAP,
     BATTLEGROUND,
     CRITERIA,
     OUTDOOR_PVP,

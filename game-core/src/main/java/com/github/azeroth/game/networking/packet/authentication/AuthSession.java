@@ -2,8 +2,9 @@ package com.github.azeroth.game.networking.packet.authentication;
 
 import com.github.azeroth.game.networking.ClientPacket;
 import com.github.azeroth.game.networking.WorldPacket;
+import io.netty.buffer.ByteBuf;
 
-class AuthSession extends ClientPacket {
+public class AuthSession extends ClientPacket {
 
     public int regionID;
 
@@ -11,17 +12,18 @@ class AuthSession extends ClientPacket {
 
     public int realmID;
 
-    public Array<Byte> localChallenge = new Array<Byte>(16);
+    public byte[] localChallenge = new byte[16];
 
-    public byte[] digest = new byte[24];
+    public byte[] digest;
 
     public long dosResponse;
     public String realmJoinTicket;
     public boolean useIPv6;
 
-    public AuthSession(WorldPacket packet) {
-        super(packet);
+    public AuthSession(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {
@@ -30,12 +32,8 @@ class AuthSession extends ClientPacket {
         battlegroupID = this.readUInt32();
         realmID = this.readUInt32();
 
-        for (var i = 0; i < localChallenge.GetLimit(); ++i) {
-            localChallenge.set(i, this.readUInt8());
-        }
-
+        localChallenge = this.readBytes(32);
         digest = this.readBytes(24);
-
         useIPv6 = this.readBit();
         var realmJoinTicketSize = this.readUInt32();
 

@@ -9,10 +9,7 @@ import com.github.azeroth.cache.TypeReference;
 import com.github.azeroth.common.Locale;
 import com.github.azeroth.common.*;
 import com.github.azeroth.dbc.DbcObjectManager;
-import com.github.azeroth.dbc.defines.Difficulty;
-import com.github.azeroth.dbc.defines.ItemSpecStat;
-import com.github.azeroth.dbc.defines.PhaseUseFlag;
-import com.github.azeroth.dbc.defines.TaxiNodeFlag;
+import com.github.azeroth.dbc.defines.*;
 import com.github.azeroth.dbc.domain.*;
 import com.github.azeroth.dbc.domain.GameObjectEntry;
 import com.github.azeroth.dbc.gtable.GameTable;
@@ -80,12 +77,14 @@ import com.github.azeroth.game.repository.*;
 import com.github.azeroth.game.spell.SpellInfo;
 import com.github.azeroth.game.spell.SpellManager;
 import com.github.azeroth.game.spell.auras.enums.AuraType;
-import com.github.azeroth.game.world.World;
+import com.github.azeroth.game.world.WorldContext;
 import com.github.azeroth.game.world.setting.WorldSetting;
 import com.github.azeroth.utils.MathUtil;
 import com.github.azeroth.utils.RandomUtil;
 import com.github.azeroth.utils.StringUtil;
 import com.github.azeroth.utils.Utils;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -198,6 +197,8 @@ import static com.github.azeroth.game.domain.unit.UnitDefine.BASE_ATTACK_TIME;
  * sObjectMgr->LoadRaceAndClassExpansionRequirements();
  * sObjectMgr->LoadPhaseNames();
  */
+@Slf4j
+@Getter
 public final class ObjectManager {
     private static final float[] qualityMultipliers = new float[]{0.92f, 0.92f, 0.92f, 1.11f, 1.32f, 1.61f, 0.0f, 0.0f};
     private static final float[] armorMultipliers = new float[]{0.00f, 0.60f, 0.00f, 0.60f, 0.00f, 1.00f, 0.33f, 0.72f, 0.48f, 0.33f, 0.33f, 0.00f, 0.00f, 0.00f, 0.72f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 1.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f};
@@ -216,6 +217,7 @@ public final class ObjectManager {
     private final HashMap<Integer, SceneTemplate> sceneTemplateStorage = new HashMap<Integer, SceneTemplate>();
     private final IntMap<JumpChargeParams> jumpChargeParams = new IntMap<>();
     private final MapCache<Integer, String> phaseNameStorage;
+    private final HashMap<Integer, CharacterTemplate> characterTemplateStorage = new HashMap<>();
     private final EnumMap<Race, RaceUnlockRequirement> raceUnlockRequirementStorage = new EnumMap<>(Race.class);
     private final ArrayList<RaceClassAvailability> classExpansionRequirementStorage = new ArrayList<>();
     private final HashMap<Integer, String> realmNameStorage = new HashMap<>(2);
@@ -321,10 +323,11 @@ public final class ObjectManager {
     private final HashMap<Integer, AreaTriggerSpawn> areaTriggerSpawnsBySpawnId = new HashMap<>();
     private final HashMap<AreaTriggerId, AreaTriggerTemplate> areaTriggerTemplateStore = new HashMap<>();
     private final HashMap<AreaTriggerId, AreaTriggerCreateProperty> areaTriggerCreateProperties = new HashMap<>();
+    private final HashMap<Integer, Integer> factionSpecificMounts = new HashMap<>();
 
 
 
-    private World world;
+    private WorldContext world;
     private CacheProvider cacheProvider;
     private DbcObjectManager dbcObjectManager;
 
@@ -335,7 +338,7 @@ public final class ObjectManager {
     private GameObjectRepository gameObjectRepo;
     private ReputationRepository reputationRepo;
     private AreaTriggerRepository areaTriggerRepo;
-    private ConditionManager conditionManager;
+    private PlayerConditions playerConditions;
     private QuestRepository questRepo;
     private ItemRepository itemRepo;
     private SpellManager spellManager;
@@ -560,6 +563,47 @@ public final class ObjectManager {
             Logs.SERVER_LOADING.info(">> Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
         }
     }
+
+
+    public void loadCharacterTemplates() {
+        long oldMSTime = System.currentTimeMillis();
+        characterTemplateStorage.clear();
+
+        HashMap<Integer, List<CharacterTemplateClass>> characterTemplateClasses = new HashMap<>();
+
+        try (var items = playerRepo.streamAllCharacterTemplateClass()) {
+            items.forEach(e -> {
+                if (!((e.factionGroup & (FactionMask.PLAYER.value | FactionMask.ALLIANCE.value)) == (FactionMask.PLAYER.value | FactionMask.ALLIANCE.value)) &&
+                        !((e.factionGroup & (FactionMask.PLAYER.value | FactionMask.HORDE.value)) == (FactionMask.PLAYER.value | FactionMask.HORDE.value))) {
+                    Logs.SQL.error("Faction group {} defined for character template {} in `character_template_class` is invalid. Skipped.", e.factionGroup, e.templateId);
+                    return;
+                }
+
+                if (!dbcObjectManager.chrClass().contains(e.classID)) {
+                    Logs.SQL.error("Class {} defined for character template {} in `character_template_class` does not exists, skipped.", e.classID, e.templateId);
+                    return;
+                }
+
+                characterTemplateClasses.compute(e.templateId, Functions.addToList(e));
+            });
+        }
+
+
+
+        try (var items = playerRepo.streamAllCharacterTemplate()) {
+            items.forEach(e -> {
+                e.classes = characterTemplateClasses.get(e.templateSetId);
+                if (e.classes == null) {
+                    Logs.SQL.error("Character template {} does not have any classes defined in `character_template_class`. Skipped.", e.templateSetId);
+                    return;
+                }
+                characterTemplateStorage.put(e.templateSetId, e);
+            });
+        }
+        Logs.SERVER_LOADING.info(">> Loaded {} character templates in {} ms.", characterTemplateStorage.size(), System.currentTimeMillis() - oldMSTime);
+    }
+
+
 
     public String getMessageText(int entry) {
         return getMessageText(entry, Locale.enUS);
@@ -5041,7 +5085,7 @@ public final class ObjectManager {
                 }
 
                 if (playerConditionId != 0 && dbcObjectManager.playerCondition(playerConditionId) != null) {
-                    if (conditionManager.hasConditionsForNotGroupedEntry(ConditionSourceType.PLAYER_CONDITION, playerConditionId)) {
+                    if (playerConditions.hasConditionsForNotGroupedEntry(ConditionSourceType.PLAYER_CONDITION, playerConditionId)) {
                         Logs.SQL.error("Table `quest_reward_display_spell` has serverside PlayerCondition ({}) set for quest {} and spell {} without conditions. Set to 0.", playerConditionId, e[0], spellId);
                         playerConditionId = 0;
                     }
@@ -7022,6 +7066,30 @@ public final class ObjectManager {
         Logs.SERVER_LOADING.info(String.format("Loaded %1$s phase names in %2$s ms.", phaseNameStorage.size(), System.currentTimeMillis() - oldMSTime));
     }
 
+
+    public void loadMountDefinitions() {
+        var oldMSTime = System.currentTimeMillis();
+        try (var stream = playerRepo.streamAllMountDefinitions()) {
+            stream.forEach(fields -> {
+                int spellId = fields[0];
+                int otherFactionSpellId = fields[1];
+
+                if (dbcObjectManager.getMount(spellId) == null) {
+                    Logs.SQL.error("Mount spell {} defined in `mount_definitions` does not exist in Mount.db2, skipped", spellId);
+                    return;
+                }
+                if (otherFactionSpellId != 0 && dbcObjectManager.getMount(otherFactionSpellId) == null) {
+                    Logs.SQL.error("otherFactionSpellId {} defined in `mount_definitions` for spell {} does not exist in Mount.db2, skipped", otherFactionSpellId, spellId);
+                    return;
+                }
+
+                factionSpecificMounts.put(spellId, otherFactionSpellId);
+            });
+        }
+
+        Logs.SERVER_LOADING.error(">> Loaded {} mount definitions in {} ms", factionSpecificMounts.size(), System.currentTimeMillis() - oldMSTime);
+    }
+
     public MailLevelReward getMailLevelReward(int level, long raceMask) {
         var mailList = mailLevelRewardStorage.get((byte) level);
 
@@ -7112,6 +7180,7 @@ public final class ObjectManager {
 
         return id;
     }
+
 
     public int getTaxiMountDisplayId(int id, Team team) {
         return getTaxiMountDisplayId(id, team, false);

@@ -6,7 +6,6 @@ import com.github.azeroth.game.battleground.Battleground;
 import com.github.azeroth.game.battleground.BattlegroundScript;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.listener.basescripts.BattlegroundMapScript;
-import com.github.azeroth.game.world.World;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -81,4 +81,13 @@ public class Heirloom implements DbcEntity {
     @Column("VerifiedBuild")
     private Integer verifiedBuild;
 
+
+    public int[] getUpgradeItemID() {
+        return new int[] { upgradeItemID1, upgradeItemID2, upgradeItemID3 };
+    }
+
+     public short[] getUpgradeItemBonusListID() {
+        return new short[] { upgradeItemBonusListID1, upgradeItemBonusListID2, upgradeItemBonusListID3 };
+    }
+
 }

@@ -11,7 +11,7 @@ import com.github.azeroth.defines.*;
 import com.github.azeroth.defines.LootItemType;
 import com.github.azeroth.defines.LootType;
 import com.github.azeroth.game.battleground.BattlegroundSpell;
-import com.github.azeroth.game.condition.ConditionManager;
+import com.github.azeroth.game.condition.PlayerConditions;
 import com.github.azeroth.game.domain.areatrigger.AreaTriggerStruct;
 import com.github.azeroth.game.CleaningFlags;
 import com.github.azeroth.game.domain.condition.DisableType;
@@ -92,6 +92,7 @@ import com.github.azeroth.game.spell.*;
 import com.github.azeroth.game.spell.auras.enums.AuraType;
 import com.github.azeroth.game.spell.enums.SpellModOp;
 import com.github.azeroth.time.GameTime;
+import com.github.azeroth.time.TimeTracker;
 import com.github.azeroth.utils.MathUtil;
 
 import com.github.azeroth.game.world.WorldSession;
@@ -418,7 +419,7 @@ public class Player extends Unit implements GirdObject {
 
         _AchievementSys = new PlayerAchievementMgr(this);
         reputationMgr = new ReputationMgr(this);
-        questObjectiveCriteriaManager = new QuestObjectiveCriteriaManager(this);
+
         sceneMgr = new SceneMgr(this);
 
 
@@ -426,7 +427,7 @@ public class Player extends Unit implements GirdObject {
 
         restMgr = new RestMgr(this);
 
-        groupUpdateTimer = new timeTracker(5000);
+        groupUpdateTimer = new TimeTracker(5000);
 
         applyCustomConfigs();
 
@@ -3984,7 +3985,7 @@ public class Player extends Unit implements GirdObject {
         if (currency.AwardConditionID != 0) {
             var playerCondition = CliDB.PlayerConditionStorage.get(currency.AwardConditionID);
 
-            if (playerCondition != null && !ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+            if (playerCondition != null && !PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                 return;
             }
         }
@@ -6685,7 +6686,7 @@ public class Player extends Unit implements GirdObject {
         var playerCondition = CliDB.PlayerConditionStorage.get(conditionId);
 
         if (playerCondition != null) {
-            if (!ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+            if (!PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                 return false;
             }
         }
@@ -10421,7 +10422,7 @@ public class Player extends Unit implements GirdObject {
             if (currencyRecord.AwardConditionID != 0) {
                 var playerCondition = CliDB.PlayerConditionStorage.get(currencyRecord.AwardConditionID);
 
-                if (playerCondition != null && !ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+                if (playerCondition != null && !PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                     continue;
                 }
             }
@@ -10946,7 +10947,7 @@ public class Player extends Unit implements GirdObject {
         saveGoldToDB(trans);
     }
 
-    public final boolean loadFromDB(ObjectGuid guid, SQLQueryHolder<PlayerLoginQueryLoad> holder) {
+    public final boolean loadFromDB(ObjectGuid guid, LoginQueryHolder holder) {
         var result = holder.GetResult(PlayerLoginQueryLoad.from);
 
         if (result.isEmpty()) {
@@ -11748,7 +11749,7 @@ public class Player extends Unit implements GirdObject {
             var playerCondition = CliDB.PlayerConditionStorage.get(transmogIllusion.UnlockConditionID);
 
             if (playerCondition != null) {
-                if (!ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+                if (!PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                     continue;
                 }
             }
@@ -17386,18 +17387,18 @@ public class Player extends Unit implements GirdObject {
         return result;
     }
 
-    public final ArrayList<item> getItemListByEntry(int entry) {
+    public final ArrayList<Item> getItemListByEntry(int entry) {
         return getItemListByEntry(entry, false);
     }
 
-    public final ArrayList<item> getItemListByEntry(int entry, boolean inBankAlso) {
+    public final ArrayList<Item> getItemListByEntry(int entry, boolean inBankAlso) {
         var location = ItemSearchLocation.forValue(ItemSearchLocation.Equipment.getValue() | ItemSearchLocation.Inventory.getValue().getValue() | ItemSearchLocation.ReagentBank.getValue().getValue());
 
         if (inBankAlso) {
             location = ItemSearchLocation.forValue(location.getValue() | ItemSearchLocation.Bank.getValue());
         }
 
-        ArrayList<item> itemList = new ArrayList<>();
+        ArrayList<Item> itemList = new ArrayList<>();
 
         forEachItem(location, item ->
         {
@@ -17537,7 +17538,7 @@ public class Player extends Unit implements GirdObject {
         for (var limitCondition : limitConditions) {
             var playerCondition = CliDB.PlayerConditionStorage.get(limitCondition.playerConditionID);
 
-            if (playerCondition == null || ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+            if (playerCondition == null || PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                 limit += (byte) limitCondition.AddQuantity;
             }
         }
@@ -17932,7 +17933,7 @@ public class Player extends Unit implements GirdObject {
         var playerCondition = CliDB.PlayerConditionStorage.get(crItem.getPlayerConditionId());
 
         if (playerCondition != null) {
-            if (!ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+            if (!PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                 sendEquipError(InventoryResult.ItemLocked);
 
                 return false;
@@ -22903,7 +22904,7 @@ public class Player extends Unit implements GirdObject {
                 var mapDifficultyConditions = global.getDB2Mgr().GetMapDifficultyConditions(mapDiff.id);
 
                 for (var pair : mapDifficultyConditions) {
-                    if (!ConditionManager.isPlayerMeetingCondition(this, pair.item2)) {
+                    if (!PlayerConditions.isPlayerMeetingCondition(this, pair.item2)) {
                         failedMapDifficultyXCondition = pair.Item1;
 
                         break;
@@ -25226,7 +25227,7 @@ public class Player extends Unit implements GirdObject {
                 var playerCondition = CliDB.PlayerConditionStorage.get(displaySpell.playerConditionId);
 
                 if (playerCondition != null) {
-                    if (!ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+                    if (!PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                         continue;
                     }
                 }
@@ -26204,6 +26205,53 @@ public class Player extends Unit implements GirdObject {
         var questLog = getValues().modifyValue(getPlayerData()).modifyValue(getPlayerData().questLog, slot);
         setUpdateFieldValue(questLog.modifyValue(questLog.acceptTime), (int) acceptTime);
     }
+
+
+
+    public final boolean isQuestCompletedBitSet(int questId)
+    {
+        int questBit = getWorldContext().getDbcObjectManager().getQuestUniqueBitFlag(questId);
+        if (questBit == 0)
+            return false;
+
+        int fieldOffset = (questBit - 1) / QUESTS_COMPLETED_BITS_PER_BLOCK;
+        if (fieldOffset >= QUESTS_COMPLETED_BITS_SIZE)
+            return false;
+
+        uint64 flag = UI64LIT(1) << ((questBit - 1) % QUESTS_COMPLETED_BITS_PER_BLOCK);
+        return (m_activePlayerData->QuestCompleted[fieldOffset] & flag) != 0;lo
+    }
+
+    void setQuestCompletedBit(int questId, boolean completed)
+    {
+        int questBit = getWorldContext().getDbcObjectManager().getQuestUniqueBitFlag(questId);
+        if (questBit == 0)
+            return;
+
+        int fieldOffset = (questBit - 1) / QUESTS_COMPLETED_BITS_PER_BLOCK;
+        uint64 flag = UI64LIT(1) << ((questBit - 1) % QUESTS_COMPLETED_BITS_PER_BLOCK);
+        if (fieldOffset < QUESTS_COMPLETED_BITS_SIZE)
+        {
+            if (completed)
+                SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::QuestCompleted, fieldOffset), flag);
+        else
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::QuestCompleted, fieldOffset), flag);
+        }
+
+        if (completed)
+            SetUpdateFieldFlagValue(m_values
+                    .ModifyValue(&Player::m_activePlayerData)
+                    .ModifyValue(&UF::ActivePlayerData::BitVectors)
+            .ModifyValue(&UF::BitVectors::Values, PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX)
+            .ModifyValue(&UF::BitVector::Values, fieldOffset), flag);
+    else
+        RemoveUpdateFieldFlagValue(m_values
+                .ModifyValue(&Player::m_activePlayerData)
+                .ModifyValue(&UF::ActivePlayerData::BitVectors)
+            .ModifyValue(&UF::BitVectors::Values, PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX)
+            .ModifyValue(&UF::BitVector::Values, fieldOffset), flag);
+    }
+
 
     public final void areaExploredOrEventHappens(int questId) {
         if (questId != 0) {
@@ -32437,7 +32485,7 @@ public class Player extends Unit implements GirdObject {
             var playerCondition = CliDB.PlayerConditionStorage.get(corruptionEffect.playerConditionID);
 
             if (playerCondition != null) {
-                if (!ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+                if (!PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                     removeAura(corruptionEffect.aura);
 
                     continue;
@@ -33370,7 +33418,7 @@ public class Player extends Unit implements GirdObject {
         var playerCondition = CliDB.PlayerConditionStorage.get(talentInfo.playerConditionID);
 
         if (playerCondition != null) {
-            if (!ConditionManager.isPlayerMeetingCondition(this, playerCondition)) {
+            if (!PlayerConditions.isPlayerMeetingCondition(this, playerCondition)) {
                 return TalentLearnResult.FailedCantDoThatRightNow;
             }
         }

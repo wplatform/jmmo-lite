@@ -1,19 +1,21 @@
 package com.github.azeroth.game.networking.packet.authentication;
 
 
-import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.networking.ClientPacket;
+import io.netty.buffer.ByteBuf;
 
-class ConnectToFailed extends ClientPacket {
-    public ConnectToserial serial = ConnectToSerial.values()[0];
+public class ConnectToFailed extends ClientPacket {
+    public ConnectToSerial serial;
     private byte con;
 
-    public ConnectToFailed(WorldPacket packet) {
-        super(packet);
+    protected ConnectToFailed(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {
-        serial = ConnectToSerial.forValue(this.readUInt());
-        con = this.readUInt8();
+        con = this.readByte();
+        serial = ConnectToSerial.valueOf(this.readUInt32());
     }
 }

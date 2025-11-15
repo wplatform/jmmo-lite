@@ -31,11 +31,7 @@ import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Internal helpers for reactor-netty contracts.
- *
- * @author Stephane Maldini
- */
+
 public final class CommonNetty {
 
     // System properties names
@@ -107,7 +103,7 @@ public final class CommonNetty {
     public static final String ACCESS_LOG_ENABLED = "netty.http.server.accessLogEnabled";
 
     /**
-     *  Specifies the zone id used by the access log.
+     * Specifies the zone id used by the access log.
      */
     public static final ZoneId ZONE_ID_SYSTEM = ZoneId.systemDefault();
 
@@ -121,8 +117,9 @@ public final class CommonNetty {
 
     /**
      * Append channel ID to a log message for correlated traces.
+     *
      * @param channel current channel associated with the msg
-     * @param msg the log msg
+     * @param msg     the log msg
      * @return a formatted msg
      */
     public static String format(Channel channel, String msg) {
@@ -132,31 +129,28 @@ public final class CommonNetty {
             String channelStr;
             StringBuilder result;
             Connection connection = Connection.from(channel);
-            if (connection instanceof ChannelOperations<?,?>) {
+            if (connection instanceof ChannelOperations<?, ?>) {
                 channelStr = connection.toString();
                 if (channelStr.charAt(0) != TRACE_ID_PREFIX) {
                     result = new StringBuilder(1 + channelStr.length() + 2 + msg.length())
                             .append(CHANNEL_ID_PREFIX)
                             .append(channelStr)
                             .append(CHANNEL_ID_SUFFIX_1);
-                }
-                else {
+                } else {
                     result = new StringBuilder(channelStr.length() + 1 + msg.length())
                             .append(channelStr)
                             .append(CHANNEL_ID_SUFFIX_2);
                 }
                 return result.append(msg)
                         .toString();
-            }
-            else {
+            } else {
                 channelStr = channel.toString();
                 if (channelStr.charAt(0) == CHANNEL_ID_PREFIX) {
                     channelStr = channelStr.substring(ORIGINAL_CHANNEL_ID_PREFIX_LENGTH);
                     result = new StringBuilder(1 + channelStr.length() + 1 + msg.length())
                             .append(CHANNEL_ID_PREFIX)
                             .append(channelStr);
-                }
-                else {
+                } else {
                     int ind = channelStr.indexOf(ORIGINAL_CHANNEL_ID_PREFIX);
                     result = new StringBuilder(1 + (channelStr.length() - ORIGINAL_CHANNEL_ID_PREFIX_LENGTH) + 1 + msg.length())
                             .append(channelStr.substring(0, ind))
@@ -167,8 +161,7 @@ public final class CommonNetty {
                         .append(msg)
                         .toString();
             }
-        }
-        else {
+        } else {
             return msg;
         }
     }
@@ -186,16 +179,13 @@ public final class CommonNetty {
                 !Objects.equals(Unpooled.EMPTY_BUFFER, ((ByteBufHolder) msg).content())) {
             ByteBuf buffer = ((ByteBufHolder) msg).content();
             result = "\n" + ByteBufUtil.prettyHexDump(buffer);
-        }
-        else if (msg instanceof ByteBuf) {
+        } else if (msg instanceof ByteBuf) {
             result = "\n" + ByteBufUtil.prettyHexDump((ByteBuf) msg);
-        }
-        else {
+        } else {
             result = msg.toString();
         }
         return result;
     }
-
 
 
     /**
@@ -224,12 +214,12 @@ public final class CommonNetty {
      * prefix, and add the handler just before the first of these.
      *
      * @param context the {@link Connection} on which to add the decoder.
-     * @param name the name of the decoder.
+     * @param name    the name of the decoder.
      * @param handler the decoder to add before the final reactor-specific handlers.
      * @see Connection#addHandlerLast(String, ChannelHandler)
      */
     static void addHandlerBeforeReactorEndHandlers(Connection context, String
-            name,	ChannelHandler handler) {
+            name, ChannelHandler handler) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(handler, "handler");
 
@@ -255,8 +245,7 @@ public final class CommonNetty {
 
         if (before == null) {
             channel.pipeline().addLast(name, handler);
-        }
-        else {
+        } else {
             channel.pipeline().addBefore(before, name, handler);
         }
 
@@ -277,12 +266,11 @@ public final class CommonNetty {
      * prefix, and add the handler just after the last of these.
      *
      * @param context the {@link Connection} on which to add the decoder.
-     * @param name the name of the encoder.
+     * @param name    the name of the encoder.
      * @param handler the encoder to add after the initial reactor-specific handlers.
      * @see Connection#addHandlerFirst(String, ChannelHandler)
      */
-    static void addHandlerAfterReactorCodecs(Connection context, String
-            name,
+    static void addHandlerAfterReactorCodecs(Connection context, String name,
                                              ChannelHandler handler) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(handler, "handler");
@@ -308,8 +296,7 @@ public final class CommonNetty {
 
         if (after == null) {
             channel.pipeline().addFirst(name, handler);
-        }
-        else {
+        } else {
             channel.pipeline().addAfter(after, name, handler);
         }
 
@@ -327,7 +314,7 @@ public final class CommonNetty {
             return true;
         }
         ChannelPipeline p = c.channel().pipeline();
-        return p.get(SslHandler.class) != null  ||
+        return p.get(SslHandler.class) != null ||
                 p.get(NettyPipeline.CompressionHandler) != null ||
                 (!(c.channel().eventLoop() instanceof NioEventLoop) &&
                         !"file".equals(file.toUri().getScheme()));
@@ -343,8 +330,7 @@ public final class CommonNetty {
                         name,
                         channel.pipeline());
             }
-        }
-        else if (log.isDebugEnabled()) {
+        } else if (log.isDebugEnabled()) {
             log.debug(format(channel, "Non Removed handler: {}, context: {}, pipeline: {}"),
                     name,
                     channel.pipeline()
@@ -363,8 +349,7 @@ public final class CommonNetty {
                         name,
                         channel.pipeline());
             }
-        }
-        else if (log.isDebugEnabled()) {
+        } else if (log.isDebugEnabled()) {
             log.debug(format(channel, "Non Replaced handler: {}, context: {}, pipeline: {}"),
                     name,
                     channel.pipeline()
@@ -375,10 +360,10 @@ public final class CommonNetty {
 
     public static boolean isConnectionReset(Throwable err) {
         return ((err instanceof IOException && (err.getMessage() == null ||
-                        err.getMessage()
-                                .contains("Broken pipe") ||
-                        err.getMessage()
-                                .contains("Connection reset by peer"))) ||
+                err.getMessage()
+                        .contains("Broken pipe") ||
+                err.getMessage()
+                        .contains("Connection reset by peer"))) ||
                 (err instanceof SocketException && err.getMessage() != null &&
                         err.getMessage()
                                 .contains("Connection reset by peer")));
@@ -392,8 +377,8 @@ public final class CommonNetty {
      * resolved without doing reverse DNS lookups.
      *
      * @param hostname ip-address or hostname
-     * @param port port number
-     * @param resolve when true, resolve given hostname at instance creation time
+     * @param port     port number
+     * @param resolve  when true, resolve given hostname at instance creation time
      * @return InetSocketAddress for given parameters
      */
     public static InetSocketAddress createInetSocketAddress(String hostname, int port, boolean resolve) {
@@ -401,8 +386,7 @@ public final class CommonNetty {
         InetSocketAddress inetAddressForIpString = createForIpString(hostname, port);
         if (inetAddressForIpString != null) {
             return inetAddressForIpString;
-        }
-        else {
+        } else {
             return resolve ? new InetSocketAddress(hostname, port) : InetSocketAddress.createUnresolved(hostname, port);
         }
     }
@@ -412,7 +396,7 @@ public final class CommonNetty {
      * detected and resolved without doing reverse DNS lookups.
      *
      * @param hostname ip-address or hostname
-     * @param port port number
+     * @param port     port number
      * @return InetSocketAddress for given parameters
      */
     public static InetSocketAddress createResolved(String hostname, int port) {
@@ -424,7 +408,7 @@ public final class CommonNetty {
      * resolved.
      *
      * @param hostname ip-address or hostname
-     * @param port port number
+     * @param port     port number
      * @return InetSocketAddress for given parameters
      */
     public static InetSocketAddress createUnresolved(String hostname, int port) {
@@ -434,7 +418,7 @@ public final class CommonNetty {
     /**
      * Parse unresolved InetSocketAddress. Numeric IP addresses will be detected and resolved.
      *
-     * @param address ip-address or hostname
+     * @param address     ip-address or hostname
      * @param defaultPort the default port
      * @return {@link InetSocketAddress} for given parameters, only numeric IP addresses will be resolved
      */
@@ -445,12 +429,12 @@ public final class CommonNetty {
     /**
      * Parse unresolved InetSocketAddress. Numeric IP addresses will be detected and resolved.
      *
-     * @param address ip-address or hostname
+     * @param address     ip-address or hostname
      * @param defaultPort is used if the address does not contain a port,
-     * or if the port cannot be parsed in non-strict mode
-     * @param strict if true throws an exception when the address cannot be parsed,
-     * otherwise an unresolved {@link InetSocketAddress} is returned. It can include the case of the host
-     * having been parsed but not the port (replaced by {@code defaultPort})
+     *                    or if the port cannot be parsed in non-strict mode
+     * @param strict      if true throws an exception when the address cannot be parsed,
+     *                    otherwise an unresolved {@link InetSocketAddress} is returned. It can include the case of the host
+     *                    having been parsed but not the port (replaced by {@code defaultPort})
      * @return {@link InetSocketAddress} for given parameters, only numeric IP addresses will be resolved
      */
     public static InetSocketAddress parseAddress(String address, int defaultPort, boolean strict) {
@@ -466,13 +450,11 @@ public final class CommonNetty {
                 if (!portStr.isEmpty()) {
                     if (portStr.chars().allMatch(Character::isDigit)) {
                         port = Integer.parseInt(portStr);
-                    }
-                    else if (strict) {
+                    } else if (strict) {
                         throw new IllegalArgumentException("Failed to parse a port from " + address);
                     }
                 }
-            }
-            else if (strict) {
+            } else if (strict) {
                 throw new IllegalArgumentException("Invalid IPv4 address " + address);
             }
         }
@@ -495,8 +477,7 @@ public final class CommonNetty {
                 inetSocketAddress.getHostString(), inetSocketAddress.getPort());
         if (inetAddressForIpString != null) {
             return inetAddressForIpString;
-        }
-        else {
+        } else {
             return inetSocketAddress;
         }
     }
@@ -516,8 +497,7 @@ public final class CommonNetty {
         inetSocketAddress = replaceUnresolvedNumericIp(inetSocketAddress);
         if (!inetSocketAddress.isUnresolved()) {
             return inetSocketAddress;
-        }
-        else {
+        } else {
             return new InetSocketAddress(inetSocketAddress.getHostString(), inetSocketAddress.getPort());
         }
     }
@@ -526,7 +506,7 @@ public final class CommonNetty {
      * Update the provided address with the new host string.
      *
      * @param address the address supplier
-     * @param host the new host string
+     * @param host    the new host string
      * @return the updated address
      */
     public static SocketAddress updateHost(Supplier<? extends SocketAddress> address, String host) {
@@ -539,11 +519,9 @@ public final class CommonNetty {
             throw new IllegalArgumentException("Cannot update DomainSocketAddress with host name [" + host + "].");
         }
 
-        if (!(socketAddress instanceof InetSocketAddress)) {
+        if (!(socketAddress instanceof InetSocketAddress inet)) {
             return createUnresolved(host, 0);
         }
-
-        InetSocketAddress inet = (InetSocketAddress) socketAddress;
 
         return createUnresolved(host, inet.getPort());
     }
@@ -552,7 +530,7 @@ public final class CommonNetty {
      * Update the provided address with the new port.
      *
      * @param address the address supplier
-     * @param port the new port
+     * @param port    the new port
      * @return the updated address
      */
     public static SocketAddress updatePort(Supplier<? extends SocketAddress> address, int port) {
@@ -565,17 +543,23 @@ public final class CommonNetty {
             throw new IllegalArgumentException("Cannot update DomainSocketAddress with post number [" + port + "].");
         }
 
-        if (!(address.get() instanceof InetSocketAddress)) {
+        if (!(address.get() instanceof InetSocketAddress inet)) {
             return createUnresolved(NetUtil.LOCALHOST.getHostAddress(), port);
         }
-
-        InetSocketAddress inet = (InetSocketAddress) address.get();
 
         InetAddress addr = inet.getAddress();
 
         String host = addr == null ? inet.getHostName() : addr.getHostAddress();
 
         return createUnresolved(host, port);
+    }
+
+    public static String getHostString(SocketAddress socketAddress) {
+        if (socketAddress instanceof InetSocketAddress inetSocketAddress) {
+            return inetSocketAddress.getHostString() + ":" + inetSocketAddress.getPort();
+        } else {
+            return socketAddress.toString();
+        }
     }
 
     static InetAddress attemptParsingIpString(String hostname) {
@@ -585,12 +569,10 @@ public final class CommonNetty {
             try {
                 if (ipAddressBytes.length == 4) {
                     return Inet4Address.getByAddress(ipAddressBytes);
-                }
-                else {
+                } else {
                     return Inet6Address.getByAddress(null, ipAddressBytes, -1);
                 }
-            }
-            catch (UnknownHostException e) {
+            } catch (UnknownHostException e) {
                 throw new RuntimeException(e); // Should never happen
             }
         }
@@ -658,6 +640,7 @@ public final class CommonNetty {
 
 
         final BiConsumer<? super ChannelHandlerContext, Object> extractor;
+
         ExtractorHandler(BiConsumer<? super ChannelHandlerContext, Object> extractor) {
             this.extractor = Objects.requireNonNull(extractor, "extractor");
         }
@@ -667,52 +650,6 @@ public final class CommonNetty {
             extractor.accept(ctx, msg);
         }
 
-    }
-
-    static NettyInbound unavailableInbound(Connection c) {
-        return new NettyInbound() {
-            @Override
-            public ByteBuf receive() {
-                throw new IllegalStateException("Receiver Unavailable");
-            }
-
-            @Override
-            public <T> T receiveObject(Class<T> clazz) {
-                throw new IllegalStateException("Receiver Unavailable");
-            }
-
-
-            @Override
-            public NettyInbound withConnection(Consumer<? super Connection> withConnection) {
-                withConnection.accept(c);
-                return this;
-            }
-        };
-    }
-
-    static NettyOutbound unavailableOutbound(Connection c) {
-        return new NettyOutbound() {
-
-            @Override
-            public ByteBufAllocator alloc() {
-                return null;
-            }
-
-            @Override
-            public NettyOutbound send(ByteBuf message) {
-                return null;
-            }
-
-            @Override
-            public NettyOutbound sendObject(Object message) {
-                return null;
-            }
-
-            @Override
-            public NettyOutbound withConnection(Consumer<? super Connection> withConnection) {
-                return null;
-            }
-        };
     }
 
     static final class InternalNettyException extends RuntimeException {
@@ -730,17 +667,17 @@ public final class CommonNetty {
     }
 
 
-    static final ConnectionObserver NOOP_LISTENER = (connection, newState) -> {};
+    static final ConnectionObserver NOOP_LISTENER = (connection, newState) -> {
+    };
 
     static final AttributeKey<Connection> CONNECTION = AttributeKey.valueOf("$CONNECTION");
 
 
+    static final Predicate<ByteBuf> PREDICATE_BB_FLUSH = b -> false;
 
-    static final Predicate<ByteBuf>        PREDICATE_BB_FLUSH    = b -> false;
+    static final Predicate<Object> PREDICATE_FLUSH = o -> false;
 
-    static final Predicate<Object>         PREDICATE_FLUSH       = o -> false;
-
-    static final ByteBuf                   BOUNDARY              = Unpooled.EMPTY_BUFFER;
+    static final ByteBuf BOUNDARY = Unpooled.EMPTY_BUFFER;
 
     static final char CHANNEL_ID_PREFIX = '[';
     static final String CHANNEL_ID_SUFFIX_1 = "] ";

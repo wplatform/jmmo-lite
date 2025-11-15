@@ -34,8 +34,14 @@ public class RandomUtil {
     public static boolean randomBoolean() {
         return random().nextBoolean();
     }
+
     public static byte[] randomBytes(int count) {
         byte[] bytes = new byte[count];
+        random().nextBytes(bytes);
+        return bytes;
+    }
+
+    public static byte[] randomBytes(byte[] bytes) {
         random().nextBytes(bytes);
         return bytes;
     }

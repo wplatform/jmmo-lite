@@ -19,8 +19,16 @@ public class BuildAuthKey {
 
     @Id
     @Column("platform")
-    private Integer platform;
+    private String platform;
+
+    @Id
+    @Column("arch")
+    private String arch;
+
+    @Id
+    @Column("type")
+    private String type;
 
     @Column("key")
-    private String key;
+    private byte[] key;
 }

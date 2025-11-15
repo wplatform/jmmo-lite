@@ -14,15 +14,4 @@ public final class SavedThrottleObjectState {
         data.writeInt32(tryCount);
         data.writeInt32(lastResetTimeBeforeNow);
     }
-
-    public SavedThrottleObjectState clone() {
-        SavedThrottleObjectState varCopy = new savedThrottleObjectState();
-
-        varCopy.maxTries = this.maxTries;
-        varCopy.perMilliseconds = this.perMilliseconds;
-        varCopy.tryCount = this.tryCount;
-        varCopy.lastResetTimeBeforeNow = this.lastResetTimeBeforeNow;
-
-        return varCopy;
-    }
 }

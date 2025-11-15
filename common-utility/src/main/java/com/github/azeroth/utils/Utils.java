@@ -1,8 +1,9 @@
 package com.github.azeroth.utils;
 
+import lombok.SneakyThrows;
+
 import java.lang.reflect.Constructor;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.lang.reflect.Field;
 
 public class Utils {
 
@@ -172,16 +173,6 @@ public class Utils {
     }
 
 
-    public static String getHostString(SocketAddress socketAddress) {
-        if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-            return inetSocketAddress.getHostString();
-        } else {
-            return socketAddress.toString();
-        }
-    }
-
-
     public static String door(String[] door_fitting, String[] codes) {
         //Insert your code here
 
@@ -219,21 +210,20 @@ public class Utils {
     }
 
 
-
-    public static String calculation( String[] items ) {
+    public static String calculation(String[] items) {
 
         int totalPrice = 0;
         int salePrice = 0;
-        for(String item: items) {
+        for (String item : items) {
             java.util.Optional<String> priceStr = findPrice(item);
             int price = Integer.parseInt(priceStr.get());
 
             java.util.Optional<String> percentOffStr = findPercentOff(item);
             int percentOff = Integer.parseInt(percentOffStr.get());
             totalPrice = price;
-            salePrice += price*percentOff/100.0;
+            salePrice += price * percentOff / 100.0;
         }
-        int amountSaved = totalPrice-salePrice;
+        int amountSaved = totalPrice - salePrice;
         StringBuffer sb = new StringBuffer();
         sb.append("Total Original Price:")
                 .append(totalPrice)
@@ -246,24 +236,25 @@ public class Utils {
     private static java.util.Optional<String> findPrice(String line) {
         String regex = "\\d*\\$";
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(regex).matcher(line);
-        if(m.find()) {
-            try{
+        if (m.find()) {
+            try {
                 String priceStr = m.group();
                 return java.util.Optional.of(priceStr);
-            }catch(java.time.format.DateTimeParseException ex) {
+            } catch (java.time.format.DateTimeParseException ex) {
                 return java.util.Optional.empty();
             }
         }
         return java.util.Optional.empty();
     }
+
     private static java.util.Optional<String> findPercentOff(String line) {
         String regex = "\\d*%";
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(regex).matcher(line);
-        if(m.find()) {
+        if (m.find()) {
             try {
                 String percentOffStr = m.group();
                 return java.util.Optional.of(percentOffStr);
-            }catch(java.time.format.DateTimeParseException ex) {
+            } catch (java.time.format.DateTimeParseException ex) {
                 return java.util.Optional.empty();
             }
         }
@@ -271,42 +262,41 @@ public class Utils {
     }
 
 
+    public static Boolean isValidPassword(String password) {
 
-    public static Boolean isValidPassword( String password ) {
-
-        if(password.length() < 8)
+        if (password.length() < 8)
             return false;
-        for(char ch: password.toCharArray()) {
-            if((ch == ','))
+        for (char ch : password.toCharArray()) {
+            if ((ch == ','))
                 return false;
         }
         boolean hasUppercases = false;
         boolean hasLowercases = false;
         boolean hasDigits = false;
         int specialChars = 0;
-        for(int i = 0, n = password.length() ; i < n ; i++) {
+        for (int i = 0, n = password.length(); i < n; i++) {
             char c = password.charAt(i);
-            if(Character.isDigit(c)) {
+            if (Character.isDigit(c)) {
                 hasDigits = true;
-            } else if(Character.isUpperCase(c)) {
+            } else if (Character.isUpperCase(c)) {
                 hasUppercases = true;
-            } else if(Character.isLowerCase(c)) {
+            } else if (Character.isLowerCase(c)) {
                 hasLowercases = true;
-            } else if(!Character.isAlphabetic(c)) {
+            } else if (!Character.isAlphabetic(c)) {
                 specialChars++;
             }
         }
-        if(hasUppercases&&hasLowercases&&hasDigits&&(specialChars > 0)) {
+        if (hasUppercases && hasLowercases && hasDigits && (specialChars > 0)) {
             return true;
         }
 
-        if(specialChars > password.length()*20) {
+        if (specialChars > password.length() * 20) {
             return false;
         }
 
-        for(int i = 0; i < password.length() - 3; i++) {
-            if(((int)password.charAt(i)+1 == (int)password.charAt(i+1))&&
-                    ((int)password.charAt(i+2)+1 == (int)password.charAt(i+3))) {
+        for (int i = 0; i < password.length() - 3; i++) {
+            if (((int) password.charAt(i) + 1 == (int) password.charAt(i + 1)) &&
+                    ((int) password.charAt(i + 2) + 1 == (int) password.charAt(i + 3))) {
                 return false;
             }
         }
@@ -334,5 +324,54 @@ public class Utils {
             }
         }
         return null;
+    }
+
+    public static int fourCharValue(String str) {
+        if (str.length() > 4) {
+            throw new IllegalArgumentException("Text can only be max 4 characters long");
+        }
+        int fourValue = 0;
+        for (char c : str.toCharArray()) {
+            fourValue <<= 8;
+            fourValue |= (byte) c;
+        }
+        return fourValue;
+    }
+
+    public static String toFourChar(int value) {
+        char[] chars = new char[4];
+
+        int length = 4;
+        for (int i = 0; i < 4; i++) {
+            chars[i] = (char) (value >> (24 - i * 8) & 0xFF);
+            if (chars[i] == 0) {
+                length = i;
+                break;
+            }
+        }
+        return new String(chars, 0, length);
+    }
+
+
+    public static boolean checkEnumIndex(int index, Enum<?>[] enumValues) {
+        return index >= 0 && index < enumValues.length;
+    }
+
+
+    @SneakyThrows
+    public static void setIfTypeMatched(Object object, String fieldName, Object value) {
+        Field field = object.getClass().getDeclaredField(fieldName);
+        Class<?> fieldType = field.getType();
+        if (fieldType.isInstance(value)) {
+            field.setAccessible(true);
+            field.set(object, value);
+        }
+    }
+
+    @SneakyThrows
+    public static void setField(Object object, String fieldName, Object value) {
+        Field field = object.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(object, value);
     }
 }

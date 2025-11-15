@@ -1,7 +1,7 @@
 package com.github.azeroth.game.networking.packet.misc;
 
 
-import com.github.azeroth.game.entity.player.HeirloomData;
+import com.github.azeroth.game.domain.player.HeirloomData;
 import com.github.azeroth.game.networking.ServerPacket;
 
 import java.util.HashMap;

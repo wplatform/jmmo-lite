@@ -16,14 +16,5 @@ public sealed interface OpCode permits ClientOpCode, ServerOpCode {
         return this instanceof ServerOpCode;
     }
 
-    default <T> T as(Class<T> enumClass) {
-        return enumClass.cast(this);
-    }
-
-    default boolean isNullOpCode() {
-        return getValue() == 0xBADD;
-    }
-
-
-    int getValue();
+    int getCode();
 }

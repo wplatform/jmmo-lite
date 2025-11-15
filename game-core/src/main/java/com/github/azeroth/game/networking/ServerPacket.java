@@ -17,4 +17,20 @@ public abstract class ServerPacket extends WorldPacket {
 
     public abstract void write();
 
+
+    public static final class Raw extends ServerPacket {
+
+        Raw(ServerOpCode opcode) {
+            super(opcode);
+        }
+
+        Raw(ServerOpCode opcode, int initialCapacity) {
+            super(opcode, initialCapacity);
+        }
+
+        @Override
+        public void write() {
+
+        }
+    }
 }

@@ -1235,7 +1235,7 @@ public enum ServerOpCode implements OpCode {
     SMSG_ZONE_UNDER_ATTACK(0x41000B);
 
 
-    public final int value;
+    public final int code;
 
 
     // Spline packets are for creatures and move_update are for players
@@ -1250,4 +1250,9 @@ public enum ServerOpCode implements OpCode {
             {ServerOpCode.SMSG_MOVE_SPLINE_SET_FLIGHT_BACK_SPEED, ServerOpCode.SMSG_MOVE_SET_FLIGHT_BACK_SPEED, ServerOpCode.SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED},
             {ServerOpCode.SMSG_MOVE_SPLINE_SET_PITCH_RATE, ServerOpCode.SMSG_MOVE_SET_PITCH_RATE, ServerOpCode.SMSG_MOVE_UPDATE_PITCH_RATE},
     };
+
+    @Override
+    public String toString() {
+        return name() + "(0x" + Integer.toHexString(code).toUpperCase() + ")";
+    }
 }

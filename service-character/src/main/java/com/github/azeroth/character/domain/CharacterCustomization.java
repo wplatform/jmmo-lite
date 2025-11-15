@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 
-
 @Table(name = "character_customizations")
 public class CharacterCustomization {
     @Id

@@ -26,6 +26,10 @@ public interface Connection {
 
     Channel channel();
 
+    default boolean isActive() {
+        return channel().isActive();
+    }
+
     default void close() {
         channel().close();
     }
@@ -34,7 +38,6 @@ public interface Connection {
     default void onClose(Runnable runnable) {
         channel().closeFuture().addListener((ChannelFutureListener) future -> runnable.run());
     }
-
 
     default SocketAddress remoteAddress() {
         Channel c = channel();
@@ -74,11 +77,7 @@ public interface Connection {
         return this;
     }
 
-    default NettyInbound inbound() {
-        return CommonNetty.unavailableInbound(this);
-    }
-
-
+    NettyInbound inbound();
 
     default Connection onReadIdle(long idleTimeout, Runnable onReadIdle) {
         return removeHandler(NettyPipeline.OnChannelReadIdle)
@@ -96,10 +95,7 @@ public interface Connection {
                         new CommonNetty.OutboundIdleStateHandler(idleTimeout, onWriteIdle));
     }
 
-    default NettyOutbound outbound() {
-        return CommonNetty.unavailableOutbound(this);
-    }
-
+    NettyOutbound outbound();
 
     default boolean rebind(Connection connection) {
         return channel().attr(CommonNetty.CONNECTION)

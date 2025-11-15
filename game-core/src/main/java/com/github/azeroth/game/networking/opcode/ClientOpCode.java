@@ -755,7 +755,7 @@ public enum ClientOpCode implements OpCode {
     CMSG_WRAP_ITEM(0x370000);
 
     private static volatile IntMap<ClientOpCode> opCodeIntMap;
-    public final int value;
+    public final int code;
 
     public static ClientOpCode valueOf(final int value) {
         Assert.isTrue(value != NULL_OPCODE, "Attempt to get non-existing value field:");
@@ -765,7 +765,7 @@ public enum ClientOpCode implements OpCode {
                     ClientOpCode[] values = ClientOpCode.values();
                     opCodeIntMap = new IntMap<>(values.length, 1f);
                     for (var e : values) {
-                        opCodeIntMap.put(e.value, e);
+                        opCodeIntMap.put(e.code, e);
                     }
                 }
             }
@@ -774,6 +774,9 @@ public enum ClientOpCode implements OpCode {
     }
 
 
-    
+    @Override
+    public String toString() {
+        return name() + "(0x" + Integer.toHexString(code).toUpperCase() + ")";
+    }
 
 }

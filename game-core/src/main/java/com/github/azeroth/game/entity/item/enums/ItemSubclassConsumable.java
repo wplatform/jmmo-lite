@@ -1,5 +1,7 @@
 package com.github.azeroth.game.entity.item.enums;
 
+import com.github.azeroth.utils.Utils;
+
 public enum ItemSubclassConsumable {
     CONSUMABLE,
     POTION,
@@ -10,5 +12,12 @@ public enum ItemSubclassConsumable {
     ITEM_ENHANCEMENT,
     BANDAGE,
     CONSUMABLE_OTHER,
-    VANTUS_RUNE
+    VANTUS_RUNE;
+
+    public static ItemSubclassConsumable forValue(byte subclassID) {
+        ItemSubclassConsumable[] values = ItemSubclassConsumable.values();
+        if(Utils.checkEnumIndex(subclassID, values))
+            return null;
+        return values[subclassID];
+    }
 }

@@ -40,7 +40,7 @@ public final class ObjectGuid implements Comparable<ObjectGuid>{
             case HighGuid.Uniq -> createUniq(dbId);
             case HighGuid.Player -> createPlayer(realmId, dbId);
             case HighGuid.Item -> createItem(realmId, dbId);
-            case HighGuid.StaticDoor, HighGuid.Transport -> createTransport(type, (int) dbId);
+            case HighGuid.StaticDoor, HighGuid.Transport -> createTransport(type, dbId);
             case HighGuid.Party, HighGuid.WowAccount, HighGuid.BNetAccount, HighGuid.GMTask, HighGuid.RaidGroup,
                     HighGuid.Spell, HighGuid.Mail, HighGuid.UserRouter, HighGuid.PVPQueueGroup, HighGuid.UserClient,
                     HighGuid.BattlePet, HighGuid.CommerceObj -> createGlobal(type, 0, dbId);

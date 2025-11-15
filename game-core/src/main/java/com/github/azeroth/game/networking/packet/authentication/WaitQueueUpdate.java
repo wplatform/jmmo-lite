@@ -1,12 +1,13 @@
 package com.github.azeroth.game.networking.packet.authentication;
 
 import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 public class WaitQueueUpdate extends ServerPacket {
-    public AuthwaitInfo waitInfo = new authWaitInfo();
+    public AuthWaitInfo waitInfo = new AuthWaitInfo();
 
     public WaitQueueUpdate() {
-        super(ServerOpcode.WaitQueueUpdate);
+        super(ServerOpCode.SMSG_WAIT_QUEUE_UPDATE);
     }
 
     @Override

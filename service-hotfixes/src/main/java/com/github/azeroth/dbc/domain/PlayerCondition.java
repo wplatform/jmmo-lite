@@ -635,4 +635,8 @@ public class PlayerCondition implements DbcEntity {
     public byte[] getMinReputation() {
         return new byte[]{minReputation1, minReputation2, minReputation3};
     }
+
+    public int[] getPrevQuestID() {
+        return new int[]{prevQuestID1, prevQuestID2, prevQuestID3, prevQuestID4};
+    }
 }

@@ -12,6 +12,9 @@ public enum Locale {
     ruRU,
     none,
     ptBR,
-    itIT,
+    itIT;
 
+    public static Locale indexOf(int index) {
+        return Locale.values()[index];
+    }
 }

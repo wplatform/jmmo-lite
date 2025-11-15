@@ -1,43 +1,29 @@
 package com.github.azeroth.auth.dto;
 
-import com.github.azeroth.auth.domain.BNetAccount;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
 public class AccountInfo {
-
-    private Long id;
-    private String email;
+    private Integer accountId;
+    private String accountName;
+    private byte[] sessionKey;
+    private String lastIp;
     private Short locked;
     private String lockCountry;
-    private Long loginTicketExpiry;
-    private String lastIp;
-    private boolean banded;
-    private boolean permanentlyBanned;
-    private Map<Long, GameAccount> accounts;
-
-    public AccountInfo(BNetAccount account) {
-        this(
-                account.getId(),
-                account.getEmail(),
-                account.getLocked(),
-                account.getLockCountry(),
-                account.getLoginTicketExpiry(),
-                account.getLastIp(),
-                false,
-                false,
-                account.getAccounts().stream().map(GameAccount::new).collect(Collectors.toUnmodifiableMap(GameAccount::getId, Function.identity(), (v1, v2) -> v1))
-        );
-    }
-
-    public GameAccount getGameAccount(Long id) {
-        return accounts.get(id);
-    }
+    private Integer expansion;
+    private Long muteTime;
+    private Integer clientBuild;
+    private Integer locale;
+    private Integer recruiter;
+    private String os;
+    private Integer timezoneOffset;
+    private Integer bnetAccountId;
+    private Integer securityLevel;
+    private Boolean isBnetBanned;
+    private Boolean isBanned;
+    private Integer recruiterId;
+    private String recruiterName;
 
 }

@@ -51,16 +51,13 @@ public class WorldPacket extends DefaultByteBufHolder {
         this.opcode = opcode;
     }
 
-    public static WorldPacket newServerToClient(ServerOpCode opcode) {
-        return new WorldPacket(opcode);
+    public static ServerPacket newServerToClient(ServerOpCode opcode) {
+        return new ServerPacket.Raw(opcode);
     }
 
-    public static WorldPacket newServerToClient(ServerOpCode opcode, ByteBuf byteBuf) {
-        return new WorldPacket(opcode, byteBuf);
-    }
 
-    public static WorldPacket newServerToClient(ServerOpCode opcode, int estimatedSize) {
-        return new WorldPacket(opcode, estimatedSize);
+    public static ServerPacket newServerToClient(ServerOpCode opcode, int estimatedSize) {
+        return new ServerPacket.Raw(opcode, estimatedSize);
     }
 
     public static ClientPacket newClientToServer(ClientOpCode opcode, ByteBuf byteBuf) {

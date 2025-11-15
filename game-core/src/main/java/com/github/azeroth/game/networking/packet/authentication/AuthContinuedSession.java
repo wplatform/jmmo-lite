@@ -1,19 +1,20 @@
 package com.github.azeroth.game.networking.packet.authentication;
 
-import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.networking.ClientPacket;
+import io.netty.buffer.ByteBuf;
 
-class AuthContinuedSession extends ClientPacket {
+public class AuthContinuedSession extends ClientPacket {
 
     public long dosResponse;
 
     public long key;
 
-    public byte[] localChallenge = new byte[16];
+    public byte[] localChallenge = new byte[32];
 
     public byte[] digest = new byte[24];
 
-    public AuthContinuedSession(WorldPacket packet) {
-        super(packet);
+    protected AuthContinuedSession(ByteBuf data) {
+        super(data);
     }
 
     @Override

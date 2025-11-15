@@ -105,9 +105,7 @@ import java.nio.file.Path;
  * worldserver.command.LookupMaxResults
  * worldserver.dungeonfinder.OptionsMask
  * worldserver.account.PasswordChangeSecurity
- * worldserver.featuresystem.bpaystore.Enabled
- * worldserver.featuresystem.characterundelete.Enabled
- * worldserver.featuresystem.characterundelete.Cooldown
+
  * worldserver.updates.EnableDatabases
  * worldserver.updates.AutoSetup
  * worldserver.updates.Redundancy
@@ -122,14 +120,6 @@ import java.nio.file.Path;
  * worldserver.hotswap.EnableInstall
  * worldserver.hotswap.EnablePrefixCorrection
  * worldserver.hotswap.ReCompilerBuildType
- * worldserver.warden.Enabled
- * worldserver.warden.NumInjectionChecks
- * worldserver.warden.NumLuaSandboxChecks
- * worldserver.warden.NumClientModChecks
- * worldserver.warden.ClientResponseDelay
- * worldserver.warden.ClientCheckHoldOff
- * worldserver.warden.ClientCheckFailAction
- * worldserver.warden.BanDuration
 
  * worldserver.corpse.decay.Normal
  * worldserver.corpse.decay.Elite
@@ -161,11 +151,6 @@ import java.nio.file.Path;
  * <p>
  * <p>
  * <p>
- * worldserver.support.Enabled
- * worldserver.support.TicketsEnabled
- * worldserver.support.BugsEnabled
- * worldserver.support.ComplaintsEnabled
- * worldserver.support.SuggestionsEnabled
  * <p>
  * worldserver.skillgain.Crafting
  * worldserver.skillgain.Gathering
@@ -189,21 +174,6 @@ import java.nio.file.Path;
  * worldserver.autobroadcast.On
  * worldserver.autobroadcast.Center
  * worldserver.autobroadcast.Timer
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
- * <p>
  * <p>
  * <p>
  * worldserver.wintergrasp.Enable
@@ -357,7 +327,7 @@ public class WorldSetting {
     public int strictPlayerNames;
     public int strictCharterNames;
     public int strictPetNames;
-    public int declinedNames;
+    public boolean declinedNames;
     public Expansion expansion;
     public int minPlayerName;
     public int minCharterName;
@@ -397,7 +367,7 @@ public class WorldSetting {
     public int accountInstancesPerHour;
     public int birthdayTime;
     public int cacheDataQueries;
-    public int allowLoggingIPAddressesInDatabase;
+    public boolean allowLoggingIPAddressesInDatabase;
     public int tOTPMasterSecret;
     public int talentsInspecting;
     public int threatRadius;
@@ -421,6 +391,15 @@ public class WorldSetting {
     public int showMuteInWorld;
     public int showBanInWorld;
     public int preventRenameCharacterOnCustomization;
+
+    public boolean supportEnabled;
+    public boolean supportTicketsEnabled;
+    public boolean supportBugsEnabled;
+    public boolean supportComplaintsEnabled;
+    public boolean supportSuggestionsEnabled;
+    public boolean featureSystemPayStoreEnabled;
+    public boolean featureSystemCharacterUndeleteEnabled;
+    public boolean featureSystemCharacterUndeleteCooldown;
 
 
     public int chatFloodMessageCount;
@@ -461,6 +440,18 @@ public class WorldSetting {
     public boolean blackMarketEnabled;
     public boolean blackMarketMaxAuctions;
     public boolean blackMarketUpdatePeriod;
+
+
+
+    public boolean wardenEnabled;
+    public int wardenNumInjectionChecks;
+    public int wardenNumLuaSandboxChecks;
+    public int wardenNumClientModChecks;
+    public int wardenClientResponseDelay;
+    public int wardenClientCheckHoldOff;
+    public int wardenClientCheckFailAction;
+    public int wardenBanDuration;
+
 
     public GmSetting gm;
     public QuestSetting quest;

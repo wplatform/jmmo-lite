@@ -5,10 +5,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public final class AccountEvent extends WorldEvent {
     // Called when an account logged in succesfully
-    public static final byte onAccountLogin = 0;
+    public static final byte ON_ACCOUNT_LOGIN = 0;
 
     // Called when an account login failed
-    public static final byte onFailedAccountLogin = 1;
+    public static final byte ON_FAILED_ACCOUNT_LOGIN = 1;
 
     // Called when Email is successfully changed for Account
     public static final byte onEmailChange = 2;

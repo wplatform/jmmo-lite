@@ -133,7 +133,7 @@ public class BNetV2SRP6 extends SRP6 {
     }
 
     @Override
-    protected BigInteger calculateX(String username, String password, byte[] salt) throws Exception {
+    protected BigInteger calculateX(String username, String password, byte[] salt) {
         // 使用PBKDF2-HMAC-SHA512
         PBEKeySpec spec = new PBEKeySpec(
                 (username + ":" + password).toCharArray(),

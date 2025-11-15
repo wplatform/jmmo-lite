@@ -3,6 +3,7 @@ package com.github.azeroth.game.condition;
 
 import com.github.azeroth.game.domain.condition.DisableFlags;
 import com.github.azeroth.game.domain.condition.DisableType;
+import com.github.azeroth.game.entity.object.WorldObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;

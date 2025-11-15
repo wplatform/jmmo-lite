@@ -5,6 +5,8 @@ import com.github.azeroth.net.NettyOutbound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
@@ -14,7 +16,7 @@ public abstract class Router<C extends Router<C, IN, OUT>, IN extends NettyInbou
 
     private static final Logger log = LoggerFactory.getLogger(Router.class);
 
-    private final CopyOnWriteArrayList<RouteHandler<IN, OUT>> handlers = new CopyOnWriteArrayList<>();
+    private final List<RouteHandler<IN, OUT>> handlers = new ArrayList<>();
 
     public C route(Predicate<? super IN> condition, BiConsumer<? super IN, ? super OUT> handler) {
         Objects.requireNonNull(condition, "condition");

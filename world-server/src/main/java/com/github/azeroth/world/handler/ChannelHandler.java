@@ -1,0 +1,197 @@
+package com.github.azeroth.world.handler;
+
+public class ChannelHandler {
+
+    static size_t const MAX_CHANNEL_NAME_STR = 31;
+    static size_t const MAX_CHANNEL_PASS_STR = 127;
+
+    void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
+    {
+        TC_LOG_DEBUG("chat.system", "CMSG_JOIN_CHANNEL {} ChatChannelId: {}, CreateVoiceSession: {}, Internal: {}, ChannelName: {}, Password: {}",
+                GetPlayerInfo(), packet.ChatChannelId, packet.CreateVoiceSession, packet.Internal, packet.ChannelName, packet.Password);
+
+        AreaTableEntry const* zone = sAreaTableStore.LookupEntry(GetPlayer()->GetZoneId());
+        if (packet.ChatChannelId)
+        {
+            ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(packet.ChatChannelId);
+            if (!channel)
+                return;
+
+            if (!zone || !GetPlayer()->CanJoinConstantChannelInZone(channel, zone))
+            return;
+        }
+
+        ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam());
+        if (!cMgr)
+            return;
+
+        if (packet.ChatChannelId)
+        { // system channel
+            if (Channel* channel = cMgr->GetSystemChannel(packet.ChatChannelId, zone))
+                channel->JoinChannel(GetPlayer());
+        }
+        else
+        { // custom channel
+            if (packet.ChannelName.empty() || isdigit((unsigned char)packet.ChannelName[0]))
+            {
+                WorldPackets::Channel::ChannelNotify channelNotify;
+                channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
+                channelNotify._Channel = packet.ChannelName;
+                SendPacket(channelNotify.Write());
+                return;
+            }
+
+            if (utf8length(packet.ChannelName) > MAX_CHANNEL_NAME_STR)
+            {
+                WorldPackets::Channel::ChannelNotify channelNotify;
+                channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
+                channelNotify._Channel = packet.ChannelName;
+                SendPacket(channelNotify.Write());
+                TC_LOG_ERROR("network", "Player {} tried to create a channel with a name more than {} characters long - blocked", GetPlayer()->GetGUID().ToString(), MAX_CHANNEL_NAME_STR);
+                return;
+            }
+
+            if (packet.Password.length() > MAX_CHANNEL_PASS_STR)
+            {
+                TC_LOG_ERROR("network", "Player {} tried to create a channel with a password more than {} characters long - blocked", GetPlayer()->GetGUID().ToString(), MAX_CHANNEL_PASS_STR);
+                return;
+            }
+
+            if (!DisallowHyperlinksAndMaybeKick(packet.ChannelName))
+                return;
+
+            if (Channel* channel = cMgr->GetCustomChannel(packet.ChannelName))
+                channel->JoinChannel(GetPlayer(), packet.Password);
+            else if (Channel* channel = cMgr->CreateCustomChannel(packet.ChannelName))
+            {
+                channel->SetPassword(packet.Password);
+                channel->JoinChannel(GetPlayer(), packet.Password);
+            }
+        }
+    }
+
+    void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet)
+    {
+        TC_LOG_DEBUG("chat.system", "CMSG_LEAVE_CHANNEL {} ChannelName: {}, ZoneChannelID: {}",
+                GetPlayerInfo(), packet.ChannelName, packet.ZoneChannelID);
+
+        if (packet.ChannelName.empty() && !packet.ZoneChannelID)
+            return;
+
+        AreaTableEntry const* zone = sAreaTableStore.LookupEntry(GetPlayer()->GetZoneId());
+        if (packet.ZoneChannelID)
+        {
+            ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(packet.ZoneChannelID);
+            if (!channel)
+                return;
+
+            if (!zone || !GetPlayer()->CanJoinConstantChannelInZone(channel, zone))
+            return;
+        }
+
+        if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
+        {
+            if (Channel* channel = cMgr->GetChannel(packet.ZoneChannelID, packet.ChannelName, GetPlayer(), true, zone))
+                channel->LeaveChannel(GetPlayer(), true);
+
+            if (packet.ZoneChannelID)
+                cMgr->LeftChannel(packet.ZoneChannelID, zone);
+        }
+    }
+
+    void HandleChannelCommand(WorldPackets::Channel::ChannelCommand& packet)
+    {
+        TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}",
+                GetOpcodeNameForLogging(packet.GetOpcode()), GetPlayerInfo(), packet.ChannelName);
+
+        if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer()))
+        {
+            switch (packet.GetOpcode())
+            {
+                case CMSG_CHAT_CHANNEL_ANNOUNCEMENTS:
+                    channel->Announce(GetPlayer());
+                    break;
+                case CMSG_CHAT_CHANNEL_DECLINE_INVITE:
+                    channel->DeclineInvite(GetPlayer());
+                    break;
+                case CMSG_CHAT_CHANNEL_DISPLAY_LIST:
+                case CMSG_CHAT_CHANNEL_LIST:
+                    channel->List(GetPlayer());
+                    break;
+                case CMSG_CHAT_CHANNEL_OWNER:
+                    channel->SendWhoOwner(GetPlayer());
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet)
+    {
+        if (packet.Name.length() >= MAX_CHANNEL_NAME_STR)
+        {
+            TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}, Name: {}, Name too long.",
+                    GetOpcodeNameForLogging(packet.GetOpcode()), GetPlayerInfo(), packet.ChannelName, packet.Name);
+            return;
+        }
+
+        TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}, Name: {}",
+                GetOpcodeNameForLogging(packet.GetOpcode()), GetPlayerInfo(), packet.ChannelName, packet.Name);
+
+        if (!normalizePlayerName(packet.Name))
+            return;
+
+        if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer()))
+        {
+            switch (packet.GetOpcode())
+            {
+                case CMSG_CHAT_CHANNEL_BAN:
+                    channel->Ban(GetPlayer(), packet.Name);
+                    break;
+                case CMSG_CHAT_CHANNEL_INVITE:
+                    channel->Invite(GetPlayer(), packet.Name);
+                    break;
+                case CMSG_CHAT_CHANNEL_KICK:
+                    channel->Kick(GetPlayer(), packet.Name);
+                    break;
+                case CMSG_CHAT_CHANNEL_MODERATOR:
+                    channel->SetModerator(GetPlayer(), packet.Name);
+                    break;
+                case CMSG_CHAT_CHANNEL_SET_OWNER:
+                    channel->SetOwner(GetPlayer(), packet.Name);
+                    break;
+                case CMSG_CHAT_CHANNEL_SILENCE_ALL:
+                    channel->SilenceAll(GetPlayer(), packet.Name);
+                    break;
+                case CMSG_CHAT_CHANNEL_UNBAN:
+                    channel->UnBan(GetPlayer(), packet.Name);
+                    break;
+                case CMSG_CHAT_CHANNEL_UNMODERATOR:
+                    channel->UnsetModerator(GetPlayer(), packet.Name);
+                    break;
+                case CMSG_CHAT_CHANNEL_UNSILENCE_ALL:
+                    channel->UnsilenceAll(GetPlayer(), packet.Name);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void HandleChannelPassword(WorldPackets::Channel::ChannelPassword& packet)
+    {
+        if (packet.Password.length() > MAX_CHANNEL_PASS_STR)
+        {
+            TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}, Password: {}, Password too long.",
+                    GetOpcodeNameForLogging(packet.GetOpcode()), GetPlayerInfo(), packet.ChannelName, packet.Password);
+            return;
+        }
+
+        TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}, Password: {}",
+                GetOpcodeNameForLogging(packet.GetOpcode()), GetPlayerInfo(), packet.ChannelName, packet.Password);
+
+        if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer()))
+        channel->Password(GetPlayer(), packet.Password);
+    }
+}

@@ -1,7 +1,10 @@
 package com.github.azeroth.character.domain;
 
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Embedded;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -96,5 +99,9 @@ public class ItemInstance {
     
     @Column("bonusListIDs")
     private String bonusListIDs;
+
+
+    @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL, prefix = "iit")
+    private ItemInstanceTransmog itemInstanceTransmog;
 
 }

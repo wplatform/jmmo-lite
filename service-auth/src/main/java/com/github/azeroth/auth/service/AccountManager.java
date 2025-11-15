@@ -4,15 +4,15 @@ package com.github.azeroth.auth.service;
 import com.github.azeroth.auth.domain.Account;
 import com.github.azeroth.auth.domain.RbacDefaultPermissions;
 import com.github.azeroth.auth.domain.RbacLinkedPermissions;
-import com.github.azeroth.auth.dto.AccountOpResult;
-import com.github.azeroth.auth.dto.AccountType;
-import com.github.azeroth.auth.dto.RBACPermission;
-import com.github.azeroth.auth.dto.RBACPermissions;
+import com.github.azeroth.auth.domain.RbacPermissions;
+import com.github.azeroth.auth.dto.*;
 import com.github.azeroth.auth.repository.AccountRepository;
 import com.github.azeroth.common.Functions;
 import com.github.azeroth.common.Logs;
 import com.github.azeroth.crypto.GruntSRP6;
 import com.github.azeroth.utils.StringUtil;
+import org.springframework.data.jdbc.repository.query.Modifying;
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
@@ -34,17 +34,6 @@ public final class AccountManager implements AccountService {
         return permissions;
     }
 
-    public AccountOpResult createAccount(String username, String password, String email, int bnetAccountId) {
-        return createAccount(username, password, email, bnetAccountId, (byte) 0);
-    }
-
-    public AccountOpResult createAccount(String username, String password, String email) {
-        return createAccount(username, password, email, 0, (byte) 0);
-    }
-
-    public AccountOpResult createAccount(String username, String password) {
-        return createAccount(username, password, "", 0, (byte) 0);
-    }
 
     public AccountOpResult createAccount(String username, String password, String email, int bNetAccountId, byte bnetIndex) {
         if (username.length() > MAX_ACCOUNT_LENGTH) {
@@ -201,6 +190,36 @@ public final class AccountManager implements AccountService {
         return !result.isEmpty();
     }
 
+    @Override
+    public Optional<AccountInfo> selectAccountInfoByUserName(String userName, int realmId) {
+        return accountRepo.selectAccountInfoByUserName(userName, realmId);
+    }
+
+    @Override
+    public void updateAccountLastAttemptIp(String lastAttemptIp, String username) {
+        accountRepo.updateAccountLastAttemptIp(lastAttemptIp, username);
+    }
+
+    @Override
+    public void updateAccountContinuedSession(byte[] sessionKey, int accountId) {
+        accountRepo.updateAccountContinuedSession(sessionKey, accountId);
+    }
+
+    @Override
+    public void updateAccountMuteTimeLogin(long mutetime, int accountId) {
+        accountRepo.updateAccountMuteTimeLogin(mutetime, accountId);
+    }
+
+    @Override
+    public void updateAccountLastIp(String last_ip, String username) {
+        accountRepo.updateAccountLastIp(last_ip, username);
+    }
+
+    @Override
+    public Optional<Map<String, Object>> selectAccountContinuedSession(int accountId) {
+        return accountRepo.selectAccountContinuedSession(accountId);
+    }
+
     public boolean isPlayerAccount(AccountType gmlevel) {
         return gmlevel == AccountType.SEC_PLAYER;
     }
@@ -274,7 +293,7 @@ public final class AccountManager implements AccountService {
 
         var defaultPermissionsList = accountRepo.queryDefaultPermissionsByRealmId(currentRealmId);
 
-        if(defaultPermissionsList.isEmpty()) {
+        if (defaultPermissionsList.isEmpty()) {
             Logs.SERVER_LOADING.info(">> Loaded 0 default permission definitions. DB table `rbac_default_permissions` is empty.");
             return;
         }
@@ -282,8 +301,7 @@ public final class AccountManager implements AccountService {
         Map<Integer, RBACPermission> permissions = null;
         for (RbacDefaultPermissions rbacDefaultPermissions : defaultPermissionsList) {
             int newId = rbacDefaultPermissions.getSecId();
-            if (secId != newId || permissions == null)
-            {
+            if (secId != newId || permissions == null) {
                 secId = newId;
                 permissions.put(secId, Functions.addToMap(new RBACPermission(rbacDefaultPermissions.getPermissionId())));
                 ++count3;
@@ -292,7 +310,6 @@ public final class AccountManager implements AccountService {
 
 
         Logs.SERVER_LOADING.info(">> Loaded {} permission definitions, {} linked permissions and {} default permissions in {} ms", count1, count2, count3, System.currentTimeMillis() - oldMSTime);
-
 
 
     }
@@ -329,4 +346,6 @@ public final class AccountManager implements AccountService {
     public ArrayList<Integer> getRBACDefaultPermissions(byte secLevel) {
         return defaultPermissions.get(secLevel);
     }
+
+
 }

@@ -181,7 +181,7 @@ public interface PlayerDefine {
     byte MAX_CUF_PROFILES = 5;
 
 
-    BattlegroundQueueTypeId BATTLEGROUND_QUEUE_NONE = { 0, 0, false, 0 };
+    BattlegroundQueueTypeId BATTLEGROUND_QUEUE_NONE = new BattlegroundQueueTypeId((short) 0, (byte) 0, false, (byte) 0);
 
 
 

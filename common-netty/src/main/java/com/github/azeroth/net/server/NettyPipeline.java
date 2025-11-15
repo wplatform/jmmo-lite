@@ -29,18 +29,16 @@ public interface NettyPipeline {
     String OnChannelWriteIdle    = LEFT + "onChannelWriteIdle";
     String ProxyHandler          = LEFT + "proxyHandler";
 
-    String ProxyLoggingHandler   = LEFT + "proxyLoggingHandler";
-    String ProxyProtocolDecoder  = LEFT + "proxyProtocolDecoder";
+
     String ProxyProtocolReader   = LEFT + "proxyProtocolReader";
     String ReadTimeoutHandler    = LEFT + "readTimeoutHandler";
     String ResponseTimeoutHandler = LEFT + "responseTimeoutHandler";
     String SslHandler            = LEFT + "sslHandler";
     String SslLoggingHandler     = LEFT + "sslLoggingHandler";
     String SslReader             = LEFT + "sslReader";
-    String TlsMetricsHandler     = LEFT + "tlsMetricsHandler";
-    String WsCompressionHandler  = LEFT + "wsCompressionHandler";
-    String WsFrameAggregator     = LEFT + "wsFrameAggregator";
 
     String ReactiveBridge        = RIGHT + "reactiveBridge";
+    String WorldClientInitializer = LEFT + "worldClientInitializer";
+    String WorldProtocolCodec  = LEFT + "worldProtocolCodec";
 
 }

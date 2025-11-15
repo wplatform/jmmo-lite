@@ -2,42 +2,58 @@ package com.github.azeroth.game.entity.object.update;
 
 
 import com.badlogic.gdx.math.Quaternion;
+import com.github.azeroth.game.domain.gobject.QuaternionData;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.networking.WorldPacket;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public final class GameObjectData extends UpdateMaskObject {
-    public FieldType<ArrayList<Integer>> stateWorldEffectIDs = new FieldType<>(0, 1);
-    public Dynamic<Integer> enableDoodadSets = new Dynamic<>(0, 2);
-    public Dynamic<Integer> worldEffects = new Dynamic<>(0, 3);
-    public FieldType<Integer> displayID = new FieldType<>(0, 4);
-    public FieldType<Integer> spellVisualID = new FieldType<>(0, 5);
-    public FieldType<Integer> stateSpellVisualID = new FieldType<>(0, 6);
-    public FieldType<Integer> spawnTrackingStateAnimID = new FieldType<>(0, 7);
-    public FieldType<Integer> spawnTrackingStateAnimKitID = new FieldType<>(0, 8);
-    public FieldType<Integer> stateWorldEffectsQuestObjectiveID = new FieldType<>(0, 9);
-    public FieldType<ObjectGuid> createdBy = new FieldType<>(0, 10);
-    public FieldType<ObjectGuid> guildGUID = new FieldType<>(0, 11);
-    public FieldType<Integer> flags = new FieldType<>(0, 12);
-    public FieldType<Quaternion> parentRotation = new FieldType<>(0, 13);
-    public FieldType<Integer> factionTemplate = new FieldType<>(0, 14);
-    public FieldType<Byte> state = new FieldType<>(0, 15);
-    public FieldType<Byte> typeID = new FieldType<>(0, 16);
-    public FieldType<Byte> percentHealth = new FieldType<>(0, 17);
-    public FieldType<Integer> artKit = new FieldType<>(0, 18);
-    public FieldType<Integer> customParam = new FieldType<>(0, 19);
-    public FieldType<Integer> level = new FieldType<>(0, 20);
-    public FieldType<Integer> animGroupInstance = new FieldType<>(0, 21);
-    public FieldType<Integer> uiWidgetItemID = new FieldType<>(0, 22);
-    public FieldType<Integer> uiWidgetItemQuality = new FieldType<>(0, 23);
-    public FieldType<Integer> uiWidgetItemUnknown1000 = new FieldType<>(0, 24);
+    @ChangeMark(blockBit = 0, bit = 1)
+    private final List<Integer> stateWorldEffectIDs = UpdateFields.newList("stateWorldEffectIDs", this);
+    @ChangeMark(blockBit = 0, bit = 2, type = FieldType.DYNAMIC)
+    private final List<Integer> enableDoodadSets = UpdateFields.newList("enableDoodadSets", this);
+    @ChangeMark(blockBit = 0, bit = 3, type = FieldType.DYNAMIC)
+    private final List<Integer> worldEffects = UpdateFields.newList("worldEffects", this);
+    @ChangeMark(blockBit = 0, bit = 4)
+    private int displayID;
+    @ChangeMark(blockBit = 0, bit = 5)
+    private int spellVisualID;
+    @ChangeMark(blockBit = 0, bit = 6)
+    private int stateSpellVisualID;
+    @ChangeMark(blockBit = 0, bit = 7)
+    private int spawnTrackingStateAnimID;
+    @ChangeMark(blockBit = 0, bit = 8)
+    private int spawnTrackingStateAnimKitID;
+    @ChangeMark(blockBit = 0, bit = 9)
+    private ObjectGuid createdBy;
+    @ChangeMark(blockBit = 0, bit = 10)
+    private ObjectGuid guildGUID;
+    @ChangeMark(blockBit = 0, bit = 11)
+    private int flags;
+    @ChangeMark(blockBit = 0, bit = 12)
+    private QuaternionData parentRotation;
+    @ChangeMark(blockBit = 0, bit = 13)
+    private int factionTemplate;
+    @ChangeMark(blockBit = 0, bit = 14)
+    private int level;
+    @ChangeMark(blockBit = 0, bit = 15)
+    private int state;
+    @ChangeMark(blockBit = 0, bit = 16)
+    private int typeID;
+    @ChangeMark(blockBit = 0, bit = 17)
+    private int percentHealth;
+    @ChangeMark(blockBit = 0, bit = 18)
+    private int artKit;
+    @ChangeMark(blockBit = 0, bit = 19)
+    private int customParam;
 
     public GameObjectData() {
-        super(25);
+        super(20);
     }
 
     public final void writeCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, GameObject owner, Player receiver) {

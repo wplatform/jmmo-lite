@@ -13,7 +13,7 @@ import com.github.azeroth.dbc.domain.FactionTemplate;
 import com.github.azeroth.dbc.domain.PowerType;
 import com.github.azeroth.defines.*;
 import com.github.azeroth.game.ai.CreatureAI;
-import com.github.azeroth.game.condition.ConditionManager;
+import com.github.azeroth.game.condition.PlayerConditions;
 import com.github.azeroth.game.domain.map.*;
 import com.github.azeroth.game.domain.object.*;
 import com.github.azeroth.game.domain.object.enums.*;
@@ -812,8 +812,8 @@ public abstract class WorldObject extends GenericObject {
             return false;
         }
 
-        ConditionManager conditionManager = worldContext.getConditionManager();
-        if (!obj.isPrivateObject() && !conditionManager.isObjectMeetingVisibilityByObjectIdConditions(obj.getObjectTypeId(), obj.getEntry(), this)) {
+        PlayerConditions playerConditions = worldContext.getConditionManager();
+        if (!obj.isPrivateObject() && !playerConditions.isObjectMeetingVisibilityByObjectIdConditions(obj.getObjectTypeId(), obj.getEntry(), this)) {
             return false;
         }
 

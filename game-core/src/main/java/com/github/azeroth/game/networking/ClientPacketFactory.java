@@ -9,6 +9,8 @@ import com.github.azeroth.game.networking.packet.adventuremap.AdventureMapStartQ
 import com.github.azeroth.game.networking.packet.auctionhouse.AuctionBrowseQuery;
 import com.github.azeroth.game.networking.packet.auctionhouse.AuctionCancelCommoditiesPurchase;
 import com.github.azeroth.game.networking.packet.auctionhouse.AuctionConfirmCommoditiesPurchase;
+import com.github.azeroth.game.networking.packet.authentication.AuthSession;
+import com.github.azeroth.game.networking.packet.authentication.Ping;
 import com.github.azeroth.game.networking.packet.bank.BuyBankSlot;
 import com.github.azeroth.game.networking.packet.battleground.AreaSpiritHealerQuery;
 import com.github.azeroth.game.networking.packet.battleground.AreaSpiritHealerQueue;
@@ -35,6 +37,7 @@ import com.github.azeroth.game.networking.packet.movement.WorldPortResponse;
 import com.github.azeroth.game.networking.packet.party.InitiateRolePoll;
 import com.github.azeroth.game.networking.packet.social.AddFriend;
 import com.github.azeroth.game.networking.packet.social.AddIgnore;
+import com.github.azeroth.game.networking.packet.spell.PetCastSpell;
 import com.github.azeroth.game.networking.packet.taxi.ActivateTaxi;
 import com.github.azeroth.game.networking.packet.ticket.BugReport;
 import com.github.azeroth.game.networking.packet.toy.AddToy;

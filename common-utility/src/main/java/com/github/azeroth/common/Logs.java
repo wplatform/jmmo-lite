@@ -7,6 +7,7 @@ public interface Logs {
     Logger RBAC = LoggerFactory.getLogger("rbac");
     Logger MISC = LoggerFactory.getLogger("server.misc");
     Logger SQL = LoggerFactory.getLogger("sql.sql");
+    Logger REALM_LIST = LoggerFactory.getLogger("realmlist");
     Logger SQL_UPDATES = LoggerFactory.getLogger("sql.updates");
     Logger SERVER_LOADING = LoggerFactory.getLogger("server.loading");
     Logger MAPS = LoggerFactory.getLogger("maps");
@@ -16,5 +17,7 @@ public interface Logs {
     Logger SCRIPTS = LoggerFactory.getLogger("scripts");
     Logger SCRIPTS_SPELLS = LoggerFactory.getLogger("scripts.spells");
     Logger CONDITION = LoggerFactory.getLogger("condition");
+    Logger NETWORK = LoggerFactory.getLogger("network");
+    Logger NETWORK_OPCODE = LoggerFactory.getLogger("network.opcode");
 
 }

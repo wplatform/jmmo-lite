@@ -8,7 +8,7 @@ public final class EuropaTicketConfig {
     public boolean complaintsEnabled;
     public boolean suggestionsEnabled;
 
-    public savedThrottleObjectState throttleState = new savedThrottleObjectState();
+    public SavedThrottleObjectState throttleState = new SavedThrottleObjectState();
 
     public void write(WorldPacket data) {
         data.writeBit(ticketsEnabled);
@@ -17,17 +17,5 @@ public final class EuropaTicketConfig {
         data.writeBit(suggestionsEnabled);
 
         throttleState.write(data);
-    }
-
-    public EuropaTicketConfig clone() {
-        EuropaTicketConfig varCopy = new EuropaTicketConfig();
-
-        varCopy.ticketsEnabled = this.ticketsEnabled;
-        varCopy.bugsEnabled = this.bugsEnabled;
-        varCopy.complaintsEnabled = this.complaintsEnabled;
-        varCopy.suggestionsEnabled = this.suggestionsEnabled;
-        varCopy.throttleState = this.throttleState;
-
-        return varCopy;
     }
 }

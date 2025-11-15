@@ -13,14 +13,4 @@ public final class AuthWaitInfo {
         data.writeBit(hasFCM);
         data.flushBits();
     }
-
-    public AuthWaitInfo clone() {
-        AuthWaitInfo varCopy = new authWaitInfo();
-
-        varCopy.waitCount = this.waitCount;
-        varCopy.waitTime = this.waitTime;
-        varCopy.hasFCM = this.hasFCM;
-
-        return varCopy;
-    }
 }

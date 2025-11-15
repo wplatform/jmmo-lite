@@ -13,8 +13,13 @@ import lombok.Setter;
 
 @Table(name = "account_tutorial")
 public class AccountTutorial {
-    @Id
 
+    public static byte TUTORIALS_FLAG_NONE = 0x00;
+    public static byte TUTORIALS_FLAG_CHANGED = 0x01;
+    public static byte TUTORIALS_FLAG_LOADED_FROM_DB = 0x02;
+
+
+    @Id
     @Column("accountId")
     private int id;
 
@@ -50,4 +55,9 @@ public class AccountTutorial {
     @Column("tut7")
     private Integer tut7;
 
+    public int[] getTutorials() {
+        return new int[] {
+            tut0, tut1, tut2, tut3, tut4, tut5, tut6, tut7
+        };
+    }
 }

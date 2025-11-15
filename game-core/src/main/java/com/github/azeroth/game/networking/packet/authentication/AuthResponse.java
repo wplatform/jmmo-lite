@@ -1,23 +1,31 @@
 package com.github.azeroth.game.networking.packet.authentication;
 
 
+import com.github.azeroth.defines.BattleNetRpcErrorCode;
+import com.github.azeroth.game.domain.player.CharacterTemplate;
 import com.github.azeroth.game.networking.ServerPacket;
 import com.github.azeroth.game.domain.misc.RaceClassAvailability;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 import java.util.ArrayList;
 
 public class AuthResponse extends ServerPacket {
-    public AuthsuccessInfo successInfo; // contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
-    public AuthwaitInfo waitInfo = null; // contains the queue wait information in case the account is in the login queue.
-    public BattlenetRpcErrorCode result = BattlenetRpcErrorCode.values()[0]; // the result of the authentication process, possible values are @ref BattlenetRpcErrorCode
+    public AuthSuccessInfo successInfo; // contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
+    public AuthWaitInfo waitInfo; // contains the queue wait information in case the account is in the login queue.
+    public BattleNetRpcErrorCode result; // the result of the authentication process, possible values are @ref BattlenetRpcErrorCode
 
     public AuthResponse() {
-        super(ServerOpcode.AuthResponse);
+        super(ServerOpCode.SMSG_AUTH_RESPONSE);
+    }
+
+    public AuthResponse(BattleNetRpcErrorCode result) {
+        super(ServerOpCode.SMSG_AUTH_RESPONSE);
+        this.result = result;
     }
 
     @Override
     public void write() {
-        this.writeInt32((int) result.getValue());
+        this.writeInt32(result.code);
         this.writeBit(successInfo != null);
         this.writeBit(waitInfo != null);
         this.flushBits();
@@ -35,11 +43,11 @@ public class AuthResponse extends ServerPacket {
             this.writeInt64(successInfo.time);
 
             for (var raceClassAvailability : successInfo.availableClasses) {
-                this.writeInt8(raceClassAvailability.raceID);
+                this.writeInt8(raceClassAvailability.raceID.ordinal());
                 this.writeInt32(raceClassAvailability.classes.size());
 
                 for (var classAvailability : raceClassAvailability.classes) {
-                    this.writeInt8(classAvailability.classID);
+                    this.writeInt8(classAvailability.classID.ordinal());
                     this.writeInt8(classAvailability.activeExpansionLevel);
                     this.writeInt8(classAvailability.accountExpansionLevel);
                     this.writeInt8(classAvailability.minActiveExpansionLevel);
@@ -80,26 +88,26 @@ public class AuthResponse extends ServerPacket {
                 virtualRealm.write(this);
             }
 
-            for (var templat : successInfo.templates) {
-                this.writeInt32(templat.TemplateSetId);
-                this.writeInt32(templat.classes.size());
+            for (var template : successInfo.templates) {
+                this.writeInt32(template.templateSetId);
+                this.writeInt32(template.classes.size());
 
-                for (var templateClass : templat.classes) {
+                for (var templateClass : template.classes) {
                     this.writeInt8(templateClass.classID);
-                    this.writeInt8((byte) templateClass.factionGroup.getValue());
+                    this.writeInt8(templateClass.factionGroup);
                 }
 
-                this.writeBits(templat.name.getBytes().length, 7);
-                this.writeBits(templat.description.getBytes().length, 10);
+                this.writeBits(template.name.getBytes().length, 7);
+                this.writeBits(template.description.getBytes().length, 10);
                 this.flushBits();
 
-                this.writeString(templat.name);
-                this.writeString(templat.description);
+                this.writeString(template.name);
+                this.writeString(template.description);
             }
         }
 
         if (waitInfo != null) {
-            waitInfo.getValue().write(this);
+            waitInfo.write(this);
         }
     }
 
@@ -131,17 +139,6 @@ public class AuthResponse extends ServerPacket {
             public int timeRemain;
             public int unknown735;
             public boolean inGameRoom;
-
-            public GameTime clone() {
-                GameTime varCopy = new gameTime();
-
-                varCopy.billingPlan = this.billingPlan;
-                varCopy.timeRemain = this.timeRemain;
-                varCopy.unknown735 = this.unknown735;
-                varCopy.inGameRoom = this.inGameRoom;
-
-                return varCopy;
-            }
         }
     }
 }

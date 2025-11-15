@@ -2,6 +2,7 @@ package com.github.azeroth.game.entity.object.update;
 
 
 import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.domain.object.enums.TypeId;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.networking.WorldPacket;
 import com.github.azeroth.game.networking.packet.perksporgram.PerksVendorItem;
@@ -13,160 +14,299 @@ import java.util.List;
 @Setter
 public final class ActivePlayerData extends UpdateMaskObject {
 
-    boolean sortBagsRightToLeft;
-    boolean insertItemsLeftToRight;
-    Array<List<Short>> researchSites;
-    Array<List<Integer>> researchSiteProgress;
-    Array<List<Research>> research;
-    List<Long> knownTitles;
-    List<Integer> dailyQuestsCompleted;
-    List<Integer> availableQuestLineXQuestIDs;
-    List<Integer> field_1000;
-    List<Integer> heirlooms;
-    List<Integer> heirloomFlags;
-    List<Integer> toys;
-    List<Integer> transmog;
-    List<Integer> conditionalTransmog;
-    List<Integer> selfResSpells;
-    List<SpellPctModByLabel> spellPctModByLabel;
-    List<SpellFlatModByLabel> spellFlatModByLabel;
-    List<QuestLog> taskQuests;
-    List<CategoryCooldownMod> categoryCooldownMods;
-    List<WeeklySpellUse> weeklySpellUses;
-    List<PlayerDataElement> characterDataElements;
-    List<PlayerDataElement> accountDataElements;
-    List<CharacterRestriction> characterRestrictions;
-    List<TraitConfig> traitConfigs;
-    List<BankTabSettings> accountBankTabSettings;
-    ObjectGuid farsightObject;
-    ObjectGuid summonedBattlePetGUID;
-    long coinage;
-    long accountBankCoinage;
-    int xp;
-    int nextLevelXP;
-    int trialXP;
-    SkillInfo skill;
-    int characterPoints;
-    int maxTalentTiers;
-    int trackCreatureMask;
-    float mainhandExpertise;
-    float offhandExpertise;
-    float rangedExpertise;
-    float combatRatingExpertise;
-    float blockPercentage;
-    float dodgePercentage;
-    float dodgePercentageFromAttribute;
-    float parryPercentage;
-    float parryPercentageFromAttribute;
-    float critPercentage;
-    float rangedCritPercentage;
-    float offhandCritPercentage;
-    int shieldBlock;
-    float shieldBlockCritPercentage;
-    float mastery;
-    float speed;
-    float avoidance;
-    float sturdiness;
-    int versatility;
-    float versatilityBonus;
-    float pvpPowerDamage;
-    float pvpPowerHealing;
-    BitVectors bitVectors;
-    int modHealingDonePos;
-    float modHealingPercent;
-    float modHealingDonePercent;
-    float modPeriodicHealingDonePercent;
-    float modSpellPowerPercent;
-    float modResiliencePercent;
-    float overrideSpellPowerByAPPercent;
-    float overrideAPBySpellPowerPercent;
-    int modTargetResistance;
-    int modTargetPhysicalResistance;
-    int localFlags;
-    byte grantableLevels;
-    byte multiActionBars;
-    byte lifetimeMaxRank;
-    byte numRespecs;
-    int ammoID;
-    int pvpMedals;
-    short todayHonorableKills;
-    short todayDishonorableKills;
-    short yesterdayHonorableKills;
-    short yesterdayDishonorableKills;
-    short lastWeekHonorableKills;
-    short lastWeekDishonorableKills;
-    short thisWeekHonorableKills;
-    short thisWeekDishonorableKills;
-    int thisWeekContribution;
-    int lifetimeHonorableKills;
-    int lifetimeDishonorableKills;
-    int fieldF24;
-    int yesterdayContribution;
-    int lastWeekContribution;
-    int lastWeekRank;
-    int watchedFactionIndex;
-    int maxLevel;
-    int scalingPlayerLevelDelta;
-    int maxCreatureScalingLevel;
-    int petSpellPower;
-    float uiHitModifier;
-    float uiSpellHitModifier;
-    int homeRealmTimeOffset;
-    float modPetHaste;
-    byte localRegenFlags;
-    byte auraVision;
-    byte numBackpackSlots;
-    int overrideSpellsID;
-    int lfgBonusFactionID;
-    short lootSpecID;
-    int overrideZonePVPType;
-    int honor;
-    int honorNextLevel;
-    int fieldF74;
-    byte field1261;
-    int pvpTierMaxFromWins;
-    int pvpLastWeeksTierMaxFromWins;
-    byte pvpRankProgress;
-    int perksProgramCurrency;
-    ResearchHistory researchHistory;
-    PerksVendorItem frozenPerksVendorItem;
-    int timerunningSeasonID;
-    int transportServerTime;
-    int activeCombatTraitConfigID;
-    short glyphsEnabled;
-    byte lfgRoles;
-    StableInfo petStable;
-    byte numStableSlots;
-    Array<ObjectGuid> invSlots = new Array<>(146, 131, 132, this);
-    Array<Integer> trackResourceMask;
-    Array<Float> spellCritPercentage;
-    Array<Integer> modDamageDonePos;
-    Array<Integer> modDamageDoneNeg;
-    Array<Float> modDamageDonePercent;
-    Array<RestInfo> restInfo;
-    Array<Float> weaponDmgMultipliers;
-    Array<Float> weaponAtkSpeedMultipliers;
-    Array<Integer> buybackPrice;
-    Array<Long> buybackTimestamp;
-    Array<Integer> combatRatings;
-    Array<PVPInfo> pvpInfo = new Array<>(9, 378, 379, this);
-    Array<Integer> noReagentCostMask;
-    Array<Integer> professionSkillLine;
-    Array<Integer> bagSlotFlags;
-    Array<Integer> bankBagSlotFlags;
-    Array<Long> questCompleted;
-    Array<Integer> glyphSlots;
-    Array<Integer> glyphs;
-    Array<Long> field_4348;
+    @ChangeMark(blockBit = 0, bit = 1)
+    private boolean sortBagsRightToLeft;
+    @ChangeMark(blockBit = 0, bit = 2)
+    private boolean insertItemsLeftToRight;
+    @ChangeMark(size = 1, bit = 23, firstElementBit = 24, type = FieldType.ARRAY)
+    private final List<List<Short>> researchSites = UpdateFields.newList("researchSites", this);
+    @ChangeMark(size = 1, bit = 25, firstElementBit = 26, type = FieldType.ARRAY)
+    private final List<List<Integer>> researchSiteProgress = UpdateFields.newList("researchSiteProgress", this);
+    @ChangeMark(size = 1, bit = 27, firstElementBit = 28, type = FieldType.ARRAY)
+    private final List<List<Research>> research = UpdateFields.newList("research", this);
+    @ChangeMark(blockBit = 0, bit = 3, type = FieldType.DYNAMIC)
+    private final List<Long> knownTitles = UpdateFields.newList("knownTitles", this);
+    @ChangeMark(blockBit = 0, bit = 6, type = FieldType.DYNAMIC)
+    private final List<Integer> dailyQuestsCompleted = UpdateFields.newList("dailyQuestsCompleted", this);
+    @ChangeMark(blockBit = 0, bit = 7, type = FieldType.DYNAMIC)
+    private final List<Integer> availableQuestLineXQuestIDs = UpdateFields.newList("availableQuestLineXQuestIDs", this);
+    @ChangeMark(blockBit = 0, bit = 8, type = FieldType.DYNAMIC)
+    private final List<Integer> field_1000 = UpdateFields.newList("field_1000", this);
+    @ChangeMark(blockBit = 0, bit = 9, type = FieldType.DYNAMIC)
+    private final List<Integer> heirlooms = UpdateFields.newList("heirlooms", this);
+    @ChangeMark(blockBit = 0, bit = 10, type = FieldType.DYNAMIC)
+    private final List<Integer> heirloomFlags = UpdateFields.newList("heirloomFlags", this);
+    @ChangeMark(blockBit = 0, bit = 11, type = FieldType.DYNAMIC)
+    private final List<Integer> toys = UpdateFields.newList("toys", this);
+    @ChangeMark(blockBit = 0, bit = 12, type = FieldType.DYNAMIC)
+    private final List<Integer> transmog = UpdateFields.newList("transmog", this);
+    @ChangeMark(blockBit = 0, bit = 13, type = FieldType.DYNAMIC)
+    private final List<Integer> conditionalTransmog = UpdateFields.newList("conditionalTransmog", this);
+    @ChangeMark(blockBit = 0, bit = 14, type = FieldType.DYNAMIC)
+    private final List<Integer> selfResSpells = UpdateFields.newList("selfResSpells", this);
+    @ChangeMark(blockBit = 0, bit = 16, type = FieldType.DYNAMIC)
+    private final List<SpellPctModByLabel> spellPctModByLabel = UpdateFields.newList("spellPctModByLabel", this);
+    @ChangeMark(blockBit = 0, bit = 17, type = FieldType.DYNAMIC)
+    private final List<SpellFlatModByLabel> spellFlatModByLabel = UpdateFields.newList("spellFlatModByLabel", this);
+    @ChangeMark(blockBit = 0, bit = 18, type = FieldType.DYNAMIC)
+    private final List<QuestLog> taskQuests = UpdateFields.newList("taskQuests", this);
+    @ChangeMark(blockBit = 0, bit = 20, type = FieldType.DYNAMIC)
+    private final List<CategoryCooldownMod> categoryCooldownMods = UpdateFields.newList("categoryCooldownMods", this);
+    @ChangeMark(blockBit = 0, bit = 21, type = FieldType.DYNAMIC)
+    private final List<WeeklySpellUse> weeklySpellUses = UpdateFields.newList("weeklySpellUses", this);
+    @ChangeMark(blockBit = 0, bit = 4, type = FieldType.DYNAMIC)
+    private final List<PlayerDataElement> characterDataElements = UpdateFields.newList("characterDataElements", this);
+    @ChangeMark(blockBit = 0, bit = 5, type = FieldType.DYNAMIC)
+    private final List<PlayerDataElement> accountDataElements = UpdateFields.newList("accountDataElements", this);
+    @ChangeMark(blockBit = 0, bit = 15, type = FieldType.DYNAMIC)
+    private final List<CharacterRestriction> characterRestrictions = UpdateFields.newList("characterRestrictions", this);
+    @ChangeMark(blockBit = 0, bit = 19, type = FieldType.DYNAMIC)
+    private final List<TraitConfig> traitConfigs = UpdateFields.newList("traitConfigs", this);
+    @ChangeMark(blockBit = 0, bit = 22, type = FieldType.DYNAMIC)
+    private final List<BankTabSettings> accountBankTabSettings = UpdateFields.newList("accountBankTabSettings", this);
+    @ChangeMark(blockBit = 0, bit = 29)
+    private ObjectGuid farsightObject;
+    @ChangeMark(blockBit = 0, bit = 30)
+    private ObjectGuid summonedBattlePetGUID;
+    @ChangeMark(blockBit = 0, bit = 31)
+    private long coinage;
+    @ChangeMark(blockBit = 0, bit = 32)
+    private long accountBankCoinage;
+    @ChangeMark(blockBit = 0, bit = 33)
+    private int xp;
+    @ChangeMark(blockBit = 0, bit = 34)
+    private int nextLevelXP;
+    @ChangeMark(blockBit = 0, bit = 35)
+    private int trialXP;
+    @ChangeMark(blockBit = 0, bit = 36)
+    private SkillInfo skill;
+    @ChangeMark(blockBit = 0, bit = 37)
+    private int characterPoints;
+    @ChangeMark(blockBit = 38, bit = 39)
+    private int maxTalentTiers;
+    @ChangeMark(blockBit = 38, bit = 40)
+    private int trackCreatureMask;
+    @ChangeMark(blockBit = 38, bit = 41)
+    private float mainhandExpertise;
+    @ChangeMark(blockBit = 38, bit = 42)
+    private float offhandExpertise;
+    @ChangeMark(blockBit = 38, bit = 43)
+    private float rangedExpertise;
+    @ChangeMark(blockBit = 38, bit = 44)
+    private float combatRatingExpertise;
+    @ChangeMark(blockBit = 38, bit = 45)
+    private float blockPercentage;
+    @ChangeMark(blockBit = 38, bit = 46)
+    private float dodgePercentage;
+    @ChangeMark(blockBit = 38, bit = 47)
+    private float dodgePercentageFromAttribute;
+    @ChangeMark(blockBit = 38, bit = 48)
+    private float parryPercentage;
+    @ChangeMark(blockBit = 38, bit = 49)
+    private float parryPercentageFromAttribute;
+    @ChangeMark(blockBit = 38, bit = 50)
+    private float critPercentage;
+    @ChangeMark(blockBit = 38, bit = 51)
+    private float rangedCritPercentage;
+    @ChangeMark(blockBit = 38, bit = 52)
+    private float offhandCritPercentage;
+    @ChangeMark(blockBit = 38, bit = 53)
+    private int shieldBlock;
+    @ChangeMark(blockBit = 38, bit = 54)
+    private float shieldBlockCritPercentage;
+    @ChangeMark(blockBit = 38, bit = 55)
+    private float mastery;
+    @ChangeMark(blockBit = 38, bit = 56)
+    private float speed;
+    @ChangeMark(blockBit = 38, bit = 57)
+    private float avoidance;
+    @ChangeMark(blockBit = 38, bit = 58)
+    private float sturdiness;
+    @ChangeMark(blockBit = 38, bit = 59)
+    private int versatility;
+    @ChangeMark(blockBit = 38, bit = 60)
+    private float versatilityBonus;
+    @ChangeMark(blockBit = 38, bit = 61)
+    private float pvpPowerDamage;
+    @ChangeMark(blockBit = 38, bit = 62)
+    private float pvpPowerHealing;
+    @ChangeMark(blockBit = 38, bit = 63)
+    private BitVectors bitVectors;
+    @ChangeMark(blockBit = 38, bit = 64)
+    private int modHealingDonePos;
+    @ChangeMark(blockBit = 38, bit = 65)
+    private float modHealingPercent;
+    @ChangeMark(blockBit = 38, bit = 66)
+    private float modHealingDonePercent;
+    @ChangeMark(blockBit = 38, bit = 67)
+    private float modPeriodicHealingDonePercent;
+    @ChangeMark(blockBit = 38, bit = 68)
+    private float modSpellPowerPercent;
+    @ChangeMark(blockBit = 38, bit = 69)
+    private float modResiliencePercent;
+    @ChangeMark(blockBit = 70, bit = 71)
+    private float overrideSpellPowerByAPPercent;
+    @ChangeMark(blockBit = 70, bit = 72)
+    private float overrideAPBySpellPowerPercent;
+    @ChangeMark(blockBit = 70, bit = 73)
+    private int modTargetResistance;
+    @ChangeMark(blockBit = 70, bit = 74)
+    private int modTargetPhysicalResistance;
+    @ChangeMark(blockBit = 70, bit = 75)
+    private int localFlags;
+    @ChangeMark(blockBit = 70, bit = 76)
+    private byte grantableLevels;
+    @ChangeMark(blockBit = 70, bit = 77)
+    private byte multiActionBars;
+    @ChangeMark(blockBit = 70, bit = 78)
+    private byte lifetimeMaxRank;
+    @ChangeMark(blockBit = 70, bit = 79)
+    private byte numRespecs;
+    @ChangeMark(blockBit = 70, bit = 80)
+    private int ammoID;
+    @ChangeMark(blockBit = 70, bit = 81)
+    private int pvpMedals;
+    @ChangeMark(blockBit = 70, bit = 82)
+    private short todayHonorableKills;
+    @ChangeMark(blockBit = 70, bit = 83)
+    private short todayDishonorableKills;
+    @ChangeMark(blockBit = 70, bit = 84)
+    private short yesterdayHonorableKills;
+    @ChangeMark(blockBit = 70, bit = 85)
+    private short yesterdayDishonorableKills;
+    @ChangeMark(blockBit = 70, bit = 86)
+    private short lastWeekHonorableKills;
+    @ChangeMark(blockBit = 70, bit = 87)
+    private short lastWeekDishonorableKills;
+    @ChangeMark(blockBit = 70, bit = 88)
+    private short thisWeekHonorableKills;
+    @ChangeMark(blockBit = 70, bit = 89)
+    private short thisWeekDishonorableKills;
+    @ChangeMark(blockBit = 70, bit = 90)
+    private int thisWeekContribution;
+    @ChangeMark(blockBit = 70, bit = 91)
+    private int lifetimeHonorableKills;
+    @ChangeMark(blockBit = 70, bit = 92)
+    private int lifetimeDishonorableKills;
+    @ChangeMark(blockBit = 70, bit = 93)
+    private int fieldF24;
+    @ChangeMark(blockBit = 70, bit = 94)
+    private int yesterdayContribution;
+    @ChangeMark(blockBit = 70, bit = 95)
+    private int lastWeekContribution;
+    @ChangeMark(blockBit = 70, bit = 96)
+    private int lastWeekRank;
+    @ChangeMark(blockBit = 70, bit = 97)
+    private int watchedFactionIndex;
+    @ChangeMark(blockBit = 70, bit = 98)
+    private int maxLevel;
+    @ChangeMark(blockBit = 70, bit = 99)
+    private int scalingPlayerLevelDelta;
+    @ChangeMark(blockBit = 70, bit = 100)
+    private int maxCreatureScalingLevel;
+    @ChangeMark(blockBit = 70, bit = 101)
+    private int petSpellPower;
+    @ChangeMark(blockBit = 102, bit = 103)
+    private float uiHitModifier;
+    @ChangeMark(blockBit = 102, bit = 104)
+    private float uiSpellHitModifier;
+    @ChangeMark(blockBit = 102, bit = 105)
+    private int homeRealmTimeOffset;
+    @ChangeMark(blockBit = 102, bit = 106)
+    private float modPetHaste;
+    @ChangeMark(blockBit = 102, bit = 107)
+    private byte localRegenFlags;
+    @ChangeMark(blockBit = 102, bit = 108)
+    private byte auraVision;
+    @ChangeMark(blockBit = 102, bit = 109)
+    private byte numBackpackSlots;
+    @ChangeMark(blockBit = 102, bit = 110)
+    private int overrideSpellsID;
+    @ChangeMark(blockBit = 102, bit = 111)
+    private int lfgBonusFactionID;
+    @ChangeMark(blockBit = 102, bit = 112)
+    private short lootSpecID;
+    @ChangeMark(blockBit = 102, bit = 113)
+    private int overrideZonePVPType;
+    @ChangeMark(blockBit = 102, bit = 114)
+    private int honor;
+    @ChangeMark(blockBit = 102, bit = 115)
+    private int honorNextLevel;
+    @ChangeMark(blockBit = 102, bit = 116)
+    private int fieldF74;
+    @ChangeMark(blockBit = 102, bit = 117)
+    private byte field1261;
+    @ChangeMark(blockBit = 102, bit = 118)
+    private int pvpTierMaxFromWins;
+    @ChangeMark(blockBit = 102, bit = 119)
+    private int pvpLastWeeksTierMaxFromWins;
+    @ChangeMark(blockBit = 102, bit = 120)
+    private byte pvpRankProgress;
+    @ChangeMark(blockBit = 102, bit = 121)
+    private int perksProgramCurrency;
+    @ChangeMark(blockBit = 102, bit = 122)
+    private ResearchHistory researchHistory;
+    @ChangeMark(blockBit = 102, bit = 123)
+    private PerksVendorItem frozenPerksVendorItem;
+    @ChangeMark(blockBit = 102, bit = 124)
+    private int timerunningSeasonID;
+    @ChangeMark(blockBit = 102, bit = 125)
+    private int transportServerTime;
+    @ChangeMark(blockBit = 102, bit = 126)
+    private int activeCombatTraitConfigID;
+    @ChangeMark(blockBit = 102, bit = 127)
+    private short glyphsEnabled;
+    @ChangeMark(blockBit = 102, bit = 128)
+    private byte lfgRoles;
+    @ChangeMark(blockBit = 102, bit = 129, type = FieldType.OPTIONAL)
+    private StableInfo petStable;
+    @ChangeMark(blockBit = 102, bit = 130)
+    private byte numStableSlots;
+    @ChangeMark(size = 146, bit = 131, firstElementBit = 132, type = FieldType.ARRAY)
+    private final List<ObjectGuid> invSlots = UpdateFields.newList("invSlots", this);
+    @ChangeMark(size = 2, bit = 278, firstElementBit = 279, type = FieldType.ARRAY)
+    private final List<Integer> trackResourceMask = UpdateFields.newList("trackResourceMask", this);
+    @ChangeMark(size = 7, bit = 281, firstElementBit = 282, type = FieldType.ARRAY)
+    private final List<Float> spellCritPercentage = UpdateFields.newList("spellCritPercentage", this);
+    @ChangeMark(size = 7, bit = 281, firstElementBit = 289, type = FieldType.ARRAY)
+    private final List<Integer> modDamageDonePos = UpdateFields.newList("modDamageDonePos", this);
+    @ChangeMark(size = 7, bit = 281, firstElementBit = 296, type = FieldType.ARRAY)
+    private final List<Integer> modDamageDoneNeg = UpdateFields.newList("modDamageDoneNeg", this);
+    @ChangeMark(size = 7, bit = 281, firstElementBit = 303, type = FieldType.ARRAY)
+    private final List<Float> modDamageDonePercent = UpdateFields.newList("modDamageDonePercent", this);
+    @ChangeMark(size = 2, bit = 310, firstElementBit = 311, type = FieldType.ARRAY)
+    private final List<RestInfo> restInfo = UpdateFields.newList("restInfo", this);
+    @ChangeMark(size = 3, bit = 313, firstElementBit = 314, type = FieldType.ARRAY)
+    private final List<Float> weaponDmgMultipliers = UpdateFields.newList("weaponDmgMultipliers", this);
+    @ChangeMark(size = 3, bit = 313, firstElementBit = 317, type = FieldType.ARRAY)
+    private final List<Float> weaponAtkSpeedMultipliers = UpdateFields.newList("weaponAtkSpeedMultipliers", this);
+    @ChangeMark(size = 12, bit = 320, firstElementBit = 321, type = FieldType.ARRAY)
+    private final List<Integer> buybackPrice = UpdateFields.newList("buybackPrice", this);
+    @ChangeMark(size = 12, bit = 320, firstElementBit = 333)
+    private final List<Long> buybackTimestamp = UpdateFields.newList("buybackTimestamp", this);
+    @ChangeMark(size = 32, bit = 345, firstElementBit = 346, type = FieldType.ARRAY)
+    private final List<Integer> combatRatings = UpdateFields.newList("combatRatings", this);
+    @ChangeMark(size = 9, bit = 378, firstElementBit = 379, type = FieldType.ARRAY)
+    private final List<PVPInfo> pvpInfo = UpdateFields.newList("pvpInfo", this);
+    @ChangeMark(size = 4, bit = 388, firstElementBit = 389, type = FieldType.ARRAY)
+    private final List<Integer> noReagentCostMask = UpdateFields.newList("noReagentCostMask", this);
+    @ChangeMark(size = 2, bit = 393, firstElementBit = 394, type = FieldType.ARRAY)
+    private final List<Integer> professionSkillLine = UpdateFields.newList("professionSkillLine", this);
+    @ChangeMark(size = 4, bit = 396, firstElementBit = 397, type = FieldType.ARRAY)
+    private final List<Integer> bagSlotFlags = UpdateFields.newList("bagSlotFlags", this);
+    @ChangeMark(size = 7, bit = 401, firstElementBit = 402, type = FieldType.ARRAY)
+    private final List<Integer> bankBagSlotFlags = UpdateFields.newList("bankBagSlotFlags", this);
+    @ChangeMark(size = 1000, bit = 409, firstElementBit = 410, type = FieldType.ARRAY)
+    private final List<Long> questCompleted = UpdateFields.newList("questCompleted", this);
+    @ChangeMark(size = 9, bit = 1410, firstElementBit = 1411, type = FieldType.ARRAY)
+    private final List<Integer> glyphSlots = UpdateFields.newList("glyphSlots", this);
+    @ChangeMark(size = 9, bit = 1410, firstElementBit = 1420, type = FieldType.ARRAY)
+    private final List<Integer> glyphs = UpdateFields.newList("glyphs", this);
+    @ChangeMark(size = 13, bit = 1429, firstElementBit = 1430, type = FieldType.ARRAY)
+    private final List<Long> field4348 = UpdateFields.newList("field4348", this);
 
     public ActivePlayerData() {
-        super(0, TypeId.activePlayer, 1575);
-        EXPLOREDZONESSIZE = exploredZones.getSize();
-        EXPLOREDZONESBITS = (Long.SIZE / Byte.SIZE) * 8;
-
-        QUESTCOMPLETEDBITSSIZE = questCompleted.getSize();
-        QUESTCOMPLETEDBITSPERBLOCK = (Long.SIZE / Byte.SIZE) * 8;
-
+        super(1575);
     }
 
     public void writeCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Player owner, Player receiver) {
@@ -263,7 +403,7 @@ public final class ActivePlayerData extends UpdateMaskObject {
         data.writeInt32(thisWeekContribution);
         data.writeInt32(lifetimeHonorableKills);
         data.writeInt32(lifetimeDishonorableKills);
-        data.writeInt32(field_F24);
+        data.writeInt32(fieldF24);
         data.writeInt32(yesterdayContribution);
         data.writeInt32(lastWeekContribution);
         data.writeInt32(lastWeekRank);
@@ -281,8 +421,8 @@ public final class ActivePlayerData extends UpdateMaskObject {
         for (int i = 0; i < 2; ++i) {
             data.writeInt32(professionSkillLine.get(i));
         }
-        data.writeFloat(UiHitModifier);
-        data.writeFloat(UiSpellHitModifier);
+        data.writeFloat(uiHitModifier);
+        data.writeFloat(uiSpellHitModifier);
         data.writeInt32(homeRealmTimeOffset);
         data.writeFloat(modPetHaste);
         data.writeInt8(localRegenFlags);
@@ -303,8 +443,8 @@ public final class ActivePlayerData extends UpdateMaskObject {
         }
         data.writeInt32(honor);
         data.writeInt32(honorNextLevel);
-        data.writeInt32(field_F74);
-        data.writeInt8(field_1261);
+        data.writeInt32(fieldF74);
+        data.writeInt8(field1261);
         data.writeInt32(pvpTierMaxFromWins);
         data.writeInt32(pvpLastWeeksTierMaxFromWins);
         data.writeInt8(pvpRankProgress);
@@ -350,7 +490,7 @@ public final class ActivePlayerData extends UpdateMaskObject {
         data.writeInt32(weeklySpellUses.size());
         data.writeInt8(numStableSlots);
         for (int i = 0; i < 13; ++i) {
-            data.writeInt64(field_4348.get(i));
+            data.writeInt64(field4348.get(i));
         }
         for (Long knownTitle : knownTitles) {
             data.writeInt64(knownTitle);

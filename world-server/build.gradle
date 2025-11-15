@@ -15,7 +15,12 @@ dependencies {
     implementation libs.netty.codec.http
     implementation libs.netty.transport.native.epoll
     implementation libs.gdx
+    implementation project(':common-utility')
     implementation project(':common-netty')
     implementation project(':game-core')
     implementation project(':game-script')
+    implementation project(':service-auth')
+    implementation project(':service-character')
+    implementation project(':service-world')
+
 }

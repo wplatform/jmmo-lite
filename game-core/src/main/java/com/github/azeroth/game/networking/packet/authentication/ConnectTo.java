@@ -1,23 +1,30 @@
 package com.github.azeroth.game.networking.packet.authentication;
 
 
-import Framework.Cryptography.*;
 import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
+import com.github.azeroth.utils.SecureUtils;
+import io.netty.buffer.Unpooled;
+import lombok.RequiredArgsConstructor;
+
 
 public class ConnectTo extends ServerPacket {
     public long key;
-    public ConnectToserial serial = ConnectToSerial.values()[0];
-    public Connectpayload payload;
+    public ConnectToSerial serial;
+    public ConnectPayload payload;
     public byte con;
+
     public ConnectTo() {
-        super(ServerOpcode.ConnectTo);
+        super(ServerOpCode.SMSG_CONNECT_TO);
         payload = new ConnectPayload();
     }
 
     @Override
     public void write() {
-        ByteBuffer whereBuffer = new byteBuffer();
-        whereBuffer.writeInt8((byte) payload.where.type.getValue());
+
+        WorldPacket whereBuffer = WorldPacket.wrap(Unpooled.buffer());
+        whereBuffer.writeInt8(payload.where.type.value);
 
         switch (payload.where.type) {
             case IPv4:
@@ -36,77 +43,42 @@ public class ConnectTo extends ServerPacket {
                 break;
         }
 
-        Sha256 hash = new Sha256();
-        hash.process(whereBuffer.getData(), (int) whereBuffer.getSize());
-        hash.process((int) payload.where.type.getValue());
-        hash.finish(BitConverter.GetBytes(payload.port));
+        WorldPacket signBuffer = WorldPacket.wrap(Unpooled.buffer(whereBuffer.content().readableBytes() + 6));
+        signBuffer.writeBytes(whereBuffer);
+        signBuffer.writeInt32(payload.where.type.value);
+        signBuffer.writeInt16(payload.port);
 
-        payload.signature = RsaCrypt.RSA.SignHash(hash.digest, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1).reverse().ToArray();
 
-        this.writeBytes(payload.signature, (int) payload.signature.length);
+        payload.signature = SecureUtils.signWithRsa(signBuffer.content().array());
+
+        this.writeBytes(payload.signature);
         this.writeBytes(whereBuffer);
         this.writeInt16(payload.port);
-        this.writeInt32((int) serial.getValue());
+        this.writeInt32(serial.ordinal());
         this.writeInt8(con);
         this.writeInt64(key);
     }
 
+    @RequiredArgsConstructor
     public enum AddressType {
         IPv4(1),
         IPv6(2),
         NamedSocket(3); // not supported by windows client
-
-        public static final int SIZE = Integer.SIZE;
-        private static java.util.HashMap<Integer, AddressType> mappings;
-        private int intValue;
-
-        private AddressType(int value) {
-            intValue = value;
-            getMappings().put(value, this);
-        }
-
-        private static java.util.HashMap<Integer, AddressType> getMappings() {
-            if (mappings == null) {
-                synchronized (AddressType.class) {
-                    if (mappings == null) {
-                        mappings = new java.util.HashMap<Integer, AddressType>();
-                    }
-                }
-            }
-            return mappings;
-        }
-
-        public static AddressType forValue(int value) {
-            return getMappings().get(value);
-        }
-
-        public int getValue() {
-            return intValue;
-        }
+        public final int value;
     }
 
     public static class ConnectPayload {
-        public socketAddress where = new socketAddress();
+        public SocketAddress where = new SocketAddress();
         public short port;
-        public byte[] signature = new byte[256];
+        public byte[] signature;
     }
 
     public final static class SocketAddress {
-        public Addresstype type = AddressType.values()[0];
+        public AddressType type = AddressType.values()[0];
 
         public byte[] IPv4;
         public byte[] IPv6;
         public String nameSocket;
 
-        public SocketAddress clone() {
-            SocketAddress varCopy = new socketAddress();
-
-            varCopy.type = this.type;
-            varCopy.IPv4 = this.IPv4;
-            varCopy.IPv6 = this.IPv6;
-            varCopy.nameSocket = this.nameSocket;
-
-            return varCopy;
-        }
     }
 }

@@ -331,7 +331,7 @@ public class SmartScript {
                     return;
             }
         } else {
-            Log.outError(LogFilter.ScriptsAi, "SmartScript.OnInitialize: !WARNING! Initialized WorldObject is Null.");
+            Log.outError(LogFilter.ScriptsAi, "SmartScript.OnInitialize: !WARNING! Initialized WorldObject is Raw.");
 
             return;
         }

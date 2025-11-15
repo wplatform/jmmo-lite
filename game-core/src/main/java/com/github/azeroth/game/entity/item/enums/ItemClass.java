@@ -1,5 +1,7 @@
 package com.github.azeroth.game.entity.item.enums;
 
+import com.github.azeroth.utils.Utils;
+
 public enum ItemClass {
     CONSUMABLE,
     CONTAINER,
@@ -19,5 +21,12 @@ public enum ItemClass {
     MISCELLANEOUS,
     GLYPH,
     BATTLE_PETS,
-    WOW_TOKEN
+    WOW_TOKEN;
+
+    public static ItemClass forValue(byte classID) {
+        ItemClass[] values = ItemClass.values();
+        if(Utils.checkEnumIndex(classID, values))
+            return null;
+        return values[classID];
+    }
 }

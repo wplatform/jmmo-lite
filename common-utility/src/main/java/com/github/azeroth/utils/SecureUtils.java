@@ -1,17 +1,37 @@
 package com.github.azeroth.utils;
 
+import com.github.azeroth.crypto.KeysDefine;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPrivateKeySpec;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class SecureUtils {
 
 
+    private static final PrivateKey ED25519_PRIVATE_KEY;
+    private static final PrivateKey RSA_PRIVATE_KEY;
+
+    static {
+        try {
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(KeysDefine.ENTER_ENCRYPTED_MODE_PRIVATE_KEY);
+            KeyFactory keyFactory = KeyFactory.getInstance("Ed25519");
+            ED25519_PRIVATE_KEY = keyFactory.generatePrivate(keySpec);
+
+            byte[] decode = Base64.getDecoder().decode(KeysDefine.RSA_PRIVATE_KEY);
+            PKCS8EncodedKeySpec rsaKeySpec = new PKCS8EncodedKeySpec(decode);
+            KeyFactory rsaKeyFactory = KeyFactory.getInstance("RSA");
+            RSA_PRIVATE_KEY = rsaKeyFactory.generatePrivate(rsaKeySpec);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static String bytesToHexString(byte[] src) {
         Objects.requireNonNull(src);
@@ -64,35 +84,78 @@ public class SecureUtils {
             }
             return messageDigest.digest();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
 
     }
 
-    public static byte[] hmacSHA256(byte[] key, byte[]... sources) {
+    public static byte[] sha512(byte[]... sources) {
+        Objects.requireNonNull(sources);
+        MessageDigest messageDigest;
         try {
-            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA256");
-            sha256_HMAC.init(secret_key);
+            messageDigest = MessageDigest.getInstance("SHA-512");
             for (byte[] src : sources) {
-                sha256_HMAC.update(src);
+                messageDigest.update(src);
             }
-            return sha256_HMAC.doFinal();
+            return messageDigest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] sha512(byte[] source, int offset, int length) {
+        Objects.requireNonNull(source);
+        MessageDigest messageDigest;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-512");
+            messageDigest.update(source, offset, length);
+            return messageDigest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+    public static byte[] hmacSHA512(byte[] key, byte[]... sources) {
+        try {
+            Mac sha512_HMAC = Mac.getInstance("HmacSHA512");
+            SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA512");
+            sha512_HMAC.init(secret_key);
+            for (byte[] src : sources) {
+                sha512_HMAC.update(src);
+            }
+            return sha512_HMAC.doFinal();
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
 
     }
 
+    public static byte[] signWithEd25519(byte[] data, byte[] context) {
+        try {
+            Signature signature = Signature.getInstance("Ed25519");
+            signature.initSign(ED25519_PRIVATE_KEY);
+            signature.update(data);
+            signature.update(context);
+            return signature.sign();
+        } catch (Exception e) {
+            throw new RuntimeException("Ed25519 Signing failed", e);
+        }
+    }
 
-    public static String passwordHash(String userName, String password) {
-        Objects.requireNonNull(userName);
-        Objects.requireNonNull(password);
-        userName = userName.toLowerCase();
-        byte[] bytes = sha256(userName.getBytes(StandardCharsets.UTF_8));
-        String userHexString = bytesToHexString(bytes);
-        bytes = sha256(userHexString.getBytes(), password.getBytes(StandardCharsets.UTF_8));
-        return bytesToHexString(bytes);
+
+    public static byte[] signWithRsa(byte[] data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(data);
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(RSA_PRIVATE_KEY);
+            signature.update(hash);
+            return signature.sign();
+        } catch (Exception e) {
+            throw new RuntimeException("SHA256withRSA Signing failed", e);
+        }
     }
 
 }

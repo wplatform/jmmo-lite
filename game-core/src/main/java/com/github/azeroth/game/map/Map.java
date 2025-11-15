@@ -3,7 +3,8 @@ package com.github.azeroth.game.map;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntIntMap;
-import com.github.azeroth.character.service.repository.CharacterRepository;
+
+import com.github.azeroth.character.repository.CharacterRepository;
 import com.github.azeroth.common.Assert;
 import com.github.azeroth.common.Logs;
 import com.github.azeroth.common.YieldResult;
@@ -59,7 +60,7 @@ import com.github.azeroth.game.phasing.MultiPersonalPhaseTracker;
 import com.github.azeroth.game.domain.phasing.PhaseShift;
 import com.github.azeroth.game.phasing.PhasingHandler;
 import com.github.azeroth.game.pools.SpawnedPoolData;
-import com.github.azeroth.game.world.World;
+import com.github.azeroth.game.world.WorldContext;
 import com.github.azeroth.time.IntervalTimer;
 import com.github.azeroth.time.PeriodicTimer;
 import lombok.Getter;
@@ -118,7 +119,7 @@ public class Map {
     //There are 64*64 grids in each map at most, but not all map have such grids.
     private final ConcurrentHashMap<Integer, NGrid> nGrids = new ConcurrentHashMap<>();
     private final ReadWriteLock nGridsLock = new ReentrantReadWriteLock();
-    private final World world;
+    private final WorldContext world;
     private int respawnCheckTimer;
     private HashMap<Long, CreatureGroup> creatureGroupHolder = new HashMap<>();
     private Object mapLock = new Object();
@@ -133,7 +134,7 @@ public class Map {
     private CharacterRepository characterRepo;
 
 
-    public Map(World world, int id, long expiry, int instanceId, Difficulty spawnMode) {
+    public Map(WorldContext world, int id, long expiry, int instanceId, Difficulty spawnMode) {
         this.world = world;
         this.mapEntry = world.getDbcObjectManager().map(id);
         this.spawnMode = spawnMode;

@@ -8,10 +8,7 @@ import java.util.stream.Stream;
 
 public interface RealmListRepository extends CrudRepository<RealmList, Integer> {
 
-    @Query("from Realmlist a where a.flag <> 3 ORDER BY a.name")
-    Stream<RealmList> stream();
+    @Query("SELECT id, name, address, localAddress, address3, address4, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE flag <> 3 ORDER BY name")
+    Stream<RealmList> streamAll();
 
-
-    @Query("SELECT id, name FROM `realmlist`")
-    Stream<RealmList> streamNameAll();
 }

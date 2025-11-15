@@ -1,5 +1,6 @@
 package com.github.azeroth.defines;
 
+import com.github.azeroth.utils.Utils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -9,4 +10,10 @@ public enum ItemQuality {
 
     public final int value;
 
+    public static ItemQuality forValue(int overallQualityID) {
+        ItemQuality[] values = ItemQuality.values();
+        if(Utils.checkEnumIndex(overallQualityID, values))
+            return null;
+        return values[overallQualityID];
+    }
 }

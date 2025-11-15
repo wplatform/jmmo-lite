@@ -1,6 +1,7 @@
 package com.github.azeroth.auth.repository;
 
 import com.github.azeroth.auth.domain.*;
+import com.github.azeroth.auth.dto.AccountInfo;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -8,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -132,7 +134,7 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
 
     @Modifying
     @Query("UPDATE account SET mutetime = :mutetime WHERE id = :id")
-    void updateAccountMuteTimeLogin(@Param("mutetime") int mutetime, @Param("id") int id);
+    void updateAccountMuteTimeLogin(@Param("mutetime") long mutetime, @Param("id") int id);
 
     @Modifying
     @Query("UPDATE account SET last_ip = :last_ip WHERE username = :username")
@@ -171,11 +173,11 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
 
     // Account Info queries
     @Query("SELECT username, session_key_bnet FROM account WHERE id = :accountId AND LENGTH(session_key_bnet) = 40")
-    List<Map<String, Object>> selectAccountContinuedSession(@Param("accountId") int accountId);
+    Optional<Map<String, Object>> selectAccountContinuedSession(@Param("accountId") int accountId);
 
     @Modifying
     @Query("UPDATE account SET session_key_bnet = :sessionKey WHERE id = :accountId")
-    void updateAccountContinuedSession(@Param("sessionKey") String sessionKey, @Param("accountId") int accountId);
+    void updateAccountContinuedSession(@Param("sessionKey") byte[] sessionKey, @Param("accountId") int accountId);
 
     @Modifying
     @Query("UPDATE account SET salt = :salt, verifier = :verifier WHERE id = :accountId")
@@ -207,4 +209,64 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
     @Query("SELECT id, secId, permissionId FROM rbac_default_permissions  WHERE (realmId = :realmId OR realmId = -1) ORDER BY secId ASC")
     List<RbacDefaultPermissions> queryDefaultPermissionsByRealmId(@Param("realmId") int realmId);
 
+    @Query("""
+            SELECT a.id AS accountId, a.username AS accountName, a.session_key_bnet as sessionKey, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, a.client_build, a.locale, a.recruiter, a.os, a.timezone_offset, ba.id AS baId, aa.SecurityLevel,
+            bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate AS is_bnet_banned, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate AS is_banned, r.id AS rId, r.name AS rName
+            FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id "
+            LEFT JOIN account_access aa ON a.id = aa.AccountID AND aa.RealmID IN (-1, :realmId) LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1
+            WHERE a.username = :userName AND LENGTH(a.session_key_bnet) = 64 ORDER BY aa.RealmID DESC LIMIT 1
+            """)
+    Optional<AccountInfo> selectAccountInfoByUserName(@Param("userName") String userName, @Param("realmId") int realmId);
+
+
+
+    // IP Ban queries
+    @Modifying
+    @Query("DELETE FROM ip_banned WHERE unbandate <> bandate AND unbandate <= UNIX_TIMESTAMP()")
+    void deleteExpiredIpBans();
+
+    @Query("SELECT unbandate > UNIX_TIMESTAMP() OR unbandate = bandate AS banned, NULL as country FROM ip_banned WHERE ip = :ip")
+    List<Map<String, Object>> selectIpInfo(@Param("ip") String ip);
+
+    @Modifying
+    @Query("INSERT INTO ip_banned (ip, bandate, unbandate, bannedby, banreason) VALUES (:ip, UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + :duration, 'Trinity Auth', 'Failed login autoban')")
+    void insertIpAutoBanned(@Param("ip") String ip, @Param("duration") int duration);
+
+    @Query("SELECT ip, bandate, unbandate, bannedby, banreason FROM ip_banned WHERE (bandate = unbandate OR unbandate > UNIX_TIMESTAMP()) ORDER BY unbandate")
+    List<Map<String, Object>> selectAllIpBanned();
+
+    @Query("SELECT ip, bandate, unbandate, bannedby, banreason FROM ip_banned WHERE (bandate = unbandate OR unbandate > UNIX_TIMESTAMP()) AND ip LIKE CONCAT('%', :ip, '%') ORDER BY unbandate")
+    List<Map<String, Object>> selectIpBannedByIp(@Param("ip") String ip);
+
+    // Realm queries
+    @Query("SELECT id, name, address, localAddress, address3, address4, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE flag <> 3 ORDER BY name")
+    List<Map<String, Object>> selectRealmlist();
+
+    @Modifying
+    @Query("UPDATE realmlist SET population = :population WHERE id = :id")
+    void updateRealmPopulation(@Param("population") int population, @Param("id") int id);
+
+    // 查询账号权限（按用户名）
+    @Query("SELECT a.id, aa.SecurityLevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON a.id = aa.AccountID WHERE a.username = :username")
+    List<Map<String, Object>> selectAccountAccess(@Param("username") String username);
+
+    // 查询账号详细信息（WHOIS）
+    @Query("SELECT username, email, last_ip FROM account WHERE id = :accountId")
+    List<Map<String, Object>> selectAccountWhois(@Param("accountId") int accountId);
+
+    // 删除账号
+    @Modifying
+    @Query("DELETE FROM account WHERE id = :accountId")
+    void deleteAccount(@Param("accountId") int accountId);
+
+    // 查询自动广播信息
+    @Query("SELECT id, weight, text FROM autobroadcast WHERE realmid = :realmId OR realmid = -1")
+    List<Map<String, Object>> selectAutoBroadcast(@Param("realmId") int realmId);
+
+    // 查询账号邮箱
+    @Query("SELECT email FROM account WHERE id = :accountId")
+    List<Map<String, Object>> getEmailById(@Param("accountId") int accountId);
+
+    @Query("SELECT rc.acctid, rc.numchars, r.id, r.Region, r.Battlegroup FROM realmcharacters rc INNER JOIN realmlist r ON rc.realmid = r.id WHERE rc.acctid = :acctid")
+    List<Map<String, Object>> findCharacterCountsByAccountId(@Param("acctid") int acctid);
 }

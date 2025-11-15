@@ -224,7 +224,7 @@ public class Bag extends Item {
         return true;
     }
 
-    public final Item getItemByPos(byte slot) {
+    public final Item getItemByPos(short slot) {
         if (slot < getBagSize()) {
             return m_bagslot[slot];
         }

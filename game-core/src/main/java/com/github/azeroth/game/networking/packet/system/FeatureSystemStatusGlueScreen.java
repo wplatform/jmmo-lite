@@ -1,6 +1,10 @@
 package com.github.azeroth.game.networking.packet.system;
 
 
+import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
+
+import java.time.Duration;
 import java.util.ArrayList;
 
 
@@ -39,11 +43,11 @@ public class FeatureSystemStatusGlueScreen extends ServerPacket {
     public ArrayList<GameRuleValuePair> gameRuleValues = new ArrayList<>();
     public short maxPlayerNameQueriesPerPacket = 50;
     public short playerNameQueryTelemetryInterval = 600;
-    public Duration playerNameQueryInterval = duration.FromSeconds(10);
+    public Duration playerNameQueryInterval = Duration.ofSeconds(10);
     public Integer launchETA = null;
 
     public FeatureSystemStatusGlueScreen() {
-        super(ServerOpcode.FeatureSystemStatusGlueScreen);
+        super(ServerOpCode.SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN);
     }
 
     @Override
@@ -77,7 +81,7 @@ public class FeatureSystemStatusGlueScreen extends ServerPacket {
         this.flushBits();
 
         if (europaTicketSystemStatus != null) {
-            europaTicketSystemStatus.getValue().write(this);
+            europaTicketSystemStatus.write(this);
         }
 
         this.writeInt32(tokenPollTimeSeconds);
@@ -94,7 +98,7 @@ public class FeatureSystemStatusGlueScreen extends ServerPacket {
         this.writeInt32(gameRuleValues.size());
         this.writeInt16(maxPlayerNameQueriesPerPacket);
         this.writeInt16(playerNameQueryTelemetryInterval);
-        this.writeInt32((int) playerNameQueryInterval.TotalSeconds);
+        this.writeInt32((int) playerNameQueryInterval.toSeconds());
 
         if (launchETA != null) {
             this.writeInt32(launchETA.intValue());

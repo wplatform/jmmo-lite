@@ -1,28 +1,24 @@
 package com.github.azeroth.game.entity.object.update;
 
 
-import com.github.azeroth.game.domain.creature.CreatureTemplate;
 import com.github.azeroth.game.domain.object.ObjectGuid;
-import com.github.azeroth.game.entity.creature.TempSummon;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.networking.WorldPacket;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
 @Getter
-@Setter
 public final class UnitData extends UpdateMaskObject {
     @ChangeMark(blockBit = 0, bit = 1)
-    private final List<Integer> stateWorldEffectIds;
+    private final List<Integer> stateWorldEffectIds = UpdateFields.newList("stateWorldEffectIds", this);
     @ChangeMark(blockBit = 0, bit = 2, type = FieldType.DYNAMIC)
-    private PassiveSpellHistory passiveSpells;
+    private final List<PassiveSpellHistory> passiveSpells = UpdateFields.newList("passiveSpells", this);
     @ChangeMark(blockBit = 0, bit = 3, type = FieldType.DYNAMIC)
-    private int worldEffects;
+    private final List<Integer> worldEffects = UpdateFields.newList("worldEffects", this);
     @ChangeMark(blockBit = 0, bit = 4, type = FieldType.DYNAMIC)
-    private ObjectGuid channelObjects;
+    private final List<ObjectGuid> channelObjects = UpdateFields.newList("channelObjects", this);
     @ChangeMark(blockBit = 0, bit = 5)
     private long health;
     @ChangeMark(blockBit = 0, bit = 6)
@@ -238,64 +234,594 @@ public final class UnitData extends UpdateMaskObject {
     @ChangeMark(blockBit = 96, bit = 114)
     private ObjectGuid comboTarget;
     @ChangeMark(blockBit = 96, bit = 115)
-    private float field_2F0;
+    private float field2F0;
     @ChangeMark(blockBit = 96, bit = 116)
-    private float field_2F4;
+    private float field2F4;
     @ChangeMark(size = 10, bit = 117, firstElementBit = 118, type = FieldType.ARRAY)
-    private final List<Float> powerRegenFlatModifier;
+    private final List<Float> powerRegenFlatModifier = UpdateFields.newList("powerRegenFlatModifier", this);
     @ChangeMark(size = 10, bit = 117, firstElementBit = 128, type = FieldType.ARRAY)
-    private final List<Float> powerRegenInterruptedFlatModifier;
+    private final List<Float> powerRegenInterruptedFlatModifier = UpdateFields.newList("powerRegenInterruptedFlatModifier", this);
     @ChangeMark(size = 10, bit = 117, firstElementBit = 138, type = FieldType.ARRAY)
-    private final List<Integer> power;
+    private final List<Integer> power = UpdateFields.newList("power", this);
     @ChangeMark(size = 10, bit = 117, firstElementBit = 148, type = FieldType.ARRAY)
-    private final List<Integer> maxPower;
+    private final List<Integer> maxPower = UpdateFields.newList("maxPower", this);
     @ChangeMark(size = 10, bit = 117, firstElementBit = 158, type = FieldType.ARRAY)
-    private final List<Float> modPowerRegen;                        // Applies to power regen only if expansion < 2, hidden from lua
+    private final List<Float> modPowerRegen = UpdateFields.newList("modPowerRegen", this);                        // Applies to power regen only if expansion < 2, hidden from lua
     @ChangeMark(size = 3, bit = 168, firstElementBit = 169, type = FieldType.ARRAY)
-    private final List<VisibleItem> virtualItems;
+    private final List<VisibleItem> virtualItems = UpdateFields.newList("virtualItems", this);
     @ChangeMark(size = 3, bit = 172, firstElementBit = 173, type = FieldType.ARRAY)
-    private final List<Integer> attackRoundBaseTime;
+    private final List<Integer> attackRoundBaseTime = UpdateFields.newList("attackRoundBaseTime", this);
     @ChangeMark(size = 5, bit = 176, firstElementBit = 177, type = FieldType.ARRAY)
-    private final List<Integer> stats;
+    private final List<Integer> stats = UpdateFields.newList("stats", this);
     @ChangeMark(size = 5, bit = 176, firstElementBit = 182, type = FieldType.ARRAY)
-    private final List<Integer> statPosBuff;
+    private final List<Integer> statPosBuff = UpdateFields.newList("statPosBuff", this);
     @ChangeMark(size = 5, bit = 176, firstElementBit = 187, type = FieldType.ARRAY)
-    private final List<Integer> statNegBuff;
+    private final List<Integer> statNegBuff = UpdateFields.newList("statNegBuff", this);
     @ChangeMark(size = 7, bit = 192, firstElementBit = 193, type = FieldType.ARRAY)
-    private final List<Integer> resistances;
+    private final List<Integer> resistances = UpdateFields.newList("resistances", this);
     @ChangeMark(size = 7, bit = 192, firstElementBit = 200, type = FieldType.ARRAY)
-    private final List<Integer> resistanceBuffModsPositive;
+    private final List<Integer> resistanceBuffModsPositive = UpdateFields.newList("resistanceBuffModsPositive", this);
     @ChangeMark(size = 7, bit = 192, firstElementBit = 207, type = FieldType.ARRAY)
-    private final List<Integer> resistanceBuffModsNegative;
+    private final List<Integer> resistanceBuffModsNegative = UpdateFields.newList("resistanceBuffModsNegative", this);
     @ChangeMark(size = 7, bit = 192, firstElementBit = 214, type = FieldType.ARRAY)
-    private final List<Integer> powerCostModifier;
+    private final List<Integer> powerCostModifier = UpdateFields.newList("powerCostModifier", this);
     @ChangeMark(size = 7, bit = 192, firstElementBit = 221, type = FieldType.ARRAY)
-    private final List<Float> powerCostMultiplier;
+    private final List<Float> powerCostMultiplier = UpdateFields.newList("powerCostMultiplier", this);
 
     public UnitData() {
         super(228);
-        this.stateWorldEffectIds = newList("stateWorldEffectIds");
-        this.powerRegenFlatModifier = newList("powerRegenFlatModifier");
-        this.powerRegenInterruptedFlatModifier = newList("powerRegenInterruptedFlatModifier");
-        this.power = newList("power");
-        this.maxPower = newList("maxPower");
-        this.modPowerRegen = newList("modPowerRegen");
-        this.virtualItems = newList("virtualItems");
-        this.attackRoundBaseTime = newList("attackRoundBaseTime");
-        this.stats = newList("stats");
-        this.statPosBuff = newList("statPosBuff");
-        this.statNegBuff = newList("statNegBuff");
-        this.resistances = newList("resistances");
-        this.resistanceBuffModsPositive = newList("resistanceBuffModsPositive");
-        this.resistanceBuffModsNegative = newList("resistanceBuffModsNegative");
-        this.powerCostModifier = newList("powerCostModifier");
-        this.powerCostMultiplier = newList("powerCostMultiplier");
+    }
+
+
+
+    public void setHealth(long health) {
+        firePropertyChange("health", this.health, health);
+        this.health = health;
+    }
+
+    public void setMaxHealth(long maxHealth) {
+        firePropertyChange("maxHealth", this.maxHealth, maxHealth);
+        this.maxHealth = maxHealth;
+    }
+
+    public void setDisplayId(int displayId) {
+        firePropertyChange("displayId", this.displayId, displayId);
+        this.displayId = displayId;
+    }
+
+    public void setNpcFlags(int npcFlags) {
+        firePropertyChange("npcFlags", this.npcFlags, npcFlags);
+        this.npcFlags = npcFlags;
+    }
+
+    public void setNpcFlags2(int npcFlags2) {
+        firePropertyChange("npcFlags2", this.npcFlags2, npcFlags2);
+        this.npcFlags2 = npcFlags2;
+    }
+
+    public void setStateSpellVisualId(int stateSpellVisualId) {
+        firePropertyChange("stateSpellVisualId", this.stateSpellVisualId, stateSpellVisualId);
+        this.stateSpellVisualId = stateSpellVisualId;
+    }
+
+    public void setStateAnimId(int stateAnimId) {
+        firePropertyChange("stateAnimId", this.stateAnimId, stateAnimId);
+        this.stateAnimId = stateAnimId;
+    }
+
+    public void setStateAnimKitId(int stateAnimKitId) {
+        firePropertyChange("stateAnimKitId", this.stateAnimKitId, stateAnimKitId);
+        this.stateAnimKitId = stateAnimKitId;
+    }
+
+    public void setCharm(ObjectGuid charm) {
+        firePropertyChange("charm", this.charm, charm);
+        this.charm = charm;
+    }
+
+    public void setSummon(ObjectGuid summon) {
+        firePropertyChange("summon", this.summon, summon);
+        this.summon = summon;
+    }
+
+    public void setCritter(ObjectGuid critter) {
+        firePropertyChange("critter", this.critter, critter);
+        this.critter = critter;
+    }
+
+    public void setCharmedBy(ObjectGuid charmedBy) {
+        firePropertyChange("charmedBy", this.charmedBy, charmedBy);
+        this.charmedBy = charmedBy;
+    }
+
+    public void setSummonedBy(ObjectGuid summonedBy) {
+        firePropertyChange("summonedBy", this.summonedBy, summonedBy);
+        this.summonedBy = summonedBy;
+    }
+
+    public void setCreatedBy(ObjectGuid createdBy) {
+        firePropertyChange("createdBy", this.createdBy, createdBy);
+        this.createdBy = createdBy;
+    }
+
+    public void setDemonCreator(ObjectGuid demonCreator) {
+        firePropertyChange("demonCreator", this.demonCreator, demonCreator);
+        this.demonCreator = demonCreator;
+    }
+
+    public void setLookAtControllerTarget(ObjectGuid lookAtControllerTarget) {
+        firePropertyChange("lookAtControllerTarget", this.lookAtControllerTarget, lookAtControllerTarget);
+        this.lookAtControllerTarget = lookAtControllerTarget;
+    }
+
+    public void setTarget(ObjectGuid target) {
+        firePropertyChange("target", this.target, target);
+        this.target = target;
+    }
+
+    public void setBattlePetCompanionGUID(ObjectGuid battlePetCompanionGUID) {
+        firePropertyChange("battlePetCompanionGUID", this.battlePetCompanionGUID, battlePetCompanionGUID);
+        this.battlePetCompanionGUID = battlePetCompanionGUID;
+    }
+
+    public void setBattlePetDBID(long battlePetDBID) {
+        firePropertyChange("battlePetDBID", this.battlePetDBID, battlePetDBID);
+        this.battlePetDBID = battlePetDBID;
+    }
+
+    public void setChannelData(UnitChannel channelData) {
+        firePropertyChange("channelData", this.channelData, channelData);
+        this.channelData = channelData;
+    }
+
+    public void setSummonedByHomeRealm(int summonedByHomeRealm) {
+        firePropertyChange("summonedByHomeRealm", this.summonedByHomeRealm, summonedByHomeRealm);
+        this.summonedByHomeRealm = summonedByHomeRealm;
+    }
+
+    public void setRace(byte race) {
+        firePropertyChange("race", this.race, race);
+        this.race = race;
+    }
+
+    public void setClassId(byte classId) {
+        firePropertyChange("classId", this.classId, classId);
+        this.classId = classId;
+    }
+
+    public void setPlayerClassId(byte playerClassId) {
+        firePropertyChange("playerClassId", this.playerClassId, playerClassId);
+        this.playerClassId = playerClassId;
+    }
+
+    public void setSex(byte sex) {
+        firePropertyChange("sex", this.sex, sex);
+        this.sex = sex;
+    }
+
+    public void setDisplayPower(byte displayPower) {
+        firePropertyChange("displayPower", this.displayPower, displayPower);
+        this.displayPower = displayPower;
+    }
+
+    public void setOverrideDisplayPowerID(int overrideDisplayPowerID) {
+        firePropertyChange("overrideDisplayPowerID", this.overrideDisplayPowerID, overrideDisplayPowerID);
+        this.overrideDisplayPowerID = overrideDisplayPowerID;
+    }
+
+    public void setLevel(int level) {
+        firePropertyChange("level", this.level, level);
+        this.level = level;
+    }
+
+    public void setEffectiveLevel(int effectiveLevel) {
+        firePropertyChange("effectiveLevel", this.effectiveLevel, effectiveLevel);
+        this.effectiveLevel = effectiveLevel;
+    }
+
+    public void setContentTuningID(int contentTuningID) {
+        firePropertyChange("contentTuningID", this.contentTuningID, contentTuningID);
+        this.contentTuningID = contentTuningID;
+    }
+
+    public void setScalingLevelMin(int scalingLevelMin) {
+        firePropertyChange("scalingLevelMin", this.scalingLevelMin, scalingLevelMin);
+        this.scalingLevelMin = scalingLevelMin;
+    }
+
+    public void setScalingLevelMax(int scalingLevelMax) {
+        firePropertyChange("scalingLevelMax", this.scalingLevelMax, scalingLevelMax);
+        this.scalingLevelMax = scalingLevelMax;
+    }
+
+    public void setScalingLevelDelta(int scalingLevelDelta) {
+        firePropertyChange("scalingLevelDelta", this.scalingLevelDelta, scalingLevelDelta);
+        this.scalingLevelDelta = scalingLevelDelta;
+    }
+
+    public void setScalingFactionGroup(int scalingFactionGroup) {
+        firePropertyChange("scalingFactionGroup", this.scalingFactionGroup, scalingFactionGroup);
+        this.scalingFactionGroup = scalingFactionGroup;
+    }
+
+    public void setFactionTemplate(int factionTemplate) {
+        firePropertyChange("factionTemplate", this.factionTemplate, factionTemplate);
+        this.factionTemplate = factionTemplate;
+    }
+
+    public void setFlags(int flags) {
+        firePropertyChange("flags", this.flags, flags);
+        this.flags = flags;
+    }
+
+    public void setFlags2(int flags2) {
+        firePropertyChange("flags2", this.flags2, flags2);
+        this.flags2 = flags2;
+    }
+
+    public void setFlags3(int flags3) {
+        firePropertyChange("flags3", this.flags3, flags3);
+        this.flags3 = flags3;
+    }
+
+    public void setFlags4(int flags4) {
+        firePropertyChange("flags4", this.flags4, flags4);
+        this.flags4 = flags4;
+    }
+
+    public void setAuraState(int auraState) {
+        firePropertyChange("auraState", this.auraState, auraState);
+        this.auraState = auraState;
+    }
+
+    public void setRangedAttackRoundBaseTime(int rangedAttackRoundBaseTime) {
+        firePropertyChange("rangedAttackRoundBaseTime", this.rangedAttackRoundBaseTime, rangedAttackRoundBaseTime);
+        this.rangedAttackRoundBaseTime = rangedAttackRoundBaseTime;
+    }
+
+    public void setBoundingRadius(float boundingRadius) {
+        firePropertyChange("boundingRadius", this.boundingRadius, boundingRadius);
+        this.boundingRadius = boundingRadius;
+    }
+
+    public void setCombatReach(float combatReach) {
+        firePropertyChange("combatReach", this.combatReach, combatReach);
+        this.combatReach = combatReach;
+    }
+
+    public void setDisplayScale(float displayScale) {
+        firePropertyChange("displayScale", this.displayScale, displayScale);
+        this.displayScale = displayScale;
+    }
+
+    public void setNativeDisplayId(int nativeDisplayId) {
+        firePropertyChange("nativeDisplayId", this.nativeDisplayId, nativeDisplayId);
+        this.nativeDisplayId = nativeDisplayId;
+    }
+
+    public void setNativeXDisplayScale(float nativeXDisplayScale) {
+        firePropertyChange("nativeXDisplayScale", this.nativeXDisplayScale, nativeXDisplayScale);
+        this.nativeXDisplayScale = nativeXDisplayScale;
+    }
+
+    public void setMountDisplayId(int mountDisplayId) {
+        firePropertyChange("mountDisplayId", this.mountDisplayId, mountDisplayId);
+        this.mountDisplayId = mountDisplayId;
+    }
+
+    public void setMinDamage(float minDamage) {
+        firePropertyChange("minDamage", this.minDamage, minDamage);
+        this.minDamage = minDamage;
+    }
+
+    public void setMaxDamage(float maxDamage) {
+        firePropertyChange("maxDamage", this.maxDamage, maxDamage);
+        this.maxDamage = maxDamage;
+    }
+
+    public void setMinOffHandDamage(float minOffHandDamage) {
+        firePropertyChange("minOffHandDamage", this.minOffHandDamage, minOffHandDamage);
+        this.minOffHandDamage = minOffHandDamage;
+    }
+
+    public void setMaxOffHandDamage(float maxOffHandDamage) {
+        firePropertyChange("maxOffHandDamage", this.maxOffHandDamage, maxOffHandDamage);
+        this.maxOffHandDamage = maxOffHandDamage;
+    }
+
+    public void setStandState(byte standState) {
+        firePropertyChange("standState", this.standState, standState);
+        this.standState = standState;
+    }
+
+    public void setPetTalentPoints(byte petTalentPoints) {
+        firePropertyChange("petTalentPoints", this.petTalentPoints, petTalentPoints);
+        this.petTalentPoints = petTalentPoints;
+    }
+
+    public void setVisFlags(byte visFlags) {
+        firePropertyChange("visFlags", this.visFlags, visFlags);
+        this.visFlags = visFlags;
+    }
+
+    public void setAnimTier(byte animTier) {
+        firePropertyChange("animTier", this.animTier, animTier);
+        this.animTier = animTier;
+    }
+
+    public void setPetNumber(int petNumber) {
+        firePropertyChange("petNumber", this.petNumber, petNumber);
+        this.petNumber = petNumber;
+    }
+
+    public void setPetNameTimestamp(int petNameTimestamp) {
+        firePropertyChange("petNameTimestamp", this.petNameTimestamp, petNameTimestamp);
+        this.petNameTimestamp = petNameTimestamp;
+    }
+
+    public void setPetExperience(int petExperience) {
+        firePropertyChange("petExperience", this.petExperience, petExperience);
+        this.petExperience = petExperience;
+    }
+
+    public void setPetNextLevelExperience(int petNextLevelExperience) {
+        firePropertyChange("petNextLevelExperience", this.petNextLevelExperience, petNextLevelExperience);
+        this.petNextLevelExperience = petNextLevelExperience;
+    }
+
+    public void setModCastingSpeed(float modCastingSpeed) {
+        firePropertyChange("modCastingSpeed", this.modCastingSpeed, modCastingSpeed);
+        this.modCastingSpeed = modCastingSpeed;
+    }
+
+    public void setModSpellHaste(float modSpellHaste) {
+        firePropertyChange("modSpellHaste", this.modSpellHaste, modSpellHaste);
+        this.modSpellHaste = modSpellHaste;
+    }
+
+    public void setModHaste(float modHaste) {
+        firePropertyChange("modHaste", this.modHaste, modHaste);
+        this.modHaste = modHaste;
+    }
+
+    public void setModRangedHaste(float modRangedHaste) {
+        firePropertyChange("modRangedHaste", this.modRangedHaste, modRangedHaste);
+        this.modRangedHaste = modRangedHaste;
+    }
+
+    public void setModHasteRegen(float modHasteRegen) {
+        firePropertyChange("modHasteRegen", this.modHasteRegen, modHasteRegen);
+        this.modHasteRegen = modHasteRegen;
+    }
+
+    public void setModTimeRate(float modTimeRate) {
+        firePropertyChange("modTimeRate", this.modTimeRate, modTimeRate);
+        this.modTimeRate = modTimeRate;
+    }
+
+    public void setCreatedBySpell(int createdBySpell) {
+        firePropertyChange("createdBySpell", this.createdBySpell, createdBySpell);
+        this.createdBySpell = createdBySpell;
+    }
+
+    public void setEmoteState(int emoteState) {
+        firePropertyChange("emoteState", this.emoteState, emoteState);
+        this.emoteState = emoteState;
+    }
+
+    public void setTrainingPointsUsed(int trainingPointsUsed) {
+        firePropertyChange("trainingPointsUsed", this.trainingPointsUsed, trainingPointsUsed);
+        this.trainingPointsUsed = trainingPointsUsed;
+    }
+
+    public void setTrainingPointsTotal(int trainingPointsTotal) {
+        firePropertyChange("trainingPointsTotal", this.trainingPointsTotal, trainingPointsTotal);
+        this.trainingPointsTotal = trainingPointsTotal;
+    }
+    public void setBaseMana(int baseMana) {
+        firePropertyChange("baseMana", this.baseMana, baseMana);
+        this.baseMana = baseMana;
+    }
+
+    public void setBaseHealth(int baseHealth) {
+        firePropertyChange("baseHealth", this.baseHealth, baseHealth);
+        this.baseHealth = baseHealth;
+    }
+
+    public void setSheatheState(byte sheatheState) {
+        firePropertyChange("sheatheState", this.sheatheState, sheatheState);
+        this.sheatheState = sheatheState;
+    }
+
+    public void setPvpFlags(byte pvpFlags) {
+        firePropertyChange("pvpFlags", this.pvpFlags, pvpFlags);
+        this.pvpFlags = pvpFlags;
+    }
+
+    public void setPetFlags(byte petFlags) {
+        firePropertyChange("petFlags", this.petFlags, petFlags);
+        this.petFlags = petFlags;
+    }
+
+    public void setShapeshiftForm(byte shapeshiftForm) {
+        firePropertyChange("shapeshiftForm", this.shapeshiftForm, shapeshiftForm);
+        this.shapeshiftForm = shapeshiftForm;
+    }
+
+    public void setAttackPower(int attackPower) {
+        firePropertyChange("attackPower", this.attackPower, attackPower);
+        this.attackPower = attackPower;
+    }
+
+    public void setAttackPowerModPos(int attackPowerModPos) {
+        firePropertyChange("attackPowerModPos", this.attackPowerModPos, attackPowerModPos);
+        this.attackPowerModPos = attackPowerModPos;
+    }
+
+    public void setAttackPowerModNeg(int attackPowerModNeg) {
+        firePropertyChange("attackPowerModNeg", this.attackPowerModNeg, attackPowerModNeg);
+        this.attackPowerModNeg = attackPowerModNeg;
+    }
+
+    public void setAttackPowerMultiplier(float attackPowerMultiplier) {
+        firePropertyChange("attackPowerMultiplier", this.attackPowerMultiplier, attackPowerMultiplier);
+        this.attackPowerMultiplier = attackPowerMultiplier;
+    }
+
+    public void setRangedAttackPower(int rangedAttackPower) {
+        firePropertyChange("rangedAttackPower", this.rangedAttackPower, rangedAttackPower);
+        this.rangedAttackPower = rangedAttackPower;
+    }
+
+    public void setRangedAttackPowerModPos(int rangedAttackPowerModPos) {
+        firePropertyChange("rangedAttackPowerModPos", this.rangedAttackPowerModPos, rangedAttackPowerModPos);
+        this.rangedAttackPowerModPos = rangedAttackPowerModPos;
+    }
+
+    public void setRangedAttackPowerModNeg(int rangedAttackPowerModNeg) {
+        firePropertyChange("rangedAttackPowerModNeg", this.rangedAttackPowerModNeg, rangedAttackPowerModNeg);
+        this.rangedAttackPowerModNeg = rangedAttackPowerModNeg;
+    }
+
+    public void setRangedAttackPowerMultiplier(float rangedAttackPowerMultiplier) {
+        firePropertyChange("rangedAttackPowerMultiplier", this.rangedAttackPowerMultiplier, rangedAttackPowerMultiplier);
+        this.rangedAttackPowerMultiplier = rangedAttackPowerMultiplier;
+    }
+
+    public void setSetAttackSpeedAura(int setAttackSpeedAura) {
+        firePropertyChange("setAttackSpeedAura", this.setAttackSpeedAura, setAttackSpeedAura);
+        this.setAttackSpeedAura = setAttackSpeedAura;
+    }
+
+    public void setLifeSteal(float lifeSteal) {
+        firePropertyChange("lifeSteal", this.lifeSteal, lifeSteal);
+        this.lifeSteal = lifeSteal;
+    }
+
+    public void setMinRangedDamage(float minRangedDamage) {
+        firePropertyChange("minRangedDamage", this.minRangedDamage, minRangedDamage);
+        this.minRangedDamage = minRangedDamage;
+    }
+
+    public void setMaxRangedDamage(float maxRangedDamage) {
+        firePropertyChange("maxRangedDamage", this.maxRangedDamage, maxRangedDamage);
+        this.maxRangedDamage = maxRangedDamage;
+    }
+
+    public void setMaxHealthModifier(float maxHealthModifier) {
+        firePropertyChange("maxHealthModifier", this.maxHealthModifier, maxHealthModifier);
+        this.maxHealthModifier = maxHealthModifier;
+    }
+
+    public void setHoverHeight(float hoverHeight) {
+        firePropertyChange("hoverHeight", this.hoverHeight, hoverHeight);
+        this.hoverHeight = hoverHeight;
+    }
+
+    public void setMinItemLevelCutoff(int minItemLevelCutoff) {
+        firePropertyChange("minItemLevelCutoff", this.minItemLevelCutoff, minItemLevelCutoff);
+        this.minItemLevelCutoff = minItemLevelCutoff;
+    }
+
+    public void setMinItemLevel(int minItemLevel) {
+        firePropertyChange("minItemLevel", this.minItemLevel, minItemLevel);
+        this.minItemLevel = minItemLevel;
+    }
+
+    public void setMaxItemLevel(int maxItemLevel) {
+        firePropertyChange("maxItemLevel", this.maxItemLevel, maxItemLevel);
+        this.maxItemLevel = maxItemLevel;
+    }
+
+    public void setWildBattlePetLevel(int wildBattlePetLevel) {
+        firePropertyChange("wildBattlePetLevel", this.wildBattlePetLevel, wildBattlePetLevel);
+        this.wildBattlePetLevel = wildBattlePetLevel;
+    }
+
+    public void setBattlePetCompanionNameTimestamp(int battlePetCompanionNameTimestamp) {
+        firePropertyChange("battlePetCompanionNameTimestamp", this.battlePetCompanionNameTimestamp, battlePetCompanionNameTimestamp);
+        this.battlePetCompanionNameTimestamp = battlePetCompanionNameTimestamp;
+    }
+
+    public void setInteractSpellID(int interactSpellID) {
+        firePropertyChange("interactSpellID", this.interactSpellID, interactSpellID);
+        this.interactSpellID = interactSpellID;
+    }
+
+    public void setScaleDuration(int scaleDuration) {
+        firePropertyChange("scaleDuration", this.scaleDuration, scaleDuration);
+        this.scaleDuration = scaleDuration;
+    }
+
+    public void setLooksLikeMountID(int looksLikeMountID) {
+        firePropertyChange("looksLikeMountID", this.looksLikeMountID, looksLikeMountID);
+        this.looksLikeMountID = looksLikeMountID;
+    }
+
+    public void setLooksLikeCreatureID(int looksLikeCreatureID) {
+        firePropertyChange("looksLikeCreatureID", this.looksLikeCreatureID, looksLikeCreatureID);
+        this.looksLikeCreatureID = looksLikeCreatureID;
+    }
+
+    public void setLookAtControllerID(int lookAtControllerID) {
+        firePropertyChange("lookAtControllerID", this.lookAtControllerID, lookAtControllerID);
+        this.lookAtControllerID = lookAtControllerID;
+    }
+
+    public void setPerksVendorItemID(int perksVendorItemID) {
+        firePropertyChange("perksVendorItemID", this.perksVendorItemID, perksVendorItemID);
+        this.perksVendorItemID = perksVendorItemID;
+    }
+
+    public void setGuildGUID(ObjectGuid guildGUID) {
+        firePropertyChange("guildGUID", this.guildGUID, guildGUID);
+        this.guildGUID = guildGUID;
+    }
+
+    public void setSkinningOwnerGUID(ObjectGuid skinningOwnerGUID) {
+        firePropertyChange("skinningOwnerGUID", this.skinningOwnerGUID, skinningOwnerGUID);
+        this.skinningOwnerGUID = skinningOwnerGUID;
+    }
+
+    public void setFlightCapabilityID(int flightCapabilityID) {
+        firePropertyChange("flightCapabilityID", this.flightCapabilityID, flightCapabilityID);
+        this.flightCapabilityID = flightCapabilityID;
+    }
+
+    public void setGlideEventSpeedDivisor(float glideEventSpeedDivisor) {
+        firePropertyChange("glideEventSpeedDivisor", this.glideEventSpeedDivisor, glideEventSpeedDivisor);
+        this.glideEventSpeedDivisor = glideEventSpeedDivisor;
+    }
+
+    public void setSilencedSchoolMask(int silencedSchoolMask) {
+        firePropertyChange("silencedSchoolMask", this.silencedSchoolMask, silencedSchoolMask);
+        this.silencedSchoolMask = silencedSchoolMask;
+    }
+
+    public void setCurrentAreaID(int currentAreaID) {
+        firePropertyChange("currentAreaID", this.currentAreaID, currentAreaID);
+        this.currentAreaID = currentAreaID;
+    }
+
+    public void setComboTarget(ObjectGuid comboTarget) {
+        firePropertyChange("comboTarget", this.comboTarget, comboTarget);
+        this.comboTarget = comboTarget;
+    }
+
+    public void setField2F0(float field2F0) {
+        firePropertyChange("field2F0", this.field2F0, field2F0);
+        this.field2F0 = field2F0;
+    }
+
+    public void setField2F4(float field2F4) {
+        firePropertyChange("field2F4", this.field2F4, field2F4);
+        this.field2F4 = field2F4;
     }
 
     public void writeCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Unit owner, Player receiver) {
         data.writeInt64(health);
         data.writeInt64(maxHealth);
-        data.writeInt32(ViewerDependentValue<DisplayIDTag>::GetValue(this, owner, receiver));
+        data.writeInt32(ViewerDependentValue.<DisplayIDTag>::GetValue(this, owner, receiver));
         data.writeInt32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, owner, receiver));
         data.writeInt32(ViewerDependentValue<NpcFlags2Tag>::GetValue(this, owner, receiver));
         data.writeInt32(ViewerDependentValue<StateSpellVisualIDTag>::GetValue(this, owner, receiver));

@@ -1,0 +1,27 @@
+package com.github.azeroth.game.entity.item.enums;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public enum BagFamilyMask {
+    NONE(0x00000000),
+    ARROWS(0x00000001),
+    BULLETS(0x00000002),
+    SOUL_SHARDS(0x00000004),
+    LEATHERWORKING_SUPP(0x00000008),
+    INSCRIPTION_SUPP(0x00000010),
+    HERBS(0x00000020),
+    ENCHANTING_SUPP(0x00000040),
+    ENGINEERING_SUPP(0x00000080),
+    KEYS(0x00000100),
+    GEMS(0x00000200),
+    MINING_SUPP(0x00000400),
+    SOULBOUND_EQUIPMENT(0x00000800),
+    VANITY_PETS(0x00001000),
+    CURRENCY_TOKENS(0x00002000),
+    QUEST_ITEMS(0x00004000),
+    FISHING_SUPP(0x00008000),
+    COOKING_SUPP(0x00010000);
+
+    public final int value;
+}

@@ -15,7 +15,7 @@ import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.WorldLocation;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.group.PlayerGroup;
-import com.github.azeroth.game.world.World;
+import com.github.azeroth.game.world.WorldContext;
 
 import java.util.BitSet;
 import java.util.HashMap;
@@ -33,9 +33,9 @@ public class MapManager  {
     private int nextInstanceId;
     private int scheduledScripts;
 
-    private World world;
+    private WorldContext world;
 
-    private MapManager(World world) {
+    private MapManager(WorldContext world) {
         this.world = world;
         gridCleanUpDelay = world.getWorldSettings().intWorldConfig.getUIntValue(WorldCfg.IntervalGridclean);
         timer.setInterval(WorldConfig.getIntValue(WorldCfg.IntervalMapupdate));

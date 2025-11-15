@@ -1,13 +1,16 @@
 package com.github.azeroth.game.networking.packet.system;
 
 
+import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
+
 public class SetTimeZoneInformation extends ServerPacket {
     public String serverTimeTZ;
     public String gameTimeTZ;
     public String serverRegionalTZ;
 
     public SetTimeZoneInformation() {
-        super(ServerOpcode.SetTimeZoneInformation);
+        super(ServerOpCode.SMSG_SET_TIME_ZONE_INFORMATION);
     }
 
     @Override

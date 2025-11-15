@@ -5,5 +5,9 @@ public enum ItemBondingType {
     BIND_ON_ACQUIRE,
     BIND_ON_EQUIP,
     BIND_ON_USE,
-    BIND_QUEST,
+    BIND_QUEST;
+
+    public static ItemBondingType forValue(byte bonding) {
+        return ItemBondingType.values()[bonding];
+    }
 }

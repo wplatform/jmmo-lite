@@ -18,7 +18,6 @@ import com.github.azeroth.service.auth.repository.BattlenetAccountBanRepository;
 import com.github.azeroth.auth.repository.BNetAccountRepository;
 import com.github.azeroth.common.RpcErrorCode;
 import com.github.azeroth.portal.boot.LoginRestProperties;
-import com.github.azeroth.portal.realm.ClientBuild;
 import com.github.azeroth.portal.rpc.DefaultRpcChannel;
 import com.github.azeroth.portal.rpc.DefaultRpcController;
 import com.github.azeroth.portal.rpc.RpcSession;

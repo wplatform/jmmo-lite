@@ -5,7 +5,7 @@ import com.github.azeroth.dbc.DbcObjectManager;
 import com.github.azeroth.dbc.GameTableManager;
 import com.github.azeroth.game.battlefield.BattleFieldManager;
 import com.github.azeroth.game.chat.LanguageManager;
-import com.github.azeroth.game.condition.ConditionManager;
+import com.github.azeroth.game.condition.PlayerConditions;
 import com.github.azeroth.game.condition.DisableManager;
 import com.github.azeroth.game.domain.transport.TransportManager;
 import com.github.azeroth.game.dungeonfinding.LfgManager;
@@ -42,65 +42,156 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public interface WorldContext {
 
-    Locale getDbcLocale();
+    default Locale getDbcLocale() {
+        return getWorldSettings().dbcLocale;
+    }
 
-    WorldSetting getWorldSettings();
+    default WorldSetting getWorldSettings() {
+        return getBean(WorldSetting.class);
+    }
 
-    int getSetting(String name, int defaultValue);
+    default GameTableManager getGameTableManager() {
+        return getBean(GameTableManager.class);
+    }
 
+    default DbcObjectManager getDbcObjectManager() {
+        return getBean(DbcObjectManager.class);
+    }
 
-    GameTableManager getGameTableManager();
-    DbcObjectManager getDbcObjectManager();
-    ObjectManager getObjectManager();
-    ConditionManager getConditionManager();
-    SpellManager getSpellManager();
-    TerrainManager getTerrainManager();
-    VMapManager getVMapManager();
-    InstanceLockManager getInstanceLockManager();
-    BattleFieldManager getBattleFieldManager();
-    OutdoorPvpManager getOutdoorPvpManager();
-    DisableManager getDisableManager();
-    MMapManager getMMapManager();
-    WorldEventPublisher getWorldEventPublisher();
-    ScheduledThreadPoolExecutor getScheduledExecutor();
-    LfgManager getLfgManager();
-    LanguageManager getLanguageManager();
+    default ObjectManager getObjectManager() {
+        return getBean(ObjectManager.class);
+    }
+
+    default PlayerConditions getConditionManager() {
+        return getBean(PlayerConditions.class);
+    }
+
+    default SpellManager getSpellManager() {
+        return getBean(SpellManager.class);
+    }
+
+    default TerrainManager getTerrainManager() {
+        return getBean(TerrainManager.class);
+    }
+
+    default VMapManager getVMapManager() {
+        return getBean(VMapManager.class);
+    }
+
+    default InstanceLockManager getInstanceLockManager() {
+        return getBean(InstanceLockManager.class);
+    }
+
+    default BattleFieldManager getBattleFieldManager() {
+        return getBean(BattleFieldManager.class);
+    }
+
+    default OutdoorPvpManager getOutdoorPvpManager() {
+        return getBean(OutdoorPvpManager.class);
+    }
+
+    default DisableManager getDisableManager() {
+        return getBean(DisableManager.class);
+    }
+
+    default MMapManager getMMapManager() {
+        return getBean(MMapManager.class);
+    }
+
+    default WorldEventPublisher getWorldEventPublisher() {
+        return getBean(WorldEventPublisher.class);
+    }
+
+    default ScheduledThreadPoolExecutor getScheduledExecutor() {
+        return getBean(ScheduledThreadPoolExecutor.class);
+    }
+
+    default LfgManager getLfgManager() {
+        return getBean(LfgManager.class);
+    }
+
+    default LanguageManager getLanguageManager() {
+        return getBean(LanguageManager.class);
+    }
 
     ExecutorService getTaskExecutor();
-    MapManager getMapManager();
-    PoolManager getPoolManager();
-    TransportManager getTransportManager();
-    WorldStateManager getWorldStateManager();
-    OutdoorPvpManager getOutDoorPvpManager();
+
+    default MapManager getMapManager() {
+        return getBean(MapManager.class);
+    }
+
+    default PoolManager getPoolManager() {
+        return getBean(PoolManager.class);
+    }
+
+    default TransportManager getTransportManager() {
+        return getBean(TransportManager.class);
+    }
+
+    default WorldStateManager getWorldStateManager() {
+        return getBean(WorldStateManager.class);
+    }
+
+    default OutdoorPvpManager getOutDoorPvpManager() {
+        return getBean(OutdoorPvpManager.class);
+    }
 
     // these functions return objects only if in map of specified object
-    WorldObject getWorldObject(WorldObject source, ObjectGuid guid);
+    default WorldObject getWorldObject(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    GenericObject getObjectByTypeMask(WorldObject source, ObjectGuid guid, TypeMask mask);
+    default GenericObject getObjectByTypeMask(WorldObject source, ObjectGuid guid, TypeMask mask) {
+        return null;
+    }
 
-    Corpse getCorpse(WorldObject source, ObjectGuid guid);
+    default Corpse getCorpse(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    GameObject getGameObject(WorldObject source, ObjectGuid guid);
+    default GameObject getGameObject(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    Transport getTransport(WorldObject source, ObjectGuid guid);
+    default Transport getTransport(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    DynamicObject getDynamicObject(WorldObject source, ObjectGuid guid);
+    default DynamicObject getDynamicObject(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    AreaTrigger getAreaTrigger(WorldObject source, ObjectGuid guid);
+    default AreaTrigger getAreaTrigger(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    SceneObject getSceneObject(WorldObject source, ObjectGuid guid);
+    default SceneObject getSceneObject(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    Conversation getConversation(WorldObject source, ObjectGuid guid);
+    default Conversation getConversation(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    Unit getUnit(WorldObject source, ObjectGuid guid);
+    default Unit getUnit(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    Creature getCreature(WorldObject source, ObjectGuid guid);
+    default Creature getCreature(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    Pet getPet(WorldObject source, ObjectGuid guid);
+    default Pet getPet(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    Player getPlayer(WorldObject source, ObjectGuid guid);
+    default Player getPlayer(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
-    Creature getCreatureOrPetOrVehicle(WorldObject source, ObjectGuid guid);
+    default Creature getCreatureOrPetOrVehicle(WorldObject source, ObjectGuid guid) {
+        return null;
+    }
 
     // these functions return objects if found in whole world
     // ACCESS LIKE THAT IS NOT THREAD SAFE
@@ -117,5 +208,8 @@ public interface WorldContext {
 
     // when using this, you must use the hashmapholder's lock
     Iterator<Player> getPlayers();
+
+
+    <T> T getBean(Class<T> beanClass);
 
 }

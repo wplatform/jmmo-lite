@@ -1,5 +1,6 @@
 package com.github.azeroth.auth.domain;
 
+import com.github.azeroth.auth.realm.AuthKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,5 +31,7 @@ public class BuildInfo {
     private Integer bugfixVersion;
 
     @Column("hotfixVersion")
-    private Integer hotfixVersion;
+    private String hotfixVersion;
+
+    private List<AuthKey> authKeys;
 }

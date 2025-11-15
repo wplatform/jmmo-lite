@@ -2,15 +2,16 @@ package com.github.azeroth.game.networking.packet.misc;
 
 
 import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 import java.util.HashMap;
 
 public class AccountMountUpdate extends ServerPacket {
     public boolean isFullUpdate = false;
-    public HashMap<Integer, MountStatusFlags> mounts = new HashMap<Integer, MountStatusFlags>();
+    public HashMap<Integer, Integer> mounts = new HashMap<>();
 
     public AccountMountUpdate() {
-        super(ServerOpcode.AccountMountUpdate);
+        super(ServerOpCode.SMSG_ACCOUNT_MOUNT_UPDATE);
     }
 
     @Override

@@ -23,11 +23,11 @@ import lombok.ToString;
         @Db2Field(name = "raidorigin", type = Db2Type.INT),
         @Db2Field(name = "challengeOrigin", type = Db2Type.INT),
         @Db2Field(name = "regionID", type = Db2Type.SHORT),
-        @Db2Field(name = "regionGroupMask", type = Db2Type.BYTE)
+        @Db2Field(name = "regionGroupMask", type = Db2Type.BYTE),
+        @Db2Field(name = "timeEventRegionGroupID", type = Db2Type.BYTE)
 })
 public class CfgRegion implements DbcEntity {
     @Id
-
     @Column("ID")
     private int id;
 
@@ -46,8 +46,10 @@ public class CfgRegion implements DbcEntity {
     @Column("RegionGroupMask")
     private Byte regionGroupMask;
 
-    @Id
+    @Column("TimeEventRegionGroupID")
+    private byte timeEventRegionGroupID;
 
+    @Id
     @Column("VerifiedBuild")
     private Integer verifiedBuild;
 

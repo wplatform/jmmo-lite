@@ -6,9 +6,7 @@ import com.github.azeroth.dbc.domain.ChrSpecialization;
 import com.github.azeroth.dbc.domain.ItemEffect;
 import com.github.azeroth.dbc.domain.ItemEntry;
 import com.github.azeroth.dbc.domain.ItemSparse;
-import com.github.azeroth.defines.UnitClass;
-import com.github.azeroth.defines.SharedDefine;
-import com.github.azeroth.defines.SkillType;
+import com.github.azeroth.defines.*;
 import com.github.azeroth.game.entity.item.enums.*;
 import com.github.azeroth.game.entity.player.Player;
 import lombok.Data;
@@ -168,43 +166,43 @@ public class ItemTemplate {
     }
 
     public final int getId() {
-        return basicData.id;
+        return basicData.getId();
     }
 
     public final ItemClass getItemClass() {
-        return basicData.classID;
+        return ItemClass.forValue(basicData.getClassID());
     }
 
-    public final ItemSubclassConsumable getSubClass() {
-        return basicData.SubclassID;
+    public final byte getSubClass() {
+        return basicData.getSubclassID();
     }
 
     public final ItemQuality getQuality() {
-        return itemQuality.forValue(extendedData.OverallQualityID);
+        return ItemQuality.forValue(extendedData.getOverallQualityID());
     }
 
     public final int getOtherFactionItemId() {
-        return extendedData.FactionRelated;
+        return extendedData.getFactionRelated();
     }
 
     public final float getPriceRandomValue() {
-        return extendedData.PriceRandomValue;
+        return extendedData.getPriceRandomValue();
     }
 
     public final float getPriceVariance() {
-        return extendedData.PriceVariance;
+        return extendedData.getPriceVariance();
     }
 
     public final int getBuyCount() {
-        return Math.max(extendedData.VendorStackCount, 1);
+        return Math.max(extendedData.getVendorStackCount(), 1);
     }
 
     public final int getBuyPrice() {
-        return extendedData.BuyPrice;
+        return extendedData.getBuyPrice();
     }
 
     public final int getSellPrice() {
-        return extendedData.SellPrice;
+        return extendedData.getSellPrice();
     }
 
     public final InventoryType getInventoryType() {
@@ -212,51 +210,51 @@ public class ItemTemplate {
     }
 
     public final int getAllowableClass() {
-        return extendedData.AllowableClass;
+        return extendedData.getAllowableClass();
     }
 
     public final long getAllowableRace() {
-        return extendedData.AllowableRace;
+        return extendedData.getAllowableRace();
     }
 
     public final int getBaseItemLevel() {
-        return extendedData.itemLevel;
+        return extendedData.getItemLevel();
     }
 
     public final int getBaseRequiredLevel() {
-        return extendedData.requiredLevel;
+        return extendedData.getRequiredLevel();
     }
 
     public final int getRequiredSkill() {
-        return extendedData.RequiredSkill;
+        return extendedData.getRequiredSkill();
     }
 
     public final int getRequiredSkillRank() {
-        return extendedData.RequiredSkillRank;
+        return extendedData.getRequiredSkillRank();
     }
 
     public final int getRequiredSpell() {
-        return extendedData.RequiredAbility;
+        return extendedData.getRequiredAbility();
     }
 
     public final int getRequiredReputationFaction() {
-        return extendedData.MinFactionID;
+        return extendedData.getMinFactionID();
     }
 
     public final int getRequiredReputationRank() {
-        return extendedData.MinReputation;
+        return extendedData.getMinReputation();
     }
 
     public final int getMaxCount() {
-        return extendedData.maxCount;
+        return extendedData.getMaxCount();
     }
 
     public final int getContainerSlots() {
-        return extendedData.ContainerSlots;
+        return extendedData.getContainerSlots();
     }
 
     public final int getScalingStatContentTuning() {
-        return extendedData.contentTuningID;
+        return extendedData.getScalingStatDistributionID();
     }
 
     public final int getPlayerLevelToItemLevelCurveId() {
@@ -264,75 +262,75 @@ public class ItemTemplate {
     }
 
     public final int getDamageType() {
-        return extendedData.DamageType;
+        return extendedData.getDamageDamageType();
     }
 
     public final int getDelay() {
-        return extendedData.ItemDelay;
+        return extendedData.getItemDelay();
     }
 
     public final float getRangedModRange() {
-        return extendedData.ItemRange;
+        return extendedData.getItemRange();
     }
 
     public final ItemBondingType getBonding() {
-        return ItemBondingType.forValue(extendedData.bonding);
+        return ItemBondingType.forValue(extendedData.getBonding());
     }
 
     public final int getPageText() {
-        return extendedData.PageID;
+        return extendedData.getPageID();
     }
 
     public final int getStartQuest() {
-        return extendedData.StartQuestID;
+        return extendedData.getStartQuestID();
     }
 
     public final int getLockID() {
-        return extendedData.LockID;
+        return extendedData.getLockID();
     }
 
     public final int getItemSet() {
-        return extendedData.ItemSet;
+        return extendedData.getItemSet();
     }
 
     public final int getMap() {
-        return extendedData.InstanceBound;
+        return extendedData.getInstanceBound();
     }
 
     public final BagFamilyMask getBagFamily() {
-        return BagFamilyMask.forValue(extendedData.BagFamily);
+        return BagFamilyMask.forValue(extendedData.getBagFamily());
     }
 
     public final int getTotemCategory() {
-        return extendedData.TotemCategoryID;
+        return extendedData.getTotemCategoryID();
     }
 
     public final int getSocketBonus() {
-        return extendedData.SocketMatchEnchantmentId;
+        return extendedData.getSocketMatchEnchantmentId();
     }
 
     public final int getGemProperties() {
-        return extendedData.GemProperties;
+        return extendedData.getGemProperties();
     }
 
     public final float getQualityModifier() {
-        return extendedData.QualityModifier;
+        return extendedData.getQualityModifier();
     }
 
     public final int getDuration() {
-        return extendedData.DurationInInventory;
+        return extendedData.getDurationInInventory();
     }
 
     public final int getItemLimitCategory() {
-        return extendedData.limitCategory;
+        return extendedData.getItemLimitCategory();
     }
 
-    public final HolidayIds getHolidayID() {
-        return HolidayIds.forValue(extendedData.RequiredHoliday);
+    public final HolidayId getHolidayID() {
+        return HolidayId.forValue(extendedData.getRequiredHoliday());
     }
 
     public final float getDmgVariance() {
-        return extendedData.DmgVariance;
+        return extendedData.getDmgVariance();
     }
 
     public final byte getArtifactID() {
