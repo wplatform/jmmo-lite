@@ -4,6 +4,7 @@ import org.slf4j.helpers.MessageFormatter;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface StringUtil {
@@ -16,24 +17,22 @@ public interface StringUtil {
         return string == null || string.isEmpty();
     }
 
-    static int[] splitInts(String string, String delimiter) {
+    static String[] tokenize(String string, String delimiter, boolean keepEmpty) {
+        Objects.requireNonNull(string);
+        String[] split = string.split(delimiter);
+        return Arrays.stream(split).map(String::trim).filter(e -> keepEmpty || !isEmpty(e)).toArray(String[]::new);
+    }
+
+    static int[] tokenizeInts(String string, String delimiter) {
         Objects.requireNonNull(string);
         String[] split = string.split(delimiter);
         return Arrays.stream(split).map(String::trim).filter(StringUtil::isEmpty).mapToInt(Integer::parseInt).toArray();
     }
 
-    static int[] distinctSplitInts(String string, String delimiter, boolean keepEmpty) {
+    static int[] distinctTokenizeInts(String string, String delimiter) {
         Objects.requireNonNull(string);
         String[] split = string.split(delimiter);
-        Stream<String> stringStream = Arrays.stream(split).map(String::trim);
-        if(!keepEmpty) {
-            stringStream = stringStream.filter(StringUtil::isEmpty);
-        }
-        return stringStream.mapToInt(Integer::parseInt).distinct().toArray();
-    }
-
-    static int[] distinctSplitInts(String string, String delimiter) {
-        return distinctSplitInts(string, delimiter, false);
+        return Arrays.stream(split).map(String::trim).filter(StringUtil::isEmpty).mapToInt(Integer::parseInt).distinct().toArray();
     }
 
     static boolean equalsIgnoreCase(String a, String b) {

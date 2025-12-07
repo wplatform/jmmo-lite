@@ -1,21 +1,29 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.domain.object.ObjectGuid;
-import com.github.azeroth.game.entity.player.Player;
-import com.github.azeroth.game.entity.unit.Unit;
 
-class FollowerAI extends ScriptedAI {
-    private ObjectGuid leaderGUID = ObjectGuid.EMPTY;
+
+public class FollowerAI extends ScriptedAI {
+    private ObjectGuid leaderGUID = new ObjectGuid();
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _updateFollowTimer;
     private int updateFollowTimer;
     private FollowState followState = FollowState.values()[0];
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _questForFollow;
     private int questForFollow;
 
     public FollowerAI(Creature creature) {
         super(creature);
         updateFollowTimer = 2500;
-        followState = FollowState.NONE;
+        followState = FollowState.None;
     }
 
     @Override
@@ -40,7 +48,7 @@ class FollowerAI extends ScriptedAI {
             var group = player.getGroup();
 
             if (group) {
-                for (var groupRef = group.getFirstMember(); groupRef != null; groupRef = groupRef.next()) {
+                for (var groupRef = group.getFirstMember(); groupRef != null; groupRef = groupRef.Next()) {
                     var member = groupRef.getSource();
 
                     if (member) {
@@ -54,7 +62,6 @@ class FollowerAI extends ScriptedAI {
             }
         }
     }
-
     @Override
     public void justReachedHome() {
         if (!hasFollowState(FollowState.Inprogress)) {
@@ -64,7 +71,7 @@ class FollowerAI extends ScriptedAI {
         var player = getLeaderForFollower();
 
         if (player != null) {
-            if (hasFollowState(FollowState.paused)) {
+            if (hasFollowState(FollowState.Paused)) {
                 return;
             }
 
@@ -81,12 +88,14 @@ class FollowerAI extends ScriptedAI {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint uiDiff)
     @Override
     public void updateAI(int uiDiff) {
         if (hasFollowState(FollowState.Inprogress) && !me.isEngaged()) {
             if (updateFollowTimer <= uiDiff) {
                 if (hasFollowState(FollowState.Complete) && !hasFollowState(FollowState.PostEvent)) {
-                    Log.outDebug(LogFilter.ScriptsAi, String.format("FollowerAI::UpdateAI: is set completed, despawns. (%1$s)", me.getGUID()));
+                    Log.outDebug(LogFilter.ScriptsAi, String.format("FollowerAI::UpdateAI: is set completed, despawns. (%1$s)", me.getGUID().clone()));
                     me.despawnOrUnsummon();
 
                     return;
@@ -101,7 +110,7 @@ class FollowerAI extends ScriptedAI {
                     var group = player.getGroup();
 
                     if (group) {
-                        for (var groupRef = group.getFirstMember(); groupRef != null && (maxRangeExceeded || questAbandoned); groupRef = groupRef.next()) {
+                        for (var groupRef = group.getFirstMember(); groupRef != null && (maxRangeExceeded || questAbandoned); groupRef = groupRef.Next()) {
                             var member = groupRef.getSource();
 
                             if (member == null) {
@@ -115,7 +124,7 @@ class FollowerAI extends ScriptedAI {
                             if (questAbandoned) {
                                 var status = member.getQuestStatus(questForFollow);
 
-                                if ((status == QuestStatus.Complete) || (status == QuestStatus.INCOMPLETE)) {
+                                if ((status == QuestStatus.Complete) || (status == QuestStatus.Incomplete)) {
                                     questAbandoned = false;
                                 }
                             }
@@ -128,7 +137,7 @@ class FollowerAI extends ScriptedAI {
                         if (questAbandoned) {
                             var status = player.getQuestStatus(questForFollow);
 
-                            if ((status == QuestStatus.Complete) || (status == QuestStatus.INCOMPLETE)) {
+                            if ((status == QuestStatus.Complete) || (status == QuestStatus.Incomplete)) {
                                 questAbandoned = false;
                             }
                         }
@@ -136,7 +145,7 @@ class FollowerAI extends ScriptedAI {
                 }
 
                 if (maxRangeExceeded || questAbandoned) {
-                    Log.outDebug(LogFilter.ScriptsAi, String.format("FollowerAI::UpdateAI: failed because player/group was to far away or not found (%1$s)", me.getGUID()));
+                    Log.outDebug(LogFilter.ScriptsAi, String.format("FollowerAI::UpdateAI: failed because player/group was to far away or not found (%1$s)", me.getGUID().clone()));
                     me.despawnOrUnsummon();
 
                     return;
@@ -144,7 +153,7 @@ class FollowerAI extends ScriptedAI {
 
                 updateFollowTimer = 1000;
             } else {
-                _updateFollowTimer -= uiDiff;
+                updateFollowTimer -= uiDiff;
             }
         }
 
@@ -160,29 +169,32 @@ class FollowerAI extends ScriptedAI {
         startFollow(player, 0, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void StartFollow(Player player, uint factionForFollower = 0, Quest quest = null)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void startFollow(Player player, int factionForFollower, Quest quest) {
         var cdata = me.getCreatureData();
 
         if (cdata != null) {
-            if (WorldConfig.getBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.getSpawnGroupData().getFlags().hasFlag(SpawnGroupFlags.EscortQuestNpc)) {
-                me.saveRespawnTime(me.getRespawnDelay());
+            if (WorldConfig.getBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.spawnGroupData.flags.HasFlag(SpawnGroupFlags.EscortQuestNpc)) {
+                me.saveRespawnTime(me.respawnDelay);
             }
         }
 
         if (me.isEngaged()) {
-            Log.outDebug(LogFilter.Scripts, String.format("FollowerAI::StartFollow: attempt to StartFollow while in combat. (%1$s)", me.getGUID()));
+            Log.outDebug(LogFilter.Scripts, String.format("FollowerAI::StartFollow: attempt to StartFollow while in combat. (%1$s)", me.getGUID().clone()));
 
             return;
         }
 
         if (hasFollowState(FollowState.Inprogress)) {
-            Log.outError(LogFilter.Scenario, String.format("FollowerAI::StartFollow: attempt to StartFollow while already following. (%1$s)", me.getGUID()));
+            Log.outError(LogFilter.Scenario, String.format("FollowerAI::StartFollow: attempt to StartFollow while already following. (%1$s)", me.getGUID().clone()));
 
             return;
         }
 
         //set variables
-        leaderGUID = player.getGUID();
+        leaderGUID = player.getGUID().clone();
 
         if (factionForFollower != 0) {
             me.setFaction(factionForFollower);
@@ -190,17 +202,17 @@ class FollowerAI extends ScriptedAI {
 
         questForFollow = quest.id;
 
-        me.getMotionMaster().clear(MovementGeneratorPriority.NORMAL);
+        me.getMotionMaster().clear(MovementGeneratorPriority.Normal);
         me.pauseMovement();
 
-        me.replaceAllNpcFlags(NPCFlags.NONE);
-        me.replaceAllNpcFlags2(NPCFlags2.NONE);
+        me.replaceAllNpcFlags(NPCFlags.None);
+        me.replaceAllNpcFlags2(NPCFlags2.None);
 
         addFollowState(FollowState.Inprogress);
 
         me.getMotionMaster().moveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
 
-        Log.outDebug(LogFilter.Scripts, String.format("FollowerAI::StartFollow: start follow %1$s - %2$s (%3$s)", player.getName(), leaderGUID, me.getGUID()));
+        Log.outDebug(LogFilter.Scripts, String.format("FollowerAI::StartFollow: start follow %1$s - %2$s (%3$s)", player.getName(), leaderGUID.clone(), me.getGUID().clone()));
     }
 
     public final void setFollowPaused(boolean paused) {
@@ -209,13 +221,13 @@ class FollowerAI extends ScriptedAI {
         }
 
         if (paused) {
-            addFollowState(FollowState.paused);
+            addFollowState(FollowState.Paused);
 
             if (me.hasUnitState(UnitState.Follow)) {
                 me.getMotionMaster().remove(MovementGeneratorType.Follow);
             }
         } else {
-            removeFollowState(FollowState.paused);
+            removeFollowState(FollowState.Paused);
 
             var leader = getLeaderForFollower();
 
@@ -230,6 +242,8 @@ class FollowerAI extends ScriptedAI {
         setFollowComplete(false);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void SetFollowComplete(bool withEndEvent = false)
     public final void setFollowComplete(boolean withEndEvent) {
         if (me.hasUnitState(UnitState.Follow)) {
             me.getMotionMaster().remove(MovementGeneratorType.Follow);
@@ -251,6 +265,8 @@ class FollowerAI extends ScriptedAI {
         return hasFollowState(FollowState.Inprogress);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: void UpdateFollowerAI(uint diff)
     private void updateFollowerAI(int diff) {
         if (!updateVictim()) {
             return;
@@ -260,20 +276,20 @@ class FollowerAI extends ScriptedAI {
     }
 
     private Player getLeaderForFollower() {
-        var player = global.getObjAccessor().getPlayer(me, leaderGUID);
+        var player = Global.getObjAccessor().GetPlayer(me, leaderGUID.clone());
 
         if (player) {
-            if (player.isAlive) {
+            if (player.IsAlive) {
                 return player;
             } else {
-                var group = player.group;
+                var group = player.Group;
 
                 if (group) {
-                    for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.next()) {
-                        var member = groupRef.source;
+                    for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next()) {
+                        var member = groupRef.Source;
 
-                        if (member && me.isWithinDistInMap(member, 100.0f) && member.isAlive) {
-                            Log.outDebug(LogFilter.Scripts, String.format("FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. (%1$s)", me.getGUID()));
+                        if (member && me.isWithinDistInMap(member, 100.0f) && member.IsAlive) {
+                            Log.outDebug(LogFilter.Scripts, String.format("FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. (%1$s)", me.getGUID().clone()));
                             leaderGUID = member.GUID;
 
                             return member;
@@ -283,7 +299,7 @@ class FollowerAI extends ScriptedAI {
             }
         }
 
-        Log.outDebug(LogFilter.Scripts, String.format("FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. (%1$s)", me.getGUID()));
+        Log.outDebug(LogFilter.Scripts, String.format("FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. (%1$s)", me.getGUID().clone()));
 
         return null;
     }
@@ -297,7 +313,7 @@ class FollowerAI extends ScriptedAI {
         }
 
         //experimental (unknown) flag not present
-        if (!me.getCreatureTemplate().typeFlags.hasFlag(CreatureTypeFlags.CanAssist)) {
+        if (!me.getTemplate().typeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist)) {
             return false;
         }
 
@@ -315,7 +331,7 @@ class FollowerAI extends ScriptedAI {
         }
 
         // or if enemy is in evade mode
-        if (who.getObjectTypeId() == TypeId.UNIT && who.toCreature().isInEvadeMode()) {
+        if (who.getTypeId() == TypeId.Unit && who.getAsCreature().isInEvadeMode()) {
             return false;
         }
 
@@ -337,10 +353,10 @@ class FollowerAI extends ScriptedAI {
     }
 
     private void addFollowState(FollowState uiFollowState) {
-        followState = FollowState.forValue(followState.getValue() | uiFollowState.getValue());
+        followState = game.ai.FollowState.forValue(followState.getValue() | uiFollowState.getValue());
     }
 
     private void removeFollowState(FollowState uiFollowState) {
-        followState = FollowState.forValue(followState.getValue() & ~uiFollowState.getValue());
+        followState = game.ai.FollowState.forValue(followState.getValue() & ~uiFollowState.getValue());
     }
 }

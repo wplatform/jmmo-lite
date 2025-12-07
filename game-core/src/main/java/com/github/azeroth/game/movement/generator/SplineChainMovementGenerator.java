@@ -1,10 +1,19 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.badlogic.gdx.math.Vector3;
+import com.github.azeroth.common.Assert;
+import com.github.azeroth.common.Logs;
+import com.github.azeroth.game.ai.CreatureAI;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.MovementGenerator;
-import com.github.azeroth.game.movement.SplineChainLink;
-import com.github.azeroth.game.movement.SplineChainResumeInfo;
+import com.github.azeroth.game.movement.enums.MovementGeneratorFlag;
+import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
+import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
+import com.github.azeroth.game.movement.model.SplineChainLink;
+import com.github.azeroth.game.movement.model.SplineChainResumeInfo;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 
 import java.util.ArrayList;
@@ -12,7 +21,7 @@ import java.util.ArrayList;
 
 public class SplineChainMovementGenerator extends MovementGenerator {
     private final int id;
-    private final ArrayList<SplineChainLink> chain = new ArrayList<>();
+    private final ArrayList<SplineChainLink> chain;
     private final byte chainSize;
     private final boolean walk;
     private byte nextIndex;
@@ -25,50 +34,50 @@ public class SplineChainMovementGenerator extends MovementGenerator {
     }
 
     public SplineChainMovementGenerator(int id, ArrayList<SplineChainLink> chain, boolean walk) {
-        id = id;
-        chain = chain;
-        chainSize = (byte) chain.size();
-        walk = walk;
+        this.id = id;
+        this.chain = chain;
+        this.chainSize = (byte) chain.size();
+        this.walk = walk;
 
-        mode = MovementGeneratorMode.Default;
+        mode = MovementGeneratorMode.DEFAULT;
         priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.Roaming;
+        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        baseUnitState = UnitState.ROAMING;
     }
 
     public SplineChainMovementGenerator(SplineChainResumeInfo info) {
         id = info.pointID;
         chain = info.chain;
         chainSize = (byte) info.chain.size();
-        walk = info.isWalkMode;
+        walk = info.walkMode;
         nextIndex = info.splineIndex;
         nextFirstWP = info.pointIndex;
         msToNext = info.timeToNext;
 
-        mode = MovementGeneratorMode.Default;
+        mode = MovementGeneratorMode.DEFAULT;
         priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
+        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
 
         if (info.splineIndex >= info.chain.size()) {
-            addFlag(MovementGeneratorFlags.Finalized);
+            addFlag(MovementGeneratorFlag.FINALIZED);
         }
 
-        baseUnitState = UnitState.Roaming;
+        baseUnitState = UnitState.ROAMING;
     }
 
     @Override
     public void initialize(Unit owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.DEACTIVATED);
+        flags.addFlag(MovementGeneratorFlag.INITIALIZED);
 
         if (chainSize == 0) {
-            Log.outError(LogFilter.movement, String.format("SplineChainMovementGenerator::Initialize: couldn't initialize generator, referenced spline is empty! (%1$s)", owner.getGUID()));
+            Logs.MOVEMENT.error("SplineChainMovementGenerator::Initialize: couldn't initialize generator, referenced spline is empty! ({})", owner.getGUID());
 
             return;
         }
 
         if (nextIndex >= chainSize) {
-            Log.outWarn(LogFilter.movement, String.format("SplineChainMovementGenerator::Initialize: couldn't initialize generator, _nextIndex is >= chainSize (%1$s)", owner.getGUID()));
+            Logs.SPLINE_CHAIN.warn("SplineChainMovementGenerator::Initialize: couldn't initialize generator, _nextIndex is >= _chainSize ({})", owner.getGUID());
             msToNext = 0;
 
             return;
@@ -76,23 +85,23 @@ public class SplineChainMovementGenerator extends MovementGenerator {
 
         if (nextFirstWP != 0) // this is a resumed movegen that has to start with a partial spline
         {
-            if (hasFlag(MovementGeneratorFlags.Finalized)) {
+            if (hasFlag(MovementGeneratorFlag.FINALIZED)) {
                 return;
             }
 
             var thisLink = chain.get(nextIndex);
 
             if (nextFirstWP >= thisLink.points.size()) {
-                Log.outError(LogFilter.movement, String.format("SplineChainMovementGenerator::Initialize: attempted to resume spline chain from invalid resume state, nextFirstWP >= path size (_nextIndex: %1$s, _nextFirstWP: %2$s). (%3$s)", nextIndex, nextFirstWP, owner.getGUID()));
+                Logs.SPLINE_CHAIN.error("SplineChainMovementGenerator::Initialize: attempted to resume spline chain from invalid resume state, _nextFirstWP >= path size (_nextIndex: {}, _nextFirstWP: {}). ({})", nextIndex, nextFirstWP, owner.getGUID());
                 nextFirstWP = (byte) (thisLink.points.size() - 1);
             }
 
-            owner.addUnitState(UnitState.RoamingMove);
-            Span<Vector3> partial = thisLink.points.toArray(new Vector3[0]);
+            owner.addUnitState(UnitState.ROAMING_MOVE);
+            Vector3[] partial = thisLink.points.subList(nextFirstWP - 1, thisLink.points.size()).toArray(new Vector3[0]);
 
-            sendPathSpline(owner, thisLink.velocity, partial[(_nextFirstWP - 1)..]);
+            sendPathSpline(owner, thisLink.velocity, partial);
 
-            Log.outDebug(LogFilter.movement, String.format("SplineChainMovementGenerator::Initialize: resumed spline chain generator from resume state. (%1$s)", owner.getGUID()));
+            Logs.SPLINE_CHAIN.debug("SplineChainMovementGenerator::Initialize: resumed spline chain generator from resume state. ({})", owner.getGUID());
 
             ++nextIndex;
 
@@ -105,9 +114,7 @@ public class SplineChainMovementGenerator extends MovementGenerator {
             nextFirstWP = 0;
         } else {
             msToNext = Math.max(chain.get(nextIndex).timeToNext, 1);
-            tangible.RefObject<Integer> tempRef__msToNext = new tangible.RefObject<Integer>(msToNext);
-            sendSplineFor(owner, nextIndex, tempRef__msToNext);
-            msToNext = tempRef__msToNext.refArgValue;
+            msToNext = sendSplineFor(owner, nextIndex, msToNext);
 
             ++nextIndex;
 
@@ -119,7 +126,7 @@ public class SplineChainMovementGenerator extends MovementGenerator {
 
     @Override
     public void reset(Unit owner) {
-        removeFlag(MovementGeneratorFlags.Deactivated);
+        removeFlag(MovementGeneratorFlag.DEACTIVATED);
 
         owner.stopMoving();
         initialize(owner);
@@ -127,14 +134,14 @@ public class SplineChainMovementGenerator extends MovementGenerator {
 
     @Override
     public boolean update(Unit owner, int diff) {
-        if (owner == null || hasFlag(MovementGeneratorFlags.Finalized)) {
+        if (owner == null || hasFlag(MovementGeneratorFlag.FINALIZED)) {
             return false;
         }
 
         // _msToNext being zero here means we're on the final spline
         if (msToNext == 0) {
             if (owner.getMoveSpline().finalized()) {
-                addFlag(MovementGeneratorFlags.InformEnabled);
+                addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
                 return false;
             }
@@ -144,11 +151,9 @@ public class SplineChainMovementGenerator extends MovementGenerator {
 
         if (msToNext <= diff) {
             // Send next spline
-            Log.outDebug(LogFilter.movement, String.format("SplineChainMovementGenerator::Update: sending spline on index %1$s (%2$s ms late). (%3$s)", nextIndex, diff - msToNext, owner.getGUID()));
+            Logs.SPLINE_CHAIN.debug("SplineChainMovementGenerator::Update: sending spline on index {} ({} ms late). ({})", nextIndex, diff - msToNext, owner.getGUID());
             msToNext = Math.max(chain.get(nextIndex).timeToNext, 1);
-            tangible.RefObject<Integer> tempRef__msToNext = new tangible.RefObject<Integer>(msToNext);
-            sendSplineFor(owner, nextIndex, tempRef__msToNext);
-            msToNext = tempRef__msToNext.refArgValue;
+            msToNext = sendSplineFor(owner, nextIndex, msToNext);
             ++nextIndex;
 
             if (nextIndex >= chainSize) {
@@ -158,7 +163,7 @@ public class SplineChainMovementGenerator extends MovementGenerator {
                 return true;
             }
         } else {
-            _msToNext -= diff;
+            msToNext -= diff;
         }
 
         return true;
@@ -166,43 +171,42 @@ public class SplineChainMovementGenerator extends MovementGenerator {
 
     @Override
     public void deactivate(Unit owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
-        owner.clearUnitState(UnitState.RoamingMove);
+        addFlag(MovementGeneratorFlag.DEACTIVATED);
+        owner.clearUnitState(UnitState.ROAMING_MOVE);
     }
 
     @Override
     public void finalize(Unit owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+        addFlag(MovementGeneratorFlag.FINALIZED);
 
         if (active) {
-            owner.clearUnitState(UnitState.RoamingMove);
+            owner.clearUnitState(UnitState.ROAMING_MOVE);
         }
+        if (movementInform && hasFlag(MovementGeneratorFlag.INFORM_ENABLED)) {
 
-        if (movementInform && hasFlag(MovementGeneratorFlags.InformEnabled)) {
-            var ai = owner.toCreature().getAI();
 
-            if (ai != null) {
-                ai.movementInform(MovementGeneratorType.SplineChain, id);
+            if (owner.getAi() instanceof CreatureAI ai) {
+                ai.movementInform(MovementGeneratorType.SPLINE_CHAIN, id);
             }
         }
     }
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.SplineChain;
+        return MovementGeneratorType.SPLINE_CHAIN;
     }
 
     public final int getId() {
         return id;
     }
 
-    private int sendPathSpline(Unit owner, float velocity, Span<Vector3> path) {
+    private int sendPathSpline(Unit owner, float velocity, Vector3[] path) {
         var nodeCount = path.length;
 
         MoveSplineInit init = new MoveSplineInit(owner);
 
         if (nodeCount > 2) {
-            init.movebyPath(path.ToArray());
+            init.movebyPath(path);
         } else {
             init.moveTo(path[1], false, true);
         }
@@ -213,21 +217,24 @@ public class SplineChainMovementGenerator extends MovementGenerator {
 
         init.setWalk(walk);
 
-        return (int) init.launch();
+        return init.launch();
     }
 
-    private void sendSplineFor(Unit owner, int index, tangible.RefObject<Integer> duration) {
-        Log.outDebug(LogFilter.movement, String.format("SplineChainMovementGenerator::SendSplineFor: sending spline on index: %1$s. (%2$s)", index, owner.getGUID()));
+    private int sendSplineFor(Unit owner, int index, int duration) {
+
+        Assert.isTrue(index < chainSize, "SplineChainMovementGenerator::SendSplineFor: referenced index ({}) higher than path size ({}})!", index, chainSize);
+        Logs.SPLINE_CHAIN.debug("SplineChainMovementGenerator::SendSplineFor: sending spline on index: {}. ({})", index, owner.getGUID());
 
         var thisLink = chain.get(index);
-        var actualDuration = sendPathSpline(owner, thisLink.velocity, new Span<Vector3>(thisLink.points.toArray(new Vector3[0])));
+        var actualDuration = sendPathSpline(owner, thisLink.velocity, thisLink.points.toArray(new Vector3[0]));
 
         if (actualDuration != thisLink.expectedDuration) {
-            Log.outDebug(LogFilter.movement, String.format("SplineChainMovementGenerator::SendSplineFor: sent spline on index: %1$s, duration: %2$s ms. Expected duration: %3$s ms (delta %4$s ms). Adjusting. (%5$s)", index, actualDuration, thisLink.expectedDuration, actualDuration - thisLink.expectedDuration, owner.getGUID()));
-            duration.refArgValue = (int) ((double) actualDuration / (double) thisLink.ExpectedDuration * duration.refArgValue);
+            Logs.SPLINE_CHAIN.debug("SplineChainMovementGenerator::SendSplineFor: sent spline on index: {}, duration: {} ms. Expected duration: {} ms (delta {} ms). Adjusting. ({})", index, actualDuration, thisLink.expectedDuration, actualDuration - thisLink.expectedDuration, owner.getGUID());
+            duration = (int) ((double) actualDuration / (double) thisLink.expectedDuration * duration);
         } else {
-            Log.outDebug(LogFilter.movement, String.format("SplineChainMovementGenerator::SendSplineFor: sent spline on index %1$s, duration: %2$s ms. (%3$s)", index, actualDuration, owner.getGUID()));
+            Logs.SPLINE_CHAIN.debug("SplineChainMovementGenerator::SendSplineFor: sent spline on index {}, duration: {} ms. ({})", index, actualDuration, owner.getGUID());
         }
+        return duration;
     }
 
     private SplineChainResumeInfo getResumeInfo(Unit owner) {
@@ -243,6 +250,6 @@ public class SplineChainMovementGenerator extends MovementGenerator {
             }
         }
 
-        return new SplineChainResumeInfo(id, chain, walk, (byte) (_nextIndex - 1), (byte) owner.getMoveSpline().currentSplineIdx(), msToNext);
+        return new SplineChainResumeInfo(id, chain, walk, (byte) (nextIndex - 1), (byte) owner.getMoveSpline().currentSplineIdx(), msToNext);
     }
 }

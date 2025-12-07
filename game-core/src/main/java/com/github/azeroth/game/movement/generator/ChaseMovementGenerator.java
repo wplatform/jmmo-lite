@@ -1,13 +1,15 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.ai.CreatureAI;
+import com.github.azeroth.game.domain.object.ObjectDefine;
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.*;
-import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
-import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
-import com.github.azeroth.game.movement.enums.MovementGeneratorType;
-import com.github.azeroth.game.movement.enums.PathType;
+import com.github.azeroth.game.movement.enums.*;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
+import com.github.azeroth.time.TimeTracker;
 
 class ChaseMovementGenerator extends MovementGenerator {
     private static final int RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
@@ -23,16 +25,16 @@ class ChaseMovementGenerator extends MovementGenerator {
     private boolean mutualChase = true;
 
     public ChaseMovementGenerator(Unit target, ChaseRange range, ChaseAngle angle) {
-        abstractFollower = new AbstractFollower(target);
-        range = range;
-        angle = angle;
+        this.abstractFollower = new AbstractFollower(target);
+        this.range = range;
+        this.angle = angle;
 
-        mode = MovementGeneratorMode.Default;
-        priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.chase;
+        this.mode = MovementGeneratorMode.DEFAULT;
+        this.priority = MovementGeneratorPriority.NORMAL;
+        this.flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        this.baseUnitState = UnitState.CHASE;
 
-        rangeCheckTimer = new timeTracker(RANGE_CHECK_INTERVAL);
+        rangeCheckTimer = new TimeTracker(RANGE_CHECK_INTERVAL);
     }
 
     private static boolean hasLostTarget(Unit owner, Unit target) {
@@ -40,7 +42,7 @@ class ChaseMovementGenerator extends MovementGenerator {
     }
 
     private static boolean isMutualChase(Unit owner, Unit target) {
-        if (target.getMotionMaster().getCurrentMovementGeneratorType() != MovementGeneratorType.chase) {
+        if (target.getMotionMaster().getCurrentMovementGeneratorType() != MovementGeneratorType.CHASE) {
             return false;
         }
 
@@ -65,7 +67,7 @@ class ChaseMovementGenerator extends MovementGenerator {
             return false;
         }
 
-        if (angle != null && !angle.getValue().isAngleOkay(target.getLocation().getRelativeAngle(owner.getLocation()))) {
+        if (angle != null && !angle.isAngleOkay(target.getLocation().getRelativeAngle(owner.getLocation()))) {
             return false;
         }
 
@@ -81,32 +83,29 @@ class ChaseMovementGenerator extends MovementGenerator {
             return;
         }
 
-        var ai = owner.toCreature().getAI();
-
-        if (ai != null) {
-            ai.movementInform(MovementGeneratorType.chase, (int) target.getGUID().getCounter());
+        if (owner.getAi() instanceof CreatureAI ai) {
+            ai.movementInform(MovementGeneratorType.CHASE, target.getGUID().entry());
         }
     }
 
     @Override
     public void initialize(Unit owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        addFlag(MovementGeneratorFlags.initialized.getValue() | MovementGeneratorFlags.InformEnabled.getValue());
-
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.DEACTIVATED);
+        flags.addFlag(MovementGeneratorFlag.INITIALIZED, MovementGeneratorFlag.INFORM_ENABLED);
         path = null;
         lastTargetPosition = null;
     }
 
     @Override
     public void reset(Unit owner) {
-        removeFlag(MovementGeneratorFlags.Deactivated);
+        flags.removeFlag(MovementGeneratorFlag.DEACTIVATED);
         initialize(owner);
     }
 
     @Override
     public boolean update(Unit owner, int diff) {
         // owner might be dead or gone (can we even get nullptr here?)
-        if (!owner || !owner.isAlive()) {
+        if (owner == null || !owner.isAlive()) {
             return false;
         }
 
@@ -118,7 +117,7 @@ class ChaseMovementGenerator extends MovementGenerator {
         }
 
         // the owner might be unable to move (rooted or casting), or we have lost the target, pause movement
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting() || hasLostTarget(owner, target)) {
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting() || hasLostTarget(owner, target)) {
             owner.stopMoving();
             lastTargetPosition = null;
             var cOwner = owner.toCreature();
@@ -137,20 +136,20 @@ class ChaseMovementGenerator extends MovementGenerator {
             hitboxSum = ObjectDefine.DEFAULT_PLAYER_COMBAT_REACH;
         }
 
-        var minRange = range != null ? range.getValue().minRange + hitboxSum : SharedConst.contactDistance;
-        var minTarget = (range != null ? range.getValue().MinTolerance : 0.0f) + hitboxSum;
-        var maxRange = range != null ? range.getValue().maxRange + hitboxSum : owner.getMeleeRange(target); // melee range already includes hitboxes
-        var maxTarget = range != null ? range.getValue().maxTolerance + hitboxSum : SharedConst.contactDistance + hitboxSum;
-        var angle = mutualChase ? null : angle;
+        var minRange = range != null ? range.minRange + hitboxSum : ObjectDefine.CONTACT_DISTANCE;
+        var minTarget = (range != null ? range.minTolerance : 0.0f) + hitboxSum;
+        var maxRange = range != null ? range.maxRange + hitboxSum : owner.getMeleeRange(target); // melee range already includes hitboxes
+        var maxTarget = range != null ? range.maxTolerance + hitboxSum : ObjectDefine.CONTACT_DISTANCE + hitboxSum;
+        var angle = mutualChase ? null : this.angle;
 
         // periodically check if we're already in the expected range...
         rangeCheckTimer.update(diff);
 
-        if (rangeCheckTimer.Passed) {
+        if (rangeCheckTimer.passed()) {
             rangeCheckTimer.reset(RANGE_CHECK_INTERVAL);
 
-            if (hasFlag(MovementGeneratorFlags.InformEnabled) && positionOkay(owner, target, _movingTowards ? null : minTarget, _movingTowards ? maxTarget : null, angle)) {
-                removeFlag(MovementGeneratorFlags.InformEnabled);
+            if (hasFlag(MovementGeneratorFlag.INFORM_ENABLED) && positionOkay(owner, target, movingTowards ? null : minTarget, movingTowards ? maxTarget : null, angle)) {
+                removeFlag(MovementGeneratorFlag.INFORM_ENABLED);
                 path = null;
 
                 var cOwner = owner.toCreature();
@@ -170,8 +169,8 @@ class ChaseMovementGenerator extends MovementGenerator {
         var isEvading = false;
 
         // if we're done moving, we want to clean up
-        if (owner.hasUnitState(UnitState.ChaseMove) && owner.getMoveSpline().finalized()) {
-            removeFlag(MovementGeneratorFlags.InformEnabled);
+        if (owner.hasUnitState(UnitState.CHASE_MOVE) && owner.getMoveSpline().finalized()) {
+            removeFlag(MovementGeneratorFlag.INFORM_ENABLED);
             path = null;
             var cOwner = owner.toCreature();
 
@@ -179,17 +178,17 @@ class ChaseMovementGenerator extends MovementGenerator {
                 cOwner.setCannotReachTarget(false);
             }
 
-            owner.clearUnitState(UnitState.ChaseMove);
+            owner.clearUnitState(UnitState.CHASE_MOVE);
             owner.setInFront(target);
             doMovementInform(owner, target);
         }
 
         // if the target moved, we have to consider whether to adjust
-        if (lastTargetPosition == null || target.getLocation() != lastTargetPosition || mutualChase != mutualChase) {
+        if (lastTargetPosition == null || target.getLocation() != lastTargetPosition || this.mutualChase != mutualChase) {
             lastTargetPosition = new Position(target.getLocation());
-            mutualChase = mutualChase;
+            this.mutualChase = mutualChase;
 
-            if (owner.hasUnitState(UnitState.ChaseMove) || !positionOkay(owner, target, minRange, maxRange, angle)) {
+            if (owner.hasUnitState(UnitState.CHASE_MOVE) || !positionOkay(owner, target, minRange, maxRange, angle)) {
                 var cOwner = owner.toCreature();
 
                 // can we get to the target?
@@ -213,13 +212,13 @@ class ChaseMovementGenerator extends MovementGenerator {
                 boolean shortenPath;
 
                 // if we want to move toward the target and there's no fixed angle...
-                if (moveToward && !angle != null) {
+                if (moveToward && angle != null) {
                     // ...we'll pathfind to the center, then shorten the path
-                    pos = target.getLocation().Copy();
+                    pos.relocate(target.getLocation());
                     shortenPath = true;
                 } else {
                     // otherwise, we fall back to nearpoint finding
-                    target.getNearPoint(owner, pos, (moveToward ? maxTarget : minTarget) - hitboxSum, angle != null ? target.getLocation().toAbsoluteAngle(angle.getValue().relativeAngle) : target.getLocation().getAbsoluteAngle(owner.getLocation()));
+                    target.getNearPoint(owner, pos, (moveToward ? maxTarget : minTarget) - hitboxSum, angle != null ? target.getLocation().toAbsoluteAngle(angle.relativeAngle) : target.getLocation().getAbsoluteAngle(owner.getLocation()));
                     shortenPath = false;
                 }
 
@@ -230,7 +229,7 @@ class ChaseMovementGenerator extends MovementGenerator {
                 var success = path.calculatePath(pos, owner.canFly());
 
                 if (!success || path.getPathType().hasFlag(PathType.NOPATH)) {
-                    if (cOwner) {
+                    if (cOwner != null) {
                         cOwner.setCannotReachTarget(true);
                     }
 
@@ -243,15 +242,13 @@ class ChaseMovementGenerator extends MovementGenerator {
                     path.shortenPathUntilDist(target.getLocation(), maxTarget);
                 }
 
-                if (cOwner) {
+                if (cOwner != null) {
                     cOwner.setCannotReachTarget(false);
                 }
 
-                cOwner.setCannotReachTarget(false);
-
                 var walk = false;
 
-                if (cOwner && !cOwner.isPet()) {
+                if (cOwner != null && !cOwner.isPet()) {
                     switch (cOwner.getMovementTemplate().getChase()) {
                         case CanWalk:
                             walk = owner.isWalking();
@@ -266,8 +263,8 @@ class ChaseMovementGenerator extends MovementGenerator {
                     }
                 }
 
-                owner.addUnitState(UnitState.ChaseMove);
-                addFlag(MovementGeneratorFlags.InformEnabled);
+                owner.addUnitState(UnitState.CHASE_MOVE);
+                addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
                 MoveSplineInit init = new MoveSplineInit(owner);
                 init.movebyPath(path.getPath());
@@ -283,9 +280,9 @@ class ChaseMovementGenerator extends MovementGenerator {
 
     @Override
     public void deactivate(Unit owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
-        removeFlag(MovementGeneratorFlags.Transitory.getValue() | MovementGeneratorFlags.InformEnabled.getValue());
-        owner.clearUnitState(UnitState.ChaseMove);
+        flags.addFlag(MovementGeneratorFlag.DEACTIVATED);
+        flags.removeFlag(MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.INFORM_ENABLED);
+        owner.clearUnitState(UnitState.CHASE_MOVE);
         var cOwner = owner.toCreature();
 
         if (cOwner != null) {
@@ -295,10 +292,10 @@ class ChaseMovementGenerator extends MovementGenerator {
 
     @Override
     public void finalize(Unit owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+        flags.addFlag(MovementGeneratorFlag.FINALIZED);
 
         if (active) {
-            owner.clearUnitState(UnitState.ChaseMove);
+            owner.clearUnitState(UnitState.CHASE_MOVE);
             var cOwner = owner.toCreature();
 
             if (cOwner != null) {
@@ -309,7 +306,7 @@ class ChaseMovementGenerator extends MovementGenerator {
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.chase;
+        return MovementGeneratorType.CHASE;
     }
 
     @Override

@@ -10,7 +10,6 @@ public final class RouteBuilder {
     private final AuthHandler authHandler;
     private final AdventureMapHandler adventureMapHandler;
     private final AuctionHouseHandler auctionHouseHandler;
-    private final AuthHandler authHandler;
     private final BankHandler bankHandler;
     private final BattleGroundHandler battleGroundHandler;
     private final BattlenetHandler battlenetHandler;
@@ -40,7 +39,7 @@ public final class RouteBuilder {
     private final QueryHandler queryHandler;
     private final QuestHandler questHandler;
     private final SceneHandler sceneHandler;
-    private final SkillHandler skillHandler
+    private final SkillHandler skillHandler;
     private final SocialHandler socialHandler;
     private final SpellHandler spellHandler;
     private final TaxiHandler taxiHandler;

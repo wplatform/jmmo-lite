@@ -7,7 +7,7 @@ public enum Race {
     ORC,  // TITLE Orc
     DWARF,  // TITLE Dwarf
     NIGHT_ELF,  // TITLE Night Elf
-    UNDEAD_PLAYER,  // TITLE Undead
+    UNDEAD,  // TITLE Undead
     TAUREN,  // TITLE Tauren
     GNOME,  // TITLE Gnome
     TROLL,  // TITLE Troll

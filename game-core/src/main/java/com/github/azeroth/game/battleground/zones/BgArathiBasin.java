@@ -367,7 +367,7 @@ class BgArathiBasin extends Battleground {
             return;
         }
 
-        source.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
+        source.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.PvPActive);
         int sound;
 
         // If node is neutral, change to contested

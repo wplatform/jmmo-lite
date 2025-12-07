@@ -1,8 +1,13 @@
-package com.github.azeroth.game.ai;
+package game.ai;
 
-import com.github.azeroth.game.entity.creature.Creature;
+import game.entities.*;
+import game.*;
+import java.util.*;
 
-import java.util.ArrayList;
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
 
 
 public class SummonList extends ArrayList<ObjectGuid> {
@@ -13,7 +18,7 @@ public class SummonList extends ArrayList<ObjectGuid> {
     }
 
     public final void summon(Creature summon) {
-        this.add(summon.getGUID());
+        this.add(summon.getGUID().clone());
     }
 
 
@@ -21,9 +26,12 @@ public class SummonList extends ArrayList<ObjectGuid> {
         doZoneInCombat(0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void DoZoneInCombat(uint entry = 0)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void doZoneInCombat(int entry) {
         for (var id : this) {
-            var summon = ObjectAccessor.getCreature(me, id);
+            var summon = ObjectAccessor.getCreature(me, id.clone());
 
             if (summon && summon.isAIEnabled() && (entry == 0 || summon.getEntry() == entry)) {
                 summon.getAI().doZoneInCombat(null);
@@ -31,21 +39,22 @@ public class SummonList extends ArrayList<ObjectGuid> {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void DespawnEntry(uint entry)
     public final void despawnEntry(int entry) {
         for (var id : this) {
-            var summon = ObjectAccessor.getCreature(me, id);
+            var summon = ObjectAccessor.getCreature(me, id.clone());
 
             if (!summon) {
-                this.remove(id);
+                this.remove(id.clone());
             } else if (summon.getEntry() == entry) {
-                this.remove(id);
+                this.remove(id.clone());
                 summon.despawnOrUnsummon();
             }
         }
     }
-
     public final void despawnAll() {
-        while (!this.isEmpty()) {
+        while (!this.Empty()) {
             var summon = ObjectAccessor.getCreature(me, this.FirstOrDefault());
             this.remove(0);
 
@@ -56,7 +65,7 @@ public class SummonList extends ArrayList<ObjectGuid> {
     }
 
     public final void despawn(Creature summon) {
-        this.remove(summon.getGUID());
+        this.remove(summon.getGUID().clone());
     }
 
     public final void despawnIf(ICheck<ObjectGuid> predicate) {
@@ -69,8 +78,8 @@ public class SummonList extends ArrayList<ObjectGuid> {
 
     public final void removeNotExisting() {
         for (var id : this) {
-            if (!ObjectAccessor.getCreature(me, id)) {
-                this.remove(id);
+            if (!ObjectAccessor.getCreature(me, id.clone())) {
+                this.remove(id.clone());
             }
         }
     }
@@ -80,6 +89,9 @@ public class SummonList extends ArrayList<ObjectGuid> {
         doAction(info, predicate, 0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void DoAction(int info, ICheck<ObjectGuid> predicate, ushort max = 0)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void doAction(int info, ICheck<ObjectGuid> predicate, short max) {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         ArrayList<ObjectGuid> listCopy = new ArrayList<ObjectGuid>(this);
@@ -92,6 +104,9 @@ public class SummonList extends ArrayList<ObjectGuid> {
         doAction(info, predicate, 0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void DoAction(int info, Predicate<ObjectGuid> predicate, ushort max = 0)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void doAction(int info, java.util.function.Predicate<ObjectGuid> predicate, short max) {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         ArrayList<ObjectGuid> listCopy = new ArrayList<ObjectGuid>(this);
@@ -99,9 +114,11 @@ public class SummonList extends ArrayList<ObjectGuid> {
         doActionImpl(info, listCopy);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public bool HasEntry(uint entry)
     public final boolean hasEntry(int entry) {
         for (var id : this) {
-            var summon = ObjectAccessor.getCreature(me, id);
+            var summon = ObjectAccessor.getCreature(me, id.clone());
 
             if (summon && summon.getEntry() == entry) {
                 return true;
@@ -113,7 +130,7 @@ public class SummonList extends ArrayList<ObjectGuid> {
 
     private void doActionImpl(int action, ArrayList<ObjectGuid> summons) {
         for (var guid : summons) {
-            var summon = ObjectAccessor.getCreature(me, guid);
+            var summon = ObjectAccessor.getCreature(me, guid.clone());
 
             if (summon && summon.isAIEnabled()) {
                 summon.getAI().doAction(action);

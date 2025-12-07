@@ -725,7 +725,7 @@ public class ChatHandler {
                 creature->AI()->ReceiveEmote(_player, packet.EmoteID);
 
         if (emote != EMOTE_ONESHOT_NONE)
-            _player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Anim);
+            _player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlag::Anim);
     }
 
     void HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored)

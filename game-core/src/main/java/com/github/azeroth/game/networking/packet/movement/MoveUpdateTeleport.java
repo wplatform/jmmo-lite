@@ -1,15 +1,17 @@
 package com.github.azeroth.game.networking.packet.movement;
 
 
+import com.github.azeroth.game.movement.model.MovementForce;
 import com.github.azeroth.game.movement.model.MovementInfo;
-import com.github.azeroth.game.movement.movementForce;
+import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 import java.util.ArrayList;
 
 
 public class MoveUpdateTeleport extends ServerPacket {
     public MovementInfo status;
-    public ArrayList<movementForce> movementForces;
+    public ArrayList<MovementForce> movementForces;
     public Float swimBackSpeed = null;
     public Float flightSpeed = null;
     public Float swimSpeed = null;
@@ -21,7 +23,7 @@ public class MoveUpdateTeleport extends ServerPacket {
     public Float pitchRate = null;
 
     public MoveUpdateTeleport() {
-        super(ServerOpcode.MoveUpdateTeleport);
+        super(ServerOpCode.SMSG_MOVE_UPDATE_TELEPORT);
     }
 
     @Override
@@ -47,39 +49,39 @@ public class MoveUpdateTeleport extends ServerPacket {
         }
 
         if (walkSpeed != null) {
-            this.writeFloat(walkSpeed.floatValue());
+            this.writeFloat(walkSpeed);
         }
 
         if (runSpeed != null) {
-            this.writeFloat(runSpeed.floatValue());
+            this.writeFloat(runSpeed);
         }
 
         if (runBackSpeed != null) {
-            this.writeFloat(runBackSpeed.floatValue());
+            this.writeFloat(runBackSpeed);
         }
 
         if (swimSpeed != null) {
-            this.writeFloat(swimSpeed.floatValue());
+            this.writeFloat(swimSpeed);
         }
 
         if (swimBackSpeed != null) {
-            this.writeFloat(swimBackSpeed.floatValue());
+            this.writeFloat(swimBackSpeed);
         }
 
         if (flightSpeed != null) {
-            this.writeFloat(flightSpeed.floatValue());
+            this.writeFloat(flightSpeed);
         }
 
         if (flightBackSpeed != null) {
-            this.writeFloat(flightBackSpeed.floatValue());
+            this.writeFloat(flightBackSpeed);
         }
 
         if (turnRate != null) {
-            this.writeFloat(turnRate.floatValue());
+            this.writeFloat(turnRate);
         }
 
         if (pitchRate != null) {
-            this.writeFloat(pitchRate.floatValue());
+            this.writeFloat(pitchRate);
         }
     }
 }

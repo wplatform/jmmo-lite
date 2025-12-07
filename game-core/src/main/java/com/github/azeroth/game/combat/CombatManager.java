@@ -71,7 +71,7 @@ public class CombatManager {
     }
 
     public static void notifyAICombat(Unit me, Unit other) {
-        var ai = me.getAI();
+        var ai = me.getAi();
 
         if (ai != null) {
             ai.justEnteredCombat(other);
@@ -297,7 +297,7 @@ public class CombatManager {
         }
 
         if (updateOwnerCombatState()) {
-            var ownerAI = owner.getAI();
+            var ownerAI = owner.getAi();
 
             if (ownerAI != null) {
                 ownerAI.justExitedCombat();

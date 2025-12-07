@@ -126,8 +126,11 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
     @Getter(onMethod_ = @Override)
     private TaxiMask taxiNodesMask;
+    @Getter(onMethod_ = @Override)
     private TaxiMask oldContinentsNodesMask;
+    @Getter(onMethod_ = @Override)
     private TaxiMask hordeTaxiNodesMask;
+    @Getter(onMethod_ = @Override)
     private TaxiMask allianceTaxiNodesMask;
 
     public HotfixesDbcObjectManager(CacheProvider cacheProvider) {
@@ -713,10 +716,11 @@ public class HotfixesDbcObjectManager implements DbcObjectManager {
 
         // Initialize global taxinodes mask
         // reinitialize internal storage for globals after loading TaxiNodes.db2
-        taxiNodesMask = new TaxiMask();
-        hordeTaxiNodesMask = new TaxiMask();
-        allianceTaxiNodesMask = new TaxiMask();
-        oldContinentsNodesMask = new TaxiMask();
+        int maskSize = ((taxiNode().size() - 1) / 8) + 1;
+        taxiNodesMask = new TaxiMask(maskSize);
+        hordeTaxiNodesMask = new TaxiMask(maskSize);
+        allianceTaxiNodesMask = new TaxiMask(maskSize);
+        oldContinentsNodesMask = new TaxiMask(maskSize);
         // include existed nodes that have at least single not spell base (scripted) path
         for (TaxiNode node : taxiNode()) {
             if (!node.isPartOfTaxiNetwork())

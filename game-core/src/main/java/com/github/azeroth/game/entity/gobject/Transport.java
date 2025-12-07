@@ -8,10 +8,9 @@ import com.github.azeroth.game.domain.transport.TransportTemplate;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.creature.TempSummon;
 import com.github.azeroth.game.entity.object.WorldObject;
-import com.github.azeroth.game.entity.object.update.UpdateData;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.entity.vehicle.ITransport;
+import com.github.azeroth.game.entity.vehicle.TransportObject;
 import com.github.azeroth.game.map.grid.Cell;
 import com.github.azeroth.game.phasing.PhasingHandler;
 import com.github.azeroth.game.listener.interfaces.itransport.*;
@@ -27,7 +26,7 @@ import java.util.HashSet;
 
 @Getter
 @Setter
-public class Transport extends GameObject implements ITransport {
+public class Transport extends GameObject implements TransportObject {
     private final TimeTracker positionChangeTimer = new TimeTracker();
     private final HashSet<WorldObject> passengers = new HashSet<WorldObject>();
     private final HashSet<WorldObject> staticPassengers = new HashSet<WorldObject>();
@@ -67,7 +66,7 @@ public class Transport extends GameObject implements ITransport {
         }
     }
 
-    public final ITransport removePassenger(WorldObject passenger) {
+    public final TransportObject removePassenger(WorldObject passenger) {
         synchronized (staticPassengers) {
             if (passengers.remove(passenger) || staticPassengers.remove(passenger)) // static passenger can remove itself in case of grid unload
             {

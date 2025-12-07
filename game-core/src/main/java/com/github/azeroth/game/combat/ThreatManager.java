@@ -835,7 +835,7 @@ public class ThreatManager {
     }
 
     private void processAIUpdates() {
-        var ai = owner.toCreature().getAI();
+        var ai = owner.toCreature().getAi();
         ArrayList<ThreatReference> v = new ArrayList<ThreatReference>(needsAIUpdate); // _needClientUpdate is now empty in case this triggers a recursive call
 
         if (ai == null) {

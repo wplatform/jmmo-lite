@@ -1,8 +1,14 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.unit.Unit;
+
 
 public class WorldBossAI extends ScriptedAI {
     private final SummonList summons;
@@ -15,7 +21,7 @@ public class WorldBossAI extends ScriptedAI {
     @Override
     public void justSummoned(Creature summon) {
         summons.summon(summon);
-        var target = selectTarget(SelectTargetMethod.random, 0, 0.0f, true);
+        var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
         if (target) {
             summon.getAI().attackStart(target);
@@ -27,25 +33,26 @@ public class WorldBossAI extends ScriptedAI {
         summons.despawn(summon);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         if (!updateVictim()) {
             return;
         }
 
-        events.update(diff);
+        events.Update(diff);
 
         if (me.hasUnitState(UnitState.Casting)) {
             return;
         }
 
-        events.ExecuteEvents(eventId ->
-        {
-            executeEvent(eventId);
+        events.ExecuteEvents(eventId -> {
+                executeEvent(eventId);
 
-            if (me.hasUnitState(UnitState.Casting)) {
-                return;
-            }
+                if (me.hasUnitState(UnitState.Casting)) {
+                    return;
+                }
         });
 
         doMeleeAttackIfReady();
@@ -55,6 +62,8 @@ public class WorldBossAI extends ScriptedAI {
     // to override UpdateAI
     // note: You must re-schedule the event within this method if the event
     // is supposed to run more than once
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void ExecuteEvent(uint eventId)
     public void executeEvent(int eventId) {
     }
 
@@ -65,12 +74,12 @@ public class WorldBossAI extends ScriptedAI {
 
     @Override
     public void justEngagedWith(Unit who) {
-        _JustEngagedWith();
+        justEngagedWith();
     }
 
     @Override
     public void justDied(Unit killer) {
-        _JustDied();
+        justDied();
     }
 
     private void _Reset() {
@@ -78,17 +87,17 @@ public class WorldBossAI extends ScriptedAI {
             return;
         }
 
-        events.reset();
+        events.Reset();
         summons.despawnAll();
     }
 
-    private void _JustDied() {
-        events.reset();
+    private void justDied() {
+        events.Reset();
         summons.despawnAll();
     }
 
-    private void _JustEngagedWith() {
-        var target = selectTarget(SelectTargetMethod.random, 0, 0.0f, true);
+    private void justEngagedWith() {
+        var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
         if (target) {
             attackStart(target);

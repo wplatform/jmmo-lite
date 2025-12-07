@@ -8,7 +8,7 @@ public class ProcEventInfo {
     private final Unit actor;
     private final Unit actionTarget;
     private final Unit procTarget;
-    private final ProcFlagsInit typeMask;
+    private final EnumFlag<ProcFlag> typeMask;
     private final ProcFlagsSpellType spellTypeMask;
     private final ProcFlagsSpellPhase spellPhaseMask;
     private final ProcFlagsHit hitMask;
@@ -16,7 +16,7 @@ public class ProcEventInfo {
     private final DamageInfo damageInfo;
     private final HealInfo healInfo;
 
-    public ProcEventInfo(Unit actor, Unit actionTarget, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo) {
+    public ProcEventInfo(Unit actor, Unit actionTarget, Unit procTarget, EnumFlag<ProcFlag> typeMask, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo) {
         actor = actor;
         actionTarget = actionTarget;
         procTarget = procTarget;
@@ -41,7 +41,7 @@ public class ProcEventInfo {
         return procTarget;
     }
 
-    public final ProcFlagsInit getTypeMask() {
+    public final EnumFlag<ProcFlag> getTypeMask() {
         return typeMask;
     }
 

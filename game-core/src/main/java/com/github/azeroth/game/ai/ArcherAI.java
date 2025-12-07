@@ -1,27 +1,33 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.unit.Unit;
+
 
 public class ArcherAI extends CreatureAI {
     private final float minRange;
 
     public ArcherAI(Creature creature) {
         super(creature);
-        if (creature.getSpells()[0] == 0) {
-            Log.outError(LogFilter.ScriptsAi, String.format("ArcherAI set for creature with spell1=0. AI will do nothing (%1$s)", me.getGUID()));
+        if (creature.spells[0] == 0) {
+            Log.outError(LogFilter.ScriptsAi, String.format("ArcherAI set for creature with spell1=0. AI will do nothing (%1$s)", me.getGUID().clone()));
         }
 
-        var spellInfo = global.getSpellMgr().getSpellInfo(creature.getSpells()[0], creature.getMap().getDifficultyID());
+        var spellInfo = Global.getSpellMgr().getSpellInfo(creature.spells[0], creature.getMap().getDifficultyID());
         minRange = spellInfo != null ? spellInfo.getMinRange(false) : 0;
 
         if (minRange == 0) {
             minRange = SharedConst.MeleeRange;
         }
 
-        creature.setCombatDistance(spellInfo != null ? spellInfo.getMaxRange(false) : 0);
-        creature.setSightDistance(creature.getCombatDistance());
+        creature.combatDistance = spellInfo != null ? spellInfo.getMaxRange(false) : 0;
+        creature.sightDistance = creature.combatDistance;
     }
 
     @Override
@@ -36,7 +42,7 @@ public class ArcherAI extends CreatureAI {
             }
         } else {
             if (me.attack(who, false) && !who.isFlying()) {
-                me.getMotionMaster().moveChase(who, me.getCombatDistance());
+                me.getMotionMaster().moveChase(who, me.combatDistance);
             }
         }
 
@@ -44,8 +50,8 @@ public class ArcherAI extends CreatureAI {
             me.getMotionMaster().moveIdle();
         }
     }
-
-
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         if (!updateVictim()) {
@@ -53,7 +59,7 @@ public class ArcherAI extends CreatureAI {
         }
 
         if (!me.isWithinCombatRange(me.getVictim(), minRange)) {
-            doSpellAttackIfReady(me.getSpells()[0]);
+            doSpellAttackIfReady(me.spells[0]);
         } else {
             doMeleeAttackIfReady();
         }

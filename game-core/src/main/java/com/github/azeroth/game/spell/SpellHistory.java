@@ -817,7 +817,7 @@ public class SpellHistory {
                 }
             }
         } else if (owner.isPet()) {
-            var petOwner = owner.getAsPet();
+            var petOwner = owner.toPet();
 
             for (var p : petOwner.spells.entrySet()) {
                 if (p.getValue().state != PetSpellState.removed) {

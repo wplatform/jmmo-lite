@@ -17,7 +17,7 @@ public final class RaceMask {
                     RaceMask.getMaskForRace(Race.ORC) |
                     RaceMask.getMaskForRace(Race.DWARF) |
                     RaceMask.getMaskForRace(Race.NIGHT_ELF) |
-                    RaceMask.getMaskForRace(Race.UNDEAD_PLAYER) |
+                    RaceMask.getMaskForRace(Race.UNDEAD) |
                     RaceMask.getMaskForRace(Race.TAUREN) |
                     RaceMask.getMaskForRace(Race.GNOME) |
                     RaceMask.getMaskForRace(Race.TROLL) |
@@ -74,10 +74,10 @@ public final class RaceMask {
 
     private static int getRaceBit(Race race) {
         return switch (race) {
-            case HUMAN, ORC, DWARF, NIGHT_ELF, UNDEAD_PLAYER, TAUREN, GNOME,
-                    TROLL, GOBLIN, BLOOD_ELF, DRAENEI, WORGEN, PANDAREN_NEUTRAL,
-                    PANDAREN_ALLIANCE, PANDAREN_HORDE, NIGHTBORNE, HIGHMOUNTAIN_TAUREN,
-                    VOID_ELF, LIGHTFORGED_DRAENEI -> race.ordinal() - 1;
+            case HUMAN, ORC, DWARF, NIGHT_ELF, UNDEAD, TAUREN, GNOME,
+                 TROLL, GOBLIN, BLOOD_ELF, DRAENEI, WORGEN, PANDAREN_NEUTRAL,
+                 PANDAREN_ALLIANCE, PANDAREN_HORDE, NIGHTBORNE, HIGHMOUNTAIN_TAUREN,
+                 VOID_ELF, LIGHTFORGED_DRAENEI -> race.ordinal() - 1;
             default -> -1;
         };
     }

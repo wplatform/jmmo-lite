@@ -10,7 +10,11 @@ public class MathUtil {
     public static final float E = 2.71828f;
     public static final float Log10E = 0.434294f;
     public static final float Log2E = 1.4427f;
+
+    public static final float TWO_PI = 6.283185f;
     public static final float PI = 3.14159f;
+    public static final float PI_OVER_2 = 1.570796f;
+    public static final float PI_OVER_4 = 0.785398f;
 
 
     private static double eps(double a, double b) {
@@ -174,5 +178,13 @@ public class MathUtil {
         return Math.min(Math.max(num, floor), ceil);
     }
 
+    public static float wrap(float t, float lo, float hi) {
+        if ((t >= lo) && (t < hi)) {
+            return t;
+        }
 
+        float interval = hi - lo;
+
+        return (float) (t - interval * Math.floor((t - lo) / interval));
+    }
 }

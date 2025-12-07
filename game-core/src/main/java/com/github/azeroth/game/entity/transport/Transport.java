@@ -5,13 +5,13 @@ import com.badlogic.gdx.utils.IntArray;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.object.WorldObject;
-import com.github.azeroth.game.entity.vehicle.ITransport;
+import com.github.azeroth.game.entity.vehicle.TransportObject;
 import com.github.azeroth.game.domain.transport.TransportAnimation;
 
 import java.time.Duration;
 import java.util.ArrayList;
 
-public class Transport extends WorldObject implements ITransport {
+public class Transport extends WorldObject implements TransportObject {
     private static final Duration POSITIONUPDATEINTERVAL = duration.ofSeconds(50);
     private final TransportAnimation animationInfo;
 
@@ -100,7 +100,7 @@ public class Transport extends WorldObject implements ITransport {
         }
     }
 
-    public final ITransport removePassenger(WorldObject passenger) {
+    public final TransportObject removePassenger(WorldObject passenger) {
         if (passengers.remove(passenger)) {
             passenger.setTransport(null);
             passenger.getMovementInfo().transport.reset();

@@ -1,17 +1,41 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.badlogic.gdx.math.Vector3;
+import com.github.azeroth.common.Logs;
+
+import com.github.azeroth.dbc.defines.CriteriaType;
+import com.github.azeroth.dbc.defines.TaxiPathNodeFlag;
+import com.github.azeroth.dbc.domain.TaxiPathNode;
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.unit.UnitFlag;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.player.Player;
+import com.github.azeroth.game.entity.player.enums.PlayerFlag;
 import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.movement.MovementGeneratorMedium;
+import com.github.azeroth.game.event.GameEvent;
+import com.github.azeroth.game.movement.MovementGenerator;
+import com.github.azeroth.game.movement.enums.MovementGeneratorFlag;
+import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
+import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
-import game.GameEvents;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-import java.util.ArrayList;
+
+import java.util.*;
 
 
-public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player> {
-    private final ArrayList<TaxiPathNodeRecord> path = new ArrayList<>();
+public class FlightPathMovementGenerator extends MovementGenerator {
+
+    private static final byte FLIGHT_TRAVEL_UPDATE = 100;
+    private static final short TIMEDIFF_NEXT_WP = 250;
+    private static final float SKIP_SPLINE_POINT_DISTANCE_SQ = 40.f * 40.f;
+    private static final float PLAYER_FLIGHT_SPEED = 32.0f;
+
+
+    private final LinkedList<TaxiPathNode> path = new LinkedList<>();
     private final ArrayList<TaxiNodeChangeInfo> pointsForPathSwitch = new ArrayList<>(); //! node indexes and costs where TaxiPath changes
 
     private float endGridX; //! X coord of last node location
@@ -21,77 +45,77 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
     private int currentNode;
 
     public FlightPathMovementGenerator() {
-        mode = MovementGeneratorMode.Default;
-        priority = MovementGeneratorPriority.Highest;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.InFlight;
+        mode = MovementGeneratorMode.DEFAULT;
+        priority = MovementGeneratorPriority.HIGHEST;
+        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        baseUnitState = UnitState.IN_FLIGHT;
     }
 
     @Override
-    public void doInitialize(Player owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+    public void initialize(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.DEACTIVATED);
+        flags.set(MovementGeneratorFlag.INITIALIZED);
 
-        doReset(owner);
+        reset(owner);
         initEndGridInfo();
     }
 
     @Override
-    public void doReset(Player owner) {
-        removeFlag(MovementGeneratorFlags.Deactivated);
+    public void reset(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.DEACTIVATED);
 
         owner.combatStopWithPets();
-        owner.setUnitFlag(UnitFlag.RemoveClientControl.getValue() | UnitFlag.OnTaxi.getValue());
+        owner.setUnitFlag(UnitFlag.REMOVE_CLIENT_CONTROL, UnitFlag.ON_TAXI);
 
         var end = getPathAtMapEnd();
         var currentNodeId = getCurrentNode();
 
         if (currentNodeId == end) {
-            Log.outDebug(LogFilter.movement, String.format("FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. %1$s", owner.getDebugInfo()));
+            Logs.FLIGHT_PATH.debug("FlightPathMovementGenerator::reset: trying to start a flypath from the end point. {}", owner);
 
             return;
         }
 
         MoveSplineInit init = new MoveSplineInit(owner);
         // Providing a starting vertex since the taxi paths do not provide such
-        init.path().add(new Vector3(owner.getLocation().getX(), owner.getLocation().getY(), owner.getLocation().getZ()));
+        init.path().add(owner.getLocation().toVector3());
 
-        for (var i = (int) currentNodeId; i != (int) end; ++i) {
-            Vector3 vertice = new Vector3(path.get(i).loc.X, path.get(i).loc.Y, path.get(i).loc.Z);
+        for (var i = currentNodeId; i != end; ++i) {
+            Vector3 vertice = new Vector3(path.get(i).getLocX(), path.get(i).getLocY(), path.get(i).getLocZ());
             init.path().add(vertice);
         }
 
-        init.setFirstPointId((int) getCurrentNode());
+        init.setFirstPointId(getCurrentNode());
         init.setFly();
         init.setSmooth();
         init.setUncompressed();
         init.setWalk(true);
-        init.setVelocity(30.0f);
+        init.setVelocity(PLAYER_FLIGHT_SPEED);
         init.launch();
     }
 
     @Override
-    public boolean doUpdate(Player owner, int diff) {
-        if (owner == null) {
+    public boolean update(Unit owner, int diff) {
+        if (owner == null || !owner.isPlayer()) {
             return false;
         }
-
+        Player player = owner.toPlayer();
         // skipping the first spline path point because it's our starting point and not a taxi path point
-        var pointId = (int) (owner.getMoveSpline().currentPathIdx() <= 0 ? 0 : owner.getMoveSpline().currentPathIdx() - 1);
+        var pointId = owner.getMoveSpline().currentPathIdx() <= 0 ? 0 : owner.getMoveSpline().currentPathIdx() - 1;
 
         if (pointId > currentNode && currentNode < path.size() - 1) {
             var departureEvent = true;
 
             do {
-                doEventIfAny(owner, path.get(currentNode), departureEvent);
+                doEventIfAny(player, path.get(currentNode), departureEvent);
 
-                while (!pointsForPathSwitch.isEmpty() && pointsForPathSwitch.get(0).pathIndex <= currentNode) {
-                    pointsForPathSwitch.remove(0);
-                    owner.getTaxi().nextTaxiDestination();
+                while (!pointsForPathSwitch.isEmpty() && pointsForPathSwitch.getFirst().pathIndex <= currentNode) {
+                    pointsForPathSwitch.removeFirst();
+                    player.getTaxi().nextTaxiDestination();
 
                     if (!pointsForPathSwitch.isEmpty()) {
-                        owner.updateCriteria(CriteriaType.MoneySpentOnTaxis, (int) pointsForPathSwitch.get(0).cost);
-                        owner.modifyMoney(-_pointsForPathSwitch.get(0).cost);
+                        player.updateCriteria(CriteriaType.MoneySpentOnTaxis, (int) pointsForPathSwitch.getFirst().cost);
+                        player.modifyMoney(-pointsForPathSwitch.getFirst().cost);
                     }
                 }
 
@@ -100,7 +124,7 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
                 }
 
                 if (currentNode == preloadTargetNode) {
-                    preloadEndGrid(owner);
+                    preloadEndGrid(player);
                 }
 
                 currentNode += (departureEvent ? 1 : 0);
@@ -109,7 +133,7 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
         }
 
         if (currentNode >= (path.size() - 1)) {
-            addFlag(MovementGeneratorFlags.InformEnabled);
+            addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
             return false;
         }
@@ -118,38 +142,39 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
     }
 
     @Override
-    public void doDeactivate(Player owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
+    public void deactivate(Unit owner) {
+        addFlag(MovementGeneratorFlag.DEACTIVATED);
     }
 
     @Override
-    public void doFinalize(Player owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
-
-        if (!active) {
+    public void finalize(Unit owner, boolean active, boolean movementInform) {
+        addFlag(MovementGeneratorFlag.FINALIZED);
+        Player player = owner.toPlayer();
+        if (!active || player == null) {
             return;
         }
 
-        var taxiNodeId = owner.getTaxi().getTaxiDestination();
-        owner.getTaxi().clearTaxiDestinations();
-        owner.dismount();
-        owner.removeUnitFlag(UnitFlag.RemoveClientControl.getValue() | UnitFlag.OnTaxi.getValue());
+        var taxiNodeId = player.getTaxi().getTaxiDestination();
+        player.getTaxi().clearTaxiDestinations();
+        player.dismount();
+        player.removeUnitFlag(UnitFlag.REMOVE_CLIENT_CONTROL, UnitFlag.ON_TAXI);
 
-        if (owner.getTaxi().isEmpty()) {
-            // update z position to ground and orientation for landing point
-            // this prevent cheating with landing  point at lags
-            // when client side flight end early in comparison server side
-            owner.stopMoving();
-            // When the player reaches the last flight point, teleport to destination taxi node location
-            var node = CliDB.TaxiNodesStorage.get(taxiNodeId);
+        // update z position to ground and orientation for landing point
+        // this prevent cheating with landing  point at lags
+        // when client side flight end early in comparison server side
+        player.stopMoving();
 
+        // When the player reaches the last flight point, teleport to destination taxi node location
+        if (!path.isEmpty() && (path.size() < 2 || (path.get(path.size() - 2).getFlags() & TaxiPathNodeFlag.TELEPORT.value) == 0)) {
+            var dbcObjectManager = player.getWorldContext().getDbcObjectManager();
+            var lastPath = dbcObjectManager.taxiPath(path.getLast().getPathID());
+            var node = dbcObjectManager.taxiNode(lastPath.getToTaxiNode());
             if (node != null) {
-                owner.setFallInformation(0, node.pos.Z);
-                owner.teleportTo(node.ContinentID, node.pos.X, node.pos.Y, node.pos.Z, owner.getLocation().getO());
+                player.setFallInformation(0, node.getPosZ());
+                player.teleportTo(node.getContinentID(), node.getPosX(), node.getPosY(), node.getPosZ(), player.getOrientation());
             }
         }
-
-        owner.removePlayerFlag(PlayerFlag.TaxiBenchmark);
+        player.removePlayerFlag(PlayerFlag.TAXI_BENCHMARK);
     }
 
 
@@ -159,46 +184,51 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
 
     public final void loadPath(Player player, int startNode) {
         path.clear();
-        currentNode = (int) startNode;
+        currentNode = startNode;
         pointsForPathSwitch.clear();
         var taxi = player.getTaxi().getPath();
         var discount = player.getReputationPriceDiscount(player.getTaxi().getFlightMasterFactionTemplate());
+        var dbcManager = player.getWorldContext().getDbcObjectManager();
 
         for (int src = 0, dst = 1; dst < taxi.size(); src = dst++) {
-            int path;
-            tangible.OutObject<Integer> tempOut_path = new tangible.OutObject<Integer>();
-            int cost;
-            tangible.OutObject<Integer> tempOut_cost = new tangible.OutObject<Integer>();
-            global.getObjectMgr().getTaxiPath(taxi.get(src), taxi.get(dst), tempOut_path, tempOut_cost);
-            cost = tempOut_cost.outArgValue;
-            path = tempOut_path.outArgValue;
+            int pathId = 0, cost = 0;
+            var taxiPath = dbcManager.getTaxiPath(taxi.get(src), taxi.get(dst));
+            if (taxiPath != null) {
+                pathId = taxiPath.getId();
+                cost = taxiPath.getCost();
+            }
 
-            if (path >= CliDB.TaxiPathNodesByPath.keySet().max()) {
+
+            var taxiPathNodesByPath = dbcManager.getTaxiPathNodesByPath();
+            if (pathId >= taxiPathNodesByPath.size()) {
                 return;
             }
 
-            var nodes = CliDB.TaxiPathNodesByPath.get(path);
+            var nodes = taxiPathNodesByPath.get(pathId);
 
             if (!nodes.isEmpty()) {
-                var start = nodes[0];
-
-                var end = nodes[ ^ 1];
+                var start = nodes.getFirst();
+                var end = nodes.getLast();
                 var passedPreviousSegmentProximityCheck = false;
 
-                for (int i = 0; i < nodes.length; ++i) {
-                    if (passedPreviousSegmentProximityCheck || src == 0 || path.isEmpty() || isNodeIncludedInShortenedPath(path.get(path.size() - 1), nodes[i])) {
-                        if ((src == 0 || (isNodeIncludedInShortenedPath(start, nodes[i]) && i >= 2)) && (dst == taxi.size() - 1 || (isNodeIncludedInShortenedPath(end, nodes[i]) && i < nodes.length - 1))) {
+                for (int i = 0; i < nodes.size(); ++i) {
+                    if (passedPreviousSegmentProximityCheck || src == 0 || path.isEmpty() || isNodeIncludedInShortenedPath(path.getLast(), nodes.get(i))) {
+                        // skip consecutive teleports, only keep the first one
+                        if ((src == 0 || (isNodeIncludedInShortenedPath(start, nodes.get(i)) && i >= 2)) &&
+                                (dst == taxi.size() - 1 || (isNodeIncludedInShortenedPath(end, nodes.get(i)) && (i < nodes.size() - 1 || path.isEmpty()))) &&
+                                ((nodes.get(i).getFlags() & TaxiPathNodeFlag.TELEPORT.value) == 0 || path.isEmpty() || (path.getLast().getFlags() & TaxiPathNodeFlag.TELEPORT.value) == 0)) {
                             passedPreviousSegmentProximityCheck = true;
-                            path.add(nodes[i]);
+                            path.addLast(nodes.get(i));
                         }
                     } else {
-                        path.remove(path.size() - 1);
-                        pointsForPathSwitch.get( ^ 1).PathIndex -= 1;
+                        path.pollLast();
+                        TaxiNodeChangeInfo last = pointsForPathSwitch.getLast();
+                        last.setPathIndex(last.getPathIndex() - 1);
                     }
                 }
             }
 
-            pointsForPathSwitch.add(new TaxiNodeChangeInfo((int) (path.size() - 1), (long) Math.ceil(cost * discount)));
+            pointsForPathSwitch.add(new TaxiNodeChangeInfo(Math.max(path.size() - 1, 1), (long) Math.ceil(cost * discount)));
         }
     }
 
@@ -207,10 +237,10 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
             return;
         }
 
-        int map0 = path.get(currentNode).ContinentID;
+        int map0 = path.get(currentNode).getContinentID();
 
         for (var i = currentNode + 1; i < path.size(); ++i) {
-            if (path.get(i).ContinentID != map0) {
+            if (path.get(i).getContinentID() != map0) {
                 currentNode = i;
 
                 return;
@@ -219,26 +249,25 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
     }
 
     @Override
-    public String getDebugInfo() {
-        return String.format("Current Node: %1$s\n%2$s\nStart Path Id: %3$s Path Size: %4$s HasArrived: %5$s End Grid X: %6$s ", getCurrentNode(), super.getDebugInfo(), getPathId(0), path.size(), hasArrived(), endGridX) + String.format("End Grid Y: %1$s End Map Id: %2$s Preloaded Target Node: %3$s", endGridY, endMapId, preloadTargetNode);
+    public String toString() {
+        return ("FlightPathMovementGenerator(Current Node: %d, %s, Start Path Id: %d, Path Size: %d, HasArrived: %s, " +
+                "End Grid X: %s, End Grid Y: %s, End Map Id: %d, Preloaded Target Node: %d)")
+                .formatted(currentNode, super.toString(), getPathId(0), path.size(), hasArrived(), endGridX, endGridY, endMapId, preloadTargetNode);
+
     }
 
     @Override
-    public boolean getResetPosition(Unit u, tangible.OutObject<Float> x, tangible.OutObject<Float> y, tangible.OutObject<Float> z) {
+    public Position getResetPosition(Unit unit) {
         var node = path.get(currentNode);
-        x.outArgValue = node.loc.X;
-        y.outArgValue = node.loc.Y;
-        z.outArgValue = node.loc.Z;
-
-        return true;
+        return new Position(node.getLocX(), node.getLocY(), node.getLocZ());
     }
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.flight;
+        return MovementGeneratorType.FLIGHT;
     }
 
-    public final ArrayList<TaxiPathNodeRecord> getPath() {
+    public final List<TaxiPathNode> getPath() {
         return path;
     }
 
@@ -247,41 +276,47 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
     }
 
     public final int getCurrentNode() {
-        return (int) currentNode;
+        return currentNode;
     }
 
     private int getPathAtMapEnd() {
         if (currentNode >= path.size()) {
-            return (int) path.size();
+            return path.size();
         }
 
-        int curMapId = path.get(currentNode).ContinentID;
+        int curMapId = path.get(currentNode).getContinentID();
 
         for (var i = currentNode; i < path.size(); ++i) {
-            if (path.get(i).ContinentID != curMapId) {
-                return (int) i;
+            if (path.get(i).getContinentID() != curMapId) {
+                return i;
+            }
+            if (i > 0 && (path.get(i - 1).getFlags() & TaxiPathNodeFlag.TELEPORT.value) != 0) {
+                return i;
             }
         }
 
-        return (int) path.size();
+        return path.size();
     }
 
-    private boolean isNodeIncludedInShortenedPath(TaxiPathNodeRecord p1, TaxiPathNodeRecord p2) {
-        return p1.ContinentID != p2.ContinentID || Math.pow(p1.loc.X - p2.loc.X, 2) + Math.pow(p1.loc.Y - p2.loc.Y, 2) > (40.0f * 40.0f);
+    private boolean isNodeIncludedInShortenedPath(TaxiPathNode p1, TaxiPathNode p2) {
+        return p1.getContinentID() != p2.getContinentID()
+                || Math.pow(p1.getLocX() - p2.getLocX(), 2) + Math.pow(p1.getLocY() - p2.getLocY(), 2) > SKIP_SPLINE_POINT_DISTANCE_SQ
+                || (p2.getFlags() & TaxiPathNodeFlag.TELEPORT.value) != 0
+                || (p2.getFlags() & TaxiPathNodeFlag.STOP.value) != 0 && p2.getDelay() > 0;
     }
 
-    private void doEventIfAny(Player owner, TaxiPathNodeRecord node, boolean departure) {
-        var eventid = departure ? node.DepartureEventID : node.ArrivalEventID;
+    private void doEventIfAny(Player owner, TaxiPathNode node, boolean departure) {
+        var eventId = departure ? node.getDepartureEventID() : node.getArrivalEventID();
 
-        if (eventid != 0) {
-            Log.outDebug(LogFilter.MapsScript, String.format("FlightPathMovementGenerator::DoEventIfAny: taxi %1$s event %2$s of node %3$s of path %4$s for player %5$s", (departure ? "departure" : "arrival"), eventid, node.NodeIndex, node.pathID, owner.getName()));
-            GameEvents.trigger(eventid, owner, owner);
+        if (eventId != 0) {
+            Logs.MAPS_SCRIPT.debug("FlightPathMovementGenerator::DoEventIfAny: taxi {} event {} of node {} of path {} for player {}", departure ? "departure" : "arrival", eventId, node.getNodeIndex(), node.getPathID(), owner.getName());
+            owner.getWorldContext().getWorldEventPublisher().publish(new GameEvent(eventId, owner, owner));
         }
     }
 
     private void initEndGridInfo() {
         var nodeCount = path.size(); //! Number of nodes in path.
-        endMapId = path.get(nodeCount - 1).ContinentID; //! MapId of last node
+        endMapId = path.get(nodeCount - 1).getContinentID(); //! MapId of last node
 
         if (nodeCount < 3) {
             preloadTargetNode = 0;
@@ -289,12 +324,12 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
             preloadTargetNode = (int) nodeCount - 3;
         }
 
-        while (path.get((int) preloadTargetNode).ContinentID != endMapId) {
+        while (path.get(preloadTargetNode).getContinentID() != endMapId) {
             ++preloadTargetNode;
         }
 
-        endGridX = path.get(nodeCount - 1).loc.X;
-        endGridY = path.get(nodeCount - 1).loc.Y;
+        endGridX = path.get(nodeCount - 1).getLocX();
+        endGridY = path.get(nodeCount - 1).getLocY();
     }
 
     private void preloadEndGrid(Player owner) {
@@ -303,10 +338,11 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
 
         // Load the grid
         if (endMap != null) {
-            Log.outDebug(LogFilter.Server, "FlightPathMovementGenerator::PreloadEndGrid: Preloading grid ({0}, {1}) for map {2} at node index {3}/{4}", endGridX, endGridY, endMapId, preloadTargetNode, path.size() - 1);
+            Logs.FLIGHT_PATH.debug("FlightPathMovementGenerator::PreloadEndGrid: preloading grid ({}, {}) for map {} at node index {}/{}",
+                    endGridX, endGridY, endMapId, preloadTargetNode, path.size() - 1);
             endMap.loadGrid(endGridX, endGridY);
         } else {
-            Log.outDebug(LogFilter.Server, "FlightPathMovementGenerator::PreloadEndGrid: Unable to determine map to preload flightmaster grid");
+            Logs.FLIGHT_PATH.debug("FlightPathMovementGenerator::PreloadEndGrid: unable to determine map to preload flight master grid");
         }
     }
 
@@ -315,20 +351,17 @@ public class FlightPathMovementGenerator extends MovementGeneratorMedium<Player>
             return 0;
         }
 
-        return path.get(index).pathID;
+        return path.get(index).getPathID();
     }
 
     private boolean hasArrived() {
         return currentNode >= path.size();
     }
 
-    private static class TaxiNodeChangeInfo {
-        public final long cost;
-        public int pathIndex;
-
-        public TaxiNodeChangeInfo(int pathIndex, long cost) {
-            pathIndex = pathIndex;
-            cost = cost;
-        }
+    @Data
+    @AllArgsConstructor
+    private static final class TaxiNodeChangeInfo {
+        private int pathIndex;
+        private long cost;
     }
 }

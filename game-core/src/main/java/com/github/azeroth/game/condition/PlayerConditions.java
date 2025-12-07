@@ -735,7 +735,7 @@ public final class PlayerConditions {
                 var player = unit.toPlayer();
 
                 if (player != null) {
-                    return (player.getWeaponForAttack(WeaponAttackType.BaseAttack) || player.getWeaponForAttack(WeaponAttackType.OffAttack)) ? 1 : 0;
+                    return (player.getWeaponForAttack(WeaponAttackType.BASE_ATTACK) || player.getWeaponForAttack(WeaponAttackType.OFF_ATTACK)) ? 1 : 0;
                 }
 
                 return (unit.getVirtualItemId(0) != 0 || unit.getVirtualItemId(1) != 0) ? 1 : 0;
@@ -817,7 +817,7 @@ public final class PlayerConditions {
             case PursuitTime:
                 break;
             case HasHarmfulAuraCanceledByDamage:
-                return unit.hasNegativeAuraWithInterruptFlag(SpellAuraInterruptFlags.damage) ? 1 : 0;
+                return unit.hasNegativeAuraWithInterruptFlag(SpellAuraInterruptFlag.damage) ? 1 : 0;
             case HasHarmfulAuraWithPeriodicDamage:
                 return unit.hasAuraType(AuraType.PeriodicDamage) ? 1 : 0;
             case NumberOfEnemies:

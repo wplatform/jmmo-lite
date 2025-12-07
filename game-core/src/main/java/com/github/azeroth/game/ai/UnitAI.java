@@ -1,184 +1,52 @@
 package com.github.azeroth.game.ai;
 
 
-import com.github.azeroth.defines.SpellCastResult;
-import com.github.azeroth.game.combat.ThreatManager;
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.unit.CalcDamageInfo;
-import com.github.azeroth.game.entity.unit.ObjectDistanceOrderPred;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.spell.CastSpellExtraArgs;
-import com.github.azeroth.game.spell.SpellInfo;
+import com.github.azeroth.game.world.WorldContext;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.collections;
-import java.util.random;
+@Getter
+@Setter
+public abstract class UnitAI {
+
+    protected final Unit me;
+    protected final WorldContext worldContext;
 
 
-public class UnitAI implements IUnitAI {
-	private static final HashMap<(
-    int id, Difficulty
-    difficulty),AISpellInfoType>AISPELLINFO =new HashMap<(
-    int id, Difficulty
-    difficulty),AISpellInfoType>();
-
-    private Unit me;
-
-    public UnitAI(Unit unit) {
-        setMe(unit);
-    }
-
-    public static void fillAISpellInfo() {
-        global.getSpellMgr().forEachSpellInfo(spellInfo ->
-        {
-            AISpellInfoType AIInfo = new AISpellInfoType();
-
-            if (spellInfo.hasAttribute(SpellAttr0.AllowCastWhileDead)) {
-                AIInfo.condition = AICondition.Die;
-            } else if (spellInfo.isPassive || spellInfo.duration == -1) {
-                AIInfo.condition = AICondition.Aggro;
-            } else {
-                AIInfo.condition = AICondition.Combat;
-            }
-
-            if (AIInfo.cooldown.TotalMilliseconds < spellInfo.recoveryTime) {
-                AIInfo.cooldown = duration.ofSeconds(spellInfo.recoveryTime);
-            }
-
-            if (spellInfo.getMaxRange(false) != 0) {
-                for (var spellEffectInfo : spellInfo.effects) {
-                    var targetType = spellEffectInfo.targetA.target;
-
-                    if (targetType == targets.UnitTargetEnemy || targetType == targets.DestTargetEnemy) {
-                        if (AIInfo.target.getValue() < AITarget.victim.getValue()) {
-                            AIInfo.target = AITarget.victim;
-                        }
-                    } else if (targetType == targets.UnitDestAreaEnemy) {
-                        if (AIInfo.target.getValue() < AITarget.Enemy.getValue()) {
-                            AIInfo.target = AITarget.Enemy;
-                        }
-                    }
-
-                    if (spellEffectInfo.isEffect(SpellEffectName.ApplyAura)) {
-                        if (targetType == targets.UnitTargetEnemy) {
-                            if (AIInfo.target.getValue() < AITarget.Debuff.getValue()) {
-                                AIInfo.target = AITarget.Debuff;
-                            }
-                        } else if (spellInfo.IsPositive) {
-                            if (AIInfo.target.getValue() < AITarget.Buff.getValue()) {
-                                AIInfo.target = AITarget.Buff;
-                            }
-                        }
-                    }
-                }
-            }
-
-            AIInfo.realCooldown = duration.ofSeconds(spellInfo.recoveryTime + spellInfo.startRecoveryTime);
-            AIInfo.maxRange = spellInfo.getMaxRange(false) * 3 / 4;
-
-            AIInfo.effects = 0;
-            AIInfo.targets = 0;
-
-            for (var spellEffectInfo : spellInfo.effects) {
-                // Spell targets self.
-                if (spellEffectInfo.targetA.target == targets.UnitCaster) {
-                    AIInfo.targets |= 1 << (SelectTargetType.Self.getValue() - 1);
-                }
-
-                // Spell targets a single enemy.
-                if (spellEffectInfo.targetA.target == targets.UnitTargetEnemy || spellEffectInfo.targetA.target == targets.DestTargetEnemy) {
-                    AIInfo.targets |= 1 << (SelectTargetType.SingleEnemy.getValue() - 1);
-                }
-
-                // Spell targets AoE at enemy.
-                if (spellEffectInfo.targetA.target == targets.UnitSrcAreaEnemy || spellEffectInfo.targetA.target == targets.UnitDestAreaEnemy || spellEffectInfo.targetA.target == targets.SrcCaster || spellEffectInfo.targetA.target == targets.DestDynobjEnemy) {
-                    AIInfo.targets |= 1 << (SelectTargetType.AoeEnemy.getValue() - 1);
-                }
-
-                // Spell targets an enemy.
-                if (spellEffectInfo.targetA.target == targets.UnitTargetEnemy || spellEffectInfo.targetA.target == targets.DestTargetEnemy || spellEffectInfo.targetA.target == targets.UnitSrcAreaEnemy || spellEffectInfo.targetA.target == targets.UnitDestAreaEnemy || spellEffectInfo.targetA.target == targets.SrcCaster || spellEffectInfo.targetA.target == targets.DestDynobjEnemy) {
-                    AIInfo.targets |= 1 << (SelectTargetType.AnyEnemy.getValue() - 1);
-                }
-
-                // Spell targets a single friend (or self).
-                if (spellEffectInfo.targetA.target == targets.UnitCaster || spellEffectInfo.targetA.target == targets.UnitTargetAlly || spellEffectInfo.targetA.target == targets.UnitTargetParty) {
-                    AIInfo.targets |= 1 << (SelectTargetType.SingleFriend.getValue() - 1);
-                }
-
-                // Spell targets AoE friends.
-                if (spellEffectInfo.targetA.target == targets.UnitCasterAreaParty || spellEffectInfo.targetA.target == targets.UnitLastTargetAreaParty || spellEffectInfo.targetA.target == targets.SrcCaster) {
-                    AIInfo.targets |= 1 << (SelectTargetType.AoeFriend.getValue() - 1);
-                }
-
-                // Spell targets any friend (or self).
-                if (spellEffectInfo.targetA.target == targets.UnitCaster || spellEffectInfo.targetA.target == targets.UnitTargetAlly || spellEffectInfo.targetA.target == targets.UnitTargetParty || spellEffectInfo.targetA.target == targets.UnitCasterAreaParty || spellEffectInfo.targetA.target == targets.UnitLastTargetAreaParty || spellEffectInfo.targetA.target == targets.SrcCaster) {
-                    AIInfo.targets |= 1 << (SelectTargetType.AnyFriend.getValue() - 1);
-                }
-
-                // Make sure that this spell includes a damage effect.
-                if (spellEffectInfo.effect == SpellEffectName.SchoolDamage || spellEffectInfo.effect == SpellEffectName.Instakill || spellEffectInfo.effect == SpellEffectName.EnvironmentalDamage || spellEffectInfo.effect == SpellEffectName.HealthLeech) {
-                    AIInfo.effects |= 1 << (SelectEffect.damage.getValue() - 1);
-                }
-
-                // Make sure that this spell includes a healing effect (or an apply aura with a periodic heal).
-                if (spellEffectInfo.effect == SpellEffectName.Heal || spellEffectInfo.effect == SpellEffectName.HealMaxHealth || spellEffectInfo.effect == SpellEffectName.HealMechanical || (spellEffectInfo.effect == SpellEffectName.ApplyAura && spellEffectInfo.applyAuraName == AuraType.PeriodicHeal)) {
-                    AIInfo.effects |= 1 << (SelectEffect.healing.getValue() - 1);
-                }
-
-                // Make sure that this spell applies an aura.
-                if (spellEffectInfo.effect == SpellEffectName.ApplyAura) {
-                    AIInfo.effects |= 1 << (SelectEffect.aura.getValue() - 1);
-                }
-            }
-
-            AISPELLINFO.put((spellInfo.id, spellInfo.Difficulty), AIInfo);
-        });
-    }
-
-    public static AISpellInfoType getAISpellInfo(int spellId, Difficulty difficulty) {
-        return AISPELLINFO.get((spellId, difficulty));
-    }
-
-    protected final Unit getMe() {
-        return me;
-    }
-
-    private void setMe(Unit value) {
-        me = value;
-    }
-
-    private ThreatManager getThreatManager() {
-        return getMe().getThreatManager();
+    public UnitAI(Unit unit, WorldContext worldContext) {
+        this.me = unit;
+        this.worldContext = worldContext;
     }
 
     public void attackStart(Unit victim) {
-        if (victim != null && getMe().attack(victim, true)) {
+        if (me.attack(victim, true)) {
             // Clear distracted state on attacking
-            if (getMe().hasUnitState(UnitState.Distracted)) {
-                getMe().clearUnitState(UnitState.Distracted);
-                getMe().getMotionMaster().clear();
+            if (me.hasUnitState(UnitState.DISTRACTED)) {
+                me.clearUnitState(UnitState.DISTRACTED);
+                me.getMotionMaster().clear();
             }
 
-            getMe().getMotionMaster().moveChase(victim);
+            me.getMotionMaster().moveChase(victim);
         }
     }
 
     public final void attackStartCaster(Unit victim, float dist) {
-        if (victim != null && getMe().attack(victim, false)) {
-            getMe().getMotionMaster().moveChase(victim, dist);
+        if (me.attack(victim, false)) {
+            me.getMotionMaster().moveChase(victim, dist);
         }
     }
 
     public final void doMeleeAttackIfReady() {
         Creature creature;
-        tangible.OutObject<Creature> tempOut_creature = new tangible.OutObject<Creature>();
-        if (getMe().hasUnitState(UnitState.Casting) || (getMe().isCreature(tempOut_creature) && !creature.getCanMelee())) {
-            creature = tempOut_creature.outArgValue;
+        tangible.OutObject<Creature> tempOutCreature = new tangible.OutObject<Creature>();
+        if (getMe().hasUnitState(UnitState.Casting) || (getMe().tryGetAsCreature(tempOutCreature) && !creature.getCanMelee())) {
+        creature = tempOutCreature.outArgValue;
             return;
         } else {
-            creature = tempOut_creature.outArgValue;
-        }
+        creature = tempOutCreature.outArgValue;
+    }
 
         var victim = getMe().getVictim();
 
@@ -197,16 +65,17 @@ public class UnitAI implements IUnitAI {
             getMe().resetAttackTimer(WeaponAttackType.OffAttack);
         }
     }
-
     public void onMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, boolean extra) {
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public bool DoSpellAttackIfReady(uint spellId)
     public final boolean doSpellAttackIfReady(int spellId) {
         if (getMe().hasUnitState(UnitState.Casting) || !getMe().isAttackReady()) {
             return true;
         }
 
-        var spellInfo = global.getSpellMgr().getSpellInfo(spellId, getMe().getMap().getDifficultyID());
+        var spellInfo = Global.getSpellMgr().getSpellInfo(spellId, getMe().getMap().getDifficultyID());
 
         if (spellInfo != null) {
             if (getMe().isWithinCombatRange(getMe().getVictim(), spellInfo.getMaxRange(false))) {
@@ -220,31 +89,31 @@ public class UnitAI implements IUnitAI {
         return false;
     }
 
-    /**
-     * Select the best target (in
-     * <targetType>
-     * order) from the threat list that fulfill the following:
-     * - Not among the first
-     * <offset>
-     * entries in
-     * <targetType>
-     * order (or MAXTHREAT order, if
-     * <targetType>
-     * is RANDOM).
-     * - Within at most
-     * <dist>
-     * yards (if dist > 0.0f)
-     * - At least -
-     * <dist>
-     * yards away (if dist
-     * < 0.0f)
-     * - Is a player ( if playerOnly= true)
-     * - Not the current tank ( if withTank= false)
-     * - Has aura with ID
-     * <aura>
-     * (if aura > 0)
-     * - Does not have aura with ID -<aura> (if aura < 0)
-     */
+    /** 
+      Select the best target (in
+      <targetType>
+       order) from the threat list that fulfill the following:
+       - Not among the first
+       <offset>
+        entries in
+        <targetType>
+         order (or MAXTHREAT order, if
+         <targetType>
+          is RANDOM).
+          - Within at most
+          <dist>
+           yards (if dist > 0.0f)
+           - At least -
+           <dist>
+            yards away (if dist
+            < 0.0f)
+             - Is a player ( if playerOnly= true)
+               - Not the current tank ( if withTank= false)
+               - Has aura with ID
+            <aura>
+             (if aura > 0)
+             - Does not have aura with ID -<aura> (if aura < 0)
+    */
 
     public final Unit selectTarget(SelectTargetMethod targetType, int offset, float dist, boolean playerOnly, boolean withTank) {
         return selectTarget(targetType, offset, dist, playerOnly, withTank, 0);
@@ -266,23 +135,30 @@ public class UnitAI implements IUnitAI {
         return selectTarget(targetType, 0, 0.0f, false, true, 0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public Unit SelectTarget(SelectTargetMethod targetType, uint offset = 0, float dist = 0.0f, bool playerOnly = false, bool withTank = true, int aura = 0)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final Unit selectTarget(SelectTargetMethod targetType, int offset, float dist, boolean playerOnly, boolean withTank, int aura) {
-        return selectTarget(targetType, offset, new DefaultTargetSelector(getMe(), dist, playerOnly, withTank, aura));
+        return SelectTarget(targetType, offset, new DefaultTargetSelector(getMe(), dist, playerOnly, withTank, aura));
     }
 
-    public final Unit selectTarget(SelectTargetMethod targetType, int offset, ICheck<unit> selector) {
-        return selectTarget(targetType, offset, selector.Invoke);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public Unit SelectTarget(SelectTargetMethod targetType, uint offset, ICheck<Unit> selector)
+    public final Unit selectTarget(SelectTargetMethod targetType, int offset, ICheck<Unit> selector) {
+        return SelectTarget(targetType, offset, selector.Invoke);
     }
 
-    /**
-     * Select the best target (in
-     * <targetType>
-     * order) satisfying
-     * <predicate>
-     * from the threat list.
-     * If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
-     */
-    public final Unit selectTarget(SelectTargetMethod targetType, int offset, tangible.Func1Param<unit, Boolean> selector) {
+    /** 
+      Select the best target (in
+      <targetType>
+       order) satisfying
+       <predicate>
+        from the threat list.
+        If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
+    */
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public Unit SelectTarget(SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
+    public final Unit selectTarget(SelectTargetMethod targetType, int offset, tangible.Func1Param<Unit, Boolean> selector) {
         var mgr = getThreatManager();
 
         // shortcut: if we ignore the first <offset> elements, and there are at most <offset> elements, then we ignore ALL elements
@@ -290,10 +166,12 @@ public class UnitAI implements IUnitAI {
             return null;
         }
 
-        var targetList = selectTargetList((int) mgr.getThreatListSize(), targetType, offset, selector);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: var targetList = SelectTargetList((uint)mgr.ThreatListSize, targetType, offset, selector);
+        var targetList = selectTargetList((int)mgr.getThreatListSize(), targetType, offset, selector);
 
         // maybe nothing fulfills the predicate
-        if (targetList.isEmpty()) {
+        if (targetList.Empty()) {
             return null;
         }
 
@@ -304,77 +182,82 @@ public class UnitAI implements IUnitAI {
         };
     }
 
-    /**
-     * Select the best (up to)
-     * <num>
-     * targets (in
-     * <targetType>
-     * order) from the threat list that fulfill the following:
-     * - Not among the first
-     * <offset>
-     * entries in
-     * <targetType>
-     * order (or MAXTHREAT order, if
-     * <targetType>
-     * is RANDOM).
-     * - Within at most
-     * <dist>
-     * yards (if dist > 0.0f)
-     * - At least -
-     * <dist>
-     * yards away (if dist
-     * < 0.0f)
-     * - Is a player ( if playerOnly= true)
-     * - Not the current tank ( if withTank= false)
-     * - Has aura with ID
-     * <aura>
-     * (if aura > 0)
-     * - Does not have aura with ID -
-     * <aura>
-     * (if aura
-     * < 0)
-     * The resulting targets are stored in
-     * <targetList> (which is cleared first).
-     */
+    /** 
+      Select the best (up to)
+      <num>
+       targets (in
+       <targetType>
+        order) from the threat list that fulfill the following:
+        - Not among the first
+        <offset>
+         entries in
+         <targetType>
+          order (or MAXTHREAT order, if
+          <targetType>
+           is RANDOM).
+           - Within at most
+           <dist>
+            yards (if dist > 0.0f)
+            - At least -
+            <dist>
+             yards away (if dist
+             < 0.0f)
+              - Is a player ( if playerOnly= true)
+                - Not the current tank ( if withTank= false)
+                - Has aura with ID
+             <aura>
+              (if aura > 0)
+              - Does not have aura with ID -
+              <aura>
+               (if aura
+               < 0)
+                The resulting targets are stored in
+               <targetList> (which is cleared first).
+    */
 
-    public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, float dist, boolean playerOnly, boolean withTank) {
+    public final java.util.ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, float dist, boolean playerOnly, boolean withTank) {
         return selectTargetList(num, targetType, offset, dist, playerOnly, withTank, 0);
     }
 
-    public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, float dist, boolean playerOnly) {
+    public final java.util.ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, float dist, boolean playerOnly) {
         return selectTargetList(num, targetType, offset, dist, playerOnly, true, 0);
     }
 
-    public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, float dist) {
+    public final java.util.ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, float dist) {
         return selectTargetList(num, targetType, offset, dist, false, true, 0);
     }
 
-    public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset) {
+    public final java.util.ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset) {
         return selectTargetList(num, targetType, offset, 0f, false, true, 0);
     }
 
-    public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType) {
+    public final java.util.ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType) {
         return selectTargetList(num, targetType, 0, 0f, false, true, 0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset = 0, float dist = 0f, bool playerOnly = false, bool withTank = true, int aura = 0)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, float dist, boolean playerOnly, boolean withTank, int aura) {
         return selectTargetList(num, targetType, offset, (new DefaultTargetSelector(getMe(), dist, playerOnly, withTank, aura)).Invoke);
     }
 
-    /**
-     * Select the best (up to)
-     * <num>
-     * targets (in
-     * <targetType>
-     * order) satisfying
-     * <predicate>
-     * from the threat list and stores them in
-     * <targetList>
-     * (which is cleared first).
-     * If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
-     */
-    public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, tangible.Func1Param<unit, Boolean> selector) {
-        var targetList = new ArrayList<>();
+    /** 
+      Select the best (up to)
+      <num>
+       targets (in
+       <targetType>
+        order) satisfying
+        <predicate>
+         from the threat list and stores them in
+         <targetList>
+          (which is cleared first).
+          If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
+    */
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
+    public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, tangible.Func1Param<Unit, Boolean> selector) {
+        var targetList = new ArrayList<Unit>();
 
         var mgr = getThreatManager();
 
@@ -425,7 +308,7 @@ public class UnitAI implements IUnitAI {
 
         // now the list is MAX sorted, reverse for MIN types
         if (targetType == SelectTargetMethod.MinThreat) {
-            collections.reverse(targetList);
+            Collections.reverse(targetList);
         }
 
         // ignore the first <offset> elements
@@ -441,7 +324,7 @@ public class UnitAI implements IUnitAI {
             return targetList;
         }
 
-        if (targetType == SelectTargetMethod.random) {
+        if (targetType == SelectTargetMethod.Random) {
             targetList = targetList.SelectRandom(num).ToList();
         } else {
             targetList.Resize(num);
@@ -450,6 +333,8 @@ public class UnitAI implements IUnitAI {
         return targetList;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public SpellCastResult DoCast(uint spellId)
     public final SpellCastResult doCast(int spellId) {
         Unit target = null;
         var aiTargetType = AITarget.Self;
@@ -471,32 +356,32 @@ public class UnitAI implements IUnitAI {
 
                 break;
             case Enemy: {
-                var spellInfo = global.getSpellMgr().getSpellInfo(spellId, getMe().getMap().getDifficultyID());
+                var spellInfo = Global.getSpellMgr().getSpellInfo(spellId, getMe().getMap().getDifficultyID());
 
                 if (spellInfo != null) {
                     DefaultTargetSelector targetSelectorInner = new DefaultTargetSelector(getMe(), spellInfo.getMaxRange(false), false, true, 0);
 
-
-//					bool targetSelector(Unit candidate)
-//						{
-//							if (!candidate.IsPlayer)
-//							{
-//								if (spellInfo.hasAttribute(SpellAttr3.OnlyOnPlayer))
-//									return false;
+//C# TO JAVA CONVERTER TODO TASK: Local functions are not converted by C# to Java Converter:
+//                    bool targetSelector(Unit candidate)
+//                        {
+//                            if (!candidate.IsPlayer)
+//                            {
+//                                if (spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
+//                                    return false;
 //
-//								if (spellInfo.hasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer)
-//									return false;
-//							}
-//							else if (spellInfo.hasAttribute(SpellAttr5.NotOnPlayer))
-//							{
-//								return false;
-//							}
+//                                if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer)
+//                                    return false;
+//                            }
+//                            else if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
+//                            {
+//                                return false;
+//                            }
 //
-//							return targetSelectorInner.invoke(candidate);
-//						}
+//                            return targetSelectorInner.Invoke(candidate);
+//                        }
 
                     ;
-                    target = selectTarget(SelectTargetMethod.random, 0, targetSelector);
+                    target = SelectTarget(SelectTargetMethod.Random, 0, targetSelector);
                 }
 
                 break;
@@ -507,38 +392,38 @@ public class UnitAI implements IUnitAI {
 
                 break;
             case Debuff: {
-                var spellInfo = global.getSpellMgr().getSpellInfo(spellId, getMe().getMap().getDifficultyID());
+                var spellInfo = Global.getSpellMgr().getSpellInfo(spellId, getMe().getMap().getDifficultyID());
 
                 if (spellInfo != null) {
                     var range = spellInfo.getMaxRange(false);
 
-                    DefaultTargetSelector targetSelectorInner = new DefaultTargetSelector(getMe(), range, false, true, -(int) spellId);
+                    DefaultTargetSelector targetSelectorInner = new DefaultTargetSelector(getMe(), range, false, true, -(int)spellId);
 
-
-//					bool targetSelector(Unit candidate)
-//						{
-//							if (!candidate.IsPlayer)
-//							{
-//								if (spellInfo.hasAttribute(SpellAttr3.OnlyOnPlayer))
-//									return false;
+//C# TO JAVA CONVERTER TODO TASK: Local functions are not converted by C# to Java Converter:
+//                    bool targetSelector(Unit candidate)
+//                        {
+//                            if (!candidate.IsPlayer)
+//                            {
+//                                if (spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
+//                                    return false;
 //
-//								if (spellInfo.hasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer)
-//									return false;
-//							}
-//							else if (spellInfo.hasAttribute(SpellAttr5.NotOnPlayer))
-//							{
-//								return false;
-//							}
+//                                if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer)
+//                                    return false;
+//                            }
+//                            else if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
+//                            {
+//                                return false;
+//                            }
 //
-//							return targetSelectorInner.invoke(candidate);
-//						}
+//                            return targetSelectorInner.Invoke(candidate);
+//                        }
 
                     ;
 
                     if (!spellInfo.hasAuraInterruptFlag(SpellAuraInterruptFlags.NotVictim) && targetSelector(getMe().getVictim())) {
                         target = getMe().getVictim();
                     } else {
-                        target = selectTarget(SelectTargetMethod.random, 0, targetSelector);
+                        target = SelectTarget(SelectTargetMethod.Random, 0, targetSelector);
                     }
                 }
 
@@ -553,32 +438,44 @@ public class UnitAI implements IUnitAI {
         return SpellCastResult.BadTargets;
     }
 
+
     public final SpellCastResult doCast(Unit victim, int spellId) {
         return doCast(victim, spellId, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public SpellCastResult DoCast(Unit victim, uint spellId, CastSpellExtraArgs args = null)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final SpellCastResult doCast(Unit victim, int spellId, CastSpellExtraArgs args) {
         args = args != null ? args : new CastSpellExtraArgs();
 
-        if (getMe().hasUnitState(UnitState.Casting) && !args.triggerFlags.hasFlag(TriggerCastFlags.IgnoreCastInProgress)) {
+        if (getMe().hasUnitState(UnitState.Casting) && !args.triggerFlags.HasAnyFlag(TriggerCastFlags.IgnoreCastInProgress)) {
             return SpellCastResult.SpellInProgress;
         }
 
         return getMe().castSpell(victim, spellId, args);
     }
 
+
     public final SpellCastResult doCastSelf(int spellId) {
         return doCastSelf(spellId, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public SpellCastResult DoCastSelf(uint spellId, CastSpellExtraArgs args = null)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final SpellCastResult doCastSelf(int spellId, CastSpellExtraArgs args) {
         return doCast(getMe(), spellId, args);
     }
+
 
     public final SpellCastResult doCastVictim(int spellId) {
         return doCastVictim(spellId, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public SpellCastResult DoCastVictim(uint spellId, CastSpellExtraArgs args = null)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final SpellCastResult doCastVictim(int spellId, CastSpellExtraArgs args) {
         var victim = getMe().getVictim();
 
@@ -589,10 +486,14 @@ public class UnitAI implements IUnitAI {
         return SpellCastResult.BadTargets;
     }
 
+
     public final SpellCastResult doCastAOE(int spellId) {
         return doCastAOE(spellId, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public SpellCastResult DoCastAOE(uint spellId, CastSpellExtraArgs args = null)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final SpellCastResult doCastAOE(int spellId, CastSpellExtraArgs args) {
         return doCast(null, spellId, args);
     }
@@ -601,15 +502,10 @@ public class UnitAI implements IUnitAI {
         return true;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void UpdateAI(uint diff)
     public void updateAI(int diff) {
     }
-
-    /**
-     */
-    // Called when unit's charm state changes with isNew = false
-    // Implementation should call me->ScheduleAIChange() if AI replacement is desired
-    // If this call is made, AI will be replaced on the next tick
-    // When replacement is made, OnCharmed is called with isNew = true
 
     public void initializeAI() {
         if (!getMe().isDead()) {
@@ -620,9 +516,15 @@ public class UnitAI implements IUnitAI {
     public void reset() {
     }
 
-    /**
-     * @param apply
-     */
+    /** 
+    */
+    // Called when unit's charm state changes with isNew = false
+    // Implementation should call me->ScheduleAIChange() if AI replacement is desired
+    // If this call is made, AI will be replaced on the next tick
+    // When replacement is made, OnCharmed is called with isNew = true
+    /** 
+     @param apply 
+    */
     public void onCharmed(boolean isNew) {
         if (!isNew) {
             getMe().scheduleAIChange();
@@ -636,30 +538,41 @@ public class UnitAI implements IUnitAI {
     public void doAction(int action) {
     }
 
+
     public int getData() {
         return getData(0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public virtual uint GetData(uint id = 0)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public int getData(int id) {
         return 0;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void SetData(uint id, uint value)
     public void setData(int id, int value) {
-    }
-
-    public void setGUID(ObjectGuid guid, int id) {
-    }
-
-    public ObjectGuid getGUID() {
-        return getGUID(0);
     }
 
     public void setGUID(ObjectGuid guid) {
         setGUID(guid, 0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public virtual void SetGUID(ObjectGuid guid, int id = 0)
+    public void setGUID(ObjectGuid guid, int id) {
+    }
+
+
+    public ObjectGuid getGUID() {
+        return getGUID(0);
+    }
+
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public virtual ObjectGuid GetGUID(int id = 0)
     public ObjectGuid getGUID(int id) {
-        return ObjectGuid.Empty;
+        return ObjectGuid.empty;
     }
 
     // Called when the unit enters combat
@@ -683,21 +596,24 @@ public class UnitAI implements IUnitAI {
         damageTaken(attacker, damage, damageType, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public virtual void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     public void damageTaken(Unit attacker, tangible.RefObject<Double> damage, DamageEffectType damageType, SpellInfo spellInfo) {
     }
-
     public void healReceived(Unit by, double addhealth) {
     }
-
     public void healDone(Unit to, double addhealth) {
     }
-
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void SpellInterrupted(uint spellId, uint unTimeMs)
     public void spellInterrupted(int spellId, int unTimeMs) {
     }
 
-    /**
-     * Called when a game event starts or ends
-     */
+    /** 
+      Called when a game event starts or ends
+    */
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void OnGameEvent(bool start, ushort eventId)
     public void onGameEvent(boolean start, short eventId) {
     }
 
@@ -705,7 +621,119 @@ public class UnitAI implements IUnitAI {
         return String.format("Me: %1$s", (getMe() != null ? getMe().getDebugInfo() : "NULL"));
     }
 
+    public static void fillAISpellInfo() {
+        Global.getSpellMgr().forEachSpellInfo(spellInfo -> {
+                AISpellInfoType aIInfo = new AISpellInfoType();
+
+                if (spellInfo.HasAttribute(SpellAttr0.AllowCastWhileDead)) {
+                    aIInfo.condition = AICondition.Die;
+                } else if (spellInfo.IsPassive || spellInfo.Duration == -1) {
+                    aIInfo.condition = AICondition.Aggro;
+                } else {
+                    aIInfo.condition = AICondition.Combat;
+                }
+
+                if (aIInfo.cooldown.getTotalMilliseconds() < spellInfo.RecoveryTime) {
+                    aIInfo.cooldown = TimeSpan.FromMilliseconds(spellInfo.RecoveryTime);
+                }
+
+                if (spellInfo.GetMaxRange(false) != 0) {
+                    for (var spellEffectInfo : spellInfo.Effects) {
+                        var targetType = spellEffectInfo.TargetA.Target;
+
+                        if (targetType == Targets.UnitTargetEnemy || targetType == Targets.DestTargetEnemy) {
+                            if (aIInfo.target.getValue() < AITarget.Victim.getValue()) {
+                                aIInfo.target = AITarget.Victim;
+                            }
+                        } else if (targetType == Targets.UnitDestAreaEnemy) {
+                            if (aIInfo.target.getValue() < AITarget.Enemy.getValue()) {
+                                aIInfo.target = AITarget.Enemy;
+                            }
+                        }
+
+                        if (spellEffectInfo.IsEffect(SpellEffectName.ApplyAura)) {
+                            if (targetType == Targets.UnitTargetEnemy) {
+                                if (aIInfo.target.getValue() < AITarget.Debuff.getValue()) {
+                                    aIInfo.target = AITarget.Debuff;
+                                }
+                            } else if (spellInfo.IsPositive) {
+                                if (aIInfo.target.getValue() < AITarget.Buff.getValue()) {
+                                    aIInfo.target = AITarget.Buff;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                aIInfo.realCooldown = TimeSpan.FromMilliseconds(spellInfo.RecoveryTime + spellInfo.StartRecoveryTime);
+                aIInfo.maxRange = spellInfo.GetMaxRange(false) * 3 / 4;
+
+                aIInfo.effects = 0;
+                aIInfo.targets = 0;
+
+                for (var spellEffectInfo : spellInfo.Effects) {
+                    // Spell targets self.
+                    if (spellEffectInfo.TargetA.Target == Targets.UnitCaster) {
+                        aIInfo.targets |= 1 << (SelectTargetType.Self.getValue() - 1);
+                    }
+
+                    // Spell targets a single enemy.
+                    if (spellEffectInfo.TargetA.Target == Targets.UnitTargetEnemy || spellEffectInfo.TargetA.Target == Targets.DestTargetEnemy) {
+                        aIInfo.targets |= 1 << (SelectTargetType.SingleEnemy.getValue() - 1);
+                    }
+
+                    // Spell targets AoE at enemy.
+                    if (spellEffectInfo.TargetA.Target == Targets.UnitSrcAreaEnemy || spellEffectInfo.TargetA.Target == Targets.UnitDestAreaEnemy || spellEffectInfo.TargetA.Target == Targets.SrcCaster || spellEffectInfo.TargetA.Target == Targets.DestDynobjEnemy) {
+                        aIInfo.targets |= 1 << (SelectTargetType.AoeEnemy.getValue() - 1);
+                    }
+
+                    // Spell targets an enemy.
+                    if (spellEffectInfo.TargetA.Target == Targets.UnitTargetEnemy || spellEffectInfo.TargetA.Target == Targets.DestTargetEnemy || spellEffectInfo.TargetA.Target == Targets.UnitSrcAreaEnemy || spellEffectInfo.TargetA.Target == Targets.UnitDestAreaEnemy || spellEffectInfo.TargetA.Target == Targets.SrcCaster || spellEffectInfo.TargetA.Target == Targets.DestDynobjEnemy) {
+                        aIInfo.targets |= 1 << (SelectTargetType.AnyEnemy.getValue() - 1);
+                    }
+
+                    // Spell targets a single friend (or self).
+                    if (spellEffectInfo.TargetA.Target == Targets.UnitCaster || spellEffectInfo.TargetA.Target == Targets.UnitTargetAlly || spellEffectInfo.TargetA.Target == Targets.UnitTargetParty) {
+                        aIInfo.targets |= 1 << (SelectTargetType.SingleFriend.getValue() - 1);
+                    }
+
+                    // Spell targets AoE friends.
+                    if (spellEffectInfo.TargetA.Target == Targets.UnitCasterAreaParty || spellEffectInfo.TargetA.Target == Targets.UnitLastTargetAreaParty || spellEffectInfo.TargetA.Target == Targets.SrcCaster) {
+                        aIInfo.targets |= 1 << (SelectTargetType.AoeFriend.getValue() - 1);
+                    }
+
+                    // Spell targets any friend (or self).
+                    if (spellEffectInfo.TargetA.Target == Targets.UnitCaster || spellEffectInfo.TargetA.Target == Targets.UnitTargetAlly || spellEffectInfo.TargetA.Target == Targets.UnitTargetParty || spellEffectInfo.TargetA.Target == Targets.UnitCasterAreaParty || spellEffectInfo.TargetA.Target == Targets.UnitLastTargetAreaParty || spellEffectInfo.TargetA.Target == Targets.SrcCaster) {
+                        aIInfo.targets |= 1 << (SelectTargetType.AnyFriend.getValue() - 1);
+                    }
+
+                    // Make sure that this spell includes a damage effect.
+                    if (spellEffectInfo.Effect == SpellEffectName.SchoolDamage || spellEffectInfo.Effect == SpellEffectName.Instakill || spellEffectInfo.Effect == SpellEffectName.EnvironmentalDamage || spellEffectInfo.Effect == SpellEffectName.HealthLeech) {
+                        aIInfo.effects |= 1 << (SelectEffect.Damage.getValue() - 1);
+                    }
+
+                    // Make sure that this spell includes a healing effect (or an apply aura with a periodic heal).
+                    if (spellEffectInfo.Effect == SpellEffectName.Heal || spellEffectInfo.Effect == SpellEffectName.HealMaxHealth || spellEffectInfo.Effect == SpellEffectName.HealMechanical || (spellEffectInfo.Effect == SpellEffectName.ApplyAura && spellEffectInfo.ApplyAuraName == AuraType.PeriodicHeal)) {
+                        aIInfo.effects |= 1 << (SelectEffect.Healing.getValue() - 1);
+                    }
+
+                    // Make sure that this spell applies an aura.
+                    if (spellEffectInfo.Effect == SpellEffectName.ApplyAura) {
+                        aIInfo.effects |= 1 << (SelectEffect.Aura.getValue() - 1);
+                    }
+                }
+
+                aiSpellInfo.put((spellInfo.Id, spellInfo.Difficulty), aIInfo);
+        });
+    }
+
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public static AISpellInfoType GetAISpellInfo(uint spellId, Difficulty difficulty)
+    public static AISpellInfoType getAISpellInfo(int spellId, Difficulty difficulty) {
+        return aiSpellInfo.LookupByKey((spellId, difficulty));
+    }
+
     private void sortByDistance(ArrayList<Unit> targets, boolean ascending) {
-        collections.sort(targets, new ObjectDistanceOrderPred(getMe(), ascending));
+        Collections.sort(targets, new ObjectDistanceOrderPred(getMe(), ascending));
     }
 }

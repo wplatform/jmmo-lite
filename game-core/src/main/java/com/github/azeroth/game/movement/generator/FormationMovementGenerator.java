@@ -1,19 +1,25 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.AbstractFollower;
-import com.github.azeroth.game.movement.MovementGeneratorMedium;
+import com.github.azeroth.game.movement.MovementGenerator;
+import com.github.azeroth.game.movement.enums.MovementGeneratorFlag;
+import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
+import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
+import com.github.azeroth.time.TimeTracker;
 
-public class FormationMovementGenerator extends MovementGeneratorMedium<Creature> {
+public class FormationMovementGenerator extends MovementGenerator {
     private static final int FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
     private final AbstractFollower abstractFollower;
     private final float range;
     private final int point1;
     private final int point2;
-    private final timeTracker nextMoveTimer = new timeTracker();
+    private final TimeTracker nextMoveTimer = new TimeTracker(0);
     private float angle;
     private int lastLeaderSplineID;
     private boolean hasPredictedDestination;
@@ -21,25 +27,25 @@ public class FormationMovementGenerator extends MovementGeneratorMedium<Creature
     private Position lastLeaderPosition;
 
     public FormationMovementGenerator(Unit leader, float range, float angle, int point1, int point2) {
-        abstractFollower = new AbstractFollower(leader);
-        range = range;
-        angle = angle;
-        point1 = point1;
-        point2 = point2;
+        this.abstractFollower = new AbstractFollower(leader);
+        this.range = range;
+        this.angle = angle;
+        this.point1 = point1;
+        this.point2 = point2;
 
-        mode = MovementGeneratorMode.Default;
-        priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.FollowFormation;
+        this.mode = MovementGeneratorMode.DEFAULT;
+        this.priority = MovementGeneratorPriority.NORMAL;
+        this.flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        this.baseUnitState = UnitState.FOLLOW_FORMATION;
     }
 
     @Override
-    public void doInitialize(Creature owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Transitory.getValue().getValue() | MovementGeneratorFlags.Deactivated.getValue().getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+    public void initialize(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
+        flags.addFlag(MovementGeneratorFlag.INITIALIZED);
 
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting()) {
+            flags.addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
 
             return;
@@ -49,34 +55,32 @@ public class FormationMovementGenerator extends MovementGeneratorMedium<Creature
     }
 
     @Override
-    public void doReset(Creature owner) {
-        removeFlag(MovementGeneratorFlags.Transitory.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-
-        doInitialize(owner);
+    public void reset(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
+        initialize(owner);
     }
 
     @Override
-    public boolean doUpdate(Creature owner, int diff) {
+    public boolean update(Unit owner, int diff) {
         var target = abstractFollower.getTarget();
-
-        if (owner == null || target == null) {
+        if (owner == null || target == null || owner.toCreature() == null) {
             return false;
         }
 
+        var creature = owner.toCreature();
         // Owner cannot move. Reset all fields and wait for next action
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting()) {
+            flags.addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
             nextMoveTimer.reset(0);
             hasPredictedDestination = false;
-
             return true;
         }
 
         // Update home position
         // If target is not moving and destination has been predicted and if we are on the same spline, we stop as well
         if (target.getMoveSpline().finalized() && target.getMoveSpline().getId() == lastLeaderSplineID && hasPredictedDestination) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+            flags.addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
             nextMoveTimer.reset(0);
             hasPredictedDestination = false;
@@ -84,8 +88,8 @@ public class FormationMovementGenerator extends MovementGeneratorMedium<Creature
             return true;
         }
 
-        if (!owner.getMoveSpline().finalized()) {
-            owner.setHomePosition(owner.getLocation());
+        if (!creature.getMoveSpline().finalized()) {
+            creature.setHomePosition(owner.getLocation());
         }
 
         // Formation leader has launched a new spline, launch a new one for our member as well
@@ -99,7 +103,7 @@ public class FormationMovementGenerator extends MovementGeneratorMedium<Creature
                     var leader = formation.getLeader();
 
                     if (leader != null) {
-                        var currentWaypoint = leader.CurrentWaypointInfo.nodeId;
+                        var currentWaypoint = leader.getCurrentWaypointInfo().nodeId;
 
                         if (currentWaypoint == point1 || currentWaypoint == point2) {
                             angle = (float) Math.PI * 2 - angle;
@@ -227,8 +231,8 @@ public class FormationMovementGenerator extends MovementGeneratorMedium<Creature
     }
 
     private void movementInform(Creature owner) {
-        if (owner.getAI() != null) {
-            owner.getAI().movementInform(MovementGeneratorType.formation, 0);
+        if (owner.getAi() != null) {
+            owner.getAi().movementInform(MovementGeneratorType.formation, 0);
         }
     }
 }

@@ -2455,4 +2455,10 @@ public interface DbcObjectManager {
     Map<Integer, List<TaxiPathNode>> getTaxiPathNodesByPath();
 
     TaxiMask getTaxiNodesMask();
+
+    TaxiMask getHordeTaxiNodesMask();
+
+    TaxiMask getAllianceTaxiNodesMask();
+
+    TaxiMask getOldContinentsNodesMask();
 }

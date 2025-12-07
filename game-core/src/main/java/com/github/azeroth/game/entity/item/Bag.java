@@ -2,7 +2,6 @@ package com.github.azeroth.game.entity.item;
 
 
 import com.github.azeroth.game.domain.object.enums.TypeMask;
-import com.github.azeroth.game.entity.object.update.ContainerData;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.networking.WorldPacket;
 

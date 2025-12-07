@@ -1,16 +1,22 @@
 package com.github.azeroth.game.networking.packet.loot;
 
 
+import com.github.azeroth.defines.LootError;
+import com.github.azeroth.defines.LootMethod;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
+
 import java.util.ArrayList;
 
 
 public class LootResponse extends ServerPacket {
-    public ObjectGuid lootObj = ObjectGuid.EMPTY;
-    public ObjectGuid owner = ObjectGuid.EMPTY;
+    public ObjectGuid lootObj;
+    public ObjectGuid owner;
     public byte threshold = 2; // Most common value, 2 = Uncommon
-    public lootMethod lootMethod = Framework.Constants.lootMethod.values()[0];
+    public LootMethod lootMethod;
     public byte acquireReason;
-    public LootError failureReason = LootError.NoLoot; // Most common value
+    public LootError failureReason; // Most common value
     public int coins;
     public ArrayList<LootItemData> items = new ArrayList<>();
     public ArrayList<LootCurrency> currencies = new ArrayList<>();
@@ -18,16 +24,16 @@ public class LootResponse extends ServerPacket {
     public boolean AELooting;
 
     public LootResponse() {
-        super(ServerOpcode.LootResponse);
+        super(ServerOpCode.SMSG_LOOT_RESPONSE);
     }
 
     @Override
     public void write() {
         this.writeGuid(owner);
         this.writeGuid(lootObj);
-        this.writeInt8((byte) failureReason.getValue());
+        this.writeInt8((byte) failureReason.ordinal());
         this.writeInt8(acquireReason);
-        this.writeInt8((byte) lootMethod.getValue());
+        this.writeInt8((byte) lootMethod.ordinal());
         this.writeInt8(threshold);
         this.writeInt32(coins);
         this.writeInt32(items.size());

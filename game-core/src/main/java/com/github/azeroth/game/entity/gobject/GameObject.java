@@ -8,8 +8,6 @@ import com.github.azeroth.defines.GOState;
 import com.github.azeroth.defines.GameObjectDynamicLowFlag;
 import com.github.azeroth.defines.GameObjectType;
 import com.github.azeroth.defines.LootMode;
-import com.github.azeroth.game.ai.AISelector;
-import com.github.azeroth.game.ai.GameObjectAI;
 import com.github.azeroth.game.battleground.Battleground;
 import com.github.azeroth.game.domain.gobject.*;
 import com.github.azeroth.game.domain.map.MapDefine;
@@ -19,7 +17,6 @@ import com.github.azeroth.game.domain.spawn.RespawnInfo;
 
 import com.github.azeroth.game.entity.object.*;
 import com.github.azeroth.game.domain.object.enums.CellMoveState;
-import com.github.azeroth.game.entity.object.update.UpdateFieldFlag;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.loot.Loot;

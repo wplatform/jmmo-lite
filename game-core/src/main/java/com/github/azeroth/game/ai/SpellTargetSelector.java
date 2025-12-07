@@ -1,16 +1,25 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.spells.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.spell.SpellInfo;
 
-public class SpellTargetSelector implements ICheck<unit> {
+
+public class SpellTargetSelector implements ICheck<Unit> {
     private final Unit caster;
     private final SpellInfo spellInfo;
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public SpellTargetSelector(Unit caster, uint spellId)
     public SpellTargetSelector(Unit caster, int spellId) {
-        caster = caster;
-        spellInfo = global.getSpellMgr().getSpellInfo(spellId, caster.getMap().getDifficultyID());
+        this.caster = caster;
+        spellInfo = Global.getSpellMgr().getSpellInfo(spellId, caster.getMap().getDifficultyID());
     }
 
     public final boolean invoke(Unit target) {
@@ -22,13 +31,13 @@ public class SpellTargetSelector implements ICheck<unit> {
             return false;
         }
 
-        // copypasta from spell.CheckRange
+        // copypasta from Spell.CheckRange
         var minRange = 0.0f;
         var maxRange = 0.0f;
         var rangeMod = 0.0f;
 
-        if (spellInfo.getRangeEntry() != null) {
-            if (spellInfo.getRangeEntry().flags.hasFlag(SpellRangeFlag.Melee)) {
+        if (spellInfo.rangeEntry != null) {
+            if (spellInfo.rangeEntry.flags.HasAnyFlag(SpellRangeFlag.Melee)) {
                 rangeMod = caster.getCombatReach() + 4.0f / 3.0f;
                 rangeMod += target.getCombatReach();
 
@@ -36,7 +45,7 @@ public class SpellTargetSelector implements ICheck<unit> {
             } else {
                 var meleeRange = 0.0f;
 
-                if (spellInfo.getRangeEntry().flags.hasFlag(SpellRangeFlag.Ranged)) {
+                if (spellInfo.rangeEntry.flags.HasAnyFlag(SpellRangeFlag.Ranged)) {
                     meleeRange = caster.getCombatReach() + 4.0f / 3.0f;
                     meleeRange += target.getCombatReach();
 
@@ -49,12 +58,12 @@ public class SpellTargetSelector implements ICheck<unit> {
                 rangeMod = caster.getCombatReach();
                 rangeMod += target.getCombatReach();
 
-                if (minRange > 0.0f && !spellInfo.getRangeEntry().flags.hasFlag(SpellRangeFlag.Ranged)) {
+                if (minRange > 0.0f && !spellInfo.rangeEntry.flags.HasAnyFlag(SpellRangeFlag.Ranged)) {
                     minRange += rangeMod;
                 }
             }
 
-            if (caster.isMoving() && target.isMoving() && !caster.isWalking() && !target.isWalking() && (spellInfo.getRangeEntry().flags.hasFlag(SpellRangeFlag.Melee) || target.isTypeId(TypeId.PLAYER))) {
+            if (caster.isMoving() && target.isMoving() && !caster.isWalking() && !target.isWalking() && (spellInfo.rangeEntry.flags.HasAnyFlag(SpellRangeFlag.Melee) || target.isTypeId(TypeId.Player))) {
                 rangeMod += 8.0f / 3.0f;
             }
         }
@@ -65,11 +74,11 @@ public class SpellTargetSelector implements ICheck<unit> {
         maxRange *= maxRange;
 
         if (target != caster) {
-            if (caster.getLocation().getExactDistSq(target.getLocation()) > maxRange) {
+            if (caster.location.getExactDistSq(target.location) > maxRange) {
                 return false;
             }
 
-            if (minRange > 0.0f && caster.getLocation().getExactDistSq(target.getLocation()) < minRange) {
+            if (minRange > 0.0f && caster.location.getExactDistSq(target.location) < minRange) {
                 return false;
             }
         }

@@ -1,15 +1,24 @@
-package com.github.azeroth.game.ai;
+package game.ai;
 
-import com.github.azeroth.game.entity.unit.Unit;
+import game.entities.*;
+import game.*;
 
-final class ValidTargetSelectPredicate implements ICheck<unit> {
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
+
+
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: struct ValidTargetSelectPredicate : ICheck<Unit>
+public final class ValidTargetSelectPredicate implements ICheck<Unit> {
     private final IUnitAI ai;
 
     public ValidTargetSelectPredicate() {
     }
 
     public ValidTargetSelectPredicate(IUnitAI ai) {
-        ai = ai;
+        this.ai = ai;
     }
 
     public boolean invoke(Unit target) {
@@ -19,7 +28,7 @@ final class ValidTargetSelectPredicate implements ICheck<unit> {
     public ValidTargetSelectPredicate clone() {
         ValidTargetSelectPredicate varCopy = new ValidTargetSelectPredicate();
 
-        varCopy.ai = this.ai;
+        varCopy._ai = this._ai;
 
         return varCopy;
     }

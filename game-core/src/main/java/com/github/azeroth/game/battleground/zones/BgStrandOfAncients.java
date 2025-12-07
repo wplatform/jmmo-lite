@@ -912,7 +912,7 @@ public class BgStrandOfAncients extends Battleground {
                 var rigspark = addCreature(SAMiscConst.NpcEntries[npc], (int) npc, SAMiscConst.NpcSpawnlocs[npc], attackers);
 
                 if (rigspark) {
-                    rigspark.getAI().talk(SATextIds.sparklightRigsparkSpawn);
+                    rigspark.getAi().talk(SATextIds.sparklightRigsparkSpawn);
                 }
 
                 for (byte j = (byte) SACreatureTypes.DEMOLISHER7; j <= SACreatureTypes.DEMOLISHER8; j++) {
@@ -945,7 +945,7 @@ public class BgStrandOfAncients extends Battleground {
                 var sparklight = addCreature(SAMiscConst.NpcEntries[npc], (int) npc, SAMiscConst.NpcSpawnlocs[npc], attackers);
 
                 if (sparklight) {
-                    sparklight.getAI().talk(SATextIds.sparklightRigsparkSpawn);
+                    sparklight.getAi().talk(SATextIds.sparklightRigsparkSpawn);
                 }
 
                 for (byte j = (byte) SACreatureTypes.DEMOLISHER5; j <= SACreatureTypes.DEMOLISHER6; j++) {

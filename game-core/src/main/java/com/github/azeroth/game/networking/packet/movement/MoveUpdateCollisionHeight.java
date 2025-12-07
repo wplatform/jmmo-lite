@@ -3,6 +3,7 @@ package com.github.azeroth.game.networking.packet.movement;
 
 import com.github.azeroth.game.movement.model.MovementInfo;
 import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 public class MoveUpdateCollisionHeight extends ServerPacket {
     public MovementInfo status;
@@ -10,7 +11,7 @@ public class MoveUpdateCollisionHeight extends ServerPacket {
     public float height = 1.0f;
 
     public MoveUpdateCollisionHeight() {
-        super(ServerOpcode.MoveUpdateCollisionHeight);
+        super(ServerOpCode.SMSG_MOVE_UPDATE_COLLISION_HEIGHT);
     }
 
     @Override

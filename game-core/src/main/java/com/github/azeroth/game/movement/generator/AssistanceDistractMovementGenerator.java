@@ -1,7 +1,11 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.domain.unit.ReactState;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 
 public class AssistanceDistractMovementGenerator extends DistractMovementGenerator {
 
@@ -12,12 +16,12 @@ public class AssistanceDistractMovementGenerator extends DistractMovementGenerat
 
     @Override
     public void finalize(Unit owner, boolean active, boolean movementInform) {
-        owner.clearUnitState(UnitState.Distracted);
-        owner.toCreature().setReactState(ReactStates.Aggressive);
+        owner.clearUnitState(UnitState.DISTRACTED);
+        owner.toCreature().setReactState(ReactState.AGGRESSIVE);
     }
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.AssistanceDistract;
+        return MovementGeneratorType.ASSISTANCE_DISTRACT;
     }
 }

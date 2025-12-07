@@ -313,8 +313,9 @@ public class Aura {
 
 
 
-
-
+    public final int getId() {
+        return spellInfo.getId();
+    }
 
     public final void setDuration(double duration) {
         setDuration(duration, false, false);
@@ -1479,7 +1480,7 @@ public class Aura {
                     var damageInfo = eventInfo.getDamageInfo();
 
                     if (damageInfo != null) {
-                        if (damageInfo.getAttackType() != WeaponAttackType.OffAttack) {
+                        if (damageInfo.getAttackType() != WeaponAttackType.OFF_ATTACK) {
                             item = target.toPlayer().getUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
                         } else {
                             item = target.toPlayer().getUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);

@@ -417,7 +417,7 @@ class BgWarsongGluch extends Battleground {
             //target_obj.delete();
         }
 
-        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
+        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.PvPActive);
     }
 
     @Override
@@ -783,7 +783,7 @@ class BgWarsongGluch extends Battleground {
 
         Team winner = Team.forValue(0);
 
-        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
+        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.PvPActive);
         var team = getPlayerTeam(player.getGUID());
 
         if (team == Team.ALLIANCE) {

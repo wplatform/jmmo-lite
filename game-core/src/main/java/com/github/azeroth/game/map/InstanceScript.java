@@ -2,8 +2,6 @@ package com.github.azeroth.game.map;
 
 
 import com.github.azeroth.dbc.domain.DungeonEncounter;
-import com.github.azeroth.game.ai.BossAI;
-import com.github.azeroth.game.ai.CreatureAI;
 import com.github.azeroth.game.domain.instance.EncounterState;
 import com.github.azeroth.game.domain.map.MapDefine;
 import com.github.azeroth.game.domain.object.ObjectGuid;
@@ -306,7 +304,7 @@ public class InstanceScript extends ZoneScript {
                         getInstance().doOnPlayers(player ->
                         {
                             if (player.isAlive) {
-                                unit.procSkillsAndAuras(player, null, new ProcFlagsInit(procFlags.EncounterStart), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
+                                unit.procSkillsAndAuras(player, null, new EnumFlag<ProcFlag>(procFlags.EncounterStart), new EnumFlag<ProcFlag>(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
                             }
                         });
 
@@ -683,7 +681,7 @@ public class InstanceScript extends ZoneScript {
     }
 
     public final DungeonEncounter getBossDungeonEncounter(Creature creature) {
-        CreatureAI tempVar = creature.getAI();
+        CreatureAI tempVar = creature.getAi();
         var bossAi = tempVar instanceof BossAI ? (BossAI) tempVar : null;
 
         if (bossAi != null) {
@@ -1002,7 +1000,7 @@ public class InstanceScript extends ZoneScript {
                 if (!minion.isAlive()) {
                     minion.respawn();
                 } else if (minion.isInCombat()) {
-                    minion.getAI().enterEvadeMode();
+                    minion.getAi().enterEvadeMode();
                 }
 
                 break;
@@ -1010,7 +1008,7 @@ public class InstanceScript extends ZoneScript {
                 if (!minion.isAlive()) {
                     minion.respawn();
                 } else if (minion.getVictim() == null) {
-                    minion.getAI().doZoneInCombat();
+                    minion.getAi().doZoneInCombat();
                 }
 
                 break;

@@ -78,7 +78,7 @@ class NPCCommands {
             creatureTarget.clearUnitState(UnitState.Evade);
         }
 
-        creatureTarget.getAI().enterEvadeMode(why.GetValueOrDefault(EvadeReason.other));
+        creatureTarget.getAi().enterEvadeMode(why.GetValueOrDefault(EvadeReason.other));
 
         return true;
     }
@@ -166,7 +166,7 @@ class NPCCommands {
         handler.sendSysMessage(SysMessage.ObjectinfoAiInfo, target.getAIName(), target.getScriptName());
         handler.sendSysMessage(SysMessage.ObjectinfoStringIds, target.getStringIds()[0], target.getStringIds()[1], target.getStringIds()[2]);
         handler.sendSysMessage(SysMessage.NpcinfoReactstate, target.getReactState());
-        var ai = target.getAI();
+        var ai = target.getAi();
 
         if (ai != null) {
             handler.sendSysMessage(SysMessage.ObjectinfoAiType, "ai");
@@ -969,7 +969,7 @@ class NPCCommands {
                 return false;
             }
 
-            creature.getAI().setData(data_1, data_2);
+            creature.getAi().setData(data_1, data_2);
             var AIorScript = !Objects.equals(creature.getAIName(), "") ? "AI type: " + creature.getAIName() : (!Objects.equals(creature.getScriptName(), "") ? "Script Name: " + creature.getScriptName() : "No AI or Script Name Set");
             handler.sendSysMessage(SysMessage.NpcSetdata, creature.getGUID(), creature.getEntry(), creature.getName(), data_1, data_2, AIorScript);
 

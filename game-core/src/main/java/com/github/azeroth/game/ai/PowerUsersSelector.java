@@ -1,19 +1,26 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.unit.Unit;
 
-class PowerUsersSelector implements ICheck<unit> {
+
+public class PowerUsersSelector implements ICheck<Unit> {
     private final Unit me;
-    private final Power power;
+    private final PowerType power = PowerType.values()[0];
     private final float dist;
     private final boolean playerOnly;
 
-    public PowerUsersSelector(Unit unit, Power power, float dist, boolean playerOnly) {
+    public PowerUsersSelector(Unit unit, PowerType power, float dist, boolean playerOnly) {
         me = unit;
-        power = power;
-        dist = dist;
-        playerOnly = playerOnly;
+        this.power = power;
+        this.dist = dist;
+        this.playerOnly = playerOnly;
     }
 
     public final boolean invoke(Unit target) {
@@ -25,7 +32,7 @@ class PowerUsersSelector implements ICheck<unit> {
             return false;
         }
 
-        if (playerOnly && target.getObjectTypeId() != TypeId.PLAYER) {
+        if (playerOnly && target.getTypeId() != TypeId.Player) {
             return false;
         }
 
@@ -33,7 +40,7 @@ class PowerUsersSelector implements ICheck<unit> {
             return false;
         }
 
-        if (dist < 0.0f && me.isWithinCombatRange(target, -_dist)) {
+        if (dist < 0.0f && me.isWithinCombatRange(target, -dist)) {
             return false;
         }
 

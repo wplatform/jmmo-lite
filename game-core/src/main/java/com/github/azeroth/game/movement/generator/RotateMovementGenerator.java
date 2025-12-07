@@ -1,36 +1,52 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.unit.UnitMoveType;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.MovementGenerator;
+import com.github.azeroth.game.movement.enums.MovementGeneratorFlag;
+import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
+import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
+import com.github.azeroth.game.movement.enums.RotateDirection;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
+import com.github.azeroth.time.TimeTracker;
+
+import java.time.Duration;
+import java.util.Optional;
 
 public class RotateMovementGenerator extends MovementGenerator {
 
+    public static final float MIN_ANGLE_DELTA_FOR_FACING_UPDATE = 0.05f;
+
+
     private final int id;
-
-    private final int maxDuration;
+    private final TimeTracker duration;
+    private final Float turnSpeed;         ///< radians per sec
+    private Float totalTurnAngle;
     private final RotateDirection direction;
+    private int diffSinceLastUpdate;
 
-    private int duration;
 
 
-    public RotateMovementGenerator(int id, int time, RotateDirection direction) {
-        id = id;
-        duration = time;
-        maxDuration = time;
-        direction = direction;
 
-        mode = MovementGeneratorMode.Default;
-        priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.Rotating;
+    public RotateMovementGenerator(int id, RotateDirection direction, Duration duration, Float turnSpeed, Float totalTurnAngle) {
+        this.id = id;
+        this.duration = Optional.ofNullable(duration).map(TimeTracker::new).orElse(null);
+        this.direction = direction;
+        this.turnSpeed = turnSpeed;
+        this.totalTurnAngle = totalTurnAngle;
+        this.mode = MovementGeneratorMode.DEFAULT;
+        this.priority = MovementGeneratorPriority.NORMAL;
+        this.baseUnitState = UnitState.ROTATING;
+        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
     }
 
     @Override
     public void initialize(Unit owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.DEACTIVATED);
+        addFlag(MovementGeneratorFlag.INITIALIZED);
 
         owner.stopMoving();
 
@@ -46,36 +62,45 @@ public class RotateMovementGenerator extends MovementGenerator {
 
     @Override
     public void reset(Unit owner) {
-        removeFlag(MovementGeneratorFlags.Deactivated);
+        flags.removeFlag(MovementGeneratorFlag.DEACTIVATED);
         initialize(owner);
     }
 
 
     @Override
     public boolean update(Unit owner, int diff) {
-        if (owner == null) {
-            return false;
+        diffSinceLastUpdate += diff;
+
+        float currentAngle = owner.getLocation().getO();
+
+
+        float angleDelta =  (turnSpeed == null ? owner.getSpeed(UnitMoveType.TURN_RATE) : turnSpeed) * (diffSinceLastUpdate / 1000.0f);
+
+        if (duration != null)
+            duration.update(diff);
+
+        if (totalTurnAngle != null)
+            totalTurnAngle = totalTurnAngle - angleDelta;
+
+        boolean expired = (duration != null && duration.passed()) || (totalTurnAngle != null && totalTurnAngle < 0.0f);
+
+        if (angleDelta >= MIN_ANGLE_DELTA_FOR_FACING_UPDATE || expired)
+        {
+            float newAngle = Position.normalizeOrientation(currentAngle + angleDelta * (direction == RotateDirection.LEFT ? 1.0f : -1.0f));
+
+            MoveSplineInit init = new MoveSplineInit(owner);
+            init.moveTo(PositionToVector3(owner.getLocation()), false);
+            if (!owner.getTransGUID().isEmpty())
+                init.DisableTransportPathTransformations();
+            init.SetFacing(newAngle);
+            init.Launch();
+
+            _diffSinceLastUpdate = 0;
         }
 
-        var angle = owner.getLocation().getO();
-        angle += diff * MathUtil.TwoPi / _maxDuration * (direction == RotateDirection.Left ? 1.0f : -1.0f);
-        angle = Math.Clamp(angle, 0.0f, MathUtil.PI * 2);
-
-        MoveSplineInit init = new MoveSplineInit(owner);
-        init.moveTo(owner.getLocation(), false);
-
-        if (!owner.getTransGUID().isEmpty()) {
-            init.disableTransportPathTransformations();
-        }
-
-        init.setFacing(angle);
-        init.launch();
-
-        if (duration > diff) {
-            _duration -= diff;
-        } else {
-            addFlag(MovementGeneratorFlags.InformEnabled);
-
+        if (expired)
+        {
+            AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
             return false;
         }
 
@@ -92,7 +117,7 @@ public class RotateMovementGenerator extends MovementGenerator {
         addFlag(MovementGeneratorFlags.Finalized);
 
         if (movementInform && owner.isCreature()) {
-            owner.toCreature().getAI().movementInform(MovementGeneratorType.Rotate, id);
+            owner.toCreature().getAi().movementInform(MovementGeneratorType.Rotate, id);
         }
     }
 

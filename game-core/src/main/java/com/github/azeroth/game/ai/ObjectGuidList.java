@@ -1,19 +1,24 @@
-package com.github.azeroth.game.ai;
+package game.ai;
 
-import com.github.azeroth.game.entity.object.WorldObject;
+import game.entities.*;
+import game.*;
+import java.util.*;
 
-import java.util.ArrayList;
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-class ObjectGuidList {
-    private final ArrayList<ObjectGuid> guidList = new ArrayList<>();
-    private final ArrayList<WorldObject> objectList = new ArrayList<>();
+
+
+public class ObjectGuidList {
+    private final ArrayList<ObjectGuid> guidList = new ArrayList<ObjectGuid>();
+    private final ArrayList<WorldObject> objectList = new ArrayList<WorldObject>();
 
     public ObjectGuidList(ArrayList<WorldObject> objectList) {
-        objectList = objectList;
+        this.objectList = objectList;
 
-        for (var obj : objectList) {
-            guidList.add(obj.getGUID());
+        for (var obj : this.objectList) {
+            guidList.add(obj.getGUID().clone());
         }
     }
 
@@ -24,7 +29,7 @@ class ObjectGuidList {
     }
 
     public final void addGuid(ObjectGuid guid) {
-        guidList.add(guid);
+        guidList.add(guid.clone());
     }
 
     //sanitize vector using _guidVector
@@ -32,7 +37,7 @@ class ObjectGuidList {
         objectList.clear();
 
         for (var guid : guidList) {
-            var newObj = global.getObjAccessor().GetWorldObject(obj, guid);
+            var newObj = Global.getObjAccessor().getWorldObject(obj, guid.clone());
 
             if (newObj != null) {
                 objectList.add(newObj);

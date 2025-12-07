@@ -195,7 +195,7 @@ public class LootHandler {
         if (GetPlayer()->IsNonMeleeSpellCast(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
 
-        GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Looting);
+        GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlag::Looting);
 
         bool const aeLootEnabled = sWorld->getBoolConfig(CONFIG_ENABLE_AE_LOOT);
         std::vector<Creature*> corpses;

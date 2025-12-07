@@ -1,14 +1,18 @@
 package com.github.azeroth.game.networking.packet.movement;
 
 
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
+
 public class NewWorld extends ServerPacket {
     public int mapID;
     public int reason;
-    public Teleportlocation loc = new teleportLocation();
+    public TeleportLocation loc;
     public Position movementOffset; // Adjusts all pending movement events by this offset
 
     public NewWorld() {
-        super(ServerOpcode.NewWorld);
+        super(ServerOpCode.SMSG_NEW_WORLD);
     }
 
     @Override

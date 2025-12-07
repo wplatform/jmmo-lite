@@ -2,26 +2,27 @@ package com.github.azeroth.dbc.model;
 
 public class TaxiMask {
 
+    private final byte[] data;
 
-    public final byte get(int i)
-    {
+    public TaxiMask(int size) {
+        this.data = new byte[size];
+    }
+
+
+    public final byte get(int i) {
         return data[i];
     }
-    public final void set(int i, byte value)
-    {
+
+    public final void set(int i, byte value) {
         data[i] = value;
     }
 
-
-    public final int size()
-    {
+    public final int size() {
         return data.length;
     }
 
-    public final byte[] data()
-    {
+    public final byte[] data() {
         return data;
     }
 
-    private final byte[] data = new byte[16];
 }

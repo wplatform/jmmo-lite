@@ -22,7 +22,7 @@ public class VendorItem {
         this.incrtime = incrtime;
         this.extendedCost = extendedCost;
         this.type = type;
-        this.bonusListIDs = StringUtil.splitInts(bonusListIDs, " ");
+        this.bonusListIDs = StringUtil.tokenizeInts(bonusListIDs, " ");
         this.playerConditionId = playerConditionId;
         this.ignoreFiltering = ignoreFiltering;
     }

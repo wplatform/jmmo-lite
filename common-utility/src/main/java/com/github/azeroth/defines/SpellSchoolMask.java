@@ -1,11 +1,12 @@
 package com.github.azeroth.defines;
 
+import com.github.azeroth.common.EnumFlag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum SpellSchoolMask {
+public enum SpellSchoolMask implements EnumFlag.FlagValue {
     NONE(0x00),
     NORMAL(1 << SpellSchool.NORMAL.ordinal()),
     HOLY(1 << SpellSchool.HOLY.ordinal()),

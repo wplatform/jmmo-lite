@@ -38,7 +38,7 @@ public class CombatReference {
 
         // ...and if that happened, also notify the AI of it...
         if (needFirstAI) {
-            var firstAI = first.getAI();
+            var firstAI = first.getAi();
 
             if (firstAI != null) {
                 firstAI.justExitedCombat();
@@ -46,7 +46,7 @@ public class CombatReference {
         }
 
         if (needSecondAI) {
-            var secondAI = second.getAI();
+            var secondAI = second.getAi();
 
             if (secondAI != null) {
                 secondAI.justExitedCombat();
@@ -80,7 +80,7 @@ public class CombatReference {
         suppress(who);
 
         if (who.getCombatManager().updateOwnerCombatState()) {
-            var ai = who.getAI();
+            var ai = who.getAi();
 
             if (ai != null) {
                 ai.justExitedCombat();

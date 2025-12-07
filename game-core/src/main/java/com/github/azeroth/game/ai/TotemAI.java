@@ -1,24 +1,29 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.maps.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.domain.object.ObjectGuid;
-import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.map.NearestAttackableUnitInObjectRangeCheck;
-import com.github.azeroth.game.map.UnitLastSearcher;
-import com.github.azeroth.game.map.grid.Cell;
+
 
 public class TotemAI extends NullCreatureAI {
-    private ObjectGuid victimGuid;
+    private ObjectGuid victimGuid = new ObjectGuid();
 
     public TotemAI(Creature creature) {
         super(creature);
-        victimGuid = ObjectGuid.EMPTY;
+        victimGuid = ObjectGuid.empty;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
-        if (me.toTotem().getTotemType() != TotemType.active) {
+        if (me.toTotem().getTotemType() != TotemType.Active) {
             return;
         }
 
@@ -27,32 +32,32 @@ public class TotemAI extends NullCreatureAI {
         }
 
         // Search spell
-        var spellInfo = global.getSpellMgr().getSpellInfo(me.toTotem().getSpell(), me.getMap().getDifficultyID());
+        var spellInfo = Global.getSpellMgr().getSpellInfo(me.toTotem().getSpell(), me.getMap().getDifficultyID());
 
         if (spellInfo == null) {
             return;
         }
 
         // Get spell range
-        var max_range = spellInfo.getMaxRange(false);
+        var maxRange = spellInfo.getMaxRange(false);
 
         // SpellModOp.Range not applied in this place just because not existence range mods for attacking totems
 
-        var victim = !victimGuid.isEmpty() ? global.getObjAccessor().GetUnit(me, victimGuid) : null;
+        var victim = !victimGuid.isEmpty() ? Global.getObjAccessor().getUnit(me, victimGuid.clone()) : null;
 
         // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-        if (victim == null || !victim.isTargetableForAttack() || !me.isWithinDistInMap(victim, max_range) || me.isFriendlyTo(victim) || !me.canSeeOrDetect(victim)) {
-            var extraSearchRadius = max_range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
-            var u_check = new NearestAttackableUnitInObjectRangeCheck(me, me.getCharmerOrOwnerOrSelf(), max_range);
-            var checker = new UnitLastSearcher(me, u_check, gridType.All);
-            Cell.visitGrid(me, checker, max_range + extraSearchRadius);
+        if (victim == null || !victim.isTargetableForAttack() || !me.isWithinDistInMap(victim, maxRange) || me.isFriendlyTo(victim) || !me.canSeeOrDetect(victim)) {
+            var extraSearchRadius = maxRange > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
+            var uCheck = new NearestAttackableUnitInObjectRangeCheck(me, me.getCharmerOrOwnerOrSelf(), maxRange);
+            var checker = new UnitLastSearcher(me, uCheck, GridType.All);
+            Cell.visitGrid(me, checker, maxRange + extraSearchRadius);
             victim = checker.getTarget();
         }
 
         // If have target
         if (victim != null) {
             // remember
-            victimGuid = victim.GUID;
+            victimGuid = victim.getGUID().clone();
 
             // attack
             me.castSpell(victim, me.toTotem().getSpell());
@@ -60,7 +65,6 @@ public class TotemAI extends NullCreatureAI {
             victimGuid.clear();
         }
     }
-
     @Override
     public void attackStart(Unit victim) {
     }

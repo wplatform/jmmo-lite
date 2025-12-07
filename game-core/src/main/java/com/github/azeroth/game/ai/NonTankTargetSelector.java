@@ -1,9 +1,16 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.unit.Unit;
 
-public class NonTankTargetSelector implements ICheck<unit> {
+
+public class NonTankTargetSelector implements ICheck<Unit> {
     private final Unit source;
     private final boolean playerOnly;
 
@@ -12,9 +19,11 @@ public class NonTankTargetSelector implements ICheck<unit> {
         this(source, true);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public NonTankTargetSelector(Unit source, bool playerOnly = true)
     public NonTankTargetSelector(Unit source, boolean playerOnly) {
-        source = source;
-        playerOnly = playerOnly;
+        this.source = source;
+        this.playerOnly = playerOnly;
     }
 
     public final boolean invoke(Unit target) {
@@ -22,7 +31,7 @@ public class NonTankTargetSelector implements ICheck<unit> {
             return false;
         }
 
-        if (playerOnly && !target.isTypeId(TypeId.PLAYER)) {
+        if (playerOnly && !target.isTypeId(TypeId.Player)) {
             return false;
         }
 

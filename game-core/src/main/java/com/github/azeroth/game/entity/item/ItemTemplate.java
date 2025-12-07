@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Locale;
 
+import static com.github.azeroth.dbc.defines.DbcDefine.MAX_ITEM_PROTO_STATS;
+
 @Data
 public class ItemTemplate {
     private static final SkillType[] ITEM_WEAPON_SKILLS = {
@@ -636,13 +638,13 @@ public class ItemTemplate {
         return getSpecializations()[levelIndex].Get(calculateItemSpecBit(chrSpecialization));
     }
 
-    public final int getStatModifierBonusStat(int index) {
-        return extendedData.StatModifierBonusStat[index];
+    public final byte getStatModifierBonusStat(int index) {
+        return extendedData.getStatModifierBonusStat(index);
     }
 
-    public final int getStatPercentEditor(int index) {
-        return extendedData.StatPercentEditor[index];
-    }
+    public int getItemStatValue(int index) { return extendedData.getItemStatValue(index); }
+    public int getItemStatAllocation(int index) { return extendedData.getStatPercentEditor(index); }
+    float getItemStatSocketCostMultiplier(int index) { return extendedData.getStatPercentageOfSocket(index); }
 
     public final float getStatPercentageOfSocket(int index) {
         return extendedData.StatPercentageOfSocket[index];

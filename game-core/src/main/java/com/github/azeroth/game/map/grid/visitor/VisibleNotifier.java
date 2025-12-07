@@ -6,7 +6,6 @@ import com.github.azeroth.game.domain.object.enums.NotifyFlag;
 import com.github.azeroth.game.domain.object.enums.TypeId;
 import com.github.azeroth.game.entity.gobject.Transport;
 import com.github.azeroth.game.entity.object.WorldObject;
-import com.github.azeroth.game.entity.object.update.UpdateData;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.unit.Unit;
 import lombok.Getter;

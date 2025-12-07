@@ -1,8 +1,14 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.domain.unit.UnitStandStateType;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.MovementGenerator;
+import com.github.azeroth.game.movement.enums.MovementGeneratorFlag;
+import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
+import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 
 public class DistractMovementGenerator extends MovementGenerator {
@@ -11,27 +17,27 @@ public class DistractMovementGenerator extends MovementGenerator {
     private int timer;
 
     public DistractMovementGenerator(int timer, float orientation) {
-        timer = timer;
-        orientation = orientation;
+        this.timer = timer;
+        this.orientation = orientation;
 
-        mode = MovementGeneratorMode.Default;
-        priority = MovementGeneratorPriority.Highest;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.Distracted;
+        mode = MovementGeneratorMode.DEFAULT;
+        priority = MovementGeneratorPriority.HIGHEST;
+        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        baseUnitState = UnitState.DISTRACTED;
     }
 
     @Override
     public void initialize(Unit owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.DEACTIVATED);
+        flags.addFlag(MovementGeneratorFlag.INITIALIZED);
 
         // Distracted creatures stand up if not standing
         if (!owner.isStandState()) {
-            owner.setStandState(UnitStandStateType.Stand);
+            owner.setStandState(UnitStandStateType.STAND);
         }
 
         MoveSplineInit init = new MoveSplineInit(owner);
-        init.moveTo(owner.getLocation(), false);
+        init.moveTo(owner.getLocation().toVector3(), false);
 
         if (!owner.getTransGUID().isEmpty()) {
             init.disableTransportPathTransformations();
@@ -43,7 +49,7 @@ public class DistractMovementGenerator extends MovementGenerator {
 
     @Override
     public void reset(Unit owner) {
-        removeFlag(MovementGeneratorFlags.Deactivated);
+        removeFlag(MovementGeneratorFlag.DEACTIVATED);
         initialize(owner);
     }
 
@@ -54,28 +60,27 @@ public class DistractMovementGenerator extends MovementGenerator {
         }
 
         if (diff > timer) {
-            addFlag(MovementGeneratorFlags.InformEnabled);
+            addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
             return false;
         }
 
-        _timer -= diff;
-
+        timer -= diff;
         return true;
     }
 
     @Override
     public void deactivate(Unit owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
+        addFlag(MovementGeneratorFlag.DEACTIVATED);
     }
 
     @Override
     public void finalize(Unit owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+        addFlag(MovementGeneratorFlag.FINALIZED);
 
         // TODO: This code should be handled somewhere else
         // If this is a creature, then return orientation to original position (for idle movement creatures)
-        if (movementInform && hasFlag(MovementGeneratorFlags.InformEnabled) && owner.isCreature()) {
+        if (movementInform && hasFlag(MovementGeneratorFlag.INFORM_ENABLED) && owner.isCreature()) {
             var angle = owner.toCreature().getHomePosition().getO();
             owner.setFacingTo(angle);
         }
@@ -83,6 +88,6 @@ public class DistractMovementGenerator extends MovementGenerator {
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.Distract;
+        return MovementGeneratorType.DISTRACT;
     }
 }

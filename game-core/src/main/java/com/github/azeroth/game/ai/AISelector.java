@@ -1,14 +1,17 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.movement.*;
+import game.scripting.interfaces.icreature.*;
+import game.scripting.interfaces.igameobject.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.gobject.GameObject;
-import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.movement.MovementGenerator;
-import com.github.azeroth.game.movement.WaypointMovementGenerator;
-import com.github.azeroth.game.movement.generator.RandomMovementGenerator;
-import com.github.azeroth.game.listener.interfaces.icreature.ICreatureGetAI;
-import com.github.azeroth.game.listener.interfaces.igameobject.IGameObjectGetAI;
+
 
 public class AISelector {
     public static CreatureAI selectAI(Creature creature) {
@@ -17,13 +20,13 @@ public class AISelector {
         }
 
         //scriptname in db
-        var scriptedAI = global.getScriptMgr().<ICreatureGetAI, CreatureAI>RunScriptRet(p -> p.getAI(creature), creature.getScriptId());
+        var scriptedAI = Global.getScriptMgr().<ICreatureGetAI, CreatureAI>RunScriptRet(p -> p.GetAI(creature), creature.getScriptId());
 
         if (scriptedAI != null) {
             return scriptedAI;
         }
 
-        switch (creature.getCreatureTemplate().aiName) {
+        switch (creature.getTemplate().aIName) {
             case "AggressorAI":
                 return new AggressorAI(creature);
             case "ArcherAI":
@@ -57,7 +60,7 @@ public class AISelector {
         // select by NPC flags
         if (creature.isVehicle()) {
             return new VehicleAI(creature);
-        } else if (creature.hasUnitTypeMask(UnitTypeMask.ControlableGuardian) && ((Guardian) creature).getOwnerUnit().isTypeId(TypeId.PLAYER)) {
+        } else if (creature.hasUnitTypeMask(UnitTypeMask.ControlableGuardian) && ((Guardian)creature).getOwnerUnit().isTypeId(TypeId.Player)) {
             return new PetAI(creature);
         } else if (creature.hasNpcFlag(NPCFlags.SpellClick)) {
             return new NullCreatureAI(creature);
@@ -68,7 +71,7 @@ public class AISelector {
         } else if (creature.isTotem()) {
             return new TotemAI(creature);
         } else if (creature.isTrigger()) {
-            if (creature.getSpells()[0] != 0) {
+            if (creature.spells[0] != 0) {
                 return new TriggerAI(creature);
             } else {
                 return new NullCreatureAI(creature);
@@ -90,7 +93,7 @@ public class AISelector {
 
     public static MovementGenerator selectMovementGenerator(Unit unit) {
         var type = unit.getDefaultMovementType();
-        var creature = unit.toCreature();
+        var creature = unit.getAsCreature();
 
         if (creature != null && creature.getPlayerMovingMe1() == null) {
             type = creature.getDefaultMovementType();
@@ -99,14 +102,14 @@ public class AISelector {
         return switch (type) {
             case Random -> new RandomMovementGenerator();
             case Waypoint -> new WaypointMovementGenerator();
-            case Idle -> new idleMovementGenerator();
+            case Idle -> new IdleMovementGenerator();
             default -> null;
         };
     }
 
     public static GameObjectAI selectGameObjectAI(GameObject go) {
         // scriptname in db
-        var scriptedAI = global.getScriptMgr().<IGameObjectGetAI, GameObjectAI>RunScriptRet(p -> p.getAI(go), go.getScriptId());
+        var scriptedAI = Global.getScriptMgr().<IGameObjectGetAI, GameObjectAI>RunScriptRet(p -> p.GetAI(go), go.getScriptId());
 
         if (scriptedAI != null) {
             return scriptedAI;

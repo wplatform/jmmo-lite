@@ -3,11 +3,11 @@ package com.github.azeroth.game.movement.spline;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Vector4;
-import com.github.azeroth.common.EnumFlag;
+import com.github.azeroth.common.Assert;
 import com.github.azeroth.game.domain.unit.AnimTier;
 import com.github.azeroth.game.movement.FacingInfo;
 import com.github.azeroth.game.movement.IInitializer;
-import com.github.azeroth.game.movement.SpellEffectExtraData;
+import com.github.azeroth.game.movement.model.SpellEffectExtraData;
 import com.github.azeroth.game.movement.Spline;
 import com.github.azeroth.game.movement.model.AnimTierTransition;
 import com.github.azeroth.game.movement.model.EvaluationMode;
@@ -20,31 +20,34 @@ public class MoveSpline {
     public MoveSplineInitArgs initArgs;
     public Spline spline = new Spline();
     public FacingInfo facing;
-    public MoveSplineFlag splineflags = new MoveSplineFlag();
+    public int id;
+    public MoveSplineFlag splineFlags = new MoveSplineFlag();
+    public int timePassed;
+    // currently duration mods are unused, but its _currently_
+    //float           duration_mod;
+    //float           duration_mod_next;
+    public float verticalAcceleration;
+    public float initialOrientation;
+    public int effectStartTime;
+    public int pointIdx;
+    public int pointIdxOffset;
+    public float velocity;
+    public SpellEffectExtraData spellEffectExtra;
+    public AnimTierTransition animTierTransition;
     public boolean onTransport;
     public boolean splineIsFacingOnly;
-    public int m_Id;
-    public int time_passed;
-    public float vertical_acceleration;
-    public float initialOrientation;
-    public int effect_start_time;
-    public int point_Idx;
-    public int point_Idx_offset;
-    public float velocity;
-    public SpellEffectExtraData spell_effect_extra;
-    public AnimTierTransition anim_tier;
 
     public MoveSpline() {
-        m_Id = 0;
-        time_passed = 0;
-        vertical_acceleration = 0.0f;
+        id = 0;
+        timePassed = 0;
+        verticalAcceleration = 0.0f;
         initialOrientation = 0.0f;
-        effect_start_time = 0;
-        point_Idx = 0;
-        point_Idx_offset = 0;
+        effectStartTime = 0;
+        pointIdx = 0;
+        pointIdxOffset = 0;
         onTransport = false;
         splineIsFacingOnly = false;
-        splineflags.flags = EnumFlag.of(SplineFlag.Done);
+        splineFlags.setFlag(SplineFlag.Done);
     }
 
     public static float computeFallElevation(float t_passed, boolean isSafeFall) {
@@ -77,17 +80,18 @@ public class MoveSpline {
     }
 
     public final void initialize(MoveSplineInitArgs args) {
-        splineflags = args.flags;
+        splineFlags = args.flags;
         facing = args.facing;
-        m_Id = args.splineId;
-        point_Idx_offset = args.path_Idx_offset;
+        id = args.splineId;
+        pointIdxOffset = args.pathIdxOffset;
         initialOrientation = args.initialOrientation;
 
-        time_passed = 0;
-        vertical_acceleration = 0.0f;
-        effect_start_time = 0;
-        spell_effect_extra = args.spellEffectExtra;
-        anim_tier = args.animTier;
+        timePassed = 0;
+        verticalAcceleration = 0.0f;
+        effectStartTime = 0;
+        turn = args.turnData;
+        spellEffectExtra = args.spellEffectExtra;
+        animTierTransition = args.animTierTransition;
         splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MonsterMoveType.NORMAL && ((args.path.get(1) - args.path.get(0)).length() < 0.1f);
 
         velocity = args.velocity;
@@ -109,14 +113,14 @@ public class MoveSpline {
         // init parabolic / animation
         // spline initialized, duration known and i able to compute parabolic acceleration
         if (args.flags.hasFlag(SplineFlag.Parabolic.getValue() | SplineFlag.Animation.getValue().getValue() | SplineFlag.FadeObject.getValue().getValue())) {
-            effect_start_time = (int) (duration() * args.time_perc);
+            effectStartTime = (int) (duration() * args.time_perc);
 
-            if (args.flags.hasFlag(SplineFlag.Parabolic) && effect_start_time < duration()) {
-                if (args.parabolic_amplitude != 0.0f) {
-                    var f_duration = MSToSec((int) (duration() - effect_start_time));
-                    vertical_acceleration = args.parabolic_amplitude * 8.0f / (f_duration * f_duration);
-                } else if (args.vertical_acceleration != 0.0f) {
-                    vertical_acceleration = args.vertical_acceleration;
+            if (args.flags.hasFlag(SplineFlag.Parabolic) && effectStartTime < duration()) {
+                if (args.parabolicAmplitude != 0.0f) {
+                    var f_duration = MSToSec((int) (duration() - effectStartTime));
+                    verticalAcceleration = args.parabolicAmplitude * 8.0f / (f_duration * f_duration);
+                } else if (args.verticalAcceleration != 0.0f) {
+                    verticalAcceleration = args.verticalAcceleration;
                 }
             }
         }
@@ -124,7 +128,7 @@ public class MoveSpline {
 
     public final int currentPathIdx() {
         synchronized (spline) {
-            var point = point_Idx_offset + point_Idx - spline.first() + (finalized() ? 1 : 0);
+            var point = pointIdxOffset + pointIdx - spline.first() + (finalized() ? 1 : 0);
 
             if (isCyclic()) {
                 point %= (spline.last() - spline.first());
@@ -141,7 +145,7 @@ public class MoveSpline {
     }
 
     public final int timePassed() {
-        return time_passed;
+        return timePassed;
     }
 
     public final int duration() {
@@ -151,42 +155,43 @@ public class MoveSpline {
     }
 
     public final int currentSplineIdx() {
-        return point_Idx;
+        return pointIdx;
     }
 
     public final int getId() {
-        return m_Id;
+        return id;
     }
 
     public final boolean finalized() {
-        return splineflags.hasFlag(SplineFlag.Done);
+        return splineFlags.hasFlag(SplineFlag.Done);
     }
 
-    public final Vector4 computePosition(int time_point, int point_index) {
+    public final Vector4 computePosition(int timePoint, int pointIndex) {
+        Assert.isTrue(initialized());
         synchronized (spline) {
             var u = 1.0f;
-            int seg_time = spline.length(point_index, point_index + 1);
+            int seg_time = spline.length(pointIndex, pointIndex + 1);
 
             if (seg_time > 0) {
-                u = (time_point - spline.length(point_index)) / (float) seg_time;
+                u = (timePoint - spline.length(pointIndex)) / (float) seg_time;
             }
 
             var orientation = initialOrientation;
             Vector3 c;
             tangible.OutObject<Vector3> tempOut_c = new tangible.OutObject<Vector3>();
-            spline.evaluate_Percent(point_index, u, tempOut_c);
+            spline.evaluate_Percent(pointIndex, u, tempOut_c);
             c = tempOut_c.outArgValue;
 
-            if (splineflags.hasFlag(SplineFlag.Parabolic)) {
+            if (splineFlags.hasFlag(SplineFlag.Parabolic)) {
                 tangible.RefObject<Float> tempRef_Z = new tangible.RefObject<Float>(c.Z);
-                computeParabolicElevation(time_point, tempRef_Z);
+                computeParabolicElevation(timePoint, tempRef_Z);
                 c.Z = tempRef_Z.refArgValue;
-            } else if (splineflags.hasFlag(SplineFlag.Falling)) {
+            } else if (splineFlags.hasFlag(SplineFlag.Falling)) {
 
-                computeFallElevation(time_point, ref c.Z);
+                computeFallElevation(timePoint, ref c.Z);
             }
 
-            if (splineflags.hasFlag(SplineFlag.Done) && facing.type != MonsterMoveType.NORMAL) {
+            if (splineFlags.hasFlag(SplineFlag.Done) && facing.type != MonsterMoveType.NORMAL) {
                 if (facing.type == MonsterMoveType.FacingAngle) {
                     orientation = facing.angle;
                 } else if (facing.type == MonsterMoveType.FacingSpot) {
@@ -194,10 +199,10 @@ public class MoveSpline {
                 }
                 //nothing to do for MoveSplineFlag.Final_Target flag
             } else {
-                if (!splineflags.hasFlag(SplineFlag.OrientationFixed.getValue() | SplineFlag.Falling.getValue().getValue() | SplineFlag.Unknown_0x8.getValue().getValue())) {
+                if (!splineFlags.hasFlag(SplineFlag.OrientationFixed.getValue() | SplineFlag.Falling.getValue().getValue() | SplineFlag.JumpOrientationFixed.getValue().getValue())) {
                     Vector3 hermite;
                     tangible.OutObject<Vector3> tempOut_hermite = new tangible.OutObject<Vector3>();
-                    spline.evaluate_Derivative(point_Idx, u, tempOut_hermite);
+                    spline.evaluate_Derivative(pointIdx, u, tempOut_hermite);
                     hermite = tempOut_hermite.outArgValue;
 
                     if (hermite.X != 0f || hermite.Y != 0f) {
@@ -205,7 +210,7 @@ public class MoveSpline {
                     }
                 }
 
-                if (splineflags.hasFlag(SplineFlag.Backward)) {
+                if (splineFlags.hasFlag(SplineFlag.Backward)) {
                     orientation -= (float) Math.PI;
                 }
             }
@@ -215,12 +220,12 @@ public class MoveSpline {
     }
 
     public final Vector4 computePosition() {
-        return computePosition(time_passed, point_Idx);
+        return computePosition(timePassed, pointIdx);
     }
 
     public final Vector4 computePosition(int time_offset) {
         synchronized (spline) {
-            var time_point = time_passed + time_offset;
+            var time_point = timePassed + time_offset;
 
             if (time_point >= duration()) {
                 return computePosition(duration(), spline.last() - 1);
@@ -231,7 +236,7 @@ public class MoveSpline {
             }
 
             // find point_index where spline.length(point_index) < time_point < spline.length(point_index + 1)
-            var point_index = point_Idx;
+            var point_index = pointIdx;
 
             while (time_point >= spline.length(point_index + 1)) {
                 ++point_index;
@@ -246,15 +251,15 @@ public class MoveSpline {
     }
 
     public final void computeParabolicElevation(int time_point, tangible.RefObject<Float> el) {
-        if (time_point > effect_start_time) {
-            var t_passedf = MSToSec((int) (time_point - effect_start_time));
-            var t_durationf = MSToSec((int) (duration() - effect_start_time)); //client use not modified duration here
+        if (time_point > effectStartTime) {
+            var t_passedf = MSToSec((int) (time_point - effectStartTime));
+            var t_durationf = MSToSec((int) (duration() - effectStartTime)); //client use not modified duration here
 
-            if (spell_effect_extra != null && spell_effect_extra.parabolicCurveId != 0) {
-                t_passedf *= global.getDB2Mgr().GetCurveValueAt(spell_effect_extra.parabolicCurveId, (float) time_point / duration());
+            if (spellEffectExtra != null && spellEffectExtra.parabolicCurveId != 0) {
+                t_passedf *= global.getDB2Mgr().GetCurveValueAt(spellEffectExtra.parabolicCurveId, (float) time_point / duration());
             }
 
-            el.refArgValue += (t_durationf - t_passedf) * 0.5f * vertical_acceleration * t_passedf;
+            el.refArgValue += (t_durationf - t_passedf) * 0.5f * verticalAcceleration * t_passedf;
         }
     }
 
@@ -268,11 +273,11 @@ public class MoveSpline {
     }
 
     public final boolean hasStarted() {
-        return time_passed > 0;
+        return timePassed > 0;
     }
 
     public final void interrupt() {
-        splineflags.setUnsetFlag(SplineFlag.Done);
+        splineFlags.setUnsetFlag(SplineFlag.Done);
     }
 
 
@@ -287,11 +292,11 @@ public class MoveSpline {
     }
 
     public final boolean isCyclic() {
-        return splineflags.hasFlag(SplineFlag.Cyclic);
+        return splineFlags.hasFlag(SplineFlag.Cyclic);
     }
 
     public final boolean isFalling() {
-        return splineflags.hasFlag(SplineFlag.Falling);
+        return splineFlags.hasFlag(SplineFlag.Falling);
     }
 
     public final boolean initialized() {
@@ -308,12 +313,12 @@ public class MoveSpline {
 
     public final Vector3 currentDestination() {
         synchronized (spline) {
-            return initialized() ? spline.getPoint(point_Idx + 1) : Vector3.Zero;
+            return initialized() ? spline.getPoint(pointIdx + 1) : Vector3.Zero;
         }
     }
 
     public final AnimTier getAnimation() {
-        return anim_tier != null ? animTier.forValue(anim_tier.animTier) : null;
+        return animTierTransition != null ? animTier.forValue(animTierTransition.animTier) : null;
     }
 
     private void initSpline(MoveSplineInitArgs args) {
@@ -322,7 +327,7 @@ public class MoveSpline {
         if (args.flags.hasFlag(SplineFlag.Cyclic)) {
             var cyclic_point = 0;
 
-            if (splineflags.hasFlag(SplineFlag.EnterCycle)) {
+            if (splineFlags.hasFlag(SplineFlag.EnterCycle)) {
                 cyclic_point = 1; // shouldn't be modified, came from client
             }
 
@@ -332,7 +337,7 @@ public class MoveSpline {
         }
 
         // init spline timestamps
-        if (splineflags.hasFlag(SplineFlag.Falling)) {
+        if (splineFlags.hasFlag(SplineFlag.Falling)) {
             FallInitializer init = new FallInitializer(spline.getPoint(spline.first()).Z);
             spline.initLengths(init);
         } else {
@@ -346,13 +351,13 @@ public class MoveSpline {
             spline.set_length(spline.last(), spline.isCyclic() ? 1000 : 1);
         }
 
-        point_Idx = spline.first();
+        pointIdx = spline.first();
     }
 
     private void _Finalize() {
-        splineflags.setUnsetFlag(SplineFlag.Done);
-        point_Idx = spline.last() - 1;
-        time_passed = duration();
+        splineFlags.setUnsetFlag(SplineFlag.Done);
+        pointIdx = spline.last() - 1;
+        timePassed = duration();
     }
 
     private float MSToSec(int ms) {
@@ -369,34 +374,34 @@ public class MoveSpline {
 
             var result = UpdateResult.NONE;
             var minimal_diff = Math.min(ms_time_diff.refArgValue, segmentTimeElapsed());
-            time_passed += minimal_diff;
+            timePassed += minimal_diff;
             ms_time_diff.refArgValue -= minimal_diff;
 
-            if (time_passed >= nextTimestamp()) {
-                ++point_Idx;
+            if (timePassed >= nextTimestamp()) {
+                ++pointIdx;
 
-                if (point_Idx < spline.last()) {
+                if (pointIdx < spline.last()) {
                     result = UpdateResult.NextSegment;
                 } else {
                     if (spline.isCyclic()) {
-                        point_Idx = spline.first();
-                        time_passed %= duration();
+                        pointIdx = spline.first();
+                        timePassed %= duration();
                         result = UpdateResult.NextCycle;
 
                         // Remove first point from the path after one full cycle.
                         // That point was the position of the unit prior to entering the cycle and it shouldn't be repeated with continuous cycles.
-                        if (splineflags.hasFlag(SplineFlag.EnterCycle)) {
-                            splineflags.setUnsetFlag(SplineFlag.EnterCycle, false);
+                        if (splineFlags.hasFlag(SplineFlag.EnterCycle)) {
+                            splineFlags.setUnsetFlag(SplineFlag.EnterCycle, false);
 
                             MoveSplineInitArgs args = new moveSplineInitArgs(spline.getPointCount());
                             args.path.addAll(Arrays.asList(spline.getPoints().AsSpan().Slice(spline.first() + 1, spline.last()).ToArray()));
                             args.facing = facing;
-                            args.flags = splineflags;
-                            args.path_Idx_offset = point_Idx_offset;
+                            args.flags = splineFlags;
+                            args.pathIdxOffset = pointIdxOffset;
                             // MoveSplineFlag::Parabolic | MoveSplineFlag::Animation not supported currently
                             //args.parabolic_amplitude = ?;
                             //args.time_perc = ?;
-                            args.splineId = m_Id;
+                            args.splineId = id;
                             args.initialOrientation = initialOrientation;
                             args.velocity = 1.0f; // Calculated below
                             args.hasVelocity = true;
@@ -430,11 +435,11 @@ public class MoveSpline {
     }
 
     private int nextTimestamp() {
-        return spline.length(point_Idx + 1);
+        return spline.length(pointIdx + 1);
     }
 
     private int segmentTimeElapsed() {
-        return nextTimestamp() - time_passed;
+        return nextTimestamp() - timePassed;
     }
     public enum UpdateResult {
         NONE(0x01),

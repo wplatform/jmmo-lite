@@ -1,13 +1,19 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.unit.Unit;
+
 
 public class CritterAI extends PassiveAI {
     public CritterAI(Creature c) {
         super(c);
-        me.setReactState(ReactStates.Passive);
+        me.reactState = ReactStates.Passive;
     }
 
     @Override
@@ -17,10 +23,12 @@ public class CritterAI extends PassiveAI {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void MovementInform(MovementGeneratorType type, uint id)
     @Override
     public void movementInform(MovementGeneratorType type, int id) {
         if (type == MovementGeneratorType.TimedFleeing) {
-            enterEvadeMode(EvadeReason.other);
+            enterEvadeMode(EvadeReason.Other);
         }
     }
 

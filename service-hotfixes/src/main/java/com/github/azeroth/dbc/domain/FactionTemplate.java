@@ -19,8 +19,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-
-
 @Table(name = "faction_template")
 @Db2DataBind(name = "FactionTemplate.db2", layoutHash = 0x6F1D2135, fields = {
         @Db2Field(name = "faction", type = Db2Type.SHORT),
@@ -41,54 +39,53 @@ public class FactionTemplate implements DbcEntity {
     private int id;
 
     @Column("Faction")
-    private Short faction;
+    private short faction;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("Enemies1")
-    private Short enemies1;
+    private short enemies1;
 
     @Column("Enemies2")
-    private Short enemies2;
+    private short enemies2;
 
     @Column("Enemies3")
-    private Short enemies3;
+    private short enemies3;
 
     @Column("Enemies4")
-    private Short enemies4;
+    private short enemies4;
 
     @Column("Friend1")
-    private Short friend1;
+    private short friend1;
 
     @Column("Friend2")
-    private Short friend2;
+    private short friend2;
 
     @Column("Friend3")
-    private Short friend3;
+    private short friend3;
 
     @Column("Friend4")
-    private Short friend4;
+    private short friend4;
 
     @Column("FactionGroup")
-    private Byte factionGroup;
+    private byte factionGroup;
 
     @Column("FriendGroup")
-    private Byte friendGroup;
+    private byte friendGroup;
 
     @Column("EnemyGroup")
-    private Byte enemyGroup;
+    private byte enemyGroup;
 
     @Id
-    
     @Column("VerifiedBuild")
     private Integer verifiedBuild;
 
 
     // helpers
     public boolean isFriendlyTo(FactionTemplate entry) {
-        Short[] enemies = {enemies1, enemies2, enemies3, enemies4};
-        Short[] friend = {friend1, friend2, friend3, friend4};
+        short[] enemies = {enemies1, enemies2, enemies3, enemies4};
+        short[] friend = {friend1, friend2, friend3, friend4};
         if (this == entry)
             return true;
         if (entry.getFlags() > 0) {
@@ -103,8 +100,8 @@ public class FactionTemplate implements DbcEntity {
     }
 
     public boolean isHostileTo(FactionTemplate entry) {
-        Short[] enemies = {enemies1, enemies2, enemies3, enemies4};
-        Short[] friend = {friend1, friend2, friend3, friend4};
+        short[] enemies = {enemies1, enemies2, enemies3, enemies4};
+        short[] friend = {friend1, friend2, friend3, friend4};
         if (this == entry)
             return false;
         if (entry.getFlags() > 0) {
@@ -120,11 +117,12 @@ public class FactionTemplate implements DbcEntity {
     }
 
     public boolean isHostileToPlayers() {
-        return (enemyGroup & FactionMask.PLAYER.ordinal()) != 0;
+        return (enemyGroup & FactionMask.PLAYER.value) != 0;
     }
 
+
     public boolean isNeutralToAll() {
-        Short[] enemies = {enemies1, enemies2, enemies3, enemies4};
+        short[] enemies = {enemies1, enemies2, enemies3, enemies4};
         for (byte i = 0; i < MAX_FACTION_RELATIONS; ++i)
             if (enemies[i] != 0)
                 return false;

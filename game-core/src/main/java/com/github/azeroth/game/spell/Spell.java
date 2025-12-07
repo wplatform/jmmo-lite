@@ -35,6 +35,7 @@ import com.github.azeroth.game.map.grid.Cell;
 import com.github.azeroth.game.map.interfaces.IGridNotifier;
 import com.github.azeroth.game.movement.*;
 import com.github.azeroth.game.movement.enums.PathType;
+import com.github.azeroth.game.movement.model.SpellEffectExtraData;
 import com.github.azeroth.game.networking.packet.spell.SpellCastVisual;
 import com.github.azeroth.game.listener.SpellScript;
 import com.github.azeroth.game.listener.interfaces.IHasSpellEffects;
@@ -122,8 +123,8 @@ public class Spell {
     // ******************************************
     // Spell trigger system
     // ******************************************
-    public ProcFlagsInit procAttacker; // Attacker trigger flags
-    public ProcFlagsInit procVictim; // Victim   trigger flags
+    public EnumFlag<ProcFlag> procAttacker; // Attacker trigger flags
+    public EnumFlag<ProcFlag> procVictim; // Victim   trigger flags
     public ProcFlagsHit hitMask = ProcFlagsHit.values()[0];
     private ArrayList<SpellScript> loadedScripts = new ArrayList<>();
     private PathGenerator preGeneratedPath;
@@ -959,7 +960,7 @@ public class Spell {
             }
 
             if (caster.isValidAttackTarget(unit, spellInfo)) {
-                unit.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.HostileActionReceived);
+                unit.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.HostileActionReceived);
             } else if (caster.isFriendlyTo(unit)) {
                 // for delayed spells ignore negative spells (after duel end) for friendly targets
                 if (spellInfo.getHasHitDelay() && unit.isPlayer() && !isPositive() && !caster.isValidAssistTarget(unit, spellInfo)) {
@@ -1358,7 +1359,7 @@ public class Spell {
                 // stealth must be removed at cast starting (at show channel bar)
                 // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
                 if (!triggeredCastFlags.hasFlag(TriggerCastFlag.IgnoreAuraInterruptFlags) && !spellInfo.hasAttribute(SpellAttr2.NotAnAction)) {
-                    unitCaster.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.action, spellInfo);
+                    unitCaster.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.action, spellInfo);
                 }
 
                 // Do not register as current spell when requested to ignore cast in progress
@@ -1677,7 +1678,7 @@ public class Spell {
 
                     if (creatureCaster != null) {
                         if (creatureCaster.isAIEnabled()) {
-                            creatureCaster.getAI().onChannelFinished(spellInfo);
+                            creatureCaster.getAi().onChannelFinished(spellInfo);
                         }
                     }
                 }
@@ -1782,7 +1783,7 @@ public class Spell {
         }
 
         if (!spellInfo.hasAttribute(SpellAttr3.SuppressCasterProcs)) {
-            unit.procSkillsAndAuras(unitCaster, null, new ProcFlagsInit(procFlags.CastEnded), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, this, null, null);
+            unit.procSkillsAndAuras(unitCaster, null, new EnumFlag<ProcFlag>(procFlags.CastEnded), new EnumFlag<ProcFlag>(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, this, null, null);
         }
 
         if (result != SpellCastResult.SpellCastOk) {
@@ -1816,10 +1817,10 @@ public class Spell {
 
         if (isAutoActionResetSpell()) {
             if (!spellInfo.hasAttribute(SpellAttr2.DoNotResetCombatTimers)) {
-                unitCaster.resetAttackTimer(WeaponAttackType.BaseAttack);
+                unitCaster.resetAttackTimer(WeaponAttackType.BASE_ATTACK);
 
                 if (unitCaster.haveOffhandWeapon()) {
-                    unitCaster.resetAttackTimer(WeaponAttackType.OffAttack);
+                    unitCaster.resetAttackTimer(WeaponAttackType.OFF_ATTACK);
                 }
 
                 unitCaster.resetAttackTimer(WeaponAttackType.RangedAttack);
@@ -2456,7 +2457,7 @@ public class Spell {
                             return SpellCastResult.BadTargets;
                         }
 
-                        var pet = target.getAsPet();
+                        var pet = target.toPet();
 
                         if (pet == null || pet.getOwningPlayer() != caster) {
                             return SpellCastResult.BadTargets;
@@ -5417,39 +5418,39 @@ public class Spell {
         // Create base triggers flags for Attacker and victim (m_procAttacker, m_procVictim and m_hitMask)
         //==========================================================================================
 
-        procVictim = procAttacker = new ProcFlagsInit();
+        procVictim = procAttacker = new EnumFlag<ProcFlag>();
 
         // Get data for type of attack and fill base info for trigger
         switch (spellInfo.getDmgClass()) {
             case Melee:
-                procAttacker = new ProcFlagsInit(procFlags.DealMeleeAbility);
+                procAttacker = new EnumFlag<ProcFlag>(procFlags.DealMeleeAbility);
 
-                if (attackType == WeaponAttackType.OffAttack) {
+                if (attackType == WeaponAttackType.OFF_ATTACK) {
                     procAttacker.Or(procFlags.OffHandWeaponSwing);
                 } else {
                     procAttacker.Or(procFlags.MainHandWeaponSwing);
                 }
 
-                procVictim = new ProcFlagsInit(procFlags.TakeMeleeAbility);
+                procVictim = new EnumFlag<ProcFlag>(procFlags.TakeMeleeAbility);
 
                 break;
             case Ranged:
                 // Auto attack
                 if (spellInfo.hasAttribute(SpellAttr2.AutoRepeat)) {
-                    procAttacker = new ProcFlagsInit(procFlags.DealRangedAttack);
-                    procVictim = new ProcFlagsInit(procFlags.TakeRangedAttack);
+                    procAttacker = new EnumFlag<ProcFlag>(procFlags.DealRangedAttack);
+                    procVictim = new EnumFlag<ProcFlag>(procFlags.TakeRangedAttack);
                 } else // Ranged spell attack
                 {
-                    procAttacker = new ProcFlagsInit(procFlags.DealRangedAbility);
-                    procVictim = new ProcFlagsInit(procFlags.TakeRangedAbility);
+                    procAttacker = new EnumFlag<ProcFlag>(procFlags.DealRangedAbility);
+                    procVictim = new EnumFlag<ProcFlag>(procFlags.TakeRangedAbility);
                 }
 
                 break;
             default:
                 if (spellInfo.getEquippedItemClass() == itemClass.Weapon && (boolean) (spellInfo.getEquippedItemSubClassMask() & (1 << ItemSubClassWeapon.wand.getValue())) && spellInfo.hasAttribute(SpellAttr2.AutoRepeat)) // Wands auto attack
                 {
-                    procAttacker = new ProcFlagsInit(procFlags.DealRangedAttack);
-                    procVictim = new ProcFlagsInit(procFlags.TakeRangedAttack);
+                    procAttacker = new EnumFlag<ProcFlag>(procFlags.DealRangedAttack);
+                    procVictim = new EnumFlag<ProcFlag>(procFlags.TakeRangedAttack);
                 }
 
                 break;
@@ -5901,7 +5902,7 @@ public class Spell {
                         var cControlled = controlled.toCreature();
 
                         if (cControlled != null) {
-                            var controlledAI = cControlled.getAI();
+                            var controlledAI = cControlled.getAi();
 
                             if (controlledAI != null) {
                                 controlledAI.ownerAttacked(target);
@@ -6188,11 +6189,11 @@ public class Spell {
         }
 
         if (!triggeredCastFlags.hasFlag(TriggerCastFlag.IgnoreAuraInterruptFlags) && !spellInfo.hasAttribute(SpellAttr2.NotAnAction)) {
-            originalCaster.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.ActionDelayed, spellInfo);
+            originalCaster.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.ActionDelayed, spellInfo);
         }
 
         if (!spellInfo.hasAttribute(SpellAttr3.SuppressCasterProcs)) {
-            unit.procSkillsAndAuras(originalCaster, null, procAttacker, new ProcFlagsInit(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.cast, hitMask, this, null, null);
+            unit.procSkillsAndAuras(originalCaster, null, procAttacker, new EnumFlag<ProcFlag>(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.cast, hitMask, this, null, null);
         }
 
         // Call CreatureAI hook OnSpellCast
@@ -6200,7 +6201,7 @@ public class Spell {
 
         if (caster) {
             if (caster.isAIEnabled()) {
-                caster.getAI().onSpellCast(spellInfo);
+                caster.getAi().onSpellCast(spellInfo);
             }
         }
     }
@@ -6372,7 +6373,7 @@ public class Spell {
         }
 
         if (!spellInfo.hasAttribute(SpellAttr3.SuppressCasterProcs)) {
-            unit.procSkillsAndAuras(originalCaster, null, procAttacker, new ProcFlagsInit(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Finish, hitMask, this, null, null);
+            unit.procSkillsAndAuras(originalCaster, null, procAttacker, new EnumFlag<ProcFlag>(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Finish, hitMask, this, null, null);
         }
     }
 
@@ -6777,7 +6778,7 @@ public class Spell {
                 int nonRangedAmmoDisplayID = 0;
                 InventoryType nonRangedAmmoInventoryType = inventoryType.forValue(0);
 
-                for (byte i = WeaponAttackType.BaseAttack.getValue(); i < WeaponAttackType.max.getValue(); ++i) {
+                for (byte i = WeaponAttackType.BASE_ATTACK.getValue(); i < WeaponAttackType.max.getValue(); ++i) {
                     var itemId = unitCaster.getVirtualItemId(i);
 
                     if (itemId != 0) {
@@ -7339,7 +7340,7 @@ public class Spell {
 
         if (threatEntry != null) {
             if (threatEntry.apPctMod != 0.0f) {
-                threat += threatEntry.ApPctMod * unitCaster.getTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+                threat += threatEntry.ApPctMod * unitCaster.getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK);
             }
 
             threat += threatEntry.flatMod;
@@ -8395,7 +8396,7 @@ public class Spell {
 
             // main hand weapon required
             if (spellInfo.hasAttribute(SpellAttr3.RequiresMainHandWeapon)) {
-                var mainHandResult = weaponCheck.invoke(WeaponAttackType.BaseAttack);
+                var mainHandResult = weaponCheck.invoke(WeaponAttackType.BASE_ATTACK);
 
                 if (mainHandResult != SpellCastResult.SpellCastOk) {
                     return mainHandResult;
@@ -8404,7 +8405,7 @@ public class Spell {
 
             // offhand hand weapon required
             if (spellInfo.hasAttribute(SpellAttr3.RequiresOffHandWeapon)) {
-                var offHandResult = weaponCheck.invoke(WeaponAttackType.OffAttack);
+                var offHandResult = weaponCheck.invoke(WeaponAttackType.OFF_ATTACK);
 
                 if (offHandResult != SpellCastResult.SpellCastOk) {
                     return offHandResult;
@@ -9728,7 +9729,7 @@ public class Spell {
             unitTarget.toPlayer().environmentalDamage(EnviromentalDamage.Fire, damage);
         } else {
             var unitCaster = getUnitCasterForEffectHandlers();
-            DamageInfo damageInfo = new DamageInfo(unitCaster, unitTarget, damage, spellInfo, spellInfo.getSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
+            DamageInfo damageInfo = new DamageInfo(unitCaster, unitTarget, damage, spellInfo, spellInfo.getSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BASE_ATTACK);
             unit.calcAbsorbResist(damageInfo);
 
             SpellNonMeleeDamage log = new SpellNonMeleeDamage(unitCaster, unitTarget, spellInfo, spellVisual, spellInfo.getSchoolMask(), castId);
@@ -10593,7 +10594,7 @@ public class Spell {
 
         damageInEffects += damage;
 
-        DamageInfo damageInfo = new DamageInfo(unitCaster, unitTarget, damage, spellInfo, spellInfo.getSchoolMask(), DamageEffectType.Direct, WeaponAttackType.BaseAttack);
+        DamageInfo damageInfo = new DamageInfo(unitCaster, unitTarget, damage, spellInfo, spellInfo.getSchoolMask(), DamageEffectType.Direct, WeaponAttackType.BASE_ATTACK);
         unit.calcAbsorbResist(damageInfo);
         var absorb = damageInfo.getAbsorb();
         Damage -= absorb;
@@ -11452,7 +11453,7 @@ public class Spell {
         unitTarget.setCanDualWield(true);
 
         if (unitTarget.isTypeId(TypeId.UNIT)) {
-            unitTarget.toCreature().updateDamagePhysical(WeaponAttackType.OffAttack);
+            unitTarget.toCreature().updateDamagePhysical(WeaponAttackType.OFF_ATTACK);
         }
     }
 
@@ -12024,7 +12025,7 @@ public class Spell {
             return;
         }
 
-        var pet = unitTarget.getAsPet();
+        var pet = unitTarget.toPet();
 
         if (pet == null) {
             return;
@@ -12824,7 +12825,7 @@ public class Spell {
             glyphs.add(glyphId);
         }
 
-        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeGlyph);
+        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlag2.ChangeGlyph);
 
         var glyphProperties = CliDB.GlyphPropertiesStorage.get(glyphId);
 
@@ -13008,7 +13009,7 @@ public class Spell {
             return;
         }
 
-        var pet = unitTarget.getAsPet();
+        var pet = unitTarget.toPet();
 
         executeLogEffectUnsummonObject(effectInfo.effect, pet);
         pet.remove(PetSaveMode.NotInSlot);
@@ -13511,7 +13512,7 @@ public class Spell {
 
         unitTarget.knockbackFrom(origin, speedxy, (float) speedz);
 
-        unit.procSkillsAndAuras(getUnitCasterForEffectHandlers(), unitTarget, new ProcFlagsInit(procFlags.NONE), new ProcFlagsInit(procFlags.NONE, ProcFlags2.Knockback), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.hit, ProcFlagsHit.NONE, null, null, null);
+        unit.procSkillsAndAuras(getUnitCasterForEffectHandlers(), unitTarget, new EnumFlag<ProcFlag>(procFlags.NONE), new EnumFlag<ProcFlag>(procFlags.NONE, ProcFlags2.Knockback), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.hit, ProcFlagsHit.NONE, null, null, null);
     }
 
     
@@ -14466,7 +14467,7 @@ public class Spell {
             return;
         }
 
-        var casterFaction = caster.getFactionTemplateEntry();
+        var casterFaction = caster.getFactionTemplate();
         var targetFaction = CliDB.FactionTemplateStorage.get(gameObjTarget.getFaction());
 
         // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
@@ -14585,7 +14586,7 @@ public class Spell {
             return;
         }
 
-        if (unitTarget == null || !unitTarget.isTypeId(TypeId.UNIT) || !unitTarget.isPet() || unitTarget.getAsPet().getPetType() != PetType.Hunter) {
+        if (unitTarget == null || !unitTarget.isTypeId(TypeId.UNIT) || !unitTarget.isPet() || unitTarget.toPet().getPetType() != PetType.Hunter) {
             return;
         }
 

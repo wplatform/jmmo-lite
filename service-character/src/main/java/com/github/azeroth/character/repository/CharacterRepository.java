@@ -150,7 +150,35 @@ public interface CharacterRepository extends CrudRepository<Character, Integer> 
     // Item instance operations
     @Modifying
     @Query("DELETE FROM item_instance WHERE guid = :guid")
-    void deleteItemInstance(@Param("guid") long guid);
+    void deleteItemInstance(@Param("guid") int guid);
+
+    @Query("SELECT a.itemGuid, a.xp, a.artifactAppearanceId, a.artifactTierId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid INNER JOIN character_inventory ci ON ci.item = ap.itemGuid WHERE ci.guid = :guid")
+    List<Object> selectItemInstanceArtifact(@Param("guid") int guid);
+
+    @Modifying
+    @Query("INSERT INTO item_instance_artifact (itemGuid, xp, artifactAppearanceId, artifactTierId) VALUES (:guid, :xp, :artifactAppearanceId, :artifactTierId)")
+    void insertItemInstanceArtifact(@Param("guid") int guid, @Param("xp") int xp, @Param("artifactAppearanceId") int artifactAppearanceId, @Param("artifactTierId") int artifactTierId);
+
+    @Modifying
+    @Query("DELETE FROM item_instance_artifact WHERE itemGuid = :guid")
+    void deleteItemInstanceArtifact(@Param("guid") int guid);
+
+    @Modifying
+    @Query("DELETE iia FROM item_instance_artifact iia LEFT JOIN item_instance ii ON iia.itemGuid = ii.guid WHERE ii.owner_guid = :ownerGuid")
+    void deleteItemInstanceArtifactByOwner(@Param("ownerGuid") int ownerGuid);
+
+    @Modifying
+    @Query("INSERT INTO item_instance_artifact_powers (itemGuid, artifactPowerId, purchasedRank) VALUES (:itemGuid, :artifactPowerId, :purchasedRank)")
+    void insertItemInstanceArtifactPower(@Param("itemGuid") int itemGuid, @Param("artifactPowerId") int artifactPowerId, @Param("purchasedRank") int purchasedRank);
+
+    @Modifying
+    @Query("DELETE FROM item_instance_artifact_powers WHERE itemGuid = :itemGuid")
+    void deleteItemInstanceArtifactPowers(@Param("itemGuid") int itemGuid);
+
+    @Modifying
+    @Query("DELETE iiap FROM item_instance_artifact_powers iiap LEFT JOIN item_instance ii ON iiap.itemGuid = ii.guid WHERE ii.owner_guid = :ownerGuid")
+    void deleteItemInstanceArtifactPowerByOwner(@Param("ownerGuid") int ownerGuid);
+
 
     @Modifying
     @Query("INSERT INTO item_instance (guid, itemEntry, owner_guid, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime) VALUES (:guid, :itemEntry, :ownerGuid, :creatorGuid, :giftCreatorGuid, :count, :duration, :charges, :flags, :enchantments, :randomPropertyId, :durability, :playedTime)")
@@ -1330,27 +1358,27 @@ public interface CharacterRepository extends CrudRepository<Character, Integer> 
 
     @Modifying
     @Query(value = "DELETE FROM characters WHERE guid = :guid")
-    void deleteCharacter(@Param("guid") long guid);
+    void deleteCharacter(@Param("guid") int guid);
 
     @Modifying
     @Query(value = "DELETE FROM character_action WHERE guid = :guid")
-    void deleteCharacterAction(@Param("guid") long guid);
+    void deleteCharacterAction(@Param("guid") int guid);
 
     @Modifying
     @Query(value = "DELETE FROM character_aura WHERE guid = :guid")
-    void deleteCharacterAura(@Param("guid") long guid);
+    void deleteCharacterAura(@Param("guid") int guid);
 
     @Modifying
     @Query(value = "DELETE FROM character_aura_effect WHERE guid = :guid")
-    void deleteCharacterAuraEffect(@Param("guid") long guid);
+    void deleteCharacterAuraEffect(@Param("guid") int guid);
 
     @Modifying
-    @Query(value = "DELETE FROM character_gifts WHERE guid = :guid")
-    void deleteCharacterGift(@Param("guid") long guid);
+    @Query(value = "DELETE FROM character_gifts WHERE item_guid = :guid")
+    void deleteGift(@Param("guid") int guid);
 
     @Modifying
     @Query(value = "DELETE FROM character_inventory WHERE guid = :guid")
-    void deleteCharacterInventory(@Param("guid") long guid);
+    void deleteCharacterInventory(@Param("guid") int guid);
 
     @Modifying
     @Query(value = "DELETE FROM character_queststatus_rewarded WHERE guid = :guid")
@@ -1430,7 +1458,7 @@ public interface CharacterRepository extends CrudRepository<Character, Integer> 
 
     @Modifying
     @Query(value = "DELETE FROM character_inventory WHERE item = :item")
-    void deleteCharacterInventoryByItem(@Param("item") long item);
+    void deleteCharacterInventoryByItem(@Param("item") int item);
 
     @Modifying
     @Query(value = "DELETE FROM character_inventory WHERE bag = :bag AND slot = :slot AND guid = :guid")

@@ -33,6 +33,7 @@ import com.github.azeroth.game.networking.packet.item.BuyItem;
 import com.github.azeroth.game.networking.packet.item.WrapItem;
 import com.github.azeroth.game.networking.packet.loot.LootUnit;
 import com.github.azeroth.game.networking.packet.mail.*;
+import com.github.azeroth.game.networking.packet.movement.SummonResponse;
 import com.github.azeroth.game.networking.packet.movement.WorldPortResponse;
 import com.github.azeroth.game.networking.packet.party.InitiateRolePoll;
 import com.github.azeroth.game.networking.packet.social.AddFriend;

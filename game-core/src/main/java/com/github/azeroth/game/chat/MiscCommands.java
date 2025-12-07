@@ -349,14 +349,14 @@ class MiscCommands {
         var schoolmask = spellSchoolMask.forValue(1 << school);
 
         if (unit.isDamageReducedByArmor(schoolmask)) {
-            damage_ = unit.calcArmorReducedDamage(handler.getPlayer(), target, damage_, null, WeaponAttackType.BaseAttack);
+            damage_ = unit.calcArmorReducedDamage(handler.getPlayer(), target, damage_, null, WeaponAttackType.BASE_ATTACK);
         }
 
         var spellStr = args.NextString(" ");
 
         // melee damage by specific school
         if (StringUtil.isEmpty(spellStr)) {
-            DamageInfo dmgInfo = new DamageInfo(attacker, target, damage_, null, schoolmask, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
+            DamageInfo dmgInfo = new DamageInfo(attacker, target, damage_, null, schoolmask, DamageEffectType.SpellDirect, WeaponAttackType.BASE_ATTACK);
             unit.calcAbsorbResist(dmgInfo);
 
             if (dmgInfo.getDamage() == 0) {

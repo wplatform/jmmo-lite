@@ -1,8 +1,14 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.unit.Unit;
+
 
 public class CasterAI extends CombatAI {
     private float attackDistance;
@@ -38,11 +44,13 @@ public class CasterAI extends CombatAI {
 
     @Override
     public void justEngagedWith(Unit victim) {
-        if (spells.isEmpty()) {
+        if (spells.Empty()) {
             return;
         }
 
-        var spell = (int) (RandomUtil.Rand32() % spells.size());
+        var spell = (int)(RandomHelper.Rand32() % spells.size());
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint count = 0;
         int count = 0;
 
         for (var id : spells) {
@@ -56,7 +64,7 @@ public class CasterAI extends CombatAI {
 
                     if (count == spell) {
                         doCast(spells.get(spell));
-                        cooldown += duration.ofSeconds(me.getCurrentSpellCastTime(id));
+                        cooldown += TimeSpan.FromMilliseconds(me.getCurrentSpellCastTime(id));
                     }
 
                     events.ScheduleEvent(id, cooldown);
@@ -64,14 +72,15 @@ public class CasterAI extends CombatAI {
             }
         }
     }
-
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         if (!updateVictim()) {
             return;
         }
 
-        events.update(diff);
+        events.Update(diff);
 
         if (me.getVictim() != null) {
             if (me.getVictim().hasBreakableByDamageCrowdControlAura(me)) {
@@ -85,15 +94,17 @@ public class CasterAI extends CombatAI {
             return;
         }
 
-        var spellId = events.executeEvent();
+        var spellId = events.ExecuteEvent();
 
         if (spellId != 0) {
             doCast(spellId);
-            var casttime = (int) me.getCurrentSpellCastTime(spellId);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: var casttime = (uint)Me.GetCurrentSpellCastTime(spellId);
+            var casttime = (int)me.getCurrentSpellCastTime(spellId);
             var info = getAISpellInfo(spellId, me.getMap().getDifficultyID());
 
             if (info != null) {
-                events.ScheduleEvent(spellId, duration.ofSeconds(casttime != 0 ? casttime : 500) + info.realCooldown);
+                events.ScheduleEvent(spellId, TimeSpan.FromMilliseconds(casttime != 0 ? casttime : 500) + info.realCooldown);
             }
         }
     }

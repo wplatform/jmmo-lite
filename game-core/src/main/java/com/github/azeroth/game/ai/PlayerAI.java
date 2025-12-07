@@ -1,21 +1,44 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.spells.*;
+import game.*;
+import java.util.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.player.Player;
-import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.spell.AuraRemoveMode;
-import com.github.azeroth.game.spell.Spell;
-import com.github.azeroth.game.spell.SpellCastTargets;
-
-import java.util.ArrayList;
 
 
 public class PlayerAI extends UnitAI {
+    public enum SpellTarget {
+        None,
+        Victim,
+        Charmer,
+        Self;
+
+        public static final int SIZE = java.lang.Integer.SIZE;
+
+        public int getValue() {
+            return this.ordinal();
+        }
+
+        public static SpellTarget forValue(int value) {
+            return values()[value];
+        }
+    }
+
+//C# TO JAVA CONVERTER WARNING: There is no Java equivalent to C#'s shadowing via the 'new' keyword:
+//ORIGINAL LINE: protected new Player Me;
+    protected Player me;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: readonly uint _selfSpec;
     private final int selfSpec;
     private final boolean isSelfHealer;
-    protected Player me;
     private boolean isSelfRangedAttacker;
+
     public PlayerAI(Player player) {
         super(player);
         me = player;
@@ -24,7 +47,9 @@ public class PlayerAI extends UnitAI {
         isSelfRangedAttacker = isPlayerRangedAttacker(player);
     }
 
-    public final Tuple<spell, unit> verifySpellCast(int spellId, SpellTarget target) {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public Tuple<Spell, Unit> VerifySpellCast(uint spellId, SpellTarget target)
+    public final Tuple<Spell, Unit> verifySpellCast(int spellId, SpellTarget target) {
         Unit pTarget = null;
 
         switch (target) {
@@ -55,19 +80,23 @@ public class PlayerAI extends UnitAI {
         return verifySpellCast(spellId, pTarget);
     }
 
-    public final Tuple<spell, unit> selectSpellCast(ArrayList<Tuple<Tuple<spell, unit>, Integer>> spells) {
-        if (spells.isEmpty()) {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public Tuple<Spell, Unit> SelectSpellCast(List<Tuple<Tuple<Spell, Unit>, uint>> spells)
+    public final Tuple<Spell, Unit> selectSpellCast(ArrayList<Tuple<Tuple<Spell, Unit>, Integer>> spells) {
+        if (spells.Empty()) {
             return null;
         }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint totalWeights = 0;
         int totalWeights = 0;
 
         for (var wSpell : spells) {
-            totalWeights += wSpell.item2;
+            totalWeights += wSpell.getItem2();
         }
 
-        Tuple<spell, unit> selected = null;
-        var randNum = RandomUtil.URand(0, totalWeights - 1);
+        Tuple<Spell, Unit> selected = null;
+        var randNum = RandomHelper.URand(0, totalWeights - 1);
 
         for (var wSpell : spells) {
             if (selected != null) {
@@ -75,10 +104,10 @@ public class PlayerAI extends UnitAI {
                 continue;
             }
 
-            if (randNum < wSpell.item2) {
-                selected = wSpell.Item1;
+            if (randNum < wSpell.getItem2()) {
+                selected = wSpell.getItem1();
             } else {
-                randNum -= wSpell.item2;
+                randNum -= wSpell.getItem2();
             }
             //delete wSpell.first.first;
         }
@@ -87,19 +116,20 @@ public class PlayerAI extends UnitAI {
 
         return selected;
     }
-
-    public final <T extends unit> void verifyAndPushSpellCast(ArrayList<Tuple<Tuple<spell, unit>, Integer>> spells, int spellId, T target, int weight) {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void VerifyAndPushSpellCast<T>(List<Tuple<Tuple<Spell, Unit>, uint>> spells, uint spellId, T target, uint weight) where T : Unit
+    public final <T extends Unit> void verifyAndPushSpellCast(ArrayList<Tuple<Tuple<Spell, Unit>, Integer>> spells, int spellId, T target, int weight) {
         var spell = verifySpellCast(spellId, target);
 
         if (spell != null) {
-            spells.add(Tuple.create(spell, weight));
+            spells.add(Tuple.Create(spell, weight));
         }
     }
 
-    public final void doCastAtTarget(Tuple<spell, unit> spell) {
+    public final void doCastAtTarget(Tuple<Spell, Unit> spell) {
         SpellCastTargets targets = new SpellCastTargets();
-        targets.setUnitTarget(spell.item2);
-        spell.Item1.prepare(targets);
+        targets.setUnitTarget(spell.getItem2());
+        spell.getItem1().prepare(targets);
     }
 
     public final void doAutoAttackIfReady() {
@@ -112,7 +142,7 @@ public class PlayerAI extends UnitAI {
 
     public final void cancelAllShapeshifts() {
         var shapeshiftAuras = me.getAuraEffectsByType(AuraType.ModShapeshift);
-        ArrayList<aura> removableShapeshifts = new ArrayList<>();
+        ArrayList<Aura> removableShapeshifts = new ArrayList<Aura>();
 
         for (var auraEff : shapeshiftAuras) {
             var aura = auraEff.getBase();
@@ -145,36 +175,45 @@ public class PlayerAI extends UnitAI {
 
     public final Creature getCharmer() {
         if (me.getCharmerGUID().isCreature()) {
-            return ObjectAccessor.getCreature(me, me.getCharmerGUID());
+            return ObjectAccessor.getCreature(me, me.getCharmerGUID().clone());
         }
 
         return null;
     }
 
+    // helper functions to determine player info
+
     public final boolean isHealer() {
         return isHealer(null);
     }
 
-    // helper functions to determine player info
-
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public bool IsHealer(Player who = null)
     public final boolean isHealer(Player who) {
-        return (!who || who == me) ? _isSelfHealer : isPlayerHealer(who);
+        return (!who || who == me) ? isSelfHealer : isPlayerHealer(who);
     }
+
 
     public final boolean isRangedAttacker() {
         return isRangedAttacker(null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public bool IsRangedAttacker(Player who = null)
     public final boolean isRangedAttacker(Player who) {
-        return (!who || who == me) ? _isSelfRangedAttacker : isPlayerRangedAttacker(who);
+        return (!who || who == me) ? isSelfRangedAttacker : isPlayerRangedAttacker(who);
     }
+
 
     public final int getSpec() {
         return getSpec(null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public uint GetSpec(Player who = null)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final int getSpec(Player who) {
-        return (who == null || who == me) ? _selfSpec : who.getPrimarySpecialization();
+        return (who == null || who == me) ? selfSpec : who.getPrimarySpecialization();
     }
 
     public final void setIsRangedAttacker(boolean state) {
@@ -190,10 +229,9 @@ public class PlayerAI extends UnitAI {
             return false;
         }
 
-        return switch (who.getUnitClass()) {
+        return switch (who.getClass()) {
             case Paladin -> who.getPrimarySpecialization() == TalentSpecialization.PaladinHoly;
-            case Priest ->
-                    who.getPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.getPrimarySpecialization() == TalentSpecialization.PriestHoly;
+            case Priest -> who.getPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.getPrimarySpecialization() == TalentSpecialization.PriestHoly;
             case Shaman -> who.getPrimarySpecialization() == TalentSpecialization.ShamanRestoration;
             case Monk -> who.getPrimarySpecialization() == TalentSpecialization.MonkMistweaver;
             case Druid -> who.getPrimarySpecialization() == TalentSpecialization.DruidRestoration;
@@ -206,7 +244,7 @@ public class PlayerAI extends UnitAI {
             return false;
         }
 
-        switch (who.getUnitClass()) {
+        switch (who.getClass()) {
             case Warrior:
             case Paladin:
             case Rogue:
@@ -223,7 +261,7 @@ public class PlayerAI extends UnitAI {
                 var rangedTemplate = rangedSlot ? rangedSlot.getTemplate() : null;
 
                 if (rangedTemplate != null) {
-                    if ((boolean) ((1 << (int) rangedTemplate.getSubClass()) & ItemSubClassWeapon.MaskRanged.getValue())) {
+                    if ((boolean)((1 << (int)rangedTemplate.getSubClass()) & ItemSubClassWeapon.MaskRanged.getValue())) {
                         return true;
                     }
                 }
@@ -239,29 +277,33 @@ public class PlayerAI extends UnitAI {
         }
     }
 
-    private Tuple<spell, unit> verifySpellCast(int spellId, Unit target) {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: Tuple<Spell, Unit> VerifySpellCast(uint spellId, Unit target)
+    private Tuple<Spell, Unit> verifySpellCast(int spellId, Unit target) {
         // Find highest spell rank that we know
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint knownRank, nextRank;
         int knownRank, nextRank;
 
         if (me.hasSpell(spellId)) {
             // this will save us some lookups if the player has the highest rank (expected case)
             knownRank = spellId;
-            nextRank = global.getSpellMgr().getNextSpellInChain(spellId);
+            nextRank = Global.getSpellMgr().getNextSpellInChain(spellId);
         } else {
             knownRank = 0;
-            nextRank = global.getSpellMgr().getFirstSpellInChain(spellId);
+            nextRank = Global.getSpellMgr().getFirstSpellInChain(spellId);
         }
 
         while (nextRank != 0 && me.hasSpell(nextRank)) {
             knownRank = nextRank;
-            nextRank = global.getSpellMgr().getNextSpellInChain(knownRank);
+            nextRank = Global.getSpellMgr().getNextSpellInChain(knownRank);
         }
 
         if (knownRank == 0) {
             return null;
         }
 
-        var spellInfo = global.getSpellMgr().getSpellInfo(knownRank, me.getMap().getDifficultyID());
+        var spellInfo = Global.getSpellMgr().getSpellInfo(knownRank, me.getMap().getDifficultyID());
 
         if (spellInfo == null) {
             return null;
@@ -271,10 +313,10 @@ public class PlayerAI extends UnitAI {
             return null;
         }
 
-        Spell spell = new spell(me, spellInfo, TriggerCastFlags.NONE);
+        Spell spell = new Spell(me, spellInfo, TriggerCastFlags.None);
 
         if (spell.canAutoCast(target)) {
-            return Tuple.create(spell, target);
+            return Tuple.Create(spell, target);
         }
 
         return null;
@@ -295,6 +337,8 @@ public class PlayerAI extends UnitAI {
             return;
         }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint rangedAttackSpell = 0;
         int rangedAttackSpell = 0;
 
         var rangedItem = me.getItemByPos(InventorySlots.Bag0, EquipmentSlot.Ranged);
@@ -305,15 +349,15 @@ public class PlayerAI extends UnitAI {
                 case Bow:
                 case Gun:
                 case Crossbow:
-                    rangedAttackSpell = spells.shoot;
+                    rangedAttackSpell = spells.SHOOT;
 
                     break;
                 case Thrown:
-                    rangedAttackSpell = spells. throw ;
+                    rangedAttackSpell = spells.THROW;
 
                     break;
                 case Wand:
-                    rangedAttackSpell = spells.wand;
+                    rangedAttackSpell = spells.WAND;
 
                     break;
             }
@@ -323,13 +367,13 @@ public class PlayerAI extends UnitAI {
             return;
         }
 
-        var spellInfo = global.getSpellMgr().getSpellInfo(rangedAttackSpell, me.getMap().getDifficultyID());
+        var spellInfo = Global.getSpellMgr().getSpellInfo(rangedAttackSpell, me.getMap().getDifficultyID());
 
         if (spellInfo == null) {
             return;
         }
 
-        Spell spell = new spell(me, spellInfo, TriggerCastFlags.CastDirectly);
+        Spell spell = new Spell(me, spellInfo, TriggerCastFlags.CastDirectly);
 
         if (spell.checkPetCast(victim) != SpellCastResult.SpellCastOk) {
             return;
@@ -340,22 +384,5 @@ public class PlayerAI extends UnitAI {
         spell.prepare(targets);
 
         me.resetAttackTimer(WeaponAttackType.RangedAttack);
-    }
-
-    public enum SpellTarget {
-        NONE,
-        victim,
-        Charmer,
-        Self;
-
-        public static final int SIZE = Integer.SIZE;
-
-        public static SpellTarget forValue(int value) {
-            return values()[value];
-        }
-
-        public int getValue() {
-            return this.ordinal();
-        }
     }
 }

@@ -1,190 +1,208 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
 
+
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [StructLayout(LayoutKind.Explicit)] public struct SmartEvent
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: [StructLayout(LayoutKind.Explicit)] public struct SmartEvent
 public final class SmartEvent {
-    
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(0)] public SmartEvents type;
     public SmartEvents type = SmartEvents.values()[0];
 
-    
-    public int event_phase_mask;
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(4)] public uint event_phase_mask;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: [FieldOffset(4)] public uint event_phase_mask;
+    public int eventPhaseMask;
 
-    
-    public int event_chance;
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(8)] public uint event_chance;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: [FieldOffset(8)] public uint event_chance;
+    public int eventChance;
 
-    
-    public SmartEventFlags event_flags = SmartEventFlags.values()[0];
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(12)] public SmartEventFlags event_flags;
+    public SmartEventFlags eventFlags = SmartEventFlags.values()[0];
 
-    
-    public minMaxRepeat minMaxRepeat = new minMaxRepeat();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public MinMaxRepeat minMaxRepeat;
+    public MinMaxRepeat minMaxRepeat = new MinMaxRepeat();
 
-    
-    public kill kill = new kill();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Kill kill;
+    public Kill kill = new Kill();
 
-    
-    public spellHit spellHit = new spellHit();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public SpellHit spellHit;
+    public SpellHit spellHit = new SpellHit();
 
-    
-    public los los = new los();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Los los;
+    public Los los = new Los();
 
-    
-    public respawn respawn = new respawn();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Respawn respawn;
+    public Respawn respawn = new Respawn();
 
-    
-    public minMax minMax = new minMax();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public MinMax minMax;
+    public MinMax minMax = new MinMax();
 
-    
-    public targetCasting targetCasting = new targetCasting();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public TargetCasting targetCasting;
+    public TargetCasting targetCasting = new TargetCasting();
 
-    
-    public friendlyCC friendlyCC = new friendlyCC();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public FriendlyCC friendlyCC;
+    public FriendlyCC friendlyCC = new FriendlyCC();
 
-    
-    public missingBuff missingBuff = new missingBuff();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public MissingBuff missingBuff;
+    public MissingBuff missingBuff = new MissingBuff();
 
-    
-    public summoned summoned = new summoned();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Summoned summoned;
+    public Summoned summoned = new Summoned();
 
-    
-    public quest quest = new quest();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Quest quest;
+    public Quest quest = new Quest();
 
-    
-    public questObjective questObjective = new questObjective();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public QuestObjective questObjective;
+    public QuestObjective questObjective = new QuestObjective();
 
-    
-    public emote emote = new emote();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Emote emote;
+    public Emote emote = new Emote();
 
-    
-    public aura aura = new aura();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Aura aura;
+    public Aura aura = new Aura();
 
-    
-    public charm charm = new charm();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Charm charm;
+    public Charm charm = new Charm();
 
-    
-    public movementInform movementInform = new movementInform();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public MovementInform movementInform;
+    public MovementInform movementInform = new MovementInform();
 
-    
-    public dataSet dataSet = new dataSet();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public DataSet dataSet;
+    public DataSet dataSet = new DataSet();
 
-    
-    public waypoint waypoint = new waypoint();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Waypoint waypoint;
+    public Waypoint waypoint = new Waypoint();
 
-    
-    public transportAddCreature transportAddCreature = new transportAddCreature();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public TransportAddCreature transportAddCreature;
+    public TransportAddCreature transportAddCreature = new TransportAddCreature();
 
-    
-    public transportRelocate transportRelocate = new transportRelocate();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public TransportRelocate transportRelocate;
+    public TransportRelocate transportRelocate = new TransportRelocate();
 
-    
-    public instancePlayerEnter instancePlayerEnter = new instancePlayerEnter();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public InstancePlayerEnter instancePlayerEnter;
+    public InstancePlayerEnter instancePlayerEnter = new InstancePlayerEnter();
 
-    
-    public areatrigger areatrigger = new areatrigger();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Areatrigger areatrigger;
+    public Areatrigger areatrigger = new Areatrigger();
 
-    
-    public textOver textOver = new textOver();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public TextOver textOver;
+    public TextOver textOver = new TextOver();
 
-    
-    public timedEvent timedEvent = new timedEvent();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public TimedEvent timedEvent;
+    public TimedEvent timedEvent = new TimedEvent();
 
-    
-    public gossipHello gossipHello = new gossipHello();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public GossipHello gossipHello;
+    public GossipHello gossipHello = new GossipHello();
 
-    
-    public gossip gossip = new gossip();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Gossip gossip;
+    public Gossip gossip = new Gossip();
 
-    
-    public gameEvent gameEvent = new gameEvent();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public GameEvent gameEvent;
+    public GameEvent gameEvent = new GameEvent();
 
-    
-    public goLootStateChanged goLootStateChanged = new goLootStateChanged();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public GoLootStateChanged goLootStateChanged;
+    public GoLootStateChanged goLootStateChanged = new GoLootStateChanged();
 
-    
-    public eventInform eventInform = new eventInform();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public EventInform eventInform;
+    public EventInform eventInform = new EventInform();
 
-    
-    public doAction doAction = new doAction();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public DoAction doAction;
+    public DoAction doAction = new DoAction();
 
-    
-    public friendlyHealthPct friendlyHealthPct = new friendlyHealthPct();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public FriendlyHealthPct friendlyHealthPct;
+    public FriendlyHealthPct friendlyHealthPct = new FriendlyHealthPct();
 
-    
-    public distance distance = new distance();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Distance distance;
+    public Distance distance = new Distance();
 
-    
-    public counter counter = new counter();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Counter counter;
+    public Counter counter = new Counter();
 
-    
-    public spellCast spellCast = new spellCast();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public SpellCast spellCast;
+    public SpellCast spellCast = new SpellCast();
 
-    
-    public spell spell = new spell();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Spell spell;
+    public Spell spell = new Spell();
 
-    
-    public raw raw = new raw();
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(16)] public Raw raw;
+    public Raw raw = new Raw();
 
-    
-    public String param_string;
+//C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
+//ORIGINAL LINE: [FieldOffset(40)] public string param_string;
+    public String paramString;
 
+//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+        ///#region Structs
 
-    ///#region Structs
-
-    public SmartEvent clone() {
-        SmartEvent varCopy = new smartEvent();
-
-        varCopy.type = this.type;
-        varCopy.event_phase_mask = this.event_phase_mask;
-        varCopy.event_chance = this.event_chance;
-        varCopy.event_flags = this.event_flags;
-        varCopy.minMaxRepeat = this.minMaxRepeat;
-        varCopy.kill = this.kill;
-        varCopy.spellHit = this.spellHit;
-        varCopy.los = this.los;
-        varCopy.respawn = this.respawn;
-        varCopy.minMax = this.minMax;
-        varCopy.targetCasting = this.targetCasting;
-        varCopy.friendlyCC = this.friendlyCC;
-        varCopy.missingBuff = this.missingBuff;
-        varCopy.summoned = this.summoned;
-        varCopy.quest = this.quest;
-        varCopy.questObjective = this.questObjective;
-        varCopy.emote = this.emote;
-        varCopy.aura = this.aura;
-        varCopy.charm = this.charm;
-        varCopy.movementInform = this.movementInform;
-        varCopy.dataSet = this.dataSet;
-        varCopy.waypoint = this.waypoint;
-        varCopy.transportAddCreature = this.transportAddCreature;
-        varCopy.transportRelocate = this.transportRelocate;
-        varCopy.instancePlayerEnter = this.instancePlayerEnter;
-        varCopy.areatrigger = this.areatrigger;
-        varCopy.textOver = this.textOver;
-        varCopy.timedEvent = this.timedEvent;
-        varCopy.gossipHello = this.gossipHello;
-        varCopy.gossip = this.gossip;
-        varCopy.gameEvent = this.gameEvent;
-        varCopy.goLootStateChanged = this.goLootStateChanged;
-        varCopy.eventInform = this.eventInform;
-        varCopy.doAction = this.doAction;
-        varCopy.friendlyHealthPct = this.friendlyHealthPct;
-        varCopy.distance = this.distance;
-        varCopy.counter = this.counter;
-        varCopy.spellCast = this.spellCast;
-        varCopy.spell = this.spell;
-        varCopy.raw = this.raw;
-        varCopy.param_string = this.param_string;
-
-        return varCopy;
-    }
-
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct MinMaxRepeat
     public final static class MinMaxRepeat {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint min;
         public int min;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint max;
         public int max;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMin;
         public int repeatMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMax;
         public int repeatMax;
 
         public MinMaxRepeat clone() {
-            MinMaxRepeat varCopy = new minMaxRepeat();
+            MinMaxRepeat varCopy = new MinMaxRepeat();
 
             varCopy.min = this.min;
             varCopy.max = this.max;
@@ -195,14 +213,24 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Kill
     public final static class Kill {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint playerOnly;
         public int playerOnly;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint creature;
         public int creature;
 
         public Kill clone() {
-            Kill varCopy = new kill();
+            Kill varCopy = new Kill();
 
             varCopy.cooldownMin = this.cooldownMin;
             varCopy.cooldownMax = this.cooldownMax;
@@ -213,14 +241,24 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct SpellHit
     public final static class SpellHit {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint spell;
         public int spell;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint school;
         public int school;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
 
         public SpellHit clone() {
-            SpellHit varCopy = new spellHit();
+            SpellHit varCopy = new SpellHit();
 
             varCopy.spell = this.spell;
             varCopy.school = this.school;
@@ -231,15 +269,27 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Los
     public final static class Los {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint hostilityMode;
         public int hostilityMode;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint maxDist;
         public int maxDist;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint playerOnly;
         public int playerOnly;
 
         public Los clone() {
-            Los varCopy = new los();
+            Los varCopy = new Los();
 
             varCopy.hostilityMode = this.hostilityMode;
             varCopy.maxDist = this.maxDist;
@@ -251,13 +301,21 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Respawn
     public final static class Respawn {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint type;
         public int type;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint map;
         public int map;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint area;
         public int area;
 
         public Respawn clone() {
-            Respawn varCopy = new respawn();
+            Respawn varCopy = new Respawn();
 
             varCopy.type = this.type;
             varCopy.map = this.map;
@@ -267,12 +325,18 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct MinMax
     public final static class MinMax {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMin;
         public int repeatMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMax;
         public int repeatMax;
 
         public MinMax clone() {
-            MinMax varCopy = new minMax();
+            MinMax varCopy = new MinMax();
 
             varCopy.repeatMin = this.repeatMin;
             varCopy.repeatMax = this.repeatMax;
@@ -281,13 +345,21 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct TargetCasting
     public final static class TargetCasting {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMin;
         public int repeatMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMax;
         public int repeatMax;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint spellId;
         public int spellId;
 
         public TargetCasting clone() {
-            TargetCasting varCopy = new targetCasting();
+            TargetCasting varCopy = new TargetCasting();
 
             varCopy.repeatMin = this.repeatMin;
             varCopy.repeatMax = this.repeatMax;
@@ -297,13 +369,21 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct FriendlyCC
     public final static class FriendlyCC {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint radius;
         public int radius;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMin;
         public int repeatMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMax;
         public int repeatMax;
 
         public FriendlyCC clone() {
-            FriendlyCC varCopy = new friendlyCC();
+            FriendlyCC varCopy = new FriendlyCC();
 
             varCopy.radius = this.radius;
             varCopy.repeatMin = this.repeatMin;
@@ -313,14 +393,24 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct MissingBuff
     public final static class MissingBuff {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint spell;
         public int spell;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint radius;
         public int radius;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMin;
         public int repeatMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMax;
         public int repeatMax;
 
         public MissingBuff clone() {
-            MissingBuff varCopy = new missingBuff();
+            MissingBuff varCopy = new MissingBuff();
 
             varCopy.spell = this.spell;
             varCopy.radius = this.radius;
@@ -331,13 +421,21 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Summoned
     public final static class Summoned {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint creature;
         public int creature;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
 
         public Summoned clone() {
-            Summoned varCopy = new summoned();
+            Summoned varCopy = new Summoned();
 
             varCopy.creature = this.creature;
             varCopy.cooldownMin = this.cooldownMin;
@@ -347,13 +445,21 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Quest
     public final static class Quest {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint questId;
         public int questId;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
 
         public Quest clone() {
-            Quest varCopy = new quest();
+            Quest varCopy = new Quest();
 
             varCopy.questId = this.questId;
             varCopy.cooldownMin = this.cooldownMin;
@@ -363,11 +469,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct QuestObjective
     public final static class QuestObjective {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint id;
         public int id;
 
         public QuestObjective clone() {
-            QuestObjective varCopy = new questObjective();
+            QuestObjective varCopy = new QuestObjective();
 
             varCopy.id = this.id;
 
@@ -375,13 +485,21 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Emote
     public final static class Emote {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint emoteId;
         public int emoteId;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
 
         public Emote clone() {
-            Emote varCopy = new emote();
+            Emote varCopy = new Emote();
 
             varCopy.emoteId = this.emoteId;
             varCopy.cooldownMin = this.cooldownMin;
@@ -391,14 +509,24 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Aura
     public final static class Aura {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint spell;
         public int spell;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint count;
         public int count;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMin;
         public int repeatMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMax;
         public int repeatMax;
 
         public Aura clone() {
-            Aura varCopy = new aura();
+            Aura varCopy = new Aura();
 
             varCopy.spell = this.spell;
             varCopy.count = this.count;
@@ -409,11 +537,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Charm
     public final static class Charm {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint onRemove;
         public int onRemove;
 
         public Charm clone() {
-            Charm varCopy = new charm();
+            Charm varCopy = new Charm();
 
             varCopy.onRemove = this.onRemove;
 
@@ -421,12 +553,18 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct MovementInform
     public final static class MovementInform {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint type;
         public int type;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint id;
         public int id;
 
         public MovementInform clone() {
-            MovementInform varCopy = new movementInform();
+            MovementInform varCopy = new MovementInform();
 
             varCopy.type = this.type;
             varCopy.id = this.id;
@@ -435,14 +573,24 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct DataSet
     public final static class DataSet {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint id;
         public int id;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint value;
         public int value;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
 
         public DataSet clone() {
-            DataSet varCopy = new dataSet();
+            DataSet varCopy = new DataSet();
 
             varCopy.id = this.id;
             varCopy.value = this.value;
@@ -453,12 +601,18 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Waypoint
     public final static class Waypoint {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint pointID;
         public int pointID;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint pathID;
         public int pathID;
 
         public Waypoint clone() {
-            Waypoint varCopy = new waypoint();
+            Waypoint varCopy = new Waypoint();
 
             varCopy.pointID = this.pointID;
             varCopy.pathID = this.pathID;
@@ -467,11 +621,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct TransportAddCreature
     public final static class TransportAddCreature {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint creature;
         public int creature;
 
         public TransportAddCreature clone() {
-            TransportAddCreature varCopy = new transportAddCreature();
+            TransportAddCreature varCopy = new TransportAddCreature();
 
             varCopy.creature = this.creature;
 
@@ -479,11 +637,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct TransportRelocate
     public final static class TransportRelocate {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint pointID;
         public int pointID;
 
         public TransportRelocate clone() {
-            TransportRelocate varCopy = new transportRelocate();
+            TransportRelocate varCopy = new TransportRelocate();
 
             varCopy.pointID = this.pointID;
 
@@ -491,13 +653,21 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct InstancePlayerEnter
     public final static class InstancePlayerEnter {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint team;
         public int team;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
 
         public InstancePlayerEnter clone() {
-            InstancePlayerEnter varCopy = new instancePlayerEnter();
+            InstancePlayerEnter varCopy = new InstancePlayerEnter();
 
             varCopy.team = this.team;
             varCopy.cooldownMin = this.cooldownMin;
@@ -507,11 +677,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Areatrigger
     public final static class Areatrigger {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint id;
         public int id;
 
         public Areatrigger clone() {
-            Areatrigger varCopy = new areatrigger();
+            Areatrigger varCopy = new Areatrigger();
 
             varCopy.id = this.id;
 
@@ -519,12 +693,18 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct TextOver
     public final static class TextOver {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint textGroupID;
         public int textGroupID;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint creatureEntry;
         public int creatureEntry;
 
         public TextOver clone() {
-            TextOver varCopy = new textOver();
+            TextOver varCopy = new TextOver();
 
             varCopy.textGroupID = this.textGroupID;
             varCopy.creatureEntry = this.creatureEntry;
@@ -533,11 +713,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct TimedEvent
     public final static class TimedEvent {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint id;
         public int id;
 
         public TimedEvent clone() {
-            TimedEvent varCopy = new timedEvent();
+            TimedEvent varCopy = new TimedEvent();
 
             varCopy.id = this.id;
 
@@ -545,11 +729,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct GossipHello
     public final static class GossipHello {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint filter;
         public int filter;
 
         public GossipHello clone() {
-            GossipHello varCopy = new gossipHello();
+            GossipHello varCopy = new GossipHello();
 
             varCopy.filter = this.filter;
 
@@ -557,12 +745,18 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Gossip
     public final static class Gossip {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint sender;
         public int sender;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint action;
         public int action;
 
         public Gossip clone() {
-            Gossip varCopy = new gossip();
+            Gossip varCopy = new Gossip();
 
             varCopy.sender = this.sender;
             varCopy.action = this.action;
@@ -571,11 +765,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct GameEvent
     public final static class GameEvent {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint gameEventId;
         public int gameEventId;
 
         public GameEvent clone() {
-            GameEvent varCopy = new gameEvent();
+            GameEvent varCopy = new GameEvent();
 
             varCopy.gameEventId = this.gameEventId;
 
@@ -583,11 +781,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct GoLootStateChanged
     public final static class GoLootStateChanged {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint lootState;
         public int lootState;
 
         public GoLootStateChanged clone() {
-            GoLootStateChanged varCopy = new goLootStateChanged();
+            GoLootStateChanged varCopy = new GoLootStateChanged();
 
             varCopy.lootState = this.lootState;
 
@@ -595,11 +797,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct EventInform
     public final static class EventInform {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint eventId;
         public int eventId;
 
         public EventInform clone() {
-            EventInform varCopy = new eventInform();
+            EventInform varCopy = new EventInform();
 
             varCopy.eventId = this.eventId;
 
@@ -607,11 +813,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct DoAction
     public final static class DoAction {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint eventId;
         public int eventId;
 
         public DoAction clone() {
-            DoAction varCopy = new doAction();
+            DoAction varCopy = new DoAction();
 
             varCopy.eventId = this.eventId;
 
@@ -619,15 +829,27 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct FriendlyHealthPct
     public final static class FriendlyHealthPct {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint minHpPct;
         public int minHpPct;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint maxHpPct;
         public int maxHpPct;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMin;
         public int repeatMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeatMax;
         public int repeatMax;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint radius;
         public int radius;
 
         public FriendlyHealthPct clone() {
-            FriendlyHealthPct varCopy = new friendlyHealthPct();
+            FriendlyHealthPct varCopy = new FriendlyHealthPct();
 
             varCopy.minHpPct = this.minHpPct;
             varCopy.maxHpPct = this.maxHpPct;
@@ -639,14 +861,24 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Distance
     public final static class Distance {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint guid;
         public int guid;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint entry;
         public int entry;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint dist;
         public int dist;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint repeat;
         public int repeat;
 
         public Distance clone() {
-            Distance varCopy = new distance();
+            Distance varCopy = new Distance();
 
             varCopy.guid = this.guid;
             varCopy.entry = this.entry;
@@ -657,14 +889,24 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Counter
     public final static class Counter {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint id;
         public int id;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint value;
         public int value;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
 
         public Counter clone() {
-            Counter varCopy = new counter();
+            Counter varCopy = new Counter();
 
             varCopy.id = this.id;
             varCopy.value = this.value;
@@ -675,13 +917,21 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct SpellCast
     public final static class SpellCast {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint spell;
         public int spell;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMin;
         public int cooldownMin;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint cooldownMax;
         public int cooldownMax;
 
         public SpellCast clone() {
-            SpellCast varCopy = new spellCast();
+            SpellCast varCopy = new SpellCast();
 
             varCopy.spell = this.spell;
             varCopy.cooldownMin = this.cooldownMin;
@@ -691,11 +941,15 @@ public final class SmartEvent {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Spell
     public final static class Spell {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint effIndex;
         public int effIndex;
 
         public Spell clone() {
-            Spell varCopy = new spell();
+            Spell varCopy = new Spell();
 
             varCopy.effIndex = this.effIndex;
 
@@ -703,18 +957,27 @@ public final class SmartEvent {
         }
     }
 
-
-    ///#endregion
-
+//C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
+//ORIGINAL LINE: public struct Raw
     public final static class Raw {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint param1;
         public int param1;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint param2;
         public int param2;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint param3;
         public int param3;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint param4;
         public int param4;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint param5;
         public int param5;
 
         public Raw clone() {
-            Raw varCopy = new raw();
+            Raw varCopy = new Raw();
 
             varCopy.param1 = this.param1;
             varCopy.param2 = this.param2;
@@ -724,5 +987,56 @@ public final class SmartEvent {
 
             return varCopy;
         }
+    }
+
+//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+        ///#endregion
+
+    public SmartEvent clone() {
+        SmartEvent varCopy = new SmartEvent();
+
+        varCopy.type = this.type;
+        varCopy.event_phase_mask = this.event_phase_mask;
+        varCopy.event_chance = this.event_chance;
+        varCopy.event_flags = this.event_flags;
+        varCopy.minMaxRepeat = this.minMaxRepeat.clone();
+        varCopy.kill = this.kill.clone();
+        varCopy.spellHit = this.spellHit.clone();
+        varCopy.los = this.los.clone();
+        varCopy.respawn = this.respawn.clone();
+        varCopy.minMax = this.minMax.clone();
+        varCopy.targetCasting = this.targetCasting.clone();
+        varCopy.friendlyCC = this.friendlyCC.clone();
+        varCopy.missingBuff = this.missingBuff.clone();
+        varCopy.summoned = this.summoned.clone();
+        varCopy.quest = this.quest.clone();
+        varCopy.questObjective = this.questObjective.clone();
+        varCopy.emote = this.emote.clone();
+        varCopy.aura = this.aura.clone();
+        varCopy.charm = this.charm.clone();
+        varCopy.movementInform = this.movementInform.clone();
+        varCopy.dataSet = this.dataSet.clone();
+        varCopy.waypoint = this.waypoint.clone();
+        varCopy.transportAddCreature = this.transportAddCreature.clone();
+        varCopy.transportRelocate = this.transportRelocate.clone();
+        varCopy.instancePlayerEnter = this.instancePlayerEnter.clone();
+        varCopy.areatrigger = this.areatrigger.clone();
+        varCopy.textOver = this.textOver.clone();
+        varCopy.timedEvent = this.timedEvent.clone();
+        varCopy.gossipHello = this.gossipHello.clone();
+        varCopy.gossip = this.gossip.clone();
+        varCopy.gameEvent = this.gameEvent.clone();
+        varCopy.goLootStateChanged = this.goLootStateChanged.clone();
+        varCopy.eventInform = this.eventInform.clone();
+        varCopy.doAction = this.doAction.clone();
+        varCopy.friendlyHealthPct = this.friendlyHealthPct.clone();
+        varCopy.distance = this.distance.clone();
+        varCopy.counter = this.counter.clone();
+        varCopy.spellCast = this.spellCast.clone();
+        varCopy.spell = this.spell.clone();
+        varCopy.raw = this.raw.clone();
+        varCopy.param_string = this.param_string;
+
+        return varCopy;
     }
 }

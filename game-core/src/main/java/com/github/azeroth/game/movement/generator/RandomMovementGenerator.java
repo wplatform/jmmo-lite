@@ -1,13 +1,21 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.ai.CreatureAI;
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.movement.MovementGeneratorMedium;
+import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.movement.MovementGenerator;
 import com.github.azeroth.game.movement.PathGenerator;
-import com.github.azeroth.game.movement.enums.PathType;
+import com.github.azeroth.game.movement.enums.*;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
+import com.github.azeroth.time.TimeTracker;
+import com.github.azeroth.utils.RandomUtil;
 
-public class RandomMovementGenerator extends MovementGeneratorMedium<Creature> {
+import java.time.Duration;
+
+public class RandomMovementGenerator extends MovementGenerator {
     private final TimeTracker timer;
 
     private PathGenerator path;
@@ -25,76 +33,74 @@ public class RandomMovementGenerator extends MovementGeneratorMedium<Creature> {
     }
 
     public RandomMovementGenerator(float spawnDist, Duration duration) {
-        timer = new timeTracker(duration);
+        timer = new TimeTracker(duration);
         reference = new Position();
         wanderDistance = spawnDist;
 
-        mode = MovementGeneratorMode.Default;
+        mode = MovementGeneratorMode.DEFAULT;
         priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.Roaming;
+        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        baseUnitState = UnitState.ROAMING;
     }
 
     @Override
-    public void doInitialize(Creature owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Transitory.getValue().getValue() | MovementGeneratorFlags.Deactivated.getValue().getValue().getValue() | MovementGeneratorFlags.paused.getValue().getValue().getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+    public void initialize(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
+        flags.addFlag(MovementGeneratorFlag.INITIALIZED);
 
         if (owner == null || !owner.isAlive()) {
             return;
         }
+        var creature = owner.toCreature();
 
         reference = owner.getLocation();
         owner.stopMoving();
 
         if (wanderDistance == 0f) {
-            wanderDistance = owner.getWanderDistance();
+            wanderDistance = creature.getWanderDistance();
         }
 
         // Retail seems to let a creature walk 2 up to 10 splines before triggering a pause
-        wanderSteps = RandomUtil.URand(2, 10);
+        wanderSteps = RandomUtil.randomInt(2, 10);
 
         timer.reset(0);
         path = null;
     }
 
     @Override
-    public void doReset(Creature owner) {
-        removeFlag(MovementGeneratorFlags.Transitory.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        doInitialize(owner);
+    public void reset(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
+        initialize(owner);
     }
 
     @Override
-    public boolean doUpdate(Creature owner, int diff) {
-        if (!owner || !owner.isAlive()) {
+    public boolean update(Unit owner, int diff) {
+        if (owner == null || !owner.isAlive()) {
+            return false;
+        }
+
+        if (flags.hasFlag(MovementGeneratorFlag.FINALIZED, MovementGeneratorFlag.PAUSED)) {
             return true;
         }
 
-        if (hasFlag(MovementGeneratorFlags.Finalized.getValue() | MovementGeneratorFlags.paused.getValue())) {
-            return true;
-        }
-
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting()) {
+            flags.addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
             path = null;
 
             return true;
         } else {
-            removeFlag(MovementGeneratorFlags.Interrupted);
+            flags.removeFlag(MovementGeneratorFlag.INTERRUPTED);
         }
 
-        synchronized (reference) {
-            timer.update(diff);
-
-            if ((hasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.getMoveSpline().finalized()) || (timer.Passed && owner.getMoveSpline().finalized())) {
-                setRandomLocation(owner);
-            }
+        timer.update(diff);
+        if ((flags.hasFlag(MovementGeneratorFlag.SPEED_UPDATE_PENDING) && !owner.getMoveSpline().finalized()) || (timer.passed() && owner.getMoveSpline().finalized())) {
+            setRandomLocation(owner.toCreature());
         }
 
-        if (timer.Passed) {
-            removeFlag(MovementGeneratorFlags.Transitory);
-            addFlag(MovementGeneratorFlags.InformEnabled);
+        if (timer.passed()) {
+            flags.removeFlag(MovementGeneratorFlag.TRANSITORY);
+            flags.addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
             return false;
         }
@@ -103,30 +109,27 @@ public class RandomMovementGenerator extends MovementGeneratorMedium<Creature> {
     }
 
     @Override
-    public void doDeactivate(Creature owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
-        owner.clearUnitState(UnitState.RoamingMove);
+    public void deactivate(Unit owner) {
+        flags.addFlag(MovementGeneratorFlag.DEACTIVATED);
+        owner.clearUnitState(UnitState.ROAMING_MOVE);
     }
 
     @Override
-    public void doFinalize(Creature owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+    public void finalize(Unit owner, boolean active, boolean movementInform) {
+        addFlag(MovementGeneratorFlag.FINALIZED);
 
         if (active) {
-            owner.clearUnitState(UnitState.RoamingMove);
+            owner.clearUnitState(UnitState.ROAMING_MOVE);
             owner.stopMoving();
 
             // TODO: Research if this modification is needed, which most likely isnt
             owner.setWalk(false);
         }
 
-        com.github.azeroth.game.ai.CreatureAI ai;
-        tangible.OutObject<com.github.azeroth.game.ai.CreatureAI> tempOut_ai = new tangible.OutObject<com.github.azeroth.game.ai.CreatureAI>();
-        if (movementInform && hasFlag(MovementGeneratorFlags.InformEnabled) && owner.isAIEnabled() && owner.tryGetCreatureAI(tempOut_ai)) {
-            ai = tempOut_ai.outArgValue;
-            ai.movementInform(MovementGeneratorType.random, 0);
-        } else {
-            ai = tempOut_ai.outArgValue;
+        if (movementInform && hasFlag(MovementGeneratorFlag.INFORM_ENABLED) && owner.isAIEnabled()) {
+            if (owner.getAi() instanceof CreatureAI ai) {
+                ai.movementInform(MovementGeneratorType.RANDOM, 0);
+            }
         }
     }
 
@@ -139,12 +142,12 @@ public class RandomMovementGenerator extends MovementGeneratorMedium<Creature> {
     @Override
     public void pause(int timer) {
         if (timer != 0) {
-            addFlag(MovementGeneratorFlags.TimedPaused);
-            timer.reset(timer);
-            removeFlag(MovementGeneratorFlags.paused);
+            addFlag(MovementGeneratorFlag.TIMED_PAUSED);
+            this.timer.reset(timer);
+            removeFlag(MovementGeneratorFlag.PAUSED);
         } else {
-            addFlag(MovementGeneratorFlags.paused);
-            removeFlag(MovementGeneratorFlags.TimedPaused);
+            addFlag(MovementGeneratorFlag.PAUSED);
+            removeFlag(MovementGeneratorFlag.TIMED_PAUSED);
         }
     }
 

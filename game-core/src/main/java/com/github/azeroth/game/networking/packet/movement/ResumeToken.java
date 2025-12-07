@@ -1,13 +1,14 @@
 package com.github.azeroth.game.networking.packet.movement;
 
 import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 public class ResumeToken extends ServerPacket {
     public int sequenceIndex = 1;
     public int reason = 1;
 
     public ResumeToken() {
-        super(ServerOpcode.ResumeToken);
+        super(ServerOpCode.SMSG_RESUME_TOKEN);
     }
 
     @Override

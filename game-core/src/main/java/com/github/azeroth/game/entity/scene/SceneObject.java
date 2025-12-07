@@ -7,7 +7,6 @@ import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.domain.object.enums.TypeId;
 import com.github.azeroth.game.domain.object.enums.TypeMask;
-import com.github.azeroth.game.entity.object.update.SceneObjectData;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.map.Map;

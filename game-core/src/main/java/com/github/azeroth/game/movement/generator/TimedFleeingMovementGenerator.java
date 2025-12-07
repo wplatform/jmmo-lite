@@ -1,15 +1,21 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.ai.CreatureAI;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.domain.unit.UnitFlag;
 import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.movement.enums.MovementGeneratorFlag;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
+import com.github.azeroth.time.TimeTracker;
 
-public class TimedFleeingMovementGenerator extends FleeingMovementGenerator<Creature> {
+public class TimedFleeingMovementGenerator extends FleeingMovementGenerator {
     private final TimeTracker totalFleeTime;
 
 
     public TimedFleeingMovementGenerator(ObjectGuid fright, int time) {
         super(fright);
-        totalFleeTime = new timeTracker(time);
+        totalFleeTime = new TimeTracker(time);
     }
 
 
@@ -21,43 +27,43 @@ public class TimedFleeingMovementGenerator extends FleeingMovementGenerator<Crea
 
         totalFleeTime.update(diff);
 
-        if (totalFleeTime.Passed) {
+        if (totalFleeTime.passed()) {
             return false;
         }
 
-        return doUpdate(owner.toCreature(), diff);
+        return super.update(owner, diff);
     }
 
     @Override
     public void finalize(Unit owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+        addFlag(MovementGeneratorFlag.FINALIZED);
 
         if (!active) {
             return;
         }
 
-        owner.removeUnitFlag(UnitFlag.Fleeing);
+        owner.removeUnitFlag(UnitFlag.FLEEING);
+        owner.stopMoving();
+
         var victim = owner.getVictim();
 
         if (victim != null) {
             if (owner.isAlive()) {
                 owner.attackStop();
-                owner.toCreature().getAI().attackStart(victim);
+                owner.toCreature().getAi().attackStart(victim);
             }
         }
 
         if (movementInform) {
-            var ownerCreature = owner.toCreature();
-            var ai = ownerCreature != null ? ownerCreature.getAI() : null;
 
-            if (ai != null) {
-                ai.movementInform(MovementGeneratorType.TimedFleeing, 0);
+            if (owner.getAi() instanceof CreatureAI ai) {
+                ai.movementInform(MovementGeneratorType.TIMED_FLEEING, 0);
             }
         }
     }
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.TimedFleeing;
+        return MovementGeneratorType.TIMED_FLEEING;
     }
 }

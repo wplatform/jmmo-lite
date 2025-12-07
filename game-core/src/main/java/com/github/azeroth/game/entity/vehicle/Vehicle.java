@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class Vehicle implements ITransport {
+public class Vehicle implements TransportObject {
     //C# TO JAVA CONVERTER TODO TASK: The following operator overload is not converted by C# to Java Converter:
     public static implicit operator
     private final Unit me;
@@ -75,7 +75,7 @@ public class Vehicle implements ITransport {
         return vehicle != null;
     }
 
-    public final ITransport removePassenger(WorldObject passenger) {
+    public final TransportObject removePassenger(WorldObject passenger) {
         var unit = passenger.toUnit();
 
         if (unit == null) {
@@ -120,7 +120,7 @@ public class Vehicle implements ITransport {
         }
 
         if (me.isTypeId(TypeId.Unit) && me.toCreature().isAIEnabled()) {
-            me.toCreature().getAI().passengerBoarded(unit, seat.getKey(), false);
+            me.toCreature().getAi().passengerBoarded(unit, seat.getKey(), false);
         }
 
         if (getBase().isTypeId(TypeId.Unit)) {

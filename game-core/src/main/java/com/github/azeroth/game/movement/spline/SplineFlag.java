@@ -11,7 +11,7 @@ public enum SplineFlag implements EnumFlag.FlagValue {
     Unknown_0x1(0x00000001),           // NOT VERIFIED
     Unknown_0x2(0x00000002),           // NOT VERIFIED
     Unknown_0x4(0x00000004),           // NOT VERIFIED
-    Unknown_0x8(0x00000008),           // NOT VERIFIED - does something related to falling/fixed orientation
+    JumpOrientationFixed(0x00000008),  // Model orientation fixed (jump animation)
     FallingSlow(0x00000010),
     Done(0x00000020),
     Falling(0x00000040),               // Affects elevation computation, can't be combined with Parabolic flag
@@ -41,7 +41,7 @@ public enum SplineFlag implements EnumFlag.FlagValue {
     Unknown_0x40000000(0x40000000),   // NOT VERIFIED
     Unknown_0x80000000(0x80000000),    // NOT VERIFIED
     // Unused, not supported flags
-    Mask_Unused(No_Spline.value | Enter_Cycle.value | Frozen.value | Unknown_0x8.value | Unknown_0x100.value | Unknown_0x20000.value | Unknown_0x40000.value
+    Mask_Unused(No_Spline.value | Enter_Cycle.value | Frozen.value | JumpOrientationFixed.value | Unknown_0x100.value | Unknown_0x20000.value | Unknown_0x40000.value
             | Unknown_0x800000.value | Unknown_0x1000000.value | FadeObject.value | Steering.value | UnlimitedSpeed.value | Unknown_0x40000000.value | Unknown_0x80000000.value);
 
 

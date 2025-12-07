@@ -1,15 +1,25 @@
 package com.github.azeroth.game.movement.spline;
 
 
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Vector4;
+import com.github.azeroth.common.EnumFlag;
 import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.unit.AnimTier;
+import com.github.azeroth.game.domain.unit.UnitMoveType;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.domain.unit.MovementFlag;
 import com.github.azeroth.game.domain.unit.NPCFlags2;
 import com.github.azeroth.game.movement.*;
+import com.github.azeroth.game.movement.enums.MonsterMoveType;
 import com.github.azeroth.game.movement.enums.PathType;
+import com.github.azeroth.game.movement.model.AnimTierTransition;
+import com.github.azeroth.game.movement.model.SpellEffectExtraData;
+import com.github.azeroth.game.networking.packet.movement.MonsterMove;
+import com.github.azeroth.utils.MathUtil;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public class MoveSplineInit {
     private final Unit unit;
@@ -17,29 +27,29 @@ public class MoveSplineInit {
 
     public MoveSplineInit(Unit m) {
         unit = m;
-        args.splineId = MotionMaster.getSplineId();
+        args.splineId = MotionMaster.newSplineId();
 
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
         args.transformForTransport = !unit.getTransGUID().isEmpty();
         // mix existing state into new
-        args.flags.setUnsetFlag(SplineFlag.CanSwim, unit.canSwim());
+        args.flags.setFlag(SplineFlag.CanSwim, unit.canSwim());
         args.walk = unit.hasUnitMovementFlag(MovementFlag.WALKING);
-        args.flags.setUnsetFlag(SplineFlag.Flying, unit.hasUnitMovementFlag(MovementFlag.CAN_FLY.addFlag(MovementFlag.DISABLE_GRAVITY)));
-        args.flags.setUnsetFlag(SplineFlag.SmoothGroundPath, true); // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
-        args.flags.setUnsetFlag(SplineFlag.Steering, unit.hasNpcFlag2(NPCFlags2.STEERING));
+        args.flags.setFlag(SplineFlag.Flying, unit.hasUnitMovementFlag(MovementFlag.CAN_FLY, MovementFlag.DISABLE_GRAVITY));
+        args.flags.setFlag(SplineFlag.SmoothGroundPath, true); // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
+        args.flags.setFlag(SplineFlag.Steering, unit.hasNpcFlag2(NPCFlags2.STEERING));
     }
 
     public final int launch() {
-        var move_spline = unit.getMoveSpline();
+        var moveSpline = unit.getMoveSpline();
 
         var transport = !unit.getTransGUID().isEmpty();
-        Vector4 real_position = new Vector4();
+        Vector4 realPosition = new Vector4();
 
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        if (!move_spline.finalized() && move_spline.onTransport == transport) {
-            real_position = move_spline.computePosition();
+        if (!moveSpline.finalized() && moveSpline.onTransport == transport) {
+            realPosition = moveSpline.computePosition();
         } else {
             Position pos;
 
@@ -49,10 +59,7 @@ public class MoveSplineInit {
                 pos = unit.getMovementInfo().transport.pos;
             }
 
-            real_position.X = pos.getX();
-            real_position.Y = pos.getY();
-            real_position.Z = pos.getZ();
-            real_position.W = unit.getLocation().getO();
+            realPosition.set(pos.getX(), pos.getY(), pos.getZ(), pos.getO());
         }
 
         // should i do the things that user should do? - no.
@@ -61,35 +68,36 @@ public class MoveSplineInit {
         }
 
         // correct first vertex
-        args.path.set(0, new Vector3(real_position.X, real_position.Y, real_position.Z));
-        args.initialOrientation = real_position.W;
-        args.flags.setUnsetFlag(SplineFlag.EnterCycle, args.flags.hasFlag(SplineFlag.Cyclic));
-        move_spline.onTransport = transport;
+        args.path.set(0, new Vector3(realPosition.x, realPosition.y, realPosition.z));
+        args.initialOrientation = realPosition.w;
+        args.flags.setFlag(SplineFlag.Enter_Cycle, args.flags.hasFlag(SplineFlag.Cyclic));
+        moveSpline.onTransport = transport;
 
-        var moveFlags = unit.getMovementInfo().getMovementFlags();
+        var moveFlags = unit.getMovementInfo().getFlags();
 
         if (!args.flags.hasFlag(SplineFlag.Backward)) {
-            moveFlags = MovementFlag.forValue((moveFlags.getValue() & ~MovementFlag.Backward.getValue()).getValue() | MovementFlag.Forward.getValue());
+            moveFlags.removeFlag(MovementFlag.BACKWARD);
+            moveFlags.addFlag(MovementFlag.FORWARD);
         } else {
-            moveFlags = MovementFlag.forValue((moveFlags.getValue() & ~MovementFlag.Forward.getValue()).getValue() | MovementFlag.Backward.getValue());
+            moveFlags.removeFlag(MovementFlag.FORWARD);
+            moveFlags.addFlag(MovementFlag.BACKWARD);
         }
 
-        if ((boolean) (moveFlags.getValue() & MovementFlag.Root.getValue())) {
-            moveFlags = MovementFlag.forValue(moveFlags.getValue() & ~MovementFlag.MaskMoving.getValue());
+        if (moveFlags.hasFlag(MovementFlag.ROOT)) {
+            moveFlags.removeFlag(MovementFlag.MASK_MOVING);
         }
 
         if (!args.hasVelocity) {
             // If spline is initialized with SetWalk method it only means we need to select
             // walk move speed for it but not add walk flag to unit
-            var moveFlagsForSpeed = moveFlags;
 
             if (args.walk) {
-                moveFlagsForSpeed = MovementFlag.forValue(moveFlagsForSpeed.getValue() | MovementFlag.Walking.getValue());
+                moveFlags.addFlag(MovementFlag.WALKING);
             } else {
-                moveFlagsForSpeed = MovementFlag.forValue(moveFlagsForSpeed.getValue() & ~MovementFlag.Walking.getValue());
+                moveFlags.removeFlag(MovementFlag.WALKING);
             }
 
-            args.velocity = unit.getSpeed(selectSpeedType(moveFlagsForSpeed));
+            args.velocity = unit.getSpeed(selectSpeedType(moveFlags));
             var creature = unit.toCreature();
 
             if (creature != null) {
@@ -101,32 +109,28 @@ public class MoveSplineInit {
 
         // limit the speed in the same way the client does
 
-//		float speedLimit()
-//			{
-//				if (args.flags.hasFlag(SplineFlag.UnlimitedSpeed))
-//					return float.maxValue;
-//
-//				if (args.flags.hasFlag(SplineFlag.Falling) || args.flags.hasFlag(SplineFlag.Catmullrom) || args.flags.hasFlag(SplineFlag.Flying) || args.flags.hasFlag(SplineFlag.Parabolic))
-//					return 50.0f;
-//
-//				return Math.max(28.0f, unit.getSpeed(UnitMoveType.run) * 4.0f);
-//			}
+        Supplier<Float> speedLimit = () -> {
+            if (args.flags.hasFlag(SplineFlag.UnlimitedSpeed))
+                return Float.MAX_VALUE;
 
-        ;
+            if (args.flags.hasFlag(SplineFlag.Falling) || args.flags.hasFlag(SplineFlag.Catmullrom) || args.flags.hasFlag(SplineFlag.Flying) || args.flags.hasFlag(SplineFlag.Parabolic))
+                return 50.0f;
 
-        args.velocity = Math.min(args.velocity, speedLimit());
+            return Math.max(28.0f, unit.getSpeed(UnitMoveType.RUN) * 4.0f);
+        };
+
+        args.velocity = Math.min(args.velocity, speedLimit.get());
 
         if (!args.validate(unit)) {
             return 0;
         }
 
-        unit.getMovementInfo().setMovementFlags(moveFlags);
-        move_spline.initialize(args);
+        moveSpline.initialize(args);
 
         MonsterMove packet = new MonsterMove();
         packet.moverGUID = unit.getGUID();
-        packet.pos = new Vector3(real_position.X, real_position.Y, real_position.Z);
-        packet.initializeSplineData(move_spline);
+        packet.pos = new Vector3(realPosition.x, realPosition.y, realPosition.z);
+        packet.initializeSplineData(moveSpline);
 
         if (transport) {
             packet.splineData.move.transportGUID = unit.getTransGUID();
@@ -135,22 +139,22 @@ public class MoveSplineInit {
 
         unit.sendMessageToSet(packet, true);
 
-        return move_spline.duration();
+        return moveSpline.duration();
     }
 
     public final void stop() {
-        var move_spline = unit.getMoveSpline();
+        var moveSpline = unit.getMoveSpline();
 
         // No need to stop if we are not moving
-        if (move_spline.finalized()) {
+        if (moveSpline.finalized()) {
             return;
         }
 
         var transport = !unit.getTransGUID().isEmpty();
         Vector4 loc = new Vector4();
 
-        if (move_spline.onTransport == transport) {
-            loc = move_spline.computePosition();
+        if (moveSpline.onTransport == transport) {
+            loc = moveSpline.computePosition();
         } else {
             Position pos;
 
@@ -160,22 +164,22 @@ public class MoveSplineInit {
                 pos = unit.getMovementInfo().transport.pos;
             }
 
-            loc.X = pos.getX();
-            loc.Y = pos.getY();
-            loc.Z = pos.getZ();
-            loc.W = unit.getLocation().getO();
+            loc.set(pos.getX(), pos.getY(), pos.getZ(), pos.getO());
         }
 
-        args.flags.flags = SplineFlag.Done;
-        unit.getMovementInfo().removeMovementFlag(MovementFlag.Forward);
-        move_spline.onTransport = transport;
-        move_spline.initialize(args);
+        args.flags.setFlag(SplineFlag.Done);
+        unit.removeUnitMovementFlag(MovementFlag.FORWARD);
+        moveSpline.onTransport = transport;
+        moveSpline.initialize(args);
 
         MonsterMove packet = new MonsterMove();
         packet.moverGUID = unit.getGUID();
-        packet.pos = new Vector3(loc.X, loc.Y, loc.Z);
+        packet.pos = new Vector3(loc.x, loc.y, loc.z);
         packet.splineData.stopDistanceTolerance = 2;
-        packet.splineData.id = move_spline.getId();
+        packet.splineData.id = moveSpline.getId();
+        packet.splineData.move.face = args.facing.type;
+        packet.splineData.move.faceDirection = args.facing.angle;
+
 
         if (transport) {
             packet.splineData.move.transportGUID = unit.getTransGUID();
@@ -184,32 +188,6 @@ public class MoveSplineInit {
 
         unit.sendMessageToSet(packet, true);
     }
-
-    public final void setFacing(Unit target) {
-        args.facing.angle = unit.getLocation().getAbsoluteAngle(target.getLocation());
-        args.facing.target = target.getGUID();
-        args.facing.type = MonsterMoveType.FacingTarget;
-    }
-
-    public final void setFacing(float angle) {
-        if (args.transformForTransport) {
-            var vehicle = unit.getVehicleBase();
-
-            if (vehicle != null) {
-                angle -= vehicle.getLocation().getO();
-            } else {
-                var transport = unit.getTransport();
-
-                if (transport != null) {
-                    angle -= transport.getTransportOrientation();
-                }
-            }
-        }
-
-        args.facing.angle = MathUtil.wrap(angle, 0.0f, MathUtil.TwoPi);
-        args.facing.type = MonsterMoveType.FacingAngle;
-    }
-
 
     public final void moveTo(Vector3 dest, boolean generatePath) {
         moveTo(dest, generatePath, false);
@@ -222,28 +200,27 @@ public class MoveSplineInit {
     public final void moveTo(Vector3 dest, boolean generatePath, boolean forceDestination) {
         if (generatePath) {
             PathGenerator path = new PathGenerator(unit);
-            var result = path.calculatePath(new Position(dest), forceDestination);
+            var result = path.calculatePath(new Position(dest.x, dest.y, dest.z), forceDestination);
 
-            if (result && !(boolean) (path.getPathType().getValue() & PathType.NOPATH.getValue())) {
+            if (result && !path.getPathType().hasFlag(PathType.NOPATH)) {
                 movebyPath(path.getPath());
 
                 return;
             }
         }
 
-        args.path_Idx_offset = 0;
-        args.path.add(null);
+        args.pathIdxOffset = 0;
         TransportPathTransform transform = new TransportPathTransform(unit, args.transformForTransport);
-        args.path.add(transform.calc(dest));
+        args.path.set(1, transform.calc(dest));
     }
 
     public final void setFall() {
         args.flags.enableFalling();
-        args.flags.setUnsetFlag(SplineFlag.FallingSlow, unit.hasUnitMovementFlag(MovementFlag.FallingSlow));
+        args.flags.setFlag(SplineFlag.FallingSlow, unit.hasUnitMovementFlag(MovementFlag.FALLING_SLOW));
     }
 
     public final void setFirstPointId(int pointId) {
-        args.path_Idx_offset = pointId;
+        args.pathIdxOffset = pointId;
     }
 
     public final void setFly() {
@@ -259,11 +236,11 @@ public class MoveSplineInit {
     }
 
     public final void setUncompressed() {
-        args.flags.setUnsetFlag(SplineFlag.UncompressedPath);
+        args.flags.setFlag(SplineFlag.UncompressedPath);
     }
 
     public final void setCyclic() {
-        args.flags.setUnsetFlag(SplineFlag.Cyclic);
+        args.flags.setFlag(SplineFlag.Cyclic);
     }
 
     public final void setVelocity(float vel) {
@@ -280,11 +257,11 @@ public class MoveSplineInit {
     }
 
     public final void setOrientationFixed(boolean enable) {
-        args.flags.setUnsetFlag(SplineFlag.OrientationFixed, enable);
+        args.flags.setFlag(SplineFlag.OrientationFixed, enable);
     }
 
     public final void setUnlimitedSpeed() {
-        args.flags.setUnsetFlag(SplineFlag.UnlimitedSpeed, true);
+        args.flags.setFlag(SplineFlag.UnlimitedSpeed, true);
     }
 
 
@@ -293,7 +270,7 @@ public class MoveSplineInit {
     }
 
     public final void movebyPath(Vector3[] controls, int path_offset) {
-        args.path_Idx_offset = path_offset;
+        args.pathIdxOffset = path_offset;
         TransportPathTransform transform = new TransportPathTransform(unit, args.transformForTransport);
 
         for (var i = 0; i < controls.length; i++) {
@@ -314,33 +291,51 @@ public class MoveSplineInit {
         moveTo(new Vector3(x, y, z), generatePath, forceDest);
     }
 
-    public final void setParabolic(float amplitude, float time_shift) {
-        args.time_perc = time_shift;
-        args.parabolic_amplitude = amplitude;
-        args.vertical_acceleration = 0.0f;
+    public final void setParabolic(float amplitude, int startPoint) {
+        args.effectStartPoint = startPoint;
+        args.parabolicAmplitude = amplitude;
+        args.verticalAcceleration = 0.0f;
         args.flags.enableParabolic();
     }
 
-    public final void setParabolicVerticalAcceleration(float vertical_acceleration, float time_shift) {
-        args.time_perc = time_shift;
-        args.parabolic_amplitude = 0.0f;
-        args.vertical_acceleration = vertical_acceleration;
+
+
+    public final void setParabolicVerticalAcceleration(float vertical_acceleration, int startPoint) {
+        args.effectStartPoint = startPoint;
+        args.parabolicAmplitude = 0.0f;
+        args.verticalAcceleration = vertical_acceleration;
         args.flags.enableParabolic();
     }
 
-    public final void setAnimation(AnimTier anim) {
-        args.time_perc = 0.0f;
-        args.animTier = new animTierTransition();
-        args.animTier.animTier = (byte) anim.getValue();
-        args.flags.enableAnimation();
+    public final void setAnimation(AnimTier anim, int tierTransitionId, int transitionStartPoint) {
+        args.effectStartPoint = transitionStartPoint;
+        args.animTierTransition = new AnimTierTransition();
+        args.animTierTransition.animTier = anim;
+        args.animTierTransition.tierTransitionId = tierTransitionId;
+        args.flags.setFlag(SplineFlag.Animation, tierTransitionId == 0);
+
     }
 
     public final void setFacing(Vector3 spot) {
         TransportPathTransform transform = new TransportPathTransform(unit, args.transformForTransport);
         var finalSpot = transform.calc(spot);
-        args.facing.f = new Vector3(finalSpot.X, finalSpot.Y, finalSpot.Z);
-        args.facing.type = MonsterMoveType.FacingSpot;
+        args.facing.f = new Vector3(finalSpot.x, finalSpot.y, finalSpot.z);
+        args.facing.type = MonsterMoveType.FACING_SPOT;
     }
+
+    public final void setFacing(float angle) {
+        TransportPathTransform transform = new TransportPathTransform(unit, args.transformForTransport);
+        args.facing.angle = Position.normalizeOrientation(transform.calc(angle));
+        args.facing.type = MonsterMoveType.FACING_ANGLE;
+    }
+
+
+    public final void setFacing(Unit target) {
+        args.facing.angle = unit.getLocation().getAbsoluteAngle(target.getLocation());
+        args.facing.target = target.getGUID();
+        args.facing.type = MonsterMoveType.FACING_TARGET;
+    }
+
 
     public final void disableTransportPathTransformations() {
         args.transformForTransport = false;
@@ -354,31 +349,32 @@ public class MoveSplineInit {
         return args.path;
     }
 
-    private UnitMoveType selectSpeedType(MovementFlag moveFlags) {
-        if (moveFlags.hasFlag(MovementFlag.Flying)) {
-            if (moveFlags.hasFlag(MovementFlag.Backward)) {
-                return UnitMoveType.FlightBack;
+    private UnitMoveType selectSpeedType(EnumFlag<MovementFlag> moveFlags) {
+        if (moveFlags.hasFlag(MovementFlag.FLYING)) {
+            if (moveFlags.hasFlag(MovementFlag.BACKWARD)) {
+                return UnitMoveType.FLIGHT_BACK;
             } else {
-                return UnitMoveType.flight;
+                return UnitMoveType.FLIGHT;
             }
-        } else if (moveFlags.hasFlag(MovementFlag.Swimming)) {
-            if (moveFlags.hasFlag(MovementFlag.Backward)) {
-                return UnitMoveType.SwimBack;
+        } else if (moveFlags.hasFlag(MovementFlag.SWIMMING)) {
+            if (moveFlags.hasFlag(MovementFlag.BACKWARD)) {
+                return UnitMoveType.SWIM_BACK;
             } else {
-                return UnitMoveType.swim;
+                return UnitMoveType.SWIM;
             }
-        } else if (moveFlags.hasFlag(MovementFlag.Walking)) {
-            return UnitMoveType.Walk;
-        } else if (moveFlags.hasFlag(MovementFlag.Backward)) {
-            return UnitMoveType.RunBack;
+        } else if (moveFlags.hasFlag(MovementFlag.WALKING)) {
+            return UnitMoveType.WALK;
+        } else if (moveFlags.hasFlag(MovementFlag.BACKWARD)) {
+            return UnitMoveType.RUN_BACK;
         }
 
         // Flying creatures use MOVEMENTFLAG_CAN_FLY or MOVEMENTFLAG_DISABLE_GRAVITY
         // Run speed is their default flight speed.
-        return UnitMoveType.run;
+        return UnitMoveType.RUN;
     }
 
     private void setBackward() {
-        args.flags.setUnsetFlag(SplineFlag.Backward);
+        args.flags.setFlag(SplineFlag.Backward);
     }
+
 }

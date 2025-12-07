@@ -86,8 +86,8 @@ public class Guardian extends Minion {
 
         setStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Base, (float) petlevel * 50);
 
-        setBaseAttackTime(WeaponAttackType.BaseAttack, SharedConst.BaseAttackTime);
-        setBaseAttackTime(WeaponAttackType.OffAttack, SharedConst.BaseAttackTime);
+        setBaseAttackTime(WeaponAttackType.BASE_ATTACK, SharedConst.BaseAttackTime);
+        setBaseAttackTime(WeaponAttackType.OFF_ATTACK, SharedConst.BaseAttackTime);
         setBaseAttackTime(WeaponAttackType.RangedAttack, SharedConst.BaseAttackTime);
 
         //scale
@@ -169,12 +169,12 @@ public class Guardian extends Minion {
             case Hunter: {
 //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
 //ORIGINAL LINE: AsPet.SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(petlevel) * 0.05f));
-                getAsPet().setPetNextLevelExperience((int) (Global.getObjectMgr().getXPForLevel(petlevel) * 0.05f));
+                toPet().setPetNextLevelExperience((int) (Global.getObjectMgr().getXPForLevel(petlevel) * 0.05f));
                 //these formula may not be correct; however, it is designed to be close to what it should be
                 //this makes dps 0.5 of pets level
-                setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel - (petlevel / 4));
+                setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, petlevel - (petlevel / 4));
                 //damage range is then petlevel / 2
-                setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel + (petlevel / 4));
+                setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, petlevel + (petlevel / 4));
 
                 //damage is increased afterwards as strength and pet scaling modify attack power
                 break;
@@ -192,8 +192,8 @@ public class Guardian extends Minion {
                         }
 
                         var bonusDmg = getOwnerUnit().spellBaseDamageBonusDone(SpellSchoolMask.Nature) * 0.15f;
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel * 2.5f - ((float) petlevel / 2) + bonusDmg);
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel * 2.5f + ((float) petlevel / 2) + bonusDmg);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, petlevel * 2.5f - ((float) petlevel / 2) + bonusDmg);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, petlevel * 2.5f + ((float) petlevel / 2) + bonusDmg);
 
                         break;
                     }
@@ -202,8 +202,8 @@ public class Guardian extends Minion {
                             setCreateHealth(100 + 120 * petlevel);
                         }
 
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel - (petlevel / 4));
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel + (petlevel / 4));
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, petlevel - (petlevel / 4));
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, petlevel + (petlevel / 4));
 
                         break;
                     }
@@ -214,8 +214,8 @@ public class Guardian extends Minion {
                         }
 
                         setBonusDamage((int) (getOwnerUnit().spellBaseDamageBonusDone(SpellSchoolMask.Fire) * 0.5f));
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel * 4 - petlevel);
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel * 4 + petlevel);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, petlevel * 4 - petlevel);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, petlevel * 4 + petlevel);
 
                         break;
                     }
@@ -226,20 +226,20 @@ public class Guardian extends Minion {
                         }
 
                         var bonusDmg = (int) (getOwnerUnit().spellBaseDamageBonusDone(SpellSchoolMask.Shadow) * 0.3f);
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, (petlevel * 4 - petlevel) + bonusDmg);
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, (petlevel * 4 + petlevel) + bonusDmg);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, (petlevel * 4 - petlevel) + bonusDmg);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, (petlevel * 4 + petlevel) + bonusDmg);
 
                         break;
                     }
                     case 19833: { //Snake Trap - Venomous Snake
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, (petlevel / 2) - 25);
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, (petlevel / 2) - 18);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, (petlevel / 2) - 25);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, (petlevel / 2) - 18);
 
                         break;
                     }
                     case 19921: { //Snake Trap - Viper
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel / 2 - 10);
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel / 2);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, petlevel / 2 - 10);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, petlevel / 2);
 
                         break;
                     }
@@ -249,10 +249,10 @@ public class Guardian extends Minion {
                         }
 
                         // wolf attack speed is 1.5s
-                        setBaseAttackTime(WeaponAttackType.BaseAttack, cinfo.baseAttackTime);
+                        setBaseAttackTime(WeaponAttackType.BASE_ATTACK, cinfo.baseAttackTime);
 
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, (petlevel * 4 - petlevel));
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, (petlevel * 4 + petlevel));
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, (petlevel * 4 - petlevel));
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, (petlevel * 4 + petlevel));
 
                         setStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Base, getOwnerUnit().getArmor() * 0.35f); // Bonus Armor (35% of player armor)
                         setStatFlatModifier(UnitMods.StatStamina, UnitModifierFlatType.Base, getOwnerUnit().getStat(Stats.Stamina) * 0.3f); // Bonus Stamina (30% of player stamina)
@@ -280,17 +280,17 @@ public class Guardian extends Minion {
                             setCreateHealth(28 + 30 * petlevel);
                         }
 
-                        setBonusDamage((int) (getOwnerUnit().getTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.5f));
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel - (petlevel / 4));
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel + (petlevel / 4));
+                        setBonusDamage((int) (getOwnerUnit().getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK) * 0.5f));
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, petlevel - (petlevel / 4));
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, petlevel + (petlevel / 4));
 
                         break;
                     }
                     case 28017: { // Bloodworms
                         setCreateHealth(4 * petlevel);
-                        setBonusDamage((int) (getOwnerUnit().getTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.006f));
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel - 30 - (petlevel / 4));
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, petlevel - 30 + (petlevel / 4));
+                        setBonusDamage((int) (getOwnerUnit().getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK) * 0.006f));
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, petlevel - 30 - (petlevel / 4));
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, petlevel - 30 + (petlevel / 4));
 
                         break;
                     }
@@ -304,8 +304,8 @@ public class Guardian extends Minion {
                         var weaponBaseMinDamage = basedamage;
                         var weaponBaseMaxDamage = basedamage * 1.5f;
 
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, weaponBaseMinDamage);
-                        setBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, weaponBaseMaxDamage);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage, weaponBaseMinDamage);
+                        setBaseWeaponDamage(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage, weaponBaseMaxDamage);
 
                         break;
                     }
@@ -544,12 +544,12 @@ public class Guardian extends Minion {
                 bonusAP = owner.getTotalAttackPowerValue(WeaponAttackType.RangedAttack) * 0.22f * mod;
                 setBonusDamage((int) (owner.getTotalAttackPowerValue(WeaponAttackType.RangedAttack) * 0.1287f * mod));
             } else if (isPetGhoul()) { //ghouls benefit from deathknight's attack power (may be summon pet or not)
-                bonusAP = owner.getTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.22f;
-                setBonusDamage((int) (owner.getTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.1287f));
+                bonusAP = owner.getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK) * 0.22f;
+                setBonusDamage((int) (owner.getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK) * 0.1287f));
             } else if (isSpiritWolf()) { //wolf benefit from shaman's attack power
                 var dmgMultiplier = 0.31f;
-                bonusAP = owner.getTotalAttackPowerValue(WeaponAttackType.BaseAttack) * dmgMultiplier;
-                setBonusDamage((int) (owner.getTotalAttackPowerValue(WeaponAttackType.BaseAttack) * dmgMultiplier));
+                bonusAP = owner.getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK) * dmgMultiplier;
+                setBonusDamage((int) (owner.getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK) * dmgMultiplier));
             }
             //demons benefit from warlocks shadow or fire damage
             else if (isPet()) {
@@ -586,12 +586,12 @@ public class Guardian extends Minion {
         setAttackPowerMultiplier((float) attPowerMultiplier);
 
         //automatically update weapon damage after attack power modification
-        updateDamagePhysical(WeaponAttackType.BaseAttack);
+        updateDamagePhysical(WeaponAttackType.BASE_ATTACK);
     }
 
     @Override
     public void updateDamagePhysical(WeaponAttackType attType) {
-        if (attType.getValue() > WeaponAttackType.BaseAttack.getValue()) {
+        if (attType.getValue() > WeaponAttackType.BASE_ATTACK.getValue()) {
             return;
         }
 
@@ -619,15 +619,15 @@ public class Guardian extends Minion {
 
         var unitMod = UnitMods.DamageMainHand;
 
-        double attSpeed = getBaseAttackTime(WeaponAttackType.BaseAttack) / 1000.0f;
+        double attSpeed = getBaseAttackTime(WeaponAttackType.BASE_ATTACK) / 1000.0f;
 
         var baseValue = getFlatModifierValue(unitMod, UnitModifierFlatType.Base) + getTotalAttackPowerValue(attType, false) / 3.5f * attSpeed + bonusDamage;
         var basePct = getPctModifierValue(unitMod, UnitModifierPctType.Base);
         var totalValue = getFlatModifierValue(unitMod, UnitModifierFlatType.Total);
         var totalPct = getPctModifierValue(unitMod, UnitModifierPctType.Total);
 
-        var weaponMindamage = getWeaponDamageRange(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage);
-        var weaponMaxdamage = getWeaponDamageRange(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage);
+        var weaponMindamage = getWeaponDamageRange(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MinDamage);
+        var weaponMaxdamage = getWeaponDamageRange(WeaponAttackType.BASE_ATTACK, WeaponDamageRange.MaxDamage);
 
         var mindamage = ((baseValue + weaponMindamage) * basePct + totalValue) * totalPct;
         var maxdamage = ((baseValue + weaponMaxdamage) * basePct + totalValue) * totalPct;

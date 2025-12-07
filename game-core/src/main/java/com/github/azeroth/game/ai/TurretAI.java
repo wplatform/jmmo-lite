@@ -1,27 +1,33 @@
-package com.github.azeroth.game.ai;
+package game.ai;
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.unit.Unit;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
+
 
 public class TurretAI extends CreatureAI {
     private final float minRange;
 
     public TurretAI(Creature creature) {
         super(creature);
-        if (creature.getSpells()[0] == 0) {
-            Log.outError(LogFilter.Server, String.format("TurretAI set for creature with spell1=0. AI will do nothing (%1$s)", creature.getGUID()));
+        if (creature.spells[0] == 0) {
+            Log.outError(LogFilter.Server, String.format("TurretAI set for creature with spell1=0. AI will do nothing (%1$s)", creature.getGUID().clone()));
         }
 
-        var spellInfo = global.getSpellMgr().getSpellInfo(creature.getSpells()[0], creature.getMap().getDifficultyID());
+        var spellInfo = Global.getSpellMgr().getSpellInfo(creature.spells[0], creature.getMap().getDifficultyID());
         minRange = spellInfo != null ? spellInfo.getMinRange(false) : 0;
-        creature.setCombatDistance(spellInfo != null ? spellInfo.getMaxRange(false) : 0);
-        creature.setSightDistance(creature.getCombatDistance());
+        creature.combatDistance = spellInfo != null ? spellInfo.getMaxRange(false) : 0;
+        creature.sightDistance = creature.combatDistance;
     }
 
     @Override
     public boolean canAIAttack(Unit victim) {
         // todo use one function to replace it
-        if (!me.isWithinCombatRange(victim, me.getCombatDistance()) || (minRange != 0 && me.isWithinCombatRange(victim, minRange))) {
+        if (!me.isWithinCombatRange(victim, me.combatDistance) || (minRange != 0 && me.isWithinCombatRange(victim, minRange))) {
             return false;
         }
 
@@ -35,12 +41,14 @@ public class TurretAI extends CreatureAI {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         if (!updateVictim()) {
             return;
         }
 
-        doSpellAttackIfReady(me.getSpells()[0]);
+        doSpellAttackIfReady(me.spells[0]);
     }
 }

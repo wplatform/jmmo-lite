@@ -69,7 +69,7 @@ public class CreatureAddon {
         this.aiAnimKit = aiAnimKit;
         this.movementAnimKit = movementAnimKit;
         this.meleeAnimKit = meleeAnimKit;
-        this.auras = StringUtil.distinctSplitInts(auras, " ");
+        this.auras = StringUtil.distinctTokenizeInts(auras, " ");
 
         if (visibilityDistanceType >= VisibilityDistanceType.values().length) {
             Logs.SQL.error("Creature (Entry: {}) has invalid visibilityDistanceType ({}) defined in `creature_template_addon`.",

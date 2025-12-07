@@ -34,7 +34,6 @@ import com.github.azeroth.game.entity.object.*;
 import com.github.azeroth.game.domain.object.enums.CellMoveState;
 import com.github.azeroth.game.domain.object.enums.HighGuid;
 import com.github.azeroth.game.domain.object.enums.TypeId;
-import com.github.azeroth.game.entity.object.update.UpdateData;
 import com.github.azeroth.game.entity.pet.Pet;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.scene.SceneObject;

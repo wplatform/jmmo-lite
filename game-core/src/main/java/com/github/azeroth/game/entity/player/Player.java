@@ -4,8 +4,10 @@ package com.github.azeroth.game.entity.player;
 import com.github.azeroth.auth.dto.RBACPermissions;
 import com.github.azeroth.common.EnumFlag;
 import com.github.azeroth.common.Logs;
+import com.github.azeroth.dbc.defines.CriteriaType;
 import com.github.azeroth.dbc.defines.Difficulty;
 import com.github.azeroth.dbc.defines.DifficultyFlag;
+import com.github.azeroth.dbc.domain.FactionTemplate;
 import com.github.azeroth.dbc.domain.MapEntry;
 import com.github.azeroth.defines.*;
 import com.github.azeroth.defines.LootItemType;
@@ -18,8 +20,6 @@ import com.github.azeroth.game.domain.condition.DisableType;
 import com.github.azeroth.game.QuestRelationResult;
 import com.github.azeroth.game.achievement.CriteriaManager;
 import com.github.azeroth.game.achievement.PlayerAchievementMgr;
-import com.github.azeroth.game.ai.IUnitAI;
-import com.github.azeroth.game.ai.PlayerAI;
 import com.github.azeroth.game.battleground.Battleground;
 import com.github.azeroth.game.battlepet.BattlePet;
 import com.github.azeroth.game.chat.Channel;
@@ -340,7 +340,7 @@ public class Player extends Unit implements GirdObject {
     private String autoReplyMsg;
     private boolean instanceValid;
     //Movement
-    private PlayerTaxi taxi = new PlayerTaxi();
+    private PlayerTaxi taxi = new PlayerTaxi(this);
 
     private byte[] forcedSpeedChanges = new byte[UnitMoveType.values().length];
 
@@ -484,28 +484,26 @@ public class Player extends Unit implements GirdObject {
     }
 
     //Team
-    public static Team teamForRace(Race race) {
-        switch (teamIdForRace(race)) {
-            case 0:
-                return Team.ALLIANCE;
-            case 1:
-                return Team.Horde;
-        }
-
-        return Team.ALLIANCE;
+    public Team teamForRace(Race race) {
+        return switch (teamIdForRace(race)) {
+            case ALLIANCE -> Team.ALLIANCE;
+            case HORDE -> Team.HORDE;
+            default -> Team.ALLIANCE;
+        };
     }
 
 
-    public static int teamIdForRace(Race race) {
-        var rEntry = CliDB.ChrRacesStorage.get((byte) race.getValue());
+    public TeamId teamIdForRace(Race race) {
+        var dbcObjectManager = worldContext.getDbcObjectManager();
+        var chrRace = dbcObjectManager.chrRace(race);
 
-        if (rEntry != null) {
-            return (int) rEntry.Alliance;
+        if (chrRace != null) {
+            return TeamId.values()[chrRace.getAlliance()];
         }
 
-        Log.outError(LogFilter.player, "Race ({0}) not found in DBC: wrong DBC files?", race);
+        Logs.PLAYER.error("Race ({}) not found in DBC: wrong DBC files?", race);
 
-        return TeamIds.Neutral;
+        return TeamId.NEUTRAL;
     }
 
 
@@ -529,9 +527,9 @@ public class Player extends Unit implements GirdObject {
     public static WeaponAttackType getAttackBySlot(byte slot, InventoryType inventoryType) {
         return switch (slot) {
             case EquipmentSlot.MainHand ->
-                    inventoryType.getValue() != inventoryType.Ranged && inventoryType != inventoryType.RangedRight ? WeaponAttackType.BaseAttack :
+                    inventoryType.getValue() != inventoryType.Ranged && inventoryType != inventoryType.RangedRight ? WeaponAttackType.BASE_ATTACK :
                             WeaponAttackType.RangedAttack;
-            case EquipmentSlot.OffHand -> WeaponAttackType.OffAttack.getValue();
+            case EquipmentSlot.OffHand -> WeaponAttackType.OFF_ATTACK.getValue();
             default -> WeaponAttackType.max.getValue();
         };
     }
@@ -2955,8 +2953,8 @@ public class Player extends Unit implements GirdObject {
     }
 
     @Override
-    public PlayerAI getAI() {
-        IUnitAI tempVar = getAi();
+    public PlayerAI getAi() {
+        UnitAI tempVar = getAi();
         return tempVar instanceof PlayerAI ? (PlayerAI) tempVar : null;
     }
 
@@ -3271,9 +3269,9 @@ public class Player extends Unit implements GirdObject {
                 // default combat reach 10
                 // TODO add weapon, skill check
 
-                if (isAttackReady(WeaponAttackType.BaseAttack)) {
+                if (isAttackReady(WeaponAttackType.BASE_ATTACK)) {
                     if (!isWithinMeleeRange(victim)) {
-                        setAttackTimer(WeaponAttackType.BaseAttack, 100);
+                        setAttackTimer(WeaponAttackType.BASE_ATTACK, 100);
 
                         if (swingErrorMsg != 1) // send single time (client auto repeat)
                         {
@@ -3283,7 +3281,7 @@ public class Player extends Unit implements GirdObject {
                     }
                     //120 degrees of radiant range, if player is not in boundary radius
                     else if (!isWithinBoundaryRadius(victim) && !getLocation().hasInArc(2 * MathUtil.PI / 3, victim.getLocation())) {
-                        setAttackTimer(WeaponAttackType.BaseAttack, 100);
+                        setAttackTimer(WeaponAttackType.BASE_ATTACK, 100);
 
                         if (swingErrorMsg != 2) // send single time (client auto repeat)
                         {
@@ -3295,31 +3293,31 @@ public class Player extends Unit implements GirdObject {
 
                         // prevent base and off attack in same time, delay attack at 0.2 sec
                         if (haveOffhandWeapon()) {
-                            if (getAttackTimer(WeaponAttackType.OffAttack) < SharedConst.AttackDisplayDelay) {
-                                setAttackTimer(WeaponAttackType.OffAttack, SharedConst.AttackDisplayDelay);
+                            if (getAttackTimer(WeaponAttackType.OFF_ATTACK) < SharedConst.AttackDisplayDelay) {
+                                setAttackTimer(WeaponAttackType.OFF_ATTACK, SharedConst.AttackDisplayDelay);
                             }
                         }
 
                         // do attack
-                        attackerStateUpdate(victim, WeaponAttackType.BaseAttack);
-                        resetAttackTimer(WeaponAttackType.BaseAttack);
+                        attackerStateUpdate(victim, WeaponAttackType.BASE_ATTACK);
+                        resetAttackTimer(WeaponAttackType.BASE_ATTACK);
                     }
                 }
 
-                if (!isInFeralForm() && haveOffhandWeapon() && isAttackReady(WeaponAttackType.OffAttack)) {
+                if (!isInFeralForm() && haveOffhandWeapon() && isAttackReady(WeaponAttackType.OFF_ATTACK)) {
                     if (!isWithinMeleeRange(victim)) {
-                        setAttackTimer(WeaponAttackType.OffAttack, 100);
+                        setAttackTimer(WeaponAttackType.OFF_ATTACK, 100);
                     } else if (!isWithinBoundaryRadius(victim) && !getLocation().hasInArc(2 * MathUtil.PI / 3, victim.getLocation())) {
-                        setAttackTimer(WeaponAttackType.BaseAttack, 100);
+                        setAttackTimer(WeaponAttackType.BASE_ATTACK, 100);
                     } else {
                         // prevent base and off attack in same time, delay attack at 0.2 sec
-                        if (getAttackTimer(WeaponAttackType.BaseAttack) < SharedConst.AttackDisplayDelay) {
-                            setAttackTimer(WeaponAttackType.BaseAttack, SharedConst.AttackDisplayDelay);
+                        if (getAttackTimer(WeaponAttackType.BASE_ATTACK) < SharedConst.AttackDisplayDelay) {
+                            setAttackTimer(WeaponAttackType.BASE_ATTACK, SharedConst.AttackDisplayDelay);
                         }
 
                         // do attack
-                        attackerStateUpdate(victim, WeaponAttackType.OffAttack);
-                        resetAttackTimer(WeaponAttackType.OffAttack);
+                        attackerStateUpdate(victim, WeaponAttackType.OFF_ATTACK);
+                        resetAttackTimer(WeaponAttackType.OFF_ATTACK);
                     }
                 }
             }
@@ -3677,7 +3675,7 @@ public class Player extends Unit implements GirdObject {
 
     //Taxi
     public final void initTaxiNodesForLevel() {
-        getTaxi().initTaxiNodesForLevel(getRace(), getUnitClass(), getLevel());
+        taxi.initTaxiNodesForLevel();
     }
 
     //Cheat Commands
@@ -4730,7 +4728,7 @@ public class Player extends Unit implements GirdObject {
             }
 
             //remove auras before removing from map...
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags.Moving.getValue() | SpellAuraInterruptFlags.Turning.getValue());
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag.Moving.getValue() | SpellAuraInterruptFlag.Turning.getValue());
 
             if (!getSession().getPlayerLogout() && !options.hasFlag(TeleportToOptions.Seamless)) {
                 // send transfer packets
@@ -5056,7 +5054,7 @@ public class Player extends Unit implements GirdObject {
         summonExpire = 0;
 
         updateCriteria(CriteriaType.AcceptSummon, 1);
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags.summon);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag.summon);
 
         teleportTo(summonLocation, 0, summonInstanceId);
 
@@ -5902,7 +5900,7 @@ public class Player extends Unit implements GirdObject {
         switch (type) {
             case Lava:
             case Slime:
-                DamageInfo dmgInfo = new DamageInfo(this, this, damage, null, dmgSchool, DamageEffectType.Direct, WeaponAttackType.BaseAttack);
+                DamageInfo dmgInfo = new DamageInfo(this, this, damage, null, dmgSchool, DamageEffectType.Direct, WeaponAttackType.BASE_ATTACK);
                 calcAbsorbResist(dmgInfo);
                 absorb = dmgInfo.getAbsorb();
                 resist = dmgInfo.getResist();
@@ -6014,7 +6012,7 @@ public class Player extends Unit implements GirdObject {
 
         castSpell(this, 8326, true);
 
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags.Release);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag.Release);
 
         // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
         // there must be SMSG.STOP_MIRROR_TIMER
@@ -7560,8 +7558,8 @@ public class Player extends Unit implements GirdObject {
         var ssEntry = CliDB.SpellShapeshiftFormStorage.get((int) form.getValue());
 
         if (ssEntry != null && ssEntry.CombatRoundTime != 0) {
-            setBaseAttackTime(WeaponAttackType.BaseAttack, ssEntry.CombatRoundTime);
-            setBaseAttackTime(WeaponAttackType.OffAttack, ssEntry.CombatRoundTime);
+            setBaseAttackTime(WeaponAttackType.BASE_ATTACK, ssEntry.CombatRoundTime);
+            setBaseAttackTime(WeaponAttackType.OFF_ATTACK, ssEntry.CombatRoundTime);
             setBaseAttackTime(WeaponAttackType.RangedAttack, SharedConst.baseAttackTime);
         } else {
             setRegularAttackTime();
@@ -7579,7 +7577,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final ReputationRank getReputationRank(int faction) {
-        var factionEntry = CliDB.FactionStorage.get(faction);
+        var factionEntry = worldContext.getDbcObjectManager().faction(faction);
 
         return getReputationMgr().getRank(factionEntry);
     }
@@ -8278,15 +8276,15 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final float getReputationPriceDiscount(Creature creature) {
-        return getReputationPriceDiscount(creature.getFactionTemplateEntry());
+        return getReputationPriceDiscount(creature.getFactionTemplate());
     }
 
-    public final float getReputationPriceDiscount(FactionTemplateRecord factionTemplate) {
-        if (factionTemplate == null || factionTemplate.faction == 0) {
+    public final float getReputationPriceDiscount(FactionTemplate factionTemplate) {
+        if (factionTemplate == null || factionTemplate.getFaction() == 0) {
             return 1.0f;
         }
 
-        var rank = getReputationRank(factionTemplate.faction);
+        var rank = getReputationRank(factionTemplate.getFaction());
 
         if (rank.getValue() <= ReputationRank.Neutral.getValue()) {
             return 1.0f;
@@ -9415,11 +9413,11 @@ public class Player extends Unit implements GirdObject {
 
             for (var auraEffect : auraList) {
                 // Food emote comes above drinking emote if we have to decide (mage regen food for example)
-                if (auraEffect.getBase().hasEffectType(AuraType.ModRegen) && auraEffect.getSpellInfo().hasAuraInterruptFlag(SpellAuraInterruptFlags.standing)) {
+                if (auraEffect.getBase().hasEffectType(AuraType.ModRegen) && auraEffect.getSpellInfo().hasAuraInterruptFlag(SpellAuraInterruptFlag.standing)) {
                     sendPlaySpellVisualKit(SpellConst.VisualKitFood, 0, 0);
 
                     break;
-                } else if (auraEffect.getBase().hasEffectType(AuraType.ModPowerRegen) && auraEffect.getSpellInfo().hasAuraInterruptFlag(SpellAuraInterruptFlags.standing)) {
+                } else if (auraEffect.getBase().hasEffectType(AuraType.ModPowerRegen) && auraEffect.getSpellInfo().hasAuraInterruptFlag(SpellAuraInterruptFlag.standing)) {
                     sendPlaySpellVisualKit(SpellConst.VisualKitDrink, 0, 0);
 
                     break;
@@ -9934,7 +9932,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     private boolean isFriendlyArea(AreaTableRecord areaEntry) {
-        var factionTemplate = getFactionTemplateEntry();
+        var factionTemplate = getFactionTemplate();
 
         if (factionTemplate == null) {
             return false;
@@ -10013,7 +10011,7 @@ public class Player extends Unit implements GirdObject {
 
         switch (modGroup) {
             case CritPercentage:
-                updateCritPercentage(WeaponAttackType.BaseAttack);
+                updateCritPercentage(WeaponAttackType.BASE_ATTACK);
 
                 break;
             case RangedCritPercentage:
@@ -10021,7 +10019,7 @@ public class Player extends Unit implements GirdObject {
 
                 break;
             case OffhandCritPercentage:
-                updateCritPercentage(WeaponAttackType.OffAttack);
+                updateCritPercentage(WeaponAttackType.OFF_ATTACK);
 
                 break;
             default:
@@ -16140,9 +16138,9 @@ public class Player extends Unit implements GirdObject {
             // update expertise and armor penetration - passive auras may need it
 
             if (slot == EquipmentSlot.MainHand) {
-                updateExpertise(WeaponAttackType.BaseAttack);
+                updateExpertise(WeaponAttackType.BASE_ATTACK);
             } else if (slot == EquipmentSlot.OffHand) {
-                updateExpertise(WeaponAttackType.OffAttack);
+                updateExpertise(WeaponAttackType.OFF_ATTACK);
             }
 
             switch (slot) {
@@ -16432,9 +16430,9 @@ public class Player extends Unit implements GirdObject {
                                 }
                             }
 
-                            updateExpertise(WeaponAttackType.BaseAttack);
+                            updateExpertise(WeaponAttackType.BASE_ATTACK);
                         } else if (slot == EquipmentSlot.OffHand) {
-                            updateExpertise(WeaponAttackType.OffAttack);
+                            updateExpertise(WeaponAttackType.OFF_ATTACK);
                         }
 
                         // update armor penetration - passive auras may need it
@@ -19726,9 +19724,9 @@ public class Player extends Unit implements GirdObject {
                     }
 
                     if (slot == EquipmentSlot.MainHand) {
-                        updateExpertise(WeaponAttackType.BaseAttack);
+                        updateExpertise(WeaponAttackType.BASE_ATTACK);
                     } else if (slot == EquipmentSlot.OffHand) {
-                        updateExpertise(WeaponAttackType.OffAttack);
+                        updateExpertise(WeaponAttackType.OFF_ATTACK);
                     }
 
                     // equipment visual show
@@ -22510,7 +22508,7 @@ public class Player extends Unit implements GirdObject {
         loot.fillLoot(loot_id, store, this, true, false, LootModes.Default, context);
 
         loot.autoStore(this, bag, slot, broadcast, createdByPlayer);
-        procSkillsAndAuras(this, null, new ProcFlagsInit(procFlags.Looted), new ProcFlagsInit(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
+        procSkillsAndAuras(this, null, new EnumFlag<ProcFlag>(procFlags.Looted), new EnumFlag<ProcFlag>(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
     }
 
     private void sendEquipmentSetList() {
@@ -22800,7 +22798,7 @@ public class Player extends Unit implements GirdObject {
                 if (area.hasFlag(AreaFlags.ContestedArea)) {
                     pvpInfo.isInHostileArea = isWarModeLocalActive();
                 } else {
-                    var factionTemplate = getFactionTemplateEntry();
+                    var factionTemplate = getFactionTemplate();
 
                     if (factionTemplate == null || factionTemplate.FriendGroup.hasFlag(area.FactionGroupMask)) {
                         pvpInfo.isInHostileArea = false; // friend area are considered hostile if war mode is active
@@ -23688,7 +23686,7 @@ public class Player extends Unit implements GirdObject {
     public final boolean canUseBattlegroundObject(GameObject gameobject) {
         // It is possible to call this method with a null pointer, only skipping faction check.
         if (gameobject) {
-            var playerFaction = getFactionTemplateEntry();
+            var playerFaction = getFactionTemplate();
             var faction = CliDB.FactionTemplateStorage.get(gameobject.getFaction());
 
             if (playerFaction != null && faction != null && !playerFaction.isFriendlyTo(faction)) {
@@ -24738,7 +24736,7 @@ public class Player extends Unit implements GirdObject {
         switch (questGiver.getObjectTypeId()) {
             case Unit:
                 getPlayerTalkClass().clearMenus();
-                questGiver.toCreature().getAI().onQuestAccept(this, quest);
+                questGiver.toCreature().getAi().onQuestAccept(this, quest);
 
                 break;
             case Item:
@@ -25302,7 +25300,7 @@ public class Player extends Unit implements GirdObject {
                         var creatureQGiver = questGiver.toCreature();
 
                         if (creatureQGiver != null) {
-                            creatureQGiver.getAI().onQuestReward(this, quest, rewardType, rewardId);
+                            creatureQGiver.getAi().onQuestReward(this, quest, rewardType, rewardId);
                         }
 
                         break;
@@ -25967,7 +25965,7 @@ public class Player extends Unit implements GirdObject {
                 break;
             }
             case Unit: {
-                var ai = questgiver.toCreature().getAI();
+                var ai = questgiver.toCreature().getAi();
 
                 if (ai != null) {
                     var questStatus = ai.getDialogStatus(this);
@@ -29029,7 +29027,7 @@ public class Player extends Unit implements GirdObject {
 
     @Override
     public SpellSchoolMask getMeleeDamageSchoolMask() {
-        return getMeleeDamageSchoolMask(WeaponAttackType.BaseAttack);
+        return getMeleeDamageSchoolMask(WeaponAttackType.BASE_ATTACK);
     }
 
     @Override
@@ -29044,7 +29042,7 @@ public class Player extends Unit implements GirdObject {
     }
 
     public final void updateAllWeaponDependentCritAuras() {
-        for (var attackType = WeaponAttackType.BaseAttack; attackType.getValue() < WeaponAttackType.max.getValue(); ++attackType) {
+        for (var attackType = WeaponAttackType.BASE_ATTACK; attackType.getValue() < WeaponAttackType.max.getValue(); ++attackType) {
             updateWeaponDependentCritAuras(attackType);
         }
     }
@@ -30200,7 +30198,7 @@ public class Player extends Unit implements GirdObject {
                             }
 
                             // Check if item is useable (forms or disarm)
-                            if (damageInfo.getAttackType() == WeaponAttackType.BaseAttack) {
+                            if (damageInfo.getAttackType() == WeaponAttackType.BASE_ATTACK) {
                                 if (!isUseEquipedWeapon(true) && !isInFeralForm()) {
                                     continue;
                                 }
@@ -31614,10 +31612,10 @@ public class Player extends Unit implements GirdObject {
     private float getWeaponProcChance() {
         // normalized proc chance for weapon attack speed
         // (odd formula...)
-        if (isAttackReady(WeaponAttackType.BaseAttack)) {
-            return (getBaseAttackTime(WeaponAttackType.BaseAttack) * 1.8f / 1000.0f);
-        } else if (haveOffhandWeapon() && isAttackReady(WeaponAttackType.OffAttack)) {
-            return (getBaseAttackTime(WeaponAttackType.OffAttack) * 1.6f / 1000.0f);
+        if (isAttackReady(WeaponAttackType.BASE_ATTACK)) {
+            return (getBaseAttackTime(WeaponAttackType.BASE_ATTACK) * 1.8f / 1000.0f);
+        } else if (haveOffhandWeapon() && isAttackReady(WeaponAttackType.OFF_ATTACK)) {
+            return (getBaseAttackTime(WeaponAttackType.OFF_ATTACK) * 1.6f / 1000.0f);
         }
 
         return 0;
@@ -31647,8 +31645,8 @@ public class Player extends Unit implements GirdObject {
         updateDodgePercentage();
         updateSpellDamageAndHealingBonus();
         updateManaRegen();
-        updateExpertise(WeaponAttackType.BaseAttack);
-        updateExpertise(WeaponAttackType.OffAttack);
+        updateExpertise(WeaponAttackType.BASE_ATTACK);
+        updateExpertise(WeaponAttackType.OFF_ATTACK);
         recalculateRating(CombatRating.ArmorPenetration);
         updateAllResistances();
 
@@ -31799,7 +31797,7 @@ public class Player extends Unit implements GirdObject {
         } else if (!canUseAttackType(attType)) //check if player not in form but still can't use (disarm case)
         {
             //cannot use ranged/off attack, set values to 0
-            if (attType != WeaponAttackType.BaseAttack) {
+            if (attType != WeaponAttackType.BASE_ATTACK) {
                 min_damage.outArgValue = 0;
                 max_damage.outArgValue = 0;
 
@@ -31821,8 +31819,8 @@ public class Player extends Unit implements GirdObject {
         setBaseModPctValue(BaseModGroup.offhandCritPercentage, value);
         setBaseModPctValue(BaseModGroup.rangedCritPercentage, value);
 
-        updateCritPercentage(WeaponAttackType.BaseAttack);
-        updateCritPercentage(WeaponAttackType.OffAttack);
+        updateCritPercentage(WeaponAttackType.BASE_ATTACK);
+        updateCritPercentage(WeaponAttackType.OFF_ATTACK);
         updateCritPercentage(WeaponAttackType.RangedAttack);
     }
 
@@ -31955,12 +31953,12 @@ public class Player extends Unit implements GirdObject {
                 pet.updateAttackPowerAndDamage();
             }
         } else {
-            updateDamagePhysical(WeaponAttackType.BaseAttack);
-            var offhand = getWeaponForAttack(WeaponAttackType.OffAttack, true);
+            updateDamagePhysical(WeaponAttackType.BASE_ATTACK);
+            var offhand = getWeaponForAttack(WeaponAttackType.OFF_ATTACK, true);
 
             if (offhand) {
                 if (canDualWield || offhand.getTemplate().hasFlag(ItemFlags3.AlwaysAllowDualWield)) {
-                    updateDamagePhysical(WeaponAttackType.OffAttack);
+                    updateDamagePhysical(WeaponAttackType.OFF_ATTACK);
                 }
             }
 
@@ -32080,8 +32078,8 @@ public class Player extends Unit implements GirdObject {
                 break;
             case CritMelee:
                 if (affectStats) {
-                    updateCritPercentage(WeaponAttackType.BaseAttack);
-                    updateCritPercentage(WeaponAttackType.OffAttack);
+                    updateCritPercentage(WeaponAttackType.BASE_ATTACK);
+                    updateCritPercentage(WeaponAttackType.OFF_ATTACK);
                 }
 
                 break;
@@ -32112,10 +32110,10 @@ public class Player extends Unit implements GirdObject {
 
                 switch (cr) {
                     case HasteMelee:
-                        applyAttackTimePercentMod(WeaponAttackType.BaseAttack, oldVal, false);
-                        applyAttackTimePercentMod(WeaponAttackType.OffAttack, oldVal, false);
-                        applyAttackTimePercentMod(WeaponAttackType.BaseAttack, newVal, true);
-                        applyAttackTimePercentMod(WeaponAttackType.OffAttack, newVal, true);
+                        applyAttackTimePercentMod(WeaponAttackType.BASE_ATTACK, oldVal, false);
+                        applyAttackTimePercentMod(WeaponAttackType.OFF_ATTACK, oldVal, false);
+                        applyAttackTimePercentMod(WeaponAttackType.BASE_ATTACK, newVal, true);
+                        applyAttackTimePercentMod(WeaponAttackType.OFF_ATTACK, newVal, true);
 
                         if (getUnitClass() == UnitClass.DEATH_KNIGHT) {
                             updateAllRunesRegen();
@@ -32140,8 +32138,8 @@ public class Player extends Unit implements GirdObject {
             }
             case Expertise:
                 if (affectStats) {
-                    updateExpertise(WeaponAttackType.BaseAttack);
-                    updateExpertise(WeaponAttackType.OffAttack);
+                    updateExpertise(WeaponAttackType.BASE_ATTACK);
+                    updateExpertise(WeaponAttackType.OFF_ATTACK);
                 }
 
                 break;
@@ -32207,7 +32205,7 @@ public class Player extends Unit implements GirdObject {
         if (getUnitClass() == UnitClass.Hunter) {
             updateDamagePhysical(WeaponAttackType.RangedAttack);
         } else {
-            updateDamagePhysical(WeaponAttackType.BaseAttack);
+            updateDamagePhysical(WeaponAttackType.BASE_ATTACK);
         }
     }
 
@@ -32751,7 +32749,7 @@ public class Player extends Unit implements GirdObject {
         }
 
         if (learning) {
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeTalent);
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag2.ChangeTalent);
         }
 
         return true;
@@ -32973,7 +32971,7 @@ public class Player extends Unit implements GirdObject {
         exitVehicle();
         removeAllControlled();
 
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeSpec);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag2.ChangeSpec);
 
         // remove single target auras at other targets
         var scAuras = getSingleCastAuras();

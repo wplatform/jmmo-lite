@@ -1,9 +1,16 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.unit.Unit;
 
-class FarthestTargetSelector implements ICheck<unit> {
+
+public class FarthestTargetSelector implements ICheck<Unit> {
     private final Unit me;
     private final float dist;
     private final boolean playerOnly;
@@ -11,9 +18,9 @@ class FarthestTargetSelector implements ICheck<unit> {
 
     public FarthestTargetSelector(Unit unit, float dist, boolean playerOnly, boolean inLos) {
         me = unit;
-        dist = dist;
-        playerOnly = playerOnly;
-        inLos = inLos;
+        this.dist = dist;
+        this.playerOnly = playerOnly;
+        this.inLos = inLos;
     }
 
     public final boolean invoke(Unit target) {
@@ -21,7 +28,7 @@ class FarthestTargetSelector implements ICheck<unit> {
             return false;
         }
 
-        if (playerOnly && target.getObjectTypeId() != TypeId.PLAYER) {
+        if (playerOnly && target.getTypeId() != TypeId.Player) {
             return false;
         }
 

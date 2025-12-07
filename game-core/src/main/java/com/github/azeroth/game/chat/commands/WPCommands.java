@@ -21,7 +21,7 @@ class WPCommands {
 
         if (optionalPathId == null) {
             if (target) {
-                pathId = target.getWaypointPath();
+                pathId = target.getWaypointPathId();
             } else {
                 stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_ID);
                 var result1 = DB.World.query(stmt);
@@ -584,7 +584,7 @@ class WPCommands {
                 return false;
             }
 
-            pathId = target.getWaypointPath();
+            pathId = target.getWaypointPathId();
         } else {
             // PathID provided
             // Warn if player also selected a creature

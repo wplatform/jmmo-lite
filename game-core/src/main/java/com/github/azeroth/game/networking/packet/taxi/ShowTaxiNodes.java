@@ -1,13 +1,16 @@
 package com.github.azeroth.game.networking.packet.taxi;
 
 
+import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
+
 public class ShowTaxiNodes extends ServerPacket {
-    public ShowTaxiNodeswindowInfo windowInfo = null;
+    public ShowTaxiNodesWindowInfo windowInfo = null;
     public byte[] canLandNodes = null; // Nodes known by player
     public byte[] canUseNodes = null; // Nodes available for use - this can temporarily disable a known node
 
     public ShowTaxiNodes() {
-        super(ServerOpcode.ShowTaxiNodes);
+        super(ServerOpCode.SMSG_SHOW_TAXI_NODES);
     }
 
     @Override
@@ -19,8 +22,8 @@ public class ShowTaxiNodes extends ServerPacket {
         this.writeInt32(canUseNodes.length);
 
         if (windowInfo != null) {
-            this.writeGuid(windowInfo.getValue().unitGUID);
-            this.writeInt32(windowInfo.getValue().currentNode);
+            this.writeGuid(windowInfo.unitGUID);
+            this.writeInt32(windowInfo.currentNode);
         }
 
         for (var node : canLandNodes) {

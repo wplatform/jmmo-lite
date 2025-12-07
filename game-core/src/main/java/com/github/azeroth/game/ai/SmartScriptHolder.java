@@ -1,22 +1,39 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-public class SmartScriptHolder implements Comparable<SmartScriptHolder> {
-    public static final int defaultPriority = Integer.MAX_VALUE;
+
+
+public class SmartScriptHolder implements java.lang.Comparable<SmartScriptHolder> {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public const uint DefaultPriority = uint.MaxValue;
+    public static final int DEFAULT_PRIORITY = Integer.MAX_VALUE;
 
     public int entryOrGuid;
     public SmartScriptType sourceType = SmartScriptType.values()[0];
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint EventId;
     public int eventId;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint Link;
     public int link;
-    public Smartevent event = new smartEvent();
-    public smartAction tangible.Action0Param =new
-    public Smarttarget target = new smartTarget();
+    public SmartEvent event = new SmartEvent();
+    public SmartAction action = new SmartAction();
+    public SmartTarget target = new SmartTarget();
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint Timer;
     public int timer;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint Priority;
     public int priority;
     public boolean active;
     public boolean runOnce;
     public boolean enableTimed;
-    smartAction();
 
     public SmartScriptHolder() {
     }
@@ -26,9 +43,9 @@ public class SmartScriptHolder implements Comparable<SmartScriptHolder> {
         sourceType = other.sourceType;
         eventId = other.eventId;
         link = other.link;
-        event = other.event;
-        tangible.Action0Param = other.action;
-        target = other.target;
+        event = other.event.clone();
+        action = other.action.clone();
+        target = other.target.clone();
         timer = other.timer;
         active = other.active;
         runOnce = other.runOnce;
@@ -36,10 +53,12 @@ public class SmartScriptHolder implements Comparable<SmartScriptHolder> {
     }
 
     public final int compareTo(SmartScriptHolder other) {
-        var result = (new integer(priority)).compareTo(other.priority);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: var result = Priority.CompareTo(other.Priority);
+        var result = (new Integer(priority)).compareTo(other.priority);
 
         if (result == 0) {
-            result = (new integer(entryOrGuid)).compareTo(other.entryOrGuid);
+            result = (new Integer(entryOrGuid)).compareTo(other.entryOrGuid);
         }
 
         if (result == 0) {
@@ -47,11 +66,15 @@ public class SmartScriptHolder implements Comparable<SmartScriptHolder> {
         }
 
         if (result == 0) {
-            result = (new integer(eventId)).compareTo(other.eventId);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: result = EventId.CompareTo(other.EventId);
+            result = (new Integer(eventId)).compareTo(other.eventId);
         }
 
         if (result == 0) {
-            result = (new integer(link)).compareTo(other.link);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: result = Link.CompareTo(other.Link);
+            result = (new Integer(link)).compareTo(other.link);
         }
 
         return result;
@@ -66,7 +89,7 @@ public class SmartScriptHolder implements Comparable<SmartScriptHolder> {
     }
 
     public final SmartActions getActionType() {
-        return tangible.Action0Param.type;
+        return action.type;
     }
 
     public final SmartTargets getTargetType() {

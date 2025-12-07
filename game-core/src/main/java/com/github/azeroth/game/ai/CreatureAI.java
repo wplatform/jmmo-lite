@@ -1,82 +1,23 @@
 package com.github.azeroth.game.ai;
 
 
-import com.github.azeroth.game.combat.CombatManager;
-import com.github.azeroth.game.domain.creature.TempSummonType;
-import com.github.azeroth.game.entity.areatrigger.AreaTrigger;
+import com.github.azeroth.defines.TextEmote;
 import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.dynamic.DynamicObject;
-import com.github.azeroth.game.entity.gobject.GameObject;
-import com.github.azeroth.game.domain.object.Position;
-import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.entity.player.Player;
-import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.map.AreaBoundary;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 import com.github.azeroth.game.spell.SpellInfo;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class CreatureAI extends UnitAI {
 
     protected final Creature me;
 
-    protected EventMap events = new eventMap();
-    protected taskScheduler schedulerProtected = new taskScheduler();
-    protected Instancescript script;
+    protected EventMap events = new EventMap();
+    protected TaskScheduler schedulerProtected = new TaskScheduler();
+    protected InstanceScript script;
     private boolean isEngaged;
     private boolean moveInLosLocked;
-    private ArrayList<AreaBoundary> boundary = new ArrayList<>();
+    private ArrayList<AreaBoundary> boundary = new ArrayList<AreaBoundary>();
     private boolean negateBoundary;
-
-    public CreatureAI(Creature creature) {
-        super(creature);
-        me = creature;
-        moveInLosLocked = false;
-    }
-
-    // adapted from logic in Spell:EffectSummonType
-    public static boolean shouldFollowOnSpawn(SummonProperties properties) {
-        // Summons without SummonProperties are generally scripted summons that don't belong to any owner
-        if (properties == null) {
-            return false;
-        }
-
-        switch (properties.Control) {
-            case Pet:
-                return true;
-            case Wild:
-            case Ally:
-            case Unk:
-                if (properties.getFlags().hasFlag(SummonPropertiesFlags.JoinSummonerSpawnGroup)) {
-                    return true;
-                }
-
-                switch (properties.title) {
-                    case Pet:
-                    case Guardian:
-                    case Runeblade:
-                    case Minion:
-                    case Companion:
-                        return true;
-                    default:
-                        return false;
-                }
-            default:
-                return false;
-        }
-    }
-
-    public static boolean isInBounds(ArrayList<AreaBoundary> boundary, Position pos) {
-        for (var areaBoundary : boundary) {
-            if (!areaBoundary.isWithinBoundary(pos)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     public final TaskScheduler getScheduler() {
         return schedulerProtected;
@@ -86,43 +27,54 @@ public class CreatureAI extends UnitAI {
         return boundary;
     }
 
-    public final void setBoundary(ArrayList<AreaBoundary> boundary) {
-        setBoundary(boundary, false);
-    }
-
     public final boolean isEngaged() {
         return isEngaged;
     }
+
+    public CreatureAI(Creature creature) {
+        super(creature);
+        me = creature;
+        moveInLosLocked = false;
+    }
+
 
     public final void talk(int id) {
         talk(id, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void Talk(uint id, WorldObject whisperTarget = null)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void talk(int id, WorldObject whisperTarget) {
-        global.getCreatureTextMgr().sendChat(me, (byte) id, whisperTarget);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: Global.CreatureTextMgr.SendChat(Me, (byte)id, whisperTarget);
+        Global.getCreatureTextMgr().sendChat(me, (byte)id, whisperTarget);
     }
 
     @Override
     public void onCharmed(boolean isNew) {
-        if (isNew && !me.isCharmed() && !me.getLastCharmerGuid().isEmpty()) {
+        if (isNew && !me.isCharmed() && !me.lastCharmerGuid.isEmpty()) {
             if (!me.hasReactState(ReactStates.Passive)) {
-                var lastCharmer = global.getObjAccessor().GetUnit(me, me.getLastCharmerGuid());
+                var lastCharmer = Global.getObjAccessor().getUnit(me, me.lastCharmerGuid.clone());
 
                 if (lastCharmer != null) {
                     me.engageWithTarget(lastCharmer);
                 }
             }
 
-            me.getLastCharmerGuid().clear();
+            me.lastCharmerGuid.clear();
         }
 
         super.onCharmed(isNew);
     }
 
+
     public final void doZoneInCombat() {
         doZoneInCombat(null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void DoZoneInCombat(Creature creature = null)
     public final void doZoneInCombat(Creature creature) {
         if (creature == null) {
             creature = me;
@@ -130,14 +82,13 @@ public class CreatureAI extends UnitAI {
 
         var map = creature.getMap();
 
-        if (!map.isDungeon()) // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
-        {
-            Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.isTypeId(TypeId.UNIT) ? creature.toCreature().getEntry() : 0);
+        if (!map.isDungeon()) { // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
+            Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.isTypeId(TypeId.Unit) ? creature.getAsCreature().getEntry() : 0);
 
             return;
         }
 
-        if (!map.havePlayers()) {
+        if (!map.getHavePlayers()) {
             return;
         }
 
@@ -149,7 +100,7 @@ public class CreatureAI extends UnitAI {
 
                 creature.engageWithTarget(player);
 
-                for (var pet : player.getControlled()) {
+                for (var pet : player.controlled) {
                     creature.engageWithTarget(pet);
                 }
 
@@ -162,7 +113,7 @@ public class CreatureAI extends UnitAI {
         }
     }
 
-    public void moveInLineOfSight_Safe(Unit who) {
+    public void moveInLineOfSightSafe(Unit who) {
         if (moveInLosLocked) {
             return;
         }
@@ -185,17 +136,17 @@ public class CreatureAI extends UnitAI {
     // Distract creature, if player gets too close while stealthed/prowling
     public final void triggerAlert(Unit who) {
         // If there's no target, or target isn't a player do nothing
-        if (!who || !who.isTypeId(TypeId.PLAYER)) {
+        if (!who || !who.isTypeId(TypeId.Player)) {
             return;
         }
 
         // If this unit isn't an NPC, is already distracted, is fighting, is confused, stunned or fleeing, do nothing
-        if (!me.isTypeId(TypeId.UNIT) || me.isEngaged() || me.hasUnitState(UnitState.Confused.getValue() | UnitState.Stunned.getValue().getValue() | UnitState.Fleeing.getValue().getValue().getValue() | UnitState.Distracted.getValue().getValue().getValue())) {
+        if (!me.isTypeId(TypeId.Unit) || me.isEngaged() || me.hasUnitState(UnitState.Confused.getValue() | UnitState.Stunned.getValue().getValue() | UnitState.Fleeing.getValue().getValue().getValue() | UnitState.Distracted.getValue().getValue().getValue())) {
             return;
         }
 
         // Only alert for hostiles!
-        if (me.isCivilian() || me.hasReactState(ReactStates.Passive) || !me.isHostileTo(who) || !me._IsTargetAcceptable(who)) {
+        if (me.isCivilian() || me.hasReactState(ReactStates.Passive) || !me.isHostileTo(who) || !me.isTargetAcceptable(who)) {
             return;
         }
 
@@ -203,10 +154,40 @@ public class CreatureAI extends UnitAI {
         me.sendAIReaction(AiReaction.Alert);
 
         // Face the unit (stealthed player) and set distracted state for 5 seconds
-        me.getMotionMaster().moveDistract(5 * time.InMilliseconds, me.getLocation().getAbsoluteAngle(who.getLocation()));
+        me.getMotionMaster().moveDistract(5 * Time.InMilliseconds, me.location.getAbsoluteAngle(who.location));
     }
 
-    // Called for reaction at stopping attack at no attackers or targets
+    // adapted from logic in Spell:EffectSummonType
+    public static boolean shouldFollowOnSpawn(SummonPropertiesRecord properties) {
+        // Summons without SummonProperties are generally scripted summons that don't belong to any owner
+        if (properties == null) {
+            return false;
+        }
+
+        switch (properties.control) {
+            case Pet:
+                return true;
+            case Wild:
+            case Ally:
+            case Unk:
+                if (properties.getFlags().HasFlag(SummonPropertiesFlags.JoinSummonerSpawnGroup)) {
+                    return true;
+                }
+
+                switch (properties.title) {
+                    case Pet:
+                    case Guardian:
+                    case Runeblade:
+                    case Minion:
+                    case Companion:
+                        return true;
+                    default:
+                        return false;
+                }
+            default:
+                return false;
+        }
+    }
 
     // Called when creature appears in the world (spawn, respawn, grid load etc...)
     public void justAppeared() {
@@ -215,7 +196,7 @@ public class CreatureAI extends UnitAI {
 
             if (summon != null) {
                 // Only apply this to specific types of summons
-                if (!summon.getVehicle1() && shouldFollowOnSpawn(summon.summonProperty) && summon.canFollowOwner()) {
+                if (!summon.getVehicle1() && shouldFollowOnSpawn(summon.summonPropertiesRecord) && summon.canFollowOwner()) {
                     var owner = summon.getCharmerOrOwner();
 
                     if (owner != null) {
@@ -234,19 +215,22 @@ public class CreatureAI extends UnitAI {
         }
     }
 
+    // Called for reaction at stopping attack at no attackers or targets
+
     public void enterEvadeMode() {
-        enterEvadeMode(EvadeReason.other);
+        enterEvadeMode(EvadeReason.Other);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public virtual void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     public void enterEvadeMode(EvadeReason why) {
         if (!_EnterEvadeMode(why)) {
             return;
         }
 
-        Log.outDebug(LogFilter.unit, String.format("CreatureAI::EnterEvadeMode: entering evade mode (why: %1$s) (%2$s)", why, me.getGUID()));
+        Log.outDebug(LogFilter.Unit, String.format("CreatureAI::EnterEvadeMode: entering evade mode (why: %1$s) (%2$s)", why, me.getGUID().clone()));
 
-        if (me.getVehicle1() == null) // otherwise me will be in evade mode forever
-        {
+        if (me.getVehicle1() == null) { // otherwise me will be in evade mode forever
             var owner = me.getCharmerOrOwner();
 
             if (owner != null) {
@@ -262,7 +246,6 @@ public class CreatureAI extends UnitAI {
 
         reset();
     }
-
     public final boolean updateVictim() {
         if (!isEngaged()) {
             return false;
@@ -317,10 +300,13 @@ public class CreatureAI extends UnitAI {
         me.atDisengage();
     }
 
+
     public final boolean _EnterEvadeMode() {
-        return _EnterEvadeMode(EvadeReason.other);
+        return _EnterEvadeMode(EvadeReason.Other);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public bool _EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     public final boolean _EnterEvadeMode(EvadeReason why) {
         if (me.isInEvadeMode()) {
             return false;
@@ -338,66 +324,65 @@ public class CreatureAI extends UnitAI {
         me.combatStop(true);
         me.setTappedBy(null);
         me.resetPlayerDamageReq();
-        me.setLastDamagedTime(0);
+        me.lastDamagedTime = 0;
         me.setCannotReachTarget(false);
         me.doNotReacquireSpellFocusTarget();
-        me.setTarget(ObjectGuid.Empty);
+        me.setTarget(ObjectGuid.empty);
         me.getSpellHistory().resetAllCooldowns();
         engagementOver();
 
         return true;
     }
 
-    public final SysMessage visualizeBoundary(Duration duration, Unit owner) {
+
+    public final CypherStrings visualizeBoundary(TimeSpan duration, Unit owner) {
         return visualizeBoundary(duration, owner, false);
     }
 
-    public final SysMessage visualizeBoundary(Duration duration) {
+    public final CypherStrings visualizeBoundary(TimeSpan duration) {
         return visualizeBoundary(duration, null, false);
     }
 
-    public final SysMessage visualizeBoundary(Duration duration, Unit owner, boolean fill) {
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public CypherStrings VisualizeBoundary(TimeSpan duration, Unit owner = null, bool fill = false)
+    public final CypherStrings visualizeBoundary(TimeSpan duration, Unit owner, boolean fill) {
         if (owner == null) {
             return 0;
         }
 
-        if (boundary.isEmpty()) {
-            return SysMessage.CreatureMovementNotBounded;
+        if (boundary.Empty()) {
+            return CypherStrings.CreatureMovementNotBounded;
         }
 
-        ArrayList<java.util.Map.entry<Integer, Integer>> q = new ArrayList<java.util.Map.entry<Integer, Integer>>();
-        ArrayList<java.util.Map.entry<Integer, Integer>> alreadyChecked = new ArrayList<java.util.Map.entry<Integer, Integer>>();
-        ArrayList<java.util.Map.entry<Integer, Integer>> outOfBounds = new ArrayList<java.util.Map.entry<Integer, Integer>>();
+        ArrayList<java.util.Map.Entry<Integer, Integer>> q = new ArrayList<java.util.Map.Entry<Integer, Integer>>();
+        ArrayList<java.util.Map.Entry<Integer, Integer>> alreadyChecked = new ArrayList<java.util.Map.Entry<Integer, Integer>>();
+        ArrayList<java.util.Map.Entry<Integer, Integer>> outOfBounds = new ArrayList<java.util.Map.Entry<Integer, Integer>>();
 
-        Position startPosition = owner.getLocation();
+        Position startPosition = owner.location;
 
-        if (!isInBoundary(startPosition)) // fall back to creature position
-        {
-            startPosition = me.getLocation();
+        if (!isInBoundary(startPosition)) { // fall back to creature position
+            startPosition = me.location;
 
             if (!isInBoundary(startPosition)) {
                 startPosition = me.getHomePosition();
 
-                if (!isInBoundary(startPosition)) // fall back to creature home position
-                {
-                    return SysMessage.CreatureNoInteriorPointFound;
+                if (!isInBoundary(startPosition)) { // fall back to creature home position
+                    return CypherStrings.CreatureNoInteriorPointFound;
                 }
             }
         }
 
-        var spawnZ = startPosition.getZ() + SharedConst.BoundaryVisualizeSpawnHeight;
+        var spawnZ = startPosition.z + SharedConst.BoundaryVisualizeSpawnHeight;
 
         var boundsWarning = false;
         q.add(new KeyValuePair<Integer, Integer>(0, 0));
 
-        while (!q.isEmpty()) {
+        while (!q.Empty()) {
             var front = q.get(0);
             var hasOutOfBoundsNeighbor = false;
 
-            for (var off : new ArrayList<java.util.Map.entry<Integer, Integer>>(Arrays.asList(new (1, 0),new (0, 1),new
-            (-1, 0),new (0, -1))))
-            {
-                var next = new KeyValuePair<Integer, Integer>(front.key + off.key, front.value + off.value);
+            for (var off : new ArrayList<java.util.Map.Entry<Integer, Integer>>(Arrays.asList(new(1, 0), new(0, 1), new(-1, 0), new(0, -1)))) {
+                var next = new KeyValuePair<Integer, Integer>(front.Key + off.Key, front.Value + off.Value);
 
                 if (next.getKey() > SharedConst.BoundaryVisualizeFailsafeLimit || next.getKey() < -SharedConst.BoundaryVisualizeFailsafeLimit || next.getValue() > SharedConst.BoundaryVisualizeFailsafeLimit || next.getValue() < -SharedConst.BoundaryVisualizeFailsafeLimit) {
                     boundsWarning = true;
@@ -405,9 +390,8 @@ public class CreatureAI extends UnitAI {
                     continue;
                 }
 
-                if (!alreadyChecked.contains(next)) // never check a coordinate twice
-                {
-                    Position nextPos = new Position(startPosition.getX() + next.getKey() * SharedConst.BoundaryVisualizeStepSize, startPosition.getY() + next.getValue() * SharedConst.BoundaryVisualizeStepSize, startPosition.getZ());
+                if (!alreadyChecked.contains(next)) { // never check a coordinate twice
+                    Position nextPos = new Position(startPosition.x + next.getKey() * SharedConst.BoundaryVisualizeStepSize, startPosition.y + next.getValue() * SharedConst.BoundaryVisualizeStepSize, startPosition.z);
 
                     if (isInBoundary(nextPos)) {
                         q.add(next);
@@ -423,16 +407,16 @@ public class CreatureAI extends UnitAI {
             }
 
             if (fill || hasOutOfBoundsNeighbor) {
-                var pos = new Position(startPosition.getX() + front.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.getY() + front.Value * SharedConst.BoundaryVisualizeStepSize, spawnZ);
-                var point = owner.summonCreature(SharedConst.BoundaryVisualizeCreature, pos, TempSummonType.TimedDespawn, duration);
+                var pos = new Position(startPosition.x + front.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.y + front.Value * SharedConst.BoundaryVisualizeStepSize, spawnZ);
+                var point = owner.SummonCreature(SharedConst.BoundaryVisualizeCreature, pos, TempSummonType.TimedDespawn, duration);
 
                 if (point) {
                     point.ObjectScale = SharedConst.BoundaryVisualizeCreatureScale;
-                    point.setUnitFlag(UnitFlag.Stunned);
-                    point.setImmuneToAll(true);
+                    point.SetUnitFlag(UnitFlags.Stunned);
+                    point.SetImmuneToAll(true);
 
                     if (!hasOutOfBoundsNeighbor) {
-                        point.setUnitFlag(UnitFlag.Uninteractible);
+                        point.SetUnitFlag(UnitFlags.Uninteractible);
                     }
                 }
 
@@ -440,20 +424,23 @@ public class CreatureAI extends UnitAI {
             }
         }
 
-        return boundsWarning ? SysMessage.CreatureMovementMaybeUnbounded : 0;
+        return boundsWarning ? CypherStrings.CreatureMovementMaybeUnbounded : 0;
     }
+
 
     public final boolean isInBoundary() {
         return isInBoundary(null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public bool IsInBoundary(Position who = null)
     public final boolean isInBoundary(Position who) {
         if (boundary == null) {
             return true;
         }
 
         if (who == null) {
-            who = me.getLocation();
+            who = me.location;
         }
 
         return isInBounds(boundary, who) != negateBoundary;
@@ -463,22 +450,27 @@ public class CreatureAI extends UnitAI {
         if (isInBoundary()) {
             return true;
         } else {
-            enterEvadeMode(EvadeReason.boundary);
+            enterEvadeMode(EvadeReason.Boundary);
 
             return false;
         }
     }
 
-    public final Creature doSummon(int entry, Position pos, Duration despawnTime) {
-        return doSummon(entry, pos, despawnTime, TempSummonType.CORPSE_TIMED_DESPAWN);
+
+    public final Creature doSummon(int entry, Position pos, TimeSpan despawnTime) {
+        return doSummon(entry, pos, despawnTime, TempSummonType.CorpseTimedDespawn);
     }
 
-    public final Creature doSummon(int entry, Position pos, Duration despawnTime, TempSummonType summonType) {
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public Creature DoSummon(uint entry, Position pos, TimeSpan despawnTime, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    public final Creature doSummon(int entry, Position pos, TimeSpan despawnTime, TempSummonType summonType) {
         return me.summonCreature(entry, pos, summonType, despawnTime);
     }
 
-    public final Creature doSummon(int entry, WorldObject obj, float radius, Duration despawnTime) {
-        return doSummon(entry, obj, radius, despawnTime, TempSummonType.CORPSE_TIMED_DESPAWN);
+
+    public final Creature doSummon(int entry, WorldObject obj, float radius, TimeSpan despawnTime) {
+        return doSummon(entry, obj, radius, despawnTime, TempSummonType.CorpseTimedDespawn);
     }
 
     public final Creature doSummon(int entry, WorldObject obj, float radius) {
@@ -489,13 +481,17 @@ public class CreatureAI extends UnitAI {
         return doSummon(entry, obj, 5.0f, null, TempSummonType.CorpseTimedDespawn);
     }
 
-    public final Creature doSummon(int entry, WorldObject obj, float radius, Duration despawnTime, TempSummonType summonType) {
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public Creature DoSummon(uint entry, WorldObject obj, float radius = 5.0f, TimeSpan despawnTime = default, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    public final Creature doSummon(int entry, WorldObject obj, float radius, TimeSpan despawnTime, TempSummonType summonType) {
         var pos = obj.getRandomNearPosition(radius);
 
         return me.summonCreature(entry, pos, summonType, despawnTime);
     }
 
-    public final Creature doSummonFlyer(int entry, WorldObject obj, float flightZ, float radius, Duration despawnTime) {
+
+    public final Creature doSummonFlyer(int entry, WorldObject obj, float flightZ, float radius, TimeSpan despawnTime) {
         return doSummonFlyer(entry, obj, flightZ, radius, despawnTime, TempSummonType.CorpseTimedDespawn);
     }
 
@@ -507,15 +503,35 @@ public class CreatureAI extends UnitAI {
         return doSummonFlyer(entry, obj, flightZ, 5.0f, null, TempSummonType.CorpseTimedDespawn);
     }
 
-    public final Creature doSummonFlyer(int entry, WorldObject obj, float flightZ, float radius, Duration despawnTime, TempSummonType summonType) {
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public Creature DoSummonFlyer(uint entry, WorldObject obj, float flightZ, float radius = 5.0f, TimeSpan despawnTime = default, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    public final Creature doSummonFlyer(int entry, WorldObject obj, float flightZ, float radius, TimeSpan despawnTime, TempSummonType summonType) {
         var pos = obj.getRandomNearPosition(radius);
-        pos.setZ(pos.getZ() + flightZ);
+        pos.z += flightZ;
 
         return me.summonCreature(entry, pos, summonType, despawnTime);
     }
 
+    public static boolean isInBounds(ArrayList<AreaBoundary> boundary, Position pos) {
+        for (var areaBoundary : boundary) {
+            if (!areaBoundary.isWithinBoundary(pos)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    public final void setBoundary(java.util.ArrayList<AreaBoundary> boundary) {
+        setBoundary(boundary, false);
+    }
+
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void SetBoundary(List<AreaBoundary> boundary, bool negateBoundaries = false)
     public final void setBoundary(ArrayList<AreaBoundary> boundary, boolean negateBoundaries) {
-        boundary = boundary;
+        this.boundary = boundary;
         negateBoundary = negateBoundaries;
         me.doImmediateBoundaryCheck();
     }
@@ -542,34 +558,29 @@ public class CreatureAI extends UnitAI {
     // Called when the creature summon successfully other creature
     public void justSummoned(Creature summon) {
     }
-
     public void isSummonedBy(WorldObject summoner) {
     }
 
     public void summonedCreatureDespawn(Creature summon) {
     }
-
     public void summonedCreatureDies(Creature summon, Unit killer) {
     }
 
     // Called when the creature successfully summons a gameobject
     public void justSummonedGameobject(GameObject gameobject) {
     }
-
     public void summonedGameobjectDespawn(GameObject gameobject) {
     }
 
     // Called when the creature successfully registers a dynamicobject
     public void justRegisteredDynObject(DynamicObject dynObject) {
     }
-
     public void justUnregisteredDynObject(DynamicObject dynObject) {
     }
 
     // Called when the creature successfully registers an areatrigger
     public void justRegisteredAreaTrigger(AreaTrigger areaTrigger) {
     }
-
     public void justUnregisteredAreaTrigger(AreaTrigger areaTrigger) {
     }
 
@@ -603,6 +614,8 @@ public class CreatureAI extends UnitAI {
     }
 
     // Called at waypoint reached or point movement finished
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void MovementInform(MovementGeneratorType type, uint id)
     public void movementInform(MovementGeneratorType type, int id) {
     }
 
@@ -611,7 +624,7 @@ public class CreatureAI extends UnitAI {
     }
 
     // Called at text emote receive from player
-    public void receiveEmote(Player player, TextEmotes emoteId) {
+    public void receiveEmote(Player player, TextEmote emoteId) {
     }
 
     // Called when owner takes damage
@@ -628,9 +641,8 @@ public class CreatureAI extends UnitAI {
     public void corpseRemoved(long respawnDelay) {
     }
 
-    /**
-     * == Gossip system ================================
-     */
+    /** == Gossip system ================================
+    */
 
     // Called when the dialog status between a player and the creature is requested.
     public QuestGiverStatus getDialogStatus(Player player) {
@@ -643,11 +655,15 @@ public class CreatureAI extends UnitAI {
     }
 
     // Called when a player selects a gossip item in the creature's gossip menu.
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     public boolean onGossipSelect(Player player, int menuId, int gossipListId) {
         return false;
     }
 
     // Called when a player selects a gossip with a code in the creature's gossip menu.
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual bool OnGossipSelectCode(Player player, uint menuId, uint gossipListId, string code)
     public boolean onGossipSelectCode(Player player, int menuId, int gossipListId, String code) {
         return false;
     }
@@ -657,20 +673,25 @@ public class CreatureAI extends UnitAI {
     }
 
     // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     public void onQuestReward(Player player, Quest quest, LootItemType type, int opt) {
     }
 
-    /**
-     * == Waypoints system =============================
-     */
+    /** == Waypoints system =============================
+    */
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void WaypointStarted(uint nodeId, uint pathId)
     public void waypointStarted(int nodeId, int pathId) {
     }
 
-
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void WaypointReached(uint nodeId, uint pathId)
     public void waypointReached(int nodeId, int pathId) {
     }
 
-
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void WaypointPathEnded(uint nodeId, uint pathId)
     public void waypointPathEnded(int nodeId, int pathId) {
     }
 

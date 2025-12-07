@@ -1,11 +1,13 @@
 package com.github.azeroth.game.networking.packet.loot;
 
 
+import com.github.azeroth.defines.LootSlotType;
 import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.networking.packet.item.ItemInstance;
 
 public class LootItemData {
     public byte type;
-    public LootSlotType UIType = LootSlotType.values()[0];
+    public LootSlotType uiType;
     public int quantity;
     public byte lootItemType;
     public byte lootListID;
@@ -14,7 +16,7 @@ public class LootItemData {
 
     public final void write(WorldPacket data) {
         data.writeBits(type, 2);
-        data.writeBits(UIType, 3);
+        data.writeBits(uiType.ordinal(), 3);
         data.writeBit(canTradeToTapList);
         data.flushBits();
         loot.write(data); // WorldPackets::Item::ItemInstance

@@ -26,10 +26,10 @@ import lombok.ToString;
 })
 public class TaxiPath implements DbcEntity {
     @Column("FromTaxiNode")
-    private Short fromTaxiNode;
+    private short fromTaxiNode;
 
     @Column("ToTaxiNode")
-    private Short toTaxiNode;
+    private short toTaxiNode;
 
     @Id
 
@@ -37,7 +37,7 @@ public class TaxiPath implements DbcEntity {
     private int id;
 
     @Column("Cost")
-    private Integer cost;
+    private int cost;
 
     @Id
 

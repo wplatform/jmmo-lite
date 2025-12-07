@@ -1,23 +1,28 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.maps.grids.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.domain.misc.WaypointMoveType;
-import com.github.azeroth.game.domain.misc.WaypointNode;
-import com.github.azeroth.game.domain.misc.WaypointPath;
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.player.Player;
-import com.github.azeroth.game.entity.unit.Unit;
+
 
 public class EscortAI extends ScriptedAI {
     private final WaypointPath path;
 
-    private ObjectGuid playerGUID = ObjectGuid.EMPTY;
-    private duration pauseTimer = new duration();
+    private ObjectGuid playerGUID = new ObjectGuid();
+    private TimeSpan pauseTimer = new TimeSpan();
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _playerCheckTimer;
     private int playerCheckTimer;
     private EscortState escortState = EscortState.values()[0];
     private float maxPlayerDistance;
 
-    private Quest escortQuest; //generally passed in start() when regular escort script.
+    private Quest escortQuest; //generally passed in Start() when regular escort script.
 
     private boolean activeAttacker; // obsolete, determined by faction.
     private boolean running; // all creatures are walking by default (has flag MOVEMENTFLAG_WALK)
@@ -33,18 +38,18 @@ public class EscortAI extends ScriptedAI {
 
     public EscortAI(Creature creature) {
         super(creature);
-        pauseTimer = duration.FromSeconds(2.5);
+        pauseTimer = TimeSpan.FromSeconds(2.5);
         playerCheckTimer = 1000;
         maxPlayerDistance = 100;
         activeAttacker = true;
         despawnAtEnd = true;
         despawnAtFar = true;
 
-        path = new waypointPath();
+        path = new WaypointPath();
     }
 
     public final Player getPlayerForEscort() {
-        return global.getObjAccessor().getPlayer(me, playerGUID);
+        return Global.getObjAccessor().GetPlayer(me, playerGUID.clone());
     }
 
     @Override
@@ -72,7 +77,7 @@ public class EscortAI extends ScriptedAI {
             var group = player.getGroup();
 
             if (group) {
-                for (var groupRef = group.getFirstMember(); groupRef != null; groupRef = groupRef.next()) {
+                for (var groupRef = group.getFirstMember(); groupRef != null; groupRef = groupRef.Next()) {
                     var member = groupRef.getSource();
 
                     if (member) {
@@ -86,19 +91,18 @@ public class EscortAI extends ScriptedAI {
             }
         }
     }
-
     @Override
     public void initializeAI() {
-        escortState = EscortState.NONE;
+        escortState = EscortState.None;
 
         if (!isCombatMovementAllowed()) {
             setCombatMovement(true);
         }
 
         //add a small delay before going to first waypoint, normal in near all cases
-        pauseTimer = duration.FromSeconds(2);
+        pauseTimer = TimeSpan.FromSeconds(2);
 
-        if (me.getFaction() != me.getCreatureTemplate().faction) {
+        if (me.getFaction() != me.getTemplate().faction) {
             me.restoreFaction();
         }
 
@@ -108,9 +112,11 @@ public class EscortAI extends ScriptedAI {
 
     @Override
     public void enterEvadeMode() {
-        enterEvadeMode(EvadeReason.other);
+        enterEvadeMode(EvadeReason.Other);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     @Override
     public void enterEvadeMode(EvadeReason why) {
         me.removeAllAuras();
@@ -122,7 +128,7 @@ public class EscortAI extends ScriptedAI {
         if (hasEscortState(EscortState.Escorting)) {
             addEscortState(EscortState.Returning);
             returnToLastPoint();
-            Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI.EnterEvadeMode has left combat and is now returning to last point %1$s", me.getGUID()));
+            Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI.EnterEvadeMode has left combat and is now returning to last point %1$s", me.getGUID().clone()));
         } else {
             me.getMotionMaster().moveTargetedHome();
 
@@ -134,25 +140,27 @@ public class EscortAI extends ScriptedAI {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         //Waypoint Updating
         if (hasEscortState(EscortState.Escorting) && !me.isEngaged() && !hasEscortState(EscortState.Returning)) {
-            if (pauseTimer.TotalMilliseconds <= diff) {
-                if (!hasEscortState(EscortState.paused)) {
-                    pauseTimer = duration.Zero;
+            if (pauseTimer.getTotalMilliseconds() <= diff) {
+                if (!hasEscortState(EscortState.Paused)) {
+                    pauseTimer = TimeSpan.Zero;
 
                     if (ended) {
                         ended = false;
                         me.getMotionMaster().moveIdle();
 
                         if (despawnAtEnd) {
-                            Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::UpdateAI: reached end of waypoints, despawning at end (%1$s)", me.getGUID()));
+                            Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::UpdateAI: reached end of waypoints, despawning at end (%1$s)", me.getGUID().clone()));
 
                             if (returnToStart) {
                                 var respawnPosition = me.getRespawnPosition();
-                                me.getMotionMaster().movePoint(EscortPointIds.home, respawnPosition);
-                                Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::UpdateAI: returning to spawn location: %1$s (%2$s)", respawnPosition, me.getGUID()));
+                                me.getMotionMaster().movePoint(EscortPointIds.HOME, respawnPosition);
+                                Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::UpdateAI: returning to spawn location: %1$s (%2$s)", respawnPosition, me.getGUID().clone()));
                             } else if (instantRespawn) {
                                 me.respawn();
                             } else {
@@ -160,7 +168,7 @@ public class EscortAI extends ScriptedAI {
                             }
                         }
 
-                        Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::UpdateAI: reached end of waypoints (%1$s)", me.getGUID()));
+                        Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::UpdateAI: reached end of waypoints (%1$s)", me.getGUID().clone()));
                         removeEscortState(EscortState.Escorting);
 
                         return;
@@ -179,7 +187,7 @@ public class EscortAI extends ScriptedAI {
                     }
                 }
             } else {
-                _pauseTimer -= duration.ofSeconds(diff);
+                pauseTimer -= TimeSpan.FromMilliseconds(diff);
             }
         }
 
@@ -188,20 +196,20 @@ public class EscortAI extends ScriptedAI {
         if (despawnAtFar && hasEscortState(EscortState.Escorting) && !playerGUID.isEmpty() && !me.isEngaged() && !hasEscortState(EscortState.Returning)) {
             if (playerCheckTimer <= diff) {
                 if (!isPlayerOrGroupInRange()) {
-                    Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::UpdateAI: failed because player/group was to far away or not found (%1$s)", me.getGUID()));
+                    Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::UpdateAI: failed because player/group was to far away or not found (%1$s)", me.getGUID().clone()));
 
                     var isEscort = false;
                     var creatureData = me.getCreatureData();
 
                     if (creatureData != null) {
-                        isEscort = (WorldConfig.getBoolValue(WorldCfg.RespawnDynamicEscortNpc) && creatureData.getSpawnGroupData().getFlags().hasFlag(SpawnGroupFlags.EscortQuestNpc));
+                        isEscort = (WorldConfig.getBoolValue(WorldCfg.RespawnDynamicEscortNpc) && creatureData.spawnGroupData.flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
                     }
 
                     if (instantRespawn) {
                         if (!isEscort) {
-                            me.despawnOrUnsummon(duration.Zero, duration.FromSeconds(1));
+                            me.despawnOrUnsummon(TimeSpan.Zero, TimeSpan.FromSeconds(1));
                         } else {
-                            me.getMap().respawn(SpawnObjectType.CREATURE, me.getSpawnId());
+                            me.getMap().respawn(SpawnObjectType.Creature, me.spawnId);
                         }
                     } else {
                         me.despawnOrUnsummon();
@@ -212,13 +220,15 @@ public class EscortAI extends ScriptedAI {
 
                 playerCheckTimer = 1000;
             } else {
-                _playerCheckTimer -= diff;
+                playerCheckTimer -= diff;
             }
         }
 
         updateEscortAI(diff);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public virtual void UpdateEscortAI(uint diff)
     public void updateEscortAI(int diff) {
         if (!updateVictim()) {
             return;
@@ -227,6 +237,8 @@ public class EscortAI extends ScriptedAI {
         doMeleeAttackIfReady();
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void MovementInform(MovementGeneratorType moveType, uint Id)
     @Override
     public void movementInform(MovementGeneratorType moveType, int id) {
         // no action allowed if there is no escort
@@ -236,36 +248,38 @@ public class EscortAI extends ScriptedAI {
 
         //Combat start position reached, continue waypoint movement
         if (moveType == MovementGeneratorType.Point) {
-            if (duration.opEquals(pauseTimer, duration.Zero)) {
-                pauseTimer = duration.FromSeconds(2);
+            if (system.TimeSpan.opEquals(pauseTimer, TimeSpan.Zero)) {
+                pauseTimer = TimeSpan.FromSeconds(2);
             }
 
-            if (id == EscortPointIds.lastPoint) {
-                Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::MovementInform has returned to original position before combat (%1$s)", me.getGUID()));
+            if (id == EscortPointIds.LAST_POINT) {
+                Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::MovementInform has returned to original position before combat (%1$s)", me.getGUID().clone()));
 
                 me.setWalk(!running);
                 removeEscortState(EscortState.Returning);
-            } else if (id == EscortPointIds.home) {
-                Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::MovementInform: returned to home location and restarting waypoint path (%1$s)", me.getGUID()));
+            } else if (id == EscortPointIds.HOME) {
+                Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::MovementInform: returned to home location and restarting waypoint path (%1$s)", me.getGUID().clone()));
                 started = false;
             }
         } else if (moveType == MovementGeneratorType.Waypoint) {
-            var waypoint = path.nodes.get((int) id);
+            var waypoint = path.nodes.get((int)id);
 
-            Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::MovementInform: waypoint node %1$s reached (%2$s)", waypoint.id, me.getGUID()));
+            Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::MovementInform: waypoint node %1$s reached (%2$s)", waypoint.id, me.getGUID().clone()));
 
             // last point
             if (id == path.nodes.size() - 1) {
                 started = false;
                 ended = true;
-                pauseTimer = duration.FromSeconds(1);
+                pauseTimer = TimeSpan.FromSeconds(1);
             }
         }
     }
 
-    public final void addWaypoint(int id, float x, float y, float z, float orientation, Duration waitTime) {
-        x = MapDefine.normalizeMapCoord(x);
-        y = MapDefine.normalizeMapCoord(y);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void AddWaypoint(uint id, float x, float y, float z, float orientation, TimeSpan waitTime)
+    public final void addWaypoint(int id, float x, float y, float z, float orientation, TimeSpan waitTime) {
+        x = GridDefines.normalizeMapCoord(x);
+        y = GridDefines.normalizeMapCoord(y);
 
         WaypointNode waypoint = new WaypointNode();
         waypoint.id = id;
@@ -273,8 +287,10 @@ public class EscortAI extends ScriptedAI {
         waypoint.y = y;
         waypoint.z = z;
         waypoint.orientation = orientation;
-        waypoint.moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk;
-        waypoint.delay = (int) waitTime.TotalMilliseconds;
+        waypoint.moveType = running ? WaypointMoveType.Run : WaypointMoveType.Walk;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: waypoint.delay = (uint)waitTime.TotalMilliseconds;
+        waypoint.delay = (int)waitTime.getTotalMilliseconds();
         waypoint.eventId = 0;
         waypoint.eventChance = 100;
         path.nodes.add(waypoint);
@@ -287,6 +303,8 @@ public class EscortAI extends ScriptedAI {
         setRun(true);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void SetRun(bool on = true)
     public final void setRun(boolean on) {
         if (on == running) {
             return;
@@ -301,9 +319,8 @@ public class EscortAI extends ScriptedAI {
         running = on;
     }
 
-    /**
-     * todo get rid of this many variables passed in function.
-     */
+    /** todo get rid of this many variables passed in function.
+    */
 
     public final void start(boolean isActiveAttacker, boolean run, ObjectGuid playerGUID, Quest quest, boolean instantRespawn, boolean canLoopPath) {
         start(isActiveAttacker, run, playerGUID, quest, instantRespawn, canLoopPath, true);
@@ -333,24 +350,26 @@ public class EscortAI extends ScriptedAI {
         start(true, false, null, null, false, false, true);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = default, Quest quest = null, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true)
     public final void start(boolean isActiveAttacker, boolean run, ObjectGuid playerGUID, Quest quest, boolean instantRespawn, boolean canLoopPath, boolean resetWaypoints) {
         // Queue respawn from the point it starts
         var cdata = me.getCreatureData();
 
         if (cdata != null) {
-            if (WorldConfig.getBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.getSpawnGroupData().getFlags().hasFlag(SpawnGroupFlags.EscortQuestNpc)) {
-                me.saveRespawnTime(me.getRespawnDelay());
+            if (WorldConfig.getBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.spawnGroupData.flags.HasFlag(SpawnGroupFlags.EscortQuestNpc)) {
+                me.saveRespawnTime(me.respawnDelay);
             }
         }
 
         if (me.isEngaged()) {
-            Log.outError(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s attempts to Start while in combat (%2$s)", me.getScriptName(), me.getGUID()));
+            Log.outError(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s attempts to Start while in combat (%2$s)", me.getScriptName(), me.getGUID().clone()));
 
             return;
         }
 
         if (hasEscortState(EscortState.Escorting)) {
-            Log.outError(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s attempts to Start while already escorting (%2$s)", me.getScriptName(), me.getGUID()));
+            Log.outError(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s attempts to Start while already escorting (%2$s)", me.getScriptName(), me.getGUID().clone()));
 
             return;
         }
@@ -361,36 +380,36 @@ public class EscortAI extends ScriptedAI {
             fillPointMovementListForCreature();
         }
 
-        if (path.nodes.isEmpty()) {
-            Log.outError(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %2$s (%3$s)", me.getScriptName(), (quest != null ? quest.Id : 0), me.getGUID()));
+        if (path.nodes.Empty()) {
+            Log.outError(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %2$s (%3$s)", me.getScriptName(), (quest != null ? quest.id : 0), me.getGUID().clone()));
 
             return;
         }
 
         // set variables
         activeAttacker = isActiveAttacker;
-        playerGUID = playerGUID;
+        this.playerGUID = playerGUID.clone();
         escortQuest = quest;
-        instantRespawn = instantRespawn;
+        this.instantRespawn = instantRespawn;
         returnToStart = canLoopPath;
 
-        if (returnToStart && instantRespawn) {
-            Log.outError(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn (%2$s)", me.getScriptName(), me.getGUID()));
+        if (returnToStart && this.instantRespawn) {
+            Log.outError(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn (%2$s)", me.getScriptName(), me.getGUID().clone()));
         }
 
         me.getMotionMaster().moveIdle();
-        me.getMotionMaster().clear(MovementGeneratorPriority.NORMAL);
+        me.getMotionMaster().clear(MovementGeneratorPriority.Normal);
 
         //disable npcflags
-        me.replaceAllNpcFlags(NPCFlags.NONE);
-        me.replaceAllNpcFlags2(NPCFlags2.NONE);
+        me.replaceAllNpcFlags(NPCFlags.None);
+        me.replaceAllNpcFlags2(NPCFlags2.None);
 
         if (me.isImmuneToNPC()) {
             hasImmuneToNPCFlags = true;
             me.setImmuneToNPC(false);
         }
 
-        Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s, started with %2$s waypoints. ActiveAttacker = %3$s, run = %4$s, player = %5$s (%6$s)", me.getScriptName(), path.nodes.size(), activeAttacker, running, playerGUID, me.getGUID()));
+        Log.outDebug(LogFilter.ScriptsAi, String.format("EscortAI::Start: (script: %1$s, started with %2$s waypoints. ActiveAttacker = %3$s, Run = %4$s, Player = %5$s (%6$s)", me.getScriptName(), path.nodes.size(), activeAttacker, running, this.playerGUID.clone(), me.getGUID().clone()));
 
         // set initial speed
         me.setWalk(!running);
@@ -405,24 +424,24 @@ public class EscortAI extends ScriptedAI {
         }
 
         if (on) {
-            addEscortState(EscortState.paused);
+            addEscortState(EscortState.Paused);
             var movementGenerator = me.getMotionMaster().getCurrentMovementGenerator(MovementSlot.Default);
 
             if (movementGenerator != null) {
                 movementGenerator.pause(0);
             }
         } else {
-            removeEscortState(EscortState.paused);
+            removeEscortState(EscortState.Paused);
             resume = true;
         }
     }
 
-    public final void setPauseTimer(Duration timer) {
+    public final void setPauseTimer(TimeSpan timer) {
         pauseTimer = timer;
     }
 
     public final boolean hasEscortState(EscortState escortState) {
-        return (escortState.getValue() & escortState.getValue()) != 0;
+        return (this.escortState.getValue() & escortState.getValue()) != 0;
     }
 
     @Override
@@ -457,7 +476,7 @@ public class EscortAI extends ScriptedAI {
         }
 
         //experimental (unknown) flag not present
-        if (!me.getCreatureTemplate().typeFlags.hasFlag(CreatureTypeFlags.CanAssist)) {
+        if (!me.getTemplate().typeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist)) {
             return false;
         }
 
@@ -482,7 +501,7 @@ public class EscortAI extends ScriptedAI {
     }
 
     private void returnToLastPoint() {
-        me.getMotionMaster().movePoint(0xFFFFFF, me.getHomePosition());
+        me.getMotionMaster().MovePoint(0xFFFFFF, me.getHomePosition());
     }
 
     private boolean isPlayerOrGroupInRange() {
@@ -492,7 +511,7 @@ public class EscortAI extends ScriptedAI {
             var group = player.getGroup();
 
             if (group) {
-                for (var groupRef = group.getFirstMember(); groupRef != null; groupRef = groupRef.next()) {
+                for (var groupRef = group.getFirstMember(); groupRef != null; groupRef = groupRef.Next()) {
                     var member = groupRef.getSource();
 
                     if (member) {
@@ -510,7 +529,7 @@ public class EscortAI extends ScriptedAI {
     }
 
     private void fillPointMovementListForCreature() {
-        var path = global.getWaypointMgr().getPath(me.getEntry());
+        var path = Global.getWaypointMgr().getPath(me.getEntry());
 
         if (path == null) {
             return;
@@ -518,31 +537,31 @@ public class EscortAI extends ScriptedAI {
 
         for (var value : path.nodes) {
             var node = value;
-            node.x = MapDefine.normalizeMapCoord(node.x);
-            node.y = MapDefine.normalizeMapCoord(node.y);
-            node.moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk;
+            node.x = GridDefines.normalizeMapCoord(node.x);
+            node.y = GridDefines.normalizeMapCoord(node.y);
+            node.moveType = running ? WaypointMoveType.Run : WaypointMoveType.Walk;
 
-            path.nodes.add(node);
+            this.path.nodes.add(node);
         }
-    }
-
-    private float getMaxPlayerDistance() {
-        return maxPlayerDistance;
     }
 
     private void setMaxPlayerDistance(float newMax) {
         maxPlayerDistance = newMax;
     }
 
+    private float getMaxPlayerDistance() {
+        return maxPlayerDistance;
+    }
+
     private ObjectGuid getEventStarterGUID() {
-        return playerGUID;
+        return playerGUID.clone();
     }
 
     private void addEscortState(EscortState escortState) {
-        escortState = EscortState.forValue(escortState.getValue() | escortState.getValue());
+        this.escortState = game.ai.EscortState.forValue(this.escortState.getValue() | escortState.getValue());
     }
 
     private void removeEscortState(EscortState escortState) {
-        escortState = EscortState.forValue(escortState.getValue() & ~escortState.getValue());
+        this.escortState = game.ai.EscortState.forValue(this.escortState.getValue() & ~escortState.getValue());
     }
 }

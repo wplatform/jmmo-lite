@@ -1,12 +1,19 @@
 package com.github.azeroth.game.movement.generator;
 
 
-import com.github.azeroth.game.movement.MovementGeneratorMedium;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.unit.UnitFlag;
+import com.github.azeroth.game.domain.unit.UnitState;
+import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.movement.MovementGenerator;
 import com.github.azeroth.game.movement.PathGenerator;
-import com.github.azeroth.game.movement.enums.PathType;
+import com.github.azeroth.game.movement.enums.*;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
+import com.github.azeroth.time.TimeTracker;
+import com.github.azeroth.utils.RandomUtil;
 
-public class FleeingMovementGenerator<T extends unit> extends MovementGeneratorMedium<T> {
+public class FleeingMovementGenerator extends MovementGenerator {
     public static final float MIN_QUIET_DISTANCE = 28.0f;
     public static final float MAX_QUIET_DISTANCE = 43.0f;
     private final TimeTracker timer;
@@ -15,55 +22,55 @@ public class FleeingMovementGenerator<T extends unit> extends MovementGeneratorM
 
     public FleeingMovementGenerator(ObjectGuid fright) {
         fleeTargetGUID = fright;
-        timer = new timeTracker();
+        timer = new TimeTracker(0);
 
-        mode = MovementGeneratorMode.Default;
-        priority = MovementGeneratorPriority.Highest;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.Fleeing;
+        mode = MovementGeneratorMode.DEFAULT;
+        priority = MovementGeneratorPriority.HIGHEST;
+        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        baseUnitState = UnitState.FLEEING;
     }
 
     @Override
-    public void doInitialize(T owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Transitory.getValue().getValue() | MovementGeneratorFlags.Deactivated.getValue().getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+    public void initialize(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
+        flags.addFlag(MovementGeneratorFlag.INITIALIZED);
 
         if (owner == null || !owner.isAlive()) {
             return;
         }
 
         // TODO: UNIT_FIELD_FLAGS should not be handled by generators
-        owner.setUnitFlag(UnitFlag.Fleeing);
+        owner.setUnitFlag(UnitFlag.FLEEING);
         path = null;
         setTargetLocation(owner);
     }
 
     @Override
-    public void doReset(T owner) {
-        removeFlag(MovementGeneratorFlags.Transitory.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        doInitialize(owner);
+    public void reset(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
+        initialize(owner);
     }
 
     @Override
-    public boolean doUpdate(T owner, int diff) {
+    public boolean update(Unit owner, int diff) {
         if (owner == null || !owner.isAlive()) {
             return false;
         }
 
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting()) {
+            flags.addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
             path = null;
 
             return true;
         } else {
-            removeFlag(MovementGeneratorFlags.Interrupted);
+            flags.removeFlag(MovementGeneratorFlag.INTERRUPTED);
         }
 
         timer.update(diff);
 
-        if ((hasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.getMoveSpline().finalized()) || (timer.Passed && owner.getMoveSpline().finalized())) {
-            removeFlag(MovementGeneratorFlags.Transitory);
+        if ((flags.hasFlag(MovementGeneratorFlag.SPEED_UPDATE_PENDING) && !owner.getMoveSpline().finalized()) || (timer.passed() && owner.getMoveSpline().finalized())) {
+            flags.removeFlag(MovementGeneratorFlag.TRANSITORY);
             setTargetLocation(owner);
         }
 
@@ -71,23 +78,23 @@ public class FleeingMovementGenerator<T extends unit> extends MovementGeneratorM
     }
 
     @Override
-    public void doDeactivate(T owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
-        owner.clearUnitState(UnitState.FleeingMove);
+    public void deactivate(Unit owner) {
+        flags.addFlag(MovementGeneratorFlag.DEACTIVATED);
+        owner.clearUnitState(UnitState.FLEEING_MOVE);
     }
 
     @Override
-    public void doFinalize(T owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+    public void finalize(Unit owner, boolean active, boolean movementInform) {
+        flags.addFlag(MovementGeneratorFlag.FINALIZED);
 
         if (active) {
             if (owner.isPlayer()) {
-                owner.removeUnitFlag(UnitFlag.Fleeing);
-                owner.clearUnitState(UnitState.FleeingMove);
+                owner.removeUnitFlag(UnitFlag.FLEEING);
+                owner.clearUnitState(UnitState.FLEEING_MOVE);
                 owner.stopMoving();
             } else {
-                owner.removeUnitFlag(UnitFlag.Fleeing);
-                owner.clearUnitState(UnitState.FleeingMove);
+                owner.removeUnitFlag(UnitFlag.FLEEING);
+                owner.clearUnitState(UnitState.FLEEING_MOVE);
 
                 if (owner.getVictim() != null) {
                     owner.setTarget(owner.getVictim().getGUID());
@@ -98,21 +105,21 @@ public class FleeingMovementGenerator<T extends unit> extends MovementGeneratorM
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.Fleeing;
+        return MovementGeneratorType.FLEEING;
     }
 
     @Override
     public void unitSpeedChanged() {
-        addFlag(MovementGeneratorFlags.SpeedUpdatePending);
+        flags.addFlag(MovementGeneratorFlag.SPEED_UPDATE_PENDING);
     }
 
-    private void setTargetLocation(T owner) {
+    private void setTargetLocation(Unit owner) {
         if (owner == null || !owner.isAlive()) {
             return;
         }
 
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting()) {
+            flags.addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
             path = null;
 
@@ -142,44 +149,44 @@ public class FleeingMovementGenerator<T extends unit> extends MovementGeneratorM
             return;
         }
 
-        owner.addUnitState(UnitState.FleeingMove);
+        owner.addUnitState(UnitState.FLEEING_MOVE);
 
         MoveSplineInit init = new MoveSplineInit(owner);
         init.movebyPath(path.getPath());
         init.setWalk(false);
-        var traveltime = (int) init.launch();
-        timer.reset(traveltime + RandomUtil.URand(800, 1500));
+        var traveltime = init.launch();
+        timer.reset(traveltime + RandomUtil.randomInt(800, 1500));
     }
 
-    private void getPoint(T owner, Position position) {
+    private void getPoint(Unit owner, Position position) {
         float casterDistance, casterAngle;
-        var fleeTarget = global.getObjAccessor().GetUnit(owner, fleeTargetGUID);
+        var fleeTarget = owner.getWorldContext().getUnit(owner, fleeTargetGUID);
 
         if (fleeTarget != null) {
             casterDistance = fleeTarget.getDistance(owner);
 
             if (casterDistance > 0.2f) {
-                casterAngle = fleeTarget.getLocation().GetAbsoluteAngle(owner.getLocation());
+                casterAngle = fleeTarget.getLocation().getAbsoluteAngle(owner.getLocation());
             } else {
-                casterAngle = RandomUtil.FRand(0.0f, 2.0f * (float) Math.PI);
+                casterAngle = RandomUtil.randomFloat(0.0f, 2.0f * (float) Math.PI);
             }
         } else {
             casterDistance = 0.0f;
-            casterAngle = RandomUtil.FRand(0.0f, 2.0f * (float) Math.PI);
+            casterAngle = RandomUtil.randomFloat(0.0f, 2.0f * (float) Math.PI);
         }
 
         float distance, angle;
 
         if (casterDistance < MIN_QUIET_DISTANCE) {
-            distance = RandomUtil.FRand(0.4f, 1.3f) * (MIN_QUIET_DISTANCE - casterDistance);
-            angle = casterAngle + RandomUtil.FRand(-(float) Math.PI / 8.0f, (float) Math.PI / 8.0f);
+            distance = RandomUtil.randomFloat(0.4f, 1.3f) * (MIN_QUIET_DISTANCE - casterDistance);
+            angle = casterAngle + RandomUtil.randomFloat(-(float) Math.PI / 8.0f, (float) Math.PI / 8.0f);
         } else if (casterDistance > MAX_QUIET_DISTANCE) {
-            distance = RandomUtil.FRand(0.4f, 1.0f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
-            angle = -casterAngle + RandomUtil.FRand(-(float) Math.PI / 4.0f, (float) Math.PI / 4.0f);
+            distance = RandomUtil.randomFloat(0.4f, 1.0f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
+            angle = -casterAngle + RandomUtil.randomFloat(-(float) Math.PI / 4.0f, (float) Math.PI / 4.0f);
         } else // we are inside quiet range
         {
-            distance = RandomUtil.FRand(0.6f, 1.2f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
-            angle = RandomUtil.FRand(0.0f, 2.0f * (float) Math.PI);
+            distance = RandomUtil.randomFloat(0.6f, 1.2f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
+            angle = RandomUtil.randomFloat(0.0f, 2.0f * (float) Math.PI);
         }
 
         owner.movePositionToFirstCollision(position, distance, angle);

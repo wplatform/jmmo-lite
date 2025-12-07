@@ -1,57 +1,64 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.MovementGenerator;
+import com.github.azeroth.game.movement.enums.MovementGeneratorFlag;
+import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
+import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 
+import java.time.Duration;
+import java.util.function.Consumer;
+
 class GenericMovementGenerator extends MovementGenerator {
-    private final tangible.Action1Param<MoveSplineInit> splineInit;
+    private final Consumer<MoveSplineInit> splineInit;
     private final MovementGeneratorType type;
     private final int pointId;
-    private final TimeTracker duration;
+    private Duration duration;
     private final int arrivalSpellId;
     private final ObjectGuid arrivalSpellTargetGuid;
 
 
-    public GenericMovementGenerator(action<MoveSplineInit> initializer, MovementGeneratorType type, int id, int arrivalSpellId) {
+    public GenericMovementGenerator(Consumer<MoveSplineInit> initializer, MovementGeneratorType type, int id, int arrivalSpellId) {
         this(initializer, type, id, arrivalSpellId, null);
     }
 
-    public GenericMovementGenerator(action<MoveSplineInit> initializer, MovementGeneratorType type, int id) {
+    public GenericMovementGenerator(Consumer<MoveSplineInit> initializer, MovementGeneratorType type, int id) {
         this(initializer, type, id, 0, null);
     }
+    public GenericMovementGenerator(Consumer<MoveSplineInit> initializer, MovementGeneratorType type, int id, int arrivalSpellId, ObjectGuid arrivalSpellTargetGuid) {
+        this.splineInit = initializer;
+        this.type = type;
+        this.pointId = id;
+        this.duration = Duration.ZERO;
+        this.arrivalSpellId = arrivalSpellId;
+        this.arrivalSpellTargetGuid = arrivalSpellTargetGuid;
 
-    public GenericMovementGenerator(tangible.Action1Param<MoveSplineInit> initializer, MovementGeneratorType type, int id, int arrivalSpellId, ObjectGuid arrivalSpellTargetGuid) {
-        splineInit = initializer;
-        type = type;
-        pointId = id;
-        duration = new timeTracker();
-        arrivalSpellId = arrivalSpellId;
-        arrivalSpellTargetGuid = arrivalSpellTargetGuid;
-
-        mode = MovementGeneratorMode.Default;
+        mode = MovementGeneratorMode.DEFAULT;
         priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.Roaming;
+        flags.addFlag(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        baseUnitState = UnitState.ROAMING;
     }
 
     @Override
     public void initialize(Unit owner) {
-        if (hasFlag(MovementGeneratorFlags.Deactivated) && !hasFlag(MovementGeneratorFlags.InitializationPending)) // Resume spline is not supported
+        if (hasFlag(MovementGeneratorFlag.DEACTIVATED) && !hasFlag(MovementGeneratorFlag.INITIALIZATION_PENDING)) // Resume spline is not supported
         {
-            removeFlag(MovementGeneratorFlags.Deactivated);
-            addFlag(MovementGeneratorFlags.Finalized);
+            removeFlag(MovementGeneratorFlag.DEACTIVATED);
+            addFlag(MovementGeneratorFlag.FINALIZED);
 
             return;
         }
-
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.DEACTIVATED);
+        addFlag(MovementGeneratorFlag.INITIALIZED);
 
         MoveSplineInit init = new MoveSplineInit(owner);
-        splineInit.invoke(init);
-        duration.reset((int) init.launch());
+        splineInit.accept(init);
+        duration = Duration.ofMillis(init.launch());
     }
 
     @Override
@@ -61,17 +68,17 @@ class GenericMovementGenerator extends MovementGenerator {
 
     @Override
     public boolean update(Unit owner, int diff) {
-        if (!owner || hasFlag(MovementGeneratorFlags.Finalized)) {
+        if (owner == null || hasFlag(MovementGeneratorFlag.FINALIZED)) {
             return false;
         }
 
         // Cyclic splines never expire, so update the duration only if it's not cyclic
         if (!owner.getMoveSpline().isCyclic()) {
-            duration.update(diff);
+            duration = duration.minusMillis(diff);
         }
 
-        if (duration.Passed || owner.getMoveSpline().finalized()) {
-            addFlag(MovementGeneratorFlags.InformEnabled);
+        if (!duration.isPositive() || owner.getMoveSpline().finalized()) {
+            addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
             return false;
         }
@@ -81,14 +88,14 @@ class GenericMovementGenerator extends MovementGenerator {
 
     @Override
     public void deactivate(Unit owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
+        addFlag(MovementGeneratorFlag.DEACTIVATED);
     }
 
     @Override
     public void finalize(Unit owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+        addFlag(MovementGeneratorFlag.FINALIZED);
 
-        if (movementInform && hasFlag(MovementGeneratorFlags.InformEnabled)) {
+        if (movementInform && hasFlag(MovementGeneratorFlag.INFORM_ENABLED)) {
             movementInform(owner);
         }
     }
@@ -100,13 +107,13 @@ class GenericMovementGenerator extends MovementGenerator {
 
     private void movementInform(Unit owner) {
         if (arrivalSpellId != 0) {
-            owner.castSpell(global.getObjAccessor().GetUnit(owner, arrivalSpellTargetGuid), arrivalSpellId, true);
+            owner.castSpell(owner.getWorldContext().getUnit(owner, arrivalSpellTargetGuid), arrivalSpellId, true);
         }
 
         var creature = owner.toCreature();
 
-        if (creature != null && creature.getAI() != null) {
-            creature.getAI().movementInform(type, pointId);
+        if (creature != null && creature.getAi() != null) {
+            creature.getAi().movementInform(type, pointId);
         }
     }
 }

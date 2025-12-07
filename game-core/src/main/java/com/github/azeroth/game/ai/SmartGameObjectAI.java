@@ -1,15 +1,18 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.spells.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.gobject.GameObject;
-import com.github.azeroth.game.entity.object.WorldObject;
-import com.github.azeroth.game.entity.player.Player;
-import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.spell.SpellInfo;
+
 
 public class SmartGameObjectAI extends GameObjectAI {
-    private final smartScript script = new smartScript();
+    private final SmartScript script = new SmartScript();
 
     // Gossip
     private boolean gossipReturn;
@@ -18,6 +21,8 @@ public class SmartGameObjectAI extends GameObjectAI {
         super(go);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         getScript().onUpdate(diff);
@@ -46,6 +51,8 @@ public class SmartGameObjectAI extends GameObjectAI {
         return gossipReturn;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     @Override
     public boolean onGossipSelect(Player player, int menuId, int gossipListId) {
         gossipReturn = false;
@@ -54,6 +61,8 @@ public class SmartGameObjectAI extends GameObjectAI {
         return gossipReturn;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override bool OnGossipSelectCode(Player player, uint menuId, uint gossipListId, string code)
     @Override
     public boolean onGossipSelectCode(Player player, int menuId, int gossipListId, String code) {
         return false;
@@ -64,6 +73,8 @@ public class SmartGameObjectAI extends GameObjectAI {
         getScript().processEventsFor(SmartEvents.AcceptedQuest, player, quest.id, 0, false, null, me);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     @Override
     public void onQuestReward(Player player, Quest quest, LootItemType type, int opt) {
         getScript().processEventsFor(SmartEvents.RewardQuest, player, quest.id, opt, false, null, me);
@@ -77,34 +88,48 @@ public class SmartGameObjectAI extends GameObjectAI {
         return gossipReturn;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void Destroyed(WorldObject attacker, uint eventId)
     @Override
     public void destroyed(WorldObject attacker, int eventId) {
-        getScript().processEventsFor(SmartEvents.Death, attacker != null ? attacker.toUnit() : null, eventId, 0, false, null, me);
+        getScript().processEventsFor(SmartEvents.Death, attacker != null ? attacker.getAsUnit() : null, eventId, 0, false, null, me);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void SetData(uint id, uint value)
     @Override
     public void setData(int id, int value) {
         setData(id, value, null);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void SetData(uint id, uint value, Unit invoker)
     public final void setData(int id, int value, Unit invoker) {
         getScript().processEventsFor(SmartEvents.DataSet, invoker, id, value);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
     public final void setTimedActionList(SmartScriptHolder e, int entry, Unit invoker) {
         getScript().setTimedActionList(e, entry, invoker);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void OnGameEvent(bool start, ushort eventId)
     @Override
     public void onGameEvent(boolean start, short eventId) {
         getScript().processEventsFor(start ? SmartEvents.GameEventStart : SmartEvents.GameEventEnd, null, eventId);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void OnLootStateChanged(uint state, Unit unit)
     @Override
     public void onLootStateChanged(int state, Unit unit) {
         getScript().processEventsFor(SmartEvents.GoLootStateChanged, unit, state);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void EventInform(uint eventId)
     @Override
     public void eventInform(int eventId) {
         getScript().processEventsFor(SmartEvents.GoEventInform, null, eventId);
@@ -112,7 +137,7 @@ public class SmartGameObjectAI extends GameObjectAI {
 
     @Override
     public void spellHit(WorldObject caster, SpellInfo spellInfo) {
-        getScript().processEventsFor(SmartEvents.SpellHit, caster.toUnit(), 0, 0, false, spellInfo);
+        getScript().processEventsFor(SmartEvents.SpellHit, caster.getAsUnit(), 0, 0, false, spellInfo);
     }
 
     @Override

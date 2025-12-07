@@ -295,7 +295,7 @@ public class TargetInfo extends TargetInfoBase {
                 // Failed Pickpocket, reveal rogue
                 if (missCondition == SpellMissInfo.resist && spell.spellInfo.hasAttribute(SpellCustomAttributes.PickPocket) && spell.unitTarget.isCreature()) {
                     var unitCaster = spell.getCaster().toUnit();
-                    unitCaster.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
+                    unitCaster.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.Interacting);
                     spell.unitTarget.toCreature().engageWithTarget(unitCaster);
                 }
             }
@@ -303,11 +303,11 @@ public class TargetInfo extends TargetInfoBase {
             // Do triggers for unit
             if (canEffectTrigger) {
                 if (spell.spellInfo.hasAttribute(SpellAttr3.SuppressCasterProcs)) {
-                    procAttacker = new ProcFlagsInit();
+                    procAttacker = new EnumFlag<ProcFlag>();
                 }
 
                 if (spell.spellInfo.hasAttribute(SpellAttr3.SuppressTargetProcs)) {
-                    procVictim = new ProcFlagsInit();
+                    procVictim = new EnumFlag<ProcFlag>();
                 }
 
                 unit.procSkillsAndAuras(caster, spell.unitTarget, procAttacker, procVictim, procSpellType, ProcFlagsSpellPhase.hit, hitMask, spell, spellDamageInfo, healInfo);
@@ -364,7 +364,7 @@ public class TargetInfo extends TargetInfoBase {
             var cHitTarget = spellHitTarget.toCreature();
 
             if (cHitTarget != null) {
-                var hitTargetAI = cHitTarget.getAI();
+                var hitTargetAI = cHitTarget.getAi();
 
                 if (hitTargetAI != null) {
                     hitTargetAI.spellHit(spell.getCaster(), spell.spellInfo);
@@ -372,7 +372,7 @@ public class TargetInfo extends TargetInfoBase {
             }
 
             if (spell.getCaster().isCreature() && spell.getCaster().toCreature().isAIEnabled()) {
-                spell.getCaster().toCreature().getAI().spellHitTarget(spellHitTarget, spell.spellInfo);
+                spell.getCaster().toCreature().getAi().spellHitTarget(spellHitTarget, spell.spellInfo);
             } else if (spell.getCaster().isGameObject() && spell.getCaster().toGameObject().getAI() != null) {
                 spell.getCaster().toGameObject().getAI().spellHitTarget(spellHitTarget, spell.spellInfo);
             }

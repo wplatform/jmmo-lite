@@ -3,6 +3,7 @@ package com.github.azeroth.game.loot;
 
 import com.github.azeroth.dbc.defines.ItemContext;
 import com.github.azeroth.defines.LootMethod;
+import com.github.azeroth.defines.LootMode;
 import com.github.azeroth.defines.LootType;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.object.enums.HighGuid;
@@ -12,14 +13,19 @@ import com.github.azeroth.game.entity.item.enums.InventoryResult;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.group.PlayerGroup;
 import com.github.azeroth.game.map.Map;
+import com.github.azeroth.game.networking.packet.loot.LootItemData;
+import com.github.azeroth.game.networking.packet.loot.LootResponse;
 import com.github.azeroth.game.world.WorldContext;
 import com.github.azeroth.utils.RandomUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
+@Getter
+@Setter
 public class Loot {
     private final ArrayList<ObjectGuid> playersLooting = new ArrayList<>();
     private final HashMap<ObjectGuid, List<NotNormalLootItem>> playerFFAItems = new HashMap<>();
@@ -123,7 +129,7 @@ public class Loot {
                 msg = player.canStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, lootItem.itemid, lootItem.count);
             }
 
-            if (msg != InventoryResult.Ok) {
+            if (msg != InventoryResult.OK) {
                 player.sendEquipError(msg, null, null, lootItem.itemid);
                 allLooted = false;
 
@@ -156,21 +162,21 @@ public class Loot {
         return null;
     }
 
-    public final boolean fillLoot(int lootId, LootStore store, Player lootOwner, boolean personal, boolean noEmptyError, LootModes lootMode) {
-        return fillLoot(lootId, store, lootOwner, personal, noEmptyError, lootMode, 0);
+    public final boolean fillLoot(int lootId, LootStore store, Player lootOwner, boolean personal, boolean noEmptyError, LootMode lootMode) {
+        return fillLoot(lootId, store, lootOwner, personal, noEmptyError, lootMode, ItemContext.NONE);
     }
 
     // Calls processor of corresponding LootTemplate (which handles everything including references)
 
     public final boolean fillLoot(int lootId, LootStore store, Player lootOwner, boolean personal, boolean noEmptyError) {
-        return fillLoot(lootId, store, lootOwner, personal, noEmptyError, LootModes.Default, 0);
+        return fillLoot(lootId, store, lootOwner, personal, noEmptyError, LootMode.DEFAULT, ItemContext.NONE);
     }
 
     public final boolean fillLoot(int lootId, LootStore store, Player lootOwner, boolean personal) {
-        return fillLoot(lootId, store, lootOwner, personal, false, LootModes.Default, 0);
+        return fillLoot(lootId, store, lootOwner, personal, false, LootMode.DEFAULT, ItemContext.NONE);
     }
 
-    public final boolean fillLoot(int lootId, LootStore store, Player lootOwner, boolean personal, boolean noEmptyError, LootModes lootMode, ItemContext context) {
+    public final boolean fillLoot(int lootId, LootStore store, Player lootOwner, boolean personal, boolean noEmptyError, LootMode lootMode, ItemContext context) {
         // Must be provided
         if (lootOwner == null) {
             return false;
@@ -363,31 +369,25 @@ public class Loot {
 
     public final void generateMoneyLoot(int minAmount, int maxAmount) {
         if (maxAmount > 0) {
+            float dropMoney = worldContext.getWorldSettings().rate.dropMoney;
             if (maxAmount <= minAmount) {
-                gold = (int) (maxAmount * WorldConfig.getFloatValue(WorldCfg.RateDropMoney));
+                gold = (int) (maxAmount * dropMoney);
             } else if ((maxAmount - minAmount) < 32700) {
-                gold = (int) (RandomUtil.URand(minAmount, maxAmount) * WorldConfig.getFloatValue(WorldCfg.RateDropMoney));
+                gold = (int) (RandomUtil.randomInt(minAmount, maxAmount) * dropMoney);
             } else {
-                gold = (int) (RandomUtil.URand(minAmount >>> 8, maxAmount >>> 8) * WorldConfig.getFloatValue(WorldCfg.RateDropMoney)) << 8;
+                gold = (int) (RandomUtil.randomInt(minAmount >>> 8, maxAmount >>> 8) * dropMoney) << 8;
             }
         }
     }
 
-    public final LootItem lootItemInSlot(int lootSlot, Player player) {
-        tangible.OutObject<NotNormalLootItem> tempOut__ = new tangible.OutObject<NotNormalLootItem>();
-        var tempVar = lootItemInSlot(lootSlot, player, tempOut__);
-        _ = tempOut__.outArgValue;
-        return tempVar;
-    }
 
-    public final LootItem lootItemInSlot(int lootListId, Player player, tangible.OutObject<NotNormalLootItem> ffaItem) {
-        ffaItem.outArgValue = null;
+    public final LootItem lootItemInSlot(int lootListId, Player player, NotNormalLootItem ffaItem) {
 
         if (lootListId >= items.size()) {
             return null;
         }
 
-        var item = items.get((int) lootListId);
+        var item = items.get(lootListId);
         var is_looted = item.is_looted;
 
         if (item.freeforall) {
@@ -397,7 +397,7 @@ public class Loot {
                 for (var notNormalLootItem : itemList) {
                     if (notNormalLootItem.lootListId == lootListId) {
                         is_looted = notNormalLootItem.is_looted;
-                        ffaItem.outArgValue = notNormalLootItem;
+                        ffaItem = notNormalLootItem;
 
                         break;
                     }
@@ -473,7 +473,7 @@ public class Loot {
 
             LootItemData lootItem = new LootItemData();
             lootItem.lootListID = (byte) item.lootListId;
-            lootItem.UIType = uiType;
+            lootItem.uiType = uiType;
             lootItem.quantity = item.count;
             lootItem.loot = new itemInstance(item);
             packet.items.add(lootItem);
@@ -515,42 +515,6 @@ public class Loot {
 
     public final void removeLooter(ObjectGuid guid) {
         playersLooting.remove(guid);
-    }
-
-    public final ObjectGuid getGUID() {
-        return guid;
-    }
-
-    public final ObjectGuid getOwnerGUID() {
-        return owner;
-    }
-
-    public final ItemContext getItemContext() {
-        return itemContext;
-    }
-
-    public final void setItemContext(ItemContext context) {
-        itemContext = context;
-    }
-
-    public final LootMethod getLootMethod() {
-        return lootMethod;
-    }
-
-    public final ObjectGuid getLootMasterGUID() {
-        return lootMaster;
-    }
-
-    public final int getDungeonEncounterId() {
-        return dungeonEncounterId;
-    }
-
-    public final void setDungeonEncounterId(int dungeonEncounterId) {
-        dungeonEncounterId = dungeonEncounterId;
-    }
-
-    public final MultiMap<ObjectGuid, NotNormalLootItem> getPlayerFFAItems() {
-        return playerFFAItems;
     }
 
 

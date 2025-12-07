@@ -1,11 +1,16 @@
 package com.github.azeroth.game.movement;
 
 
+import com.github.azeroth.defines.EventId;
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.object.enums.TypeId;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.enums.*;
+import com.github.azeroth.game.movement.model.SpellEffectExtraData;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 
-public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
+public class PointMovementGenerator extends MovementGenerator {
     private final int movementId;
     private final Position destination;
     private final Float speed;
@@ -44,20 +49,20 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
     }
 
     public PointMovementGenerator(int id, float x, float y, float z, boolean generatePath, float speed, Float finalOrient, Unit faceTarget, SpellEffectExtraData spellEffectExtraData, MovementWalkRunSpeedSelectionMode speedSelectionMode, float closeEnoughDistance) {
-        movementId = id;
-        destination = new Position(x, y, z);
-        speed = speed == 0.0f ? null : speed;
-        generatePath = generatePath;
-        finalOrient = finalOrient;
-        faceTarget = faceTarget;
-        spellEffectExtra = spellEffectExtraData;
-        closeEnoughDistance = closeEnoughDistance == 0 ? null : closeEnoughDistance;
-        speedSelectionMode = speedSelectionMode;
+        this.movementId = id;
+        this.destination = new Position(x, y, z);
+        this.speed = speed == 0.0f ? null : speed;
+        this.generatePath = generatePath;
+        this.finalOrient = finalOrient;
+        this.faceTarget = faceTarget;
+        this.spellEffectExtra = spellEffectExtraData;
+        this.closeEnoughDistance = closeEnoughDistance == 0 ? null : closeEnoughDistance;
+        this.speedSelectionMode = speedSelectionMode;
 
-        mode = MovementGeneratorMode.Default;
-        priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.Roaming;
+        this.mode = MovementGeneratorMode.DEFAULT;
+        this.priority = MovementGeneratorPriority.NORMAL;
+        this.flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        this.baseUnitState = UnitState.ROAMING;
     }
 
 
@@ -66,24 +71,26 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
     }
 
     @Override
-    public void doInitialize(Unit owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        addFlag(MovementGeneratorFlags.initialized);
+    public void initialize(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.DEACTIVATED);
+        flags.addFlag(MovementGeneratorFlag.INITIALIZED);
 
-        if (movementId == eventId.ChargePrepath) {
-            owner.addUnitState(UnitState.RoamingMove);
+        if (movementId == EventId.CHARGE_PREPATH.value) {
+            owner.addUnitState(UnitState.ROAMING_MOVE);
 
             return;
         }
 
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting()) {
+            flags.addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
 
             return;
         }
 
-        owner.addUnitState(UnitState.RoamingMove);
+
+
+        owner.addUnitState(UnitState.ROAMING_MOVE);
 
         MoveSplineInit init = new MoveSplineInit(owner);
 
@@ -92,7 +99,7 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
 
             var result = path.calculatePath(destination, false);
 
-            if (result && (path.getPathType().getValue() & PathType.NOPATH.getValue()) == 0) {
+            if (result && (!path.getPathType().hasFlag(PathType.NOPATH))) {
                 if (closeEnoughDistance != null) {
                     path.shortenPathUntilDist(destination, closeEnoughDistance.floatValue());
                 }
@@ -111,10 +118,10 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
 
 
         if (speed != null) {
-            init.setVelocity(speed.floatValue());
+            init.setVelocity(speed);
         }
 
-        if (faceTarget) {
+        if (faceTarget != null) {
             init.setFacing(faceTarget);
         }
 
@@ -123,7 +130,7 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
         }
 
         if (finalOrient != null) {
-            init.setFacing(finalOrient.floatValue());
+            init.setFacing(finalOrient);
         }
 
         switch (speedSelectionMode) {
@@ -152,21 +159,20 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
     }
 
     @Override
-    public void doReset(Unit owner) {
-        removeFlag(MovementGeneratorFlags.Transitory.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-
-        doInitialize(owner);
+    public void reset(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.TRANSIENT, MovementGeneratorFlag.DEACTIVATED);
+        initialize(owner);
     }
 
     @Override
-    public boolean doUpdate(Unit owner, int diff) {
+    public boolean update(Unit owner, int diff) {
         if (owner == null) {
             return false;
         }
 
-        if (movementId == eventId.ChargePrepath) {
+        if (movementId == EventId.CHARGE_PREPATH.value) {
             if (owner.getMoveSpline().finalized()) {
-                addFlag(MovementGeneratorFlags.InformEnabled);
+                flags.addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
                 return false;
             }
@@ -174,24 +180,24 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
             return true;
         }
 
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting()) {
+            flags.addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
 
             return true;
         }
 
-        if ((hasFlag(MovementGeneratorFlags.Interrupted) && owner.getMoveSpline().finalized()) || (hasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.getMoveSpline().finalized())) {
-            removeFlag(MovementGeneratorFlags.Interrupted.getValue() | MovementGeneratorFlags.SpeedUpdatePending.getValue());
+        if ((flags.hasFlag(MovementGeneratorFlag.INTERRUPTED) && owner.getMoveSpline().finalized()) || (flags.hasFlag(MovementGeneratorFlag.SPEED_UPDATE_PENDING) && !owner.getMoveSpline().finalized())) {
+            flags.removeFlag(MovementGeneratorFlag.INTERRUPTED, MovementGeneratorFlag.SPEED_UPDATE_PENDING);
 
-            owner.addUnitState(UnitState.RoamingMove);
+            owner.addUnitState(UnitState.ROAMING_MOVE);
 
             MoveSplineInit init = new MoveSplineInit(owner);
             init.moveTo(destination.getX(), destination.getY(), destination.getZ(), generatePath);
 
             if (speed != null) // Default second for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
             {
-                init.setVelocity(speed.floatValue());
+                init.setVelocity(speed);
             }
 
             init.launch();
@@ -205,8 +211,8 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
         }
 
         if (owner.getMoveSpline().finalized()) {
-            removeFlag(MovementGeneratorFlags.Transitory);
-            addFlag(MovementGeneratorFlags.InformEnabled);
+            flags.removeFlag(MovementGeneratorFlag.TRANSITORY);
+            flags.addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
             return false;
         }
@@ -215,39 +221,39 @@ public class PointMovementGenerator extends MovementGeneratorMedium<unit> {
     }
 
     @Override
-    public void doDeactivate(Unit owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
-        owner.clearUnitState(UnitState.RoamingMove);
+    public void deactivate(Unit owner) {
+        flags.addFlag(MovementGeneratorFlag.DEACTIVATED);
+        owner.clearUnitState(UnitState.ROAMING_MOVE);
     }
 
     @Override
-    public void doFinalize(Unit owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+    public void finalize(Unit owner, boolean active, boolean movementInform) {
+        flags.addFlag(MovementGeneratorFlag.FINALIZED);
 
         if (active) {
-            owner.clearUnitState(UnitState.RoamingMove);
+            owner.clearUnitState(UnitState.ROAMING_MOVE);
         }
 
-        if (movementInform && hasFlag(MovementGeneratorFlags.InformEnabled) && owner.isCreature()) {
+        if (movementInform && flags.hasFlag(MovementGeneratorFlag.INFORM_ENABLED) && owner.isCreature()) {
             movementInform(owner);
         }
     }
 
     public final void movementInform(Unit owner) {
         if (owner.isTypeId(TypeId.UNIT)) {
-            if (owner.toCreature().getAI() != null) {
-                owner.toCreature().getAI().movementInform(MovementGeneratorType.Point, movementId);
+            if (owner.toCreature().getAi() != null) {
+                owner.toCreature().getAi().movementInform(MovementGeneratorType.POINT, movementId);
             }
         }
     }
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.Point;
+        return MovementGeneratorType.POINT;
     }
 
     @Override
     public void unitSpeedChanged() {
-        addFlag(MovementGeneratorFlags.SpeedUpdatePending);
+        flags.addFlag(MovementGeneratorFlag.SPEED_UPDATE_PENDING);
     }
 }

@@ -11,13 +11,4 @@ public final class MonsterSplineFilterKey {
         data.writeInt16(idx);
         data.writeInt16(speed);
     }
-
-    public MonsterSplineFilterKey clone() {
-        MonsterSplineFilterKey varCopy = new MonsterSplineFilterKey();
-
-        varCopy.idx = this.idx;
-        varCopy.speed = this.speed;
-
-        return varCopy;
-    }
 }

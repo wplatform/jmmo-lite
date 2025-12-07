@@ -10,13 +10,4 @@ public final class MissileTrajectoryRequest {
         pitch = data.readFloat();
         speed = data.readFloat();
     }
-
-    public MissileTrajectoryRequest clone() {
-        MissileTrajectoryRequest varCopy = new missileTrajectoryRequest();
-
-        varCopy.pitch = this.pitch;
-        varCopy.speed = this.speed;
-
-        return varCopy;
-    }
 }

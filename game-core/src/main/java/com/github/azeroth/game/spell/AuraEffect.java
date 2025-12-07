@@ -1337,7 +1337,7 @@ public class AuraEffect {
         // call functions which may have additional effects after changing state of unit
         if (apply && mode.hasFlag(AuraEffectHandleModes.Real)) {
             // drop flag at invisibiliy in bg
-            target.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
+            target.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.StealthOrInvis);
         }
 
         if (target.isInWorld()) {
@@ -1408,7 +1408,7 @@ public class AuraEffect {
         // call functions which may have additional effects after changing state of unit
         if (apply && mode.hasFlag(AuraEffectHandleModes.Real)) {
             // drop flag at stealth in bg
-            target.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
+            target.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.StealthOrInvis);
         }
 
         if (target.isInWorld()) {
@@ -1644,7 +1644,7 @@ public class AuraEffect {
             }
 
             if (!shapeInfo.flags.hasFlag(SpellShapeshiftFormFlags.Stance)) {
-                target.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.Shapeshifting, getSpellInfo());
+                target.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.Shapeshifting, getSpellInfo());
             }
         } else {
             // reset model id if no other auras present
@@ -1710,7 +1710,7 @@ public class AuraEffect {
             // Disarm handling
             // If druid shifts while being disarmed we need to deal with that since forms aren't affected by disarm
             // and also HandleAuraModDisarm is not triggered
-            if (!target.canUseAttackType(WeaponAttackType.BaseAttack)) {
+            if (!target.canUseAttackType(WeaponAttackType.BASE_ATTACK)) {
                 var pItem = target.toPlayer().getItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
                 if (pItem != null) {
@@ -2160,7 +2160,7 @@ public class AuraEffect {
                 }
 
                 slot = EquipmentSlot.MainHand;
-                attType = WeaponAttackType.BaseAttack;
+                attType = WeaponAttackType.BASE_ATTACK;
 
                 break;
             case ModDisarmOffhand:
@@ -2177,7 +2177,7 @@ public class AuraEffect {
                 }
 
                 slot = EquipmentSlot.OffHand;
-                attType = WeaponAttackType.OffAttack;
+                attType = WeaponAttackType.OFF_ATTACK;
 
                 break;
             case ModDisarmRanged:
@@ -2998,7 +2998,7 @@ public class AuraEffect {
             return;
         }
 
-        var pet = target.getAsPet();
+        var pet = target.toPet();
 
         if (apply) {
             if (caster.toPlayer().getCurrentPet() != pet) {
@@ -3267,7 +3267,7 @@ public class AuraEffect {
         // TODO: this should be handled in aura script for flag spells using AfterEffectRemove hook
         var player = target.toPlayer();
 
-        if (!apply && player != null && getSpellInfo().hasAuraInterruptFlag(SpellAuraInterruptFlags.StealthOrInvis)) {
+        if (!apply && player != null && getSpellInfo().hasAuraInterruptFlag(SpellAuraInterruptFlag.StealthOrInvis)) {
             if (player.getInBattleground()) {
                 var bg = player.getBattleground();
 
@@ -3323,12 +3323,12 @@ public class AuraEffect {
         {
             // TODO: should be changed to a proc script on flag spell (they have "Taken positive" proc flags in db2)
             if (apply && getMiscValue() == spellSchoolMask.NORMAL.getValue()) {
-                target.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
+                target.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.StealthOrInvis);
             }
 
             // remove all flag auras (they are positive, but they must be removed when you are immune)
             if (getSpellInfo().hasAttribute(SpellAttr1.ImmunityPurgesEffect) && getSpellInfo().hasAttribute(SpellAttr2.FailOnAllTargetsImmune)) {
-                target.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
+                target.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.StealthOrInvis);
             }
         }
 
@@ -3709,8 +3709,8 @@ public class AuraEffect {
             return;
         }
 
-        target.toPlayer().updateExpertise(WeaponAttackType.BaseAttack);
-        target.toPlayer().updateExpertise(WeaponAttackType.OffAttack);
+        target.toPlayer().updateExpertise(WeaponAttackType.BASE_ATTACK);
+        target.toPlayer().updateExpertise(WeaponAttackType.OFF_ATTACK);
     }
 
     // Increase armor by <AuraEffect.basePoints> % of your <primary stat>
@@ -4354,8 +4354,8 @@ public class AuraEffect {
         //! ToDo: Haste auras with the same handler _CAN'T_ stack together
         var target = aurApp.getTarget();
 
-        target.applyAttackTimePercentMod(WeaponAttackType.BaseAttack, getAmount(), apply);
-        target.applyAttackTimePercentMod(WeaponAttackType.OffAttack, getAmount(), apply);
+        target.applyAttackTimePercentMod(WeaponAttackType.BASE_ATTACK, getAmount(), apply);
+        target.applyAttackTimePercentMod(WeaponAttackType.OFF_ATTACK, getAmount(), apply);
         target.applyAttackTimePercentMod(WeaponAttackType.RangedAttack, getAmount(), apply);
     }
 
@@ -4374,14 +4374,14 @@ public class AuraEffect {
 
         if (spellGroupVal != 0) {
             target.applyCastTimePercentMod(spellGroupVal, !apply);
-            target.applyAttackTimePercentMod(WeaponAttackType.BaseAttack, spellGroupVal, !apply);
-            target.applyAttackTimePercentMod(WeaponAttackType.OffAttack, spellGroupVal, !apply);
+            target.applyAttackTimePercentMod(WeaponAttackType.BASE_ATTACK, spellGroupVal, !apply);
+            target.applyAttackTimePercentMod(WeaponAttackType.OFF_ATTACK, spellGroupVal, !apply);
             target.applyAttackTimePercentMod(WeaponAttackType.RangedAttack, spellGroupVal, !apply);
         }
 
         target.applyCastTimePercentMod(getAmount(), apply);
-        target.applyAttackTimePercentMod(WeaponAttackType.BaseAttack, getAmount(), apply);
-        target.applyAttackTimePercentMod(WeaponAttackType.OffAttack, getAmount(), apply);
+        target.applyAttackTimePercentMod(WeaponAttackType.BASE_ATTACK, getAmount(), apply);
+        target.applyAttackTimePercentMod(WeaponAttackType.OFF_ATTACK, getAmount(), apply);
         target.applyAttackTimePercentMod(WeaponAttackType.RangedAttack, getAmount(), apply);
     }
 
@@ -4393,8 +4393,8 @@ public class AuraEffect {
 
         var target = aurApp.getTarget();
 
-        target.applyAttackTimePercentMod(WeaponAttackType.BaseAttack, getAmount(), apply);
-        target.updateDamagePhysical(WeaponAttackType.BaseAttack);
+        target.applyAttackTimePercentMod(WeaponAttackType.BASE_ATTACK, getAmount(), apply);
+        target.updateDamagePhysical(WeaponAttackType.BASE_ATTACK);
     }
 
     
@@ -4412,12 +4412,12 @@ public class AuraEffect {
         }
 
         if (spellGroupVal != 0) {
-            target.applyAttackTimePercentMod(WeaponAttackType.BaseAttack, spellGroupVal, !apply);
-            target.applyAttackTimePercentMod(WeaponAttackType.OffAttack, spellGroupVal, !apply);
+            target.applyAttackTimePercentMod(WeaponAttackType.BASE_ATTACK, spellGroupVal, !apply);
+            target.applyAttackTimePercentMod(WeaponAttackType.OFF_ATTACK, spellGroupVal, !apply);
         }
 
-        target.applyAttackTimePercentMod(WeaponAttackType.BaseAttack, getAmount(), apply);
-        target.applyAttackTimePercentMod(WeaponAttackType.OffAttack, getAmount(), apply);
+        target.applyAttackTimePercentMod(WeaponAttackType.BASE_ATTACK, getAmount(), apply);
+        target.applyAttackTimePercentMod(WeaponAttackType.OFF_ATTACK, getAmount(), apply);
     }
 
     
@@ -4614,7 +4614,7 @@ public class AuraEffect {
         var target = aurApp.getTarget();
 
         // also handles spell group stacks
-        target.updateDamagePctDoneMods(WeaponAttackType.OffAttack);
+        target.updateDamagePctDoneMods(WeaponAttackType.OFF_ATTACK);
     }
 
     private void handleShieldBlockValue(AuraApplication aurApp, AuraEffectHandleModes mode, boolean apply) {
@@ -5612,7 +5612,7 @@ public class AuraEffect {
             return;
         }
 
-        CleanDamage cleanDamage = new cleanDamage(0, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.NORMAL);
+        CleanDamage cleanDamage = new cleanDamage(0, 0, WeaponAttackType.BASE_ATTACK, MeleeHitOutcome.NORMAL);
 
         var stackAmountForBonuses = !getSpellEffectInfo().effectAttributes.hasFlag(SpellEffectAttributes.NoScaleWithStack) ? getBase().getStackAmount() : 1;
 
@@ -5706,7 +5706,7 @@ public class AuraEffect {
 
         damage = dmg;
 
-        DamageInfo damageInfo = new DamageInfo(caster, target, damage, getSpellInfo(), getSpellInfo().getSchoolMask(), DamageEffectType.DOT, WeaponAttackType.BaseAttack);
+        DamageInfo damageInfo = new DamageInfo(caster, target, damage, getSpellInfo(), getSpellInfo().getSchoolMask(), DamageEffectType.DOT, WeaponAttackType.BASE_ATTACK);
         unit.calcAbsorbResist(damageInfo);
         damage = damageInfo.getDamage();
 
@@ -5719,8 +5719,8 @@ public class AuraEffect {
         damage = tempRef_damage2.refArgValue;
 
         // Set trigger flag
-        var procAttacker = new ProcFlagsInit(procFlags.DealHarmfulPeriodic);
-        var procVictim = new ProcFlagsInit(procFlags.TakeHarmfulPeriodic);
+        var procAttacker = new EnumFlag<ProcFlag>(procFlags.DealHarmfulPeriodic);
+        var procVictim = new EnumFlag<ProcFlag>(procFlags.TakeHarmfulPeriodic);
         var hitMask = damageInfo.getHitMask();
 
         if (damage != 0) {
@@ -5819,8 +5819,8 @@ public class AuraEffect {
         }
 
         // Set trigger flag
-        var procAttacker = new ProcFlagsInit(procFlags.DealHarmfulPeriodic);
-        var procVictim = new ProcFlagsInit(procFlags.TakeHarmfulPeriodic);
+        var procAttacker = new EnumFlag<ProcFlag>(procFlags.DealHarmfulPeriodic);
+        var procVictim = new EnumFlag<ProcFlag>(procFlags.TakeHarmfulPeriodic);
         var hitMask = damageInfo.getHitMask();
 
         if (damage != 0) {
@@ -5845,7 +5845,7 @@ public class AuraEffect {
         caster.healBySpell(healInfo);
 
         caster.getThreatManager().forwardThreatForAssistingMe(caster, healInfo.getEffectiveHeal() * 0.5f, getSpellInfo());
-        unit.procSkillsAndAuras(caster, caster, new ProcFlagsInit(procFlags.DealHelpfulPeriodic), new ProcFlagsInit(procFlags.TakeHelpfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.hit, hitMask, null, null, healInfo);
+        unit.procSkillsAndAuras(caster, caster, new EnumFlag<ProcFlag>(procFlags.DealHelpfulPeriodic), new EnumFlag<ProcFlag>(procFlags.TakeHelpfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.hit, hitMask, null, null, healInfo);
 
         caster.sendSpellNonMeleeDamageLog(log);
     }
@@ -5881,7 +5881,7 @@ public class AuraEffect {
 
         HealInfo healInfo = new HealInfo(caster, target, damage, getSpellInfo(), getSpellInfo().getSchoolMask());
         caster.healBySpell(healInfo);
-        unit.procSkillsAndAuras(caster, target, new ProcFlagsInit(procFlags.DealHarmfulPeriodic), new ProcFlagsInit(procFlags.TakeHarmfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.hit, ProcFlagsHit.NORMAL, null, null, healInfo);
+        unit.procSkillsAndAuras(caster, target, new EnumFlag<ProcFlag>(procFlags.DealHarmfulPeriodic), new EnumFlag<ProcFlag>(procFlags.TakeHarmfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.hit, ProcFlagsHit.NORMAL, null, null, healInfo);
     }
 
     private void handlePeriodicHealAurasTick(Unit target, Unit caster) {
@@ -5939,8 +5939,8 @@ public class AuraEffect {
             return;
         }
 
-        var procAttacker = new ProcFlagsInit(procFlags.DealHelpfulPeriodic);
-        var procVictim = new ProcFlagsInit(procFlags.TakeHelpfulPeriodic);
+        var procAttacker = new EnumFlag<ProcFlag>(procFlags.DealHelpfulPeriodic);
+        var procVictim = new EnumFlag<ProcFlag>(procFlags.TakeHelpfulPeriodic);
         var hitMask = crit ? ProcFlagsHit.Critical : ProcFlagsHit.NORMAL;
 
         // ignore item heals
@@ -6110,8 +6110,8 @@ public class AuraEffect {
         damageInfo.damage = tempRef_Damage.refArgValue;
 
         // Set trigger flag
-        var procAttacker = new ProcFlagsInit(procFlags.DealHarmfulPeriodic);
-        var procVictim = new ProcFlagsInit(procFlags.TakeHarmfulPeriodic);
+        var procAttacker = new EnumFlag<ProcFlag>(procFlags.DealHarmfulPeriodic);
+        var procVictim = new EnumFlag<ProcFlag>(procFlags.TakeHarmfulPeriodic);
         var hitMask = unit.createProcHitMask(damageInfo, SpellMissInfo.NONE);
         var spellTypeMask = ProcFlagsSpellType.NoDmgHeal;
 
@@ -6122,7 +6122,7 @@ public class AuraEffect {
 
         caster.dealSpellDamage(damageInfo, true);
 
-        DamageInfo dotDamageInfo = new DamageInfo(damageInfo, DamageEffectType.DOT, WeaponAttackType.BaseAttack, hitMask);
+        DamageInfo dotDamageInfo = new DamageInfo(damageInfo, DamageEffectType.DOT, WeaponAttackType.BASE_ATTACK, hitMask);
         unit.procSkillsAndAuras(caster, target, procAttacker, procVictim, spellTypeMask, ProcFlagsSpellPhase.hit, hitMask, null, dotDamageInfo, null);
 
         caster.sendSpellNonMeleeDamageLog(damageInfo);

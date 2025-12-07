@@ -79,7 +79,7 @@ class DebugCommands {
             duration = durationofMinutes(3);
         }
 
-        var errMsg = target.getAI().visualizeBoundary(duration, player, Objects.equals(fill, "fill"));
+        var errMsg = target.getAi().visualizeBoundary(duration, player, Objects.equals(fill, "fill"));
 
         if (errMsg.getValue() > 0) {
             handler.sendSysMessage(errMsg);

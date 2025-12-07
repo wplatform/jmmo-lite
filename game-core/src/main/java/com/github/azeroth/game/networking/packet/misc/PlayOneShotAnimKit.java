@@ -1,13 +1,15 @@
 package com.github.azeroth.game.networking.packet.misc;
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
 
 public class PlayOneShotAnimKit extends ServerPacket {
-    public ObjectGuid unit = ObjectGuid.EMPTY;
+    public ObjectGuid unit;
     public short animKitID;
 
     public PlayOneShotAnimKit() {
-        super(ServerOpcode.PlayOneShotAnimKit);
+        super(ServerOpCode.SMSG_PLAY_ONE_SHOT_ANIM_KIT);
     }
 
     @Override

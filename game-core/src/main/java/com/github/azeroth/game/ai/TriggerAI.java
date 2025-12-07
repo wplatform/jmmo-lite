@@ -1,8 +1,14 @@
-package com.github.azeroth.game.ai;
+package game.ai;
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.object.WorldObject;
-import com.github.azeroth.game.spell.CastSpellExtraArgs;
+import game.entities.*;
+import game.spells.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
+
 
 public class TriggerAI extends NullCreatureAI {
     public TriggerAI(Creature c) {
@@ -11,10 +17,10 @@ public class TriggerAI extends NullCreatureAI {
 
     @Override
     public void isSummonedBy(WorldObject summoner) {
-        if (me.getSpells()[0] != 0) {
+        if (me.spells[0] != 0) {
             CastSpellExtraArgs extra = new CastSpellExtraArgs();
-            extra.originalCaster = summoner.getGUID();
-            me.castSpell(me, me.getSpells()[0], extra);
+            extra.originalCaster = summoner.getGUID().clone();
+            me.CastSpell(me, me.spells[0], extra);
         }
     }
 }

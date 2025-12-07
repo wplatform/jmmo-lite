@@ -220,7 +220,7 @@ public class SpellInfo {
         var options = data.auraOptions;
 
         if (options != null) {
-            setProcFlags(new ProcFlagsInit(options.ProcTypeMask));
+            setProcFlags(new EnumFlag<ProcFlag>(options.ProcTypeMask));
             setProcChance(options.procChance);
             setProcCharges((int) options.procCharges);
             setProcCooldown(options.ProcCategoryRecovery);
@@ -885,11 +885,11 @@ public class SpellInfo {
         channelInterruptFlags2 = value;
     }
 
-    public final ProcFlagsInit getProcFlags() {
+    public final EnumFlag<ProcFlag> getProcFlags() {
         return procFlags;
     }
 
-    public final void setProcFlags(ProcFlagsInit value) {
+    public final void setProcFlags(EnumFlag<ProcFlag> value) {
         procFlags = value;
     }
 
@@ -1441,14 +1441,14 @@ public class SpellInfo {
         switch (getDmgClass()) {
             case Melee:
                 if (hasAttribute(SpellAttr3.RequiresOffHandWeapon)) {
-                    result = WeaponAttackType.OffAttack;
+                    result = WeaponAttackType.OFF_ATTACK;
                 } else {
-                    result = WeaponAttackType.BaseAttack;
+                    result = WeaponAttackType.BASE_ATTACK;
                 }
 
                 break;
             case Ranged:
-                result = isRangedWeaponSpell() ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack;
+                result = isRangedWeaponSpell() ? WeaponAttackType.RangedAttack : WeaponAttackType.BASE_ATTACK;
 
                 break;
             default:
@@ -1456,7 +1456,7 @@ public class SpellInfo {
                 if (isAutoRepeatRangedSpell()) {
                     result = WeaponAttackType.RangedAttack;
                 } else {
-                    result = WeaponAttackType.BaseAttack;
+                    result = WeaponAttackType.BASE_ATTACK;
                 }
 
                 break;
@@ -1933,7 +1933,7 @@ public class SpellInfo {
                         if (unitTarget.isTypeId(TypeId.PLAYER)) {
                             var player = unitTarget.toPlayer();
 
-                            if (player.getWeaponForAttack(WeaponAttackType.BaseAttack) == null || !player.isUseEquipedWeapon(true)) {
+                            if (player.getWeaponForAttack(WeaponAttackType.BASE_ATTACK) == null || !player.isUseEquipedWeapon(true)) {
                                 return SpellCastResult.TargetNoWeapons;
                             }
                         } else if (unitTarget.getVirtualItemId(0) == 0) {
@@ -3317,10 +3317,10 @@ public class SpellInfo {
             if (ss != null) {
                 speed = ss.CombatRoundTime;
             } else {
-                var slot = WeaponAttackType.BaseAttack;
+                var slot = WeaponAttackType.BASE_ATTACK;
 
                 if (!hasAttribute(SpellAttr3.RequiresMainHandWeapon) && hasAttribute(SpellAttr3.RequiresOffHandWeapon)) {
-                    slot = WeaponAttackType.OffAttack;
+                    slot = WeaponAttackType.OFF_ATTACK;
                 }
 
                 speed = unitCaster.getBaseAttackTime(slot);

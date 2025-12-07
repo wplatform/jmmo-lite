@@ -1,20 +1,21 @@
 package com.github.azeroth.game.entity.item;
 
 
+import com.github.azeroth.character.repository.CharacterRepository;
+import com.github.azeroth.character.service.CharacterService;
 import com.github.azeroth.common.EnumFlag;
 import com.github.azeroth.dbc.defines.DbcDefine;
 import com.github.azeroth.dbc.defines.ItemContext;
+import com.github.azeroth.dbc.domain.ItemModifiedAppearance;
 import com.github.azeroth.game.domain.object.enums.TypeId;
 import com.github.azeroth.game.domain.object.enums.TypeMask;
 import com.github.azeroth.game.entity.ArtifactPower;
 import com.github.azeroth.game.entity.SocketedGem;
 import com.github.azeroth.game.entity.UpdateMask;
 import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.entity.item.enums.ItemModifier;
 import com.github.azeroth.game.entity.item.enums.ItemUpdateState;
 import com.github.azeroth.game.entity.object.GenericObject;
-import com.github.azeroth.game.entity.object.update.EntityFragment;
-import com.github.azeroth.game.entity.object.update.ItemData;
-import com.github.azeroth.game.entity.object.update.UpdateData;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.loot.Loot;
 import com.github.azeroth.game.networking.WorldPacket;
@@ -25,6 +26,7 @@ import game.ConditionManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.locale;
 
 
@@ -46,57 +48,25 @@ public class Item extends GenericObject {
     private int randomBonusListId; // store separately to easily find which bonus list is the one randomly given for stat rerolling
     private ObjectGuid childItem = ObjectGuid.EMPTY;
 
-    private final ItemData itemData = new ItemData();
     private boolean lootGenerated;
     private Loot loot;
     private com.github.azeroth.game.entity.item.BonusData bonusData;
 
     public Item(ObjectGuid guid) {
-        super(guid, EnumFlag.of(TypeMask.ITEM), TypeId.ITEM, null);
-
-
-        entityMarkUpdater.add(EntityFragment.Tag_Item, false);
-
-
+        setObjectUpdated();
+        objectTypeId = TypeId.ITEM;
+        objectType.addFlag(TypeMask.ITEM);
         updateState = ItemUpdateState.New;
         queuePos = -1;
         lastPlayedTimeUpdate = GameTime.getGameTime();
     }
 
-    public static void deleteFromDB(SQLTransaction trans, long itemGuid) {
-        var stmt = DB.characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE);
-        stmt.AddValue(0, itemGuid);
-        DB.characters.ExecuteOrAppend(trans, stmt);
-
-        stmt = DB.characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
-        stmt.AddValue(0, itemGuid);
-        DB.characters.ExecuteOrAppend(trans, stmt);
-
-        stmt = DB.characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
-        stmt.AddValue(0, itemGuid);
-        DB.characters.ExecuteOrAppend(trans, stmt);
-
-        stmt = DB.characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
-        stmt.AddValue(0, itemGuid);
-        DB.characters.ExecuteOrAppend(trans, stmt);
-
-        stmt = DB.characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
-        stmt.AddValue(0, itemGuid);
-        DB.characters.ExecuteOrAppend(trans, stmt);
-
-        stmt = DB.characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
-        stmt.AddValue(0, itemGuid);
-        DB.characters.ExecuteOrAppend(trans, stmt);
-
-        stmt = DB.characters.GetPreparedStatement(CharStatements.DEL_GIFT);
-        stmt.AddValue(0, itemGuid);
-        DB.characters.ExecuteOrAppend(trans, stmt);
+    public void deleteFromDB(int itemGuid) {
+        getWorldContext().getBean(CharacterService.class).deleteItem(itemGuid);
     }
 
-    public static void deleteFromInventoryDB(SQLTransaction trans, long itemGuid) {
-        var stmt = DB.characters.GetPreparedStatement(CharStatements.DEL_CHAR_INVENTORY_BY_ITEM);
-        stmt.AddValue(0, itemGuid);
-        trans.append(stmt);
+    public void deleteFromInventoryDB(int itemGuid) {
+        getWorldContext().getBean(CharacterRepository.class).deleteCharacterInventoryByItem(itemGuid);
     }
 
     public static void removeItemFromUpdateQueueOf(Item item, Player player) {
@@ -146,11 +116,15 @@ public class Item extends GenericObject {
         return null;
     }
 
-    public static boolean canTransmogrifyItemWithItem(Item item, ItemModifiedAppearanceRecord itemModifiedAppearance) {
-        var source = global.getObjectMgr().getItemTemplate(itemModifiedAppearance.itemID); // source
+    public boolean canTransmogrifyItemWithItem(Item item, ItemModifiedAppearance itemModifiedAppearance) {
+        var source = getWorldContext().getObjectManager().getItemTemplate(itemModifiedAppearance.getItemID()); // source
         var target = item.getTemplate(); // dest
 
         if (source == null || target == null) {
+            return false;
+        }
+
+        if (Objects.equals(itemModifiedAppearance, item.getItemModifiedAppearance())) {
             return false;
         }
 
@@ -792,39 +766,8 @@ public class Item extends GenericObject {
         return (int) (proto.getPriceVariance() * typeFactor * baseFactor * qualityFactor * proto.getPriceRandomValue());
     }
 
-    public final ItemData getItemData() {
-        return itemData;
-    }
 
-    public final void setItemData(ItemData value) {
-        itemData = value;
-    }
 
-    public final boolean getLootGenerated() {
-        return lootGenerated;
-    }
-
-    public final void setLootGenerated(boolean value) {
-        lootGenerated = value;
-    }
-
-    public final Loot getLoot() {
-        return loot;
-    }
-
-    public final void setLoot(Loot value) {
-        loot = value;
-    }
-
-    public final BonusData getBonusData() {
-        return bonusData;
-    }
-
-    public final void setBonusData(BonusData value) {
-        bonusData = value;
-    }
-
-    @Override
     public ObjectGuid getOwnerGUID() {
         return getItemData().owner;
     }
@@ -833,7 +776,6 @@ public class Item extends GenericObject {
         setUpdateFieldValue(getValues().modifyValue(getItemData()).modifyValue(getItemData().owner), guid);
     }
 
-    @Override
     public Player getOwnerUnit() {
         return global.getObjAccessor().findPlayer(getOwnerGUID());
     }
@@ -2519,11 +2461,12 @@ public class Item extends GenericObject {
         return global.getDB2Mgr().GetItemDisplayId(getEntry(), getAppearanceModId());
     }
 
-    public final ItemModifiedAppearanceRecord getItemModifiedAppearance() {
-        return global.getDB2Mgr().getItemModifiedAppearance(getEntry(), getBonusData().appearanceModID);
+    public final ItemModifiedAppearance getItemModifiedAppearance() {
+        return getWorldContext().getDbcObjectManager().getItemModifiedAppearance(getEntry(), getBonusData().appearanceModID);
     }
 
     public final int getModifier(ItemModifier modifier) {
+        itemData
         var modifierIndex = getItemData().modifiers.getValue().VALUES.FindIndexIf(mod ->
         {
             return mod.type == (byte) modifier.getValue();

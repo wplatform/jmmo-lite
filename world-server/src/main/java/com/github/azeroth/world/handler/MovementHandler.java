@@ -376,7 +376,7 @@ public class MovementHandler {
 
         // interrupt parachutes upon falling or landing in water
         if (opcode == CMSG_MOVE_FALL_LAND || opcode == CMSG_MOVE_START_SWIM || opcode == CMSG_MOVE_SET_FLY)
-            mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LandingOrFlight); // Parachutes
+            mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlag::LandingOrFlight); // Parachutes
 
         if (opcode == CMSG_MOVE_SET_FLY || opcode == CMSG_MOVE_SET_ADV_FLY)
         {
@@ -399,7 +399,7 @@ public class MovementHandler {
                     if (movementInfo.pos.GetOrientation() != mover->GetOrientation())
                     {
                         mover->SetOrientation(movementInfo.pos.GetOrientation());
-                        mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Turning);
+                        mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlag::Turning);
                     }
                 }
             }
@@ -444,7 +444,7 @@ public class MovementHandler {
 
             if (opcode == CMSG_MOVE_JUMP)
             {
-                plrMover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::Jump);
+                plrMover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlag2::Jump);
                 Unit::ProcSkillsAndAuras(plrMover, nullptr, PROC_FLAG_JUMP, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
             }
 

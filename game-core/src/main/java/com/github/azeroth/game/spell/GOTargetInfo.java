@@ -23,7 +23,7 @@ public class GOTargetInfo extends TargetInfoBase {
         }
 
         if (spell.getCaster().isCreature() && spell.getCaster().toCreature().isAIEnabled()) {
-            spell.getCaster().toCreature().getAI().spellHitTarget(go, spell.spellInfo);
+            spell.getCaster().toCreature().getAi().spellHitTarget(go, spell.spellInfo);
         } else if (spell.getCaster().isGameObject() && spell.getCaster().toGameObject().getAI() != null) {
             spell.getCaster().toGameObject().getAI().spellHitTarget(go, spell.spellInfo);
         }

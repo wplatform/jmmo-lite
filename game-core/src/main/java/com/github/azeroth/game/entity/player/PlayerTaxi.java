@@ -1,156 +1,142 @@
 package com.github.azeroth.game.entity.player;
 
 
-import java.util.ArrayList;
+import com.github.azeroth.dbc.domain.FactionTemplate;
+import com.github.azeroth.dbc.model.TaxiMask;
+import com.github.azeroth.defines.Race;
+import com.github.azeroth.defines.Team;
+import com.github.azeroth.defines.UnitClass;
+import com.github.azeroth.game.networking.packet.taxi.ShowTaxiNodes;
+import com.github.azeroth.utils.StringUtil;
+import lombok.RequiredArgsConstructor;
 
+import java.util.*;
 
+@RequiredArgsConstructor
 public class PlayerTaxi {
     private final ArrayList<Integer> taxiDestinations = new ArrayList<>();
-    private final object taxiLock = new object();
-    public byte[] taximask;
+    private final Player player;
+    public TaxiMask taxiMask;
     private int flightMasterFactionId;
 
-    public final Object getTaxiLock() {
-        return taxiLock;
-    }
 
-    public final void initTaxiNodesForLevel(Race race, PlayerClass chrClass, int level) {
-        synchronized (getTaxiLock()) {
-            taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
+    public final void initTaxiNodesForLevel() {
+        Race race = player.getRace();
+        var chrClass = player.getUnitClass();
+        var dbcObjectManager = player.getWorldContext().getDbcObjectManager();
+        TaxiMask factionMask = player.teamForRace(race) == Team.HORDE ? dbcObjectManager.getHordeTaxiNodesMask() : dbcObjectManager.getAllianceTaxiNodesMask();
+        TaxiMask oldContinentsNodesMask = dbcObjectManager.getOldContinentsNodesMask();
+        if (Objects.requireNonNull(chrClass) == UnitClass.DEATH_KNIGHT) {
+            for (var i = 0; i < taxiMask.size(); ++i)
+                taxiMask.set(i, (byte) (taxiMask.get(i) | (oldContinentsNodesMask.get(i) & factionMask.get(i))));
+        }
 
-            // class specific initial known nodes
-            if (chrClass == UnitClass.DEATH_KNIGHT) {
-                var factionMask = player.teamForRace(race) == Team.Horde ? CliDB.HordeTaxiNodesMask : CliDB.AllianceTaxiNodesMask;
-                taximask = new byte[factionMask.length];
+        // race specific initial known nodes: capital and taxi hub masks
+        switch (race) {
+            case HUMAN:
+            case DWARF:
+            case NIGHT_ELF:
+            case GNOME:
+            case DRAENEI:
+            case WORGEN:
+            case PANDAREN_ALLIANCE:
+                setTaxiMaskNode(2); // Stormwind, Elwynn
+                setTaxiMaskNode(6); // Ironforge, Dun Morogh
+                setTaxiMaskNode(26); // Lor'danel, Darkshore
+                setTaxiMaskNode(27); // Rut'theran Village, Teldrassil
+                setTaxiMaskNode(49); // Moonglade (Alliance)
+                setTaxiMaskNode(94); // The Exodar
+                setTaxiMaskNode(456); // Dolanaar, Teldrassil
+                setTaxiMaskNode(457); // Darnassus, Teldrassil
+                setTaxiMaskNode(582); // Goldshire, Elwynn
+                setTaxiMaskNode(589); // Eastvale Logging Camp, Elwynn
+                setTaxiMaskNode(619); // Kharanos, Dun Morogh
+                setTaxiMaskNode(620); // Gol'Bolar quarry, Dun Morogh
+                setTaxiMaskNode(624); // Azure Watch, Azuremyst Isle
 
-                for (var i = 0; i < factionMask.length; ++i) {
-                    Taximask[i] |= (byte) (CliDB.OldContinentsNodesMask[i] & factionMask[i]);
-                }
-            }
+                break;
+            case ORC:
+            case UNDEAD:
+            case TAUREN:
+            case TROLL:
+            case BLOOD_ELF:
+            case GOBLIN:
+            case PANDAREN_HORDE:
+                setTaxiMaskNode(11); // Undercity, Tirisfal
+                setTaxiMaskNode(22); // Thunder Bluff, Mulgore
+                setTaxiMaskNode(23); // Orgrimmar, Durotar
+                setTaxiMaskNode(69); // Moonglade (Horde)
+                setTaxiMaskNode(82); // Silvermoon City
+                setTaxiMaskNode(384); // The Bulwark, Tirisfal
+                setTaxiMaskNode(402); // Bloodhoof Village, Mulgore
+                setTaxiMaskNode(460); // Brill, Tirisfal Glades
+                setTaxiMaskNode(536); // Sen'jin Village, Durotar
+                setTaxiMaskNode(537); // Razor Hill, Durotar
+                setTaxiMaskNode(625); // Fairbreeze Village, Eversong Woods
+                setTaxiMaskNode(631); // Falconwing Square, Eversong Woods
 
-            // race specific initial known nodes: capital and taxi hub masks
-            switch (race) {
-                case Human:
-                case Dwarf:
-                case NightElf:
-                case Gnome:
-                case Draenei:
-                case Worgen:
-                case PandarenAlliance:
-                    setTaximaskNode(2); // Stormwind, Elwynn
-                    setTaximaskNode(6); // Ironforge, Dun Morogh
-                    setTaximaskNode(26); // Lor'danel, Darkshore
-                    setTaximaskNode(27); // Rut'theran Village, Teldrassil
-                    setTaximaskNode(49); // Moonglade (Alliance)
-                    setTaximaskNode(94); // The Exodar
-                    setTaximaskNode(456); // Dolanaar, Teldrassil
-                    setTaximaskNode(457); // Darnassus, Teldrassil
-                    setTaximaskNode(582); // Goldshire, Elwynn
-                    setTaximaskNode(589); // Eastvale Logging Camp, Elwynn
-                    setTaximaskNode(619); // Kharanos, Dun Morogh
-                    setTaximaskNode(620); // Gol'Bolar quarry, Dun Morogh
-                    setTaximaskNode(624); // Azure Watch, Azuremyst Isle
+                break;
+        }
 
-                    break;
-                case Orc:
-                case Undead:
-                case Tauren:
-                case Troll:
-                case BloodElf:
-                case Goblin:
-                case PandarenHorde:
-                    setTaximaskNode(11); // Undercity, Tirisfal
-                    setTaximaskNode(22); // Thunder Bluff, Mulgore
-                    setTaximaskNode(23); // Orgrimmar, Durotar
-                    setTaximaskNode(69); // Moonglade (Horde)
-                    setTaximaskNode(82); // Silvermoon City
-                    setTaximaskNode(384); // The Bulwark, Tirisfal
-                    setTaximaskNode(402); // Bloodhoof Village, Mulgore
-                    setTaximaskNode(460); // Brill, Tirisfal Glades
-                    setTaximaskNode(536); // Sen'jin Village, Durotar
-                    setTaximaskNode(537); // Razor Hill, Durotar
-                    setTaximaskNode(625); // Fairbreeze Village, Eversong Woods
-                    setTaximaskNode(631); // Falconwing Square, Eversong Woods
+        // new continent starting masks (It will be accessible only at new map)
+        switch (player.teamForRace(race)) {
+            case ALLIANCE:
+                setTaxiMaskNode(100);
 
-                    break;
-            }
+                break;
+            case HORDE:
+                setTaxiMaskNode(99);
 
-            // new continent starting masks (It will be accessible only at new map)
-            switch (player.teamForRace(race)) {
-                case Alliance:
-                    setTaximaskNode(100);
+                break;
+        }
 
-                    break;
-                case Horde:
-                    setTaximaskNode(99);
-
-                    break;
-            }
-
-            // level dependent taxi hubs
-            if (level >= 68) {
-                setTaximaskNode(213); //Shattered Sun Staging Area
-            }
+        // level dependent taxi hubs
+        var level = player.getLevel();
+        if (level >= 68) {
+            setTaxiMaskNode(213); //Shattered Sun Staging Area
         }
     }
 
-    public final void loadTaxiMask(String data) {
-        synchronized (getTaxiLock()) {
-            taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
+    public final boolean loadTaxiMask(String data) {
+        boolean warn = false;
+        int maskSize = ((player.getWorldContext().getDbcObjectManager().taxiNode().size() - 1) / 8) + 1;
+        taxiMask = new TaxiMask(maskSize);
+        var sTaxiNodesMask = player.getWorldContext().getDbcObjectManager().getTaxiNodesMask();
+        var tokens = StringUtil.tokenizeInts(data, " ");
 
-            var split = new LocalizedString();
-
-            var index = 0;
-
-            for (var i = 0; index < taximask.length && i != split.length; ++i, ++index) {
-                // load and set bits only for existing taxi nodes
-                int id;
-                tangible.OutObject<Integer> tempOut_id = new tangible.OutObject<Integer>();
-                if (tangible.TryParseHelper.tryParseInt(split.get(i), tempOut_id)) {
-                    id = tempOut_id.outArgValue;
-                    Taximask[index] = (byte) (CliDB.TaxiNodesMask[index] & id);
-                } else {
-                    id = tempOut_id.outArgValue;
-                }
-            }
+        for (int index = 0; (index < taxiMask.size()) && (index < tokens.length); ++index) {
+            int mask = tokens[index];
+            // load and set bits only for existing taxi nodes
+            taxiMask.set(index, (byte) (sTaxiNodesMask.get(index) & mask));
+            if (taxiMask.get(index) != mask)
+                warn = true;
         }
+
+        return !warn;
     }
 
-    public final void appendTaximaskTo(ShowTaxiNodes data, boolean all) {
-        data.canLandNodes = new byte[CliDB.TaxiNodesMask.length];
-        data.canUseNodes = new byte[CliDB.TaxiNodesMask.length];
-
+    public final void appendTaxiMaskTo(ShowTaxiNodes data, boolean all) {
         if (all) {
-            Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.canLandNodes, 0, data.canLandNodes.length); // all existed nodes
-            Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.canUseNodes, 0, data.canUseNodes.length);
+            byte[] allNodes = player.getWorldContext().getDbcObjectManager().getTaxiNodesMask().data();
+            data.canLandNodes = allNodes;              // all existed nodes
+            data.canUseNodes = allNodes;
         } else {
-            synchronized (getTaxiLock()) {
-                Buffer.BlockCopy(taximask, 0, data.canLandNodes, 0, data.canLandNodes.length); // known nodes
-                Buffer.BlockCopy(taximask, 0, data.canUseNodes, 0, data.canUseNodes.length);
-            }
+            data.canLandNodes = taxiMask.data();                  // known nodes
+            data.canUseNodes = taxiMask.data();
         }
     }
 
     public final boolean loadTaxiDestinationsFromString(String values, Team team) {
         clearTaxiDestinations();
 
-        var LocalizedString = new LocalizedString();
-
-        if (LocalizedString.length > 0) {
-            tangible.OutObject<Integer> tempOut__flightMasterFactionId = new tangible.OutObject<Integer>();
-            tangible.TryParseHelper.tryParseInt(LocalizedString.get(0), tempOut__flightMasterFactionId);
-            flightMasterFactionId = tempOut__flightMasterFactionId.outArgValue;
+        var tokens = StringUtil.tokenizeInts(values, " ");
+        if (tokens.length > 0) {
+            flightMasterFactionId = tokens[0];
         }
 
-        for (var i = 1; i < LocalizedString.length; ++i) {
-            int node;
-            tangible.OutObject<Integer> tempOut_node = new tangible.OutObject<Integer>();
-            if (tangible.TryParseHelper.tryParseInt(LocalizedString.get(i), tempOut_node)) {
-                node = tempOut_node.outArgValue;
-                addTaxiDestination(node);
-            } else {
-                node = tempOut_node.outArgValue;
-            }
+        for (var i = 1; i < tokens.length; ++i) {
+            int node = tokens[i];
+            addTaxiDestination(node);
         }
 
         if (taxiDestinations.isEmpty()) {
@@ -162,56 +148,40 @@ public class PlayerTaxi {
             return false;
         }
 
-        for (var i = 1; i < taxiDestinations.size(); ++i) {
-            int path;
-            tangible.OutObject<Integer> tempOut_path = new tangible.OutObject<Integer>();
-            tangible.OutObject<Integer> tempOut__ = new tangible.OutObject<Integer>();
-            global.getObjectMgr().getTaxiPath(taxiDestinations.get(i - 1), taxiDestinations.get(i), tempOut_path, tempOut__);
-            _ = tempOut__.outArgValue;
-            path = tempOut_path.outArgValue;
-
-            if (path == 0) {
+        var it = taxiDestinations.iterator();
+        int first = it.next();
+        while (it.hasNext()) {
+            int next = it.next();
+            var taxiPath = player.getWorldContext().getDbcObjectManager().getTaxiPath(first, next);
+            if (taxiPath == null) {
                 return false;
             }
+            first = next;
         }
-
         // can't load taxi path without mount set (quest taxi path?)
-        if (global.getObjectMgr().getTaxiMountDisplayId(getTaxiSource(), team, true) == 0) {
-            return false;
-        }
-
-        return true;
+        return player.getWorldContext().getObjectManager().getTaxiMountDisplayId(getTaxiSource(), team, true) != 0;
     }
 
     public final String saveTaxiDestinationsToString() {
         if (taxiDestinations.isEmpty()) {
             return "";
         }
-
-        StringBuilder ss = new StringBuilder();
-        ss.append(String.format("%1$s ", flightMasterFactionId));
-
-        for (var i = 0; i < taxiDestinations.size(); ++i) {
-            ss.append(String.format("%1$s ", taxiDestinations.get(i)));
-        }
-
-        return ss.toString();
+        String taxiDestinationsStr = String.join(" ", taxiDestinations.stream().map(Object::toString).toArray(String[]::new));
+        return flightMasterFactionId + " " + taxiDestinationsStr;
     }
 
     public final int getCurrentTaxiPath() {
         if (taxiDestinations.size() < 2) {
             return 0;
         }
-
-
-        int path;
-        tangible.OutObject<Integer> tempOut_path = new tangible.OutObject<Integer>();
-        tangible.OutObject<Integer> tempOut__ = new tangible.OutObject<Integer>();
-        global.getObjectMgr().getTaxiPath(taxiDestinations.get(0), taxiDestinations.get(1), tempOut_path, tempOut__);
-        _ = tempOut__.outArgValue;
-        path = tempOut_path.outArgValue;
-
-        return path;
+        var iterator = taxiDestinations.iterator();
+        var first = iterator.next();
+        var next = iterator.next();
+        var taxiPath = player.getWorldContext().getDbcObjectManager().getTaxiPath(first, next);
+        if (taxiPath == null) {
+            return 0;
+        }
+        return taxiPath.getId();
     }
 
     public final boolean requestEarlyLanding() {
@@ -221,7 +191,7 @@ public class PlayerTaxi {
 
         // start from first destination - m_TaxiDestinations[0] is the current starting node
         for (var i = 1; i < taxiDestinations.size(); ++i) {
-            if (isTaximaskNodeKnown(taxiDestinations.get(i))) {
+            if (isTaxiMaskNodeKnown(taxiDestinations.get(i))) {
                 if (++i == taxiDestinations.size() - 1) {
                     return false; // if we are left with only 1 known node on the path don't change the spline, its our final destination anyway
                 }
@@ -235,35 +205,31 @@ public class PlayerTaxi {
         return false;
     }
 
-    public final FactionTemplateRecord getFlightMasterFactionTemplate() {
-        return CliDB.FactionTemplateStorage.get(flightMasterFactionId);
+    public final FactionTemplate getFlightMasterFactionTemplate() {
+        return player.getWorldContext().getDbcObjectManager().factionTemplate(flightMasterFactionId);
     }
 
     public final void setFlightMasterFactionTemplateId(int factionTemplateId) {
         flightMasterFactionId = factionTemplateId;
     }
 
-    public final boolean isTaximaskNodeKnown(int nodeidx) {
+    public final boolean isTaxiMaskNodeKnown(int nodeidx) {
         var field = (nodeidx - 1) / 8;
-        var submask = (int) (1 << (int) ((nodeidx - 1) % 8));
+        var submask = 1 << ((nodeidx - 1) % 8);
 
-        synchronized (getTaxiLock()) {
-            return (Taximask[field] & submask) == submask;
-        }
+        return (taxiMask.get(field) & submask) == submask;
     }
 
-    public final boolean setTaximaskNode(int nodeidx) {
-        var field = (nodeidx - 1) / 8;
-        var submask = (int) (1 << (int) ((nodeidx - 1) % 8));
+    public final boolean setTaxiMaskNode(int nodeIdx) {
+        var field = (nodeIdx - 1) / 8;
+        var subMask = 1 << ((nodeIdx - 1) % 8);
 
-        synchronized (getTaxiLock()) {
-            if ((Taximask[field] & submask) != submask) {
-                Taximask[field] |= (byte) submask;
+        if ((taxiMask.get(field) & subMask) != subMask) {
+            taxiMask.set(field, (byte) (taxiMask.get(field) | subMask));
 
-                return true;
-            } else {
-                return false;
-            }
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -276,7 +242,7 @@ public class PlayerTaxi {
     }
 
     public final int getTaxiSource() {
-        return taxiDestinations.isEmpty() ? 0 : taxiDestinations.get(0);
+        return taxiDestinations.isEmpty() ? 0 : taxiDestinations.getFirst();
     }
 
     public final int getTaxiDestination() {
@@ -289,8 +255,7 @@ public class PlayerTaxi {
     }
 
     public final int nextTaxiDestination() {
-        taxiDestinations.remove(0);
-
+        taxiDestinations.removeFirst();
         return getTaxiDestination();
     }
 

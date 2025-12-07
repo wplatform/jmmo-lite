@@ -1,6 +1,5 @@
 package com.github.azeroth.game.networking.packet.character;
 
-import com.github.azeroth.game.entity.object.update.ChrCustomizationChoice;
 import com.github.azeroth.game.networking.ClientPacket;
 import io.netty.buffer.ByteBuf;
 

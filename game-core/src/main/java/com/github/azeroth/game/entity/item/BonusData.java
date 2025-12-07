@@ -1,46 +1,56 @@
 package com.github.azeroth.game.entity.item;
 
 
+import com.github.azeroth.dbc.defines.DbcDefine;
+import com.github.azeroth.dbc.domain.ItemEffect;
+import com.github.azeroth.defines.ItemQuality;
+import com.github.azeroth.defines.SharedDefine;
+import com.github.azeroth.game.entity.item.enums.ItemBondingType;
+import com.github.azeroth.game.entity.item.enums.SocketColor;
+
+import static com.github.azeroth.dbc.defines.DbcDefine.MAX_ITEM_PROTO_SOCKETS;
+import static com.github.azeroth.dbc.defines.DbcDefine.MAX_ITEM_PROTO_STATS;
+
 public class BonusData {
-    public Itemquality quality = itemQuality.values()[0];
+    public ItemQuality quality;
     public int itemLevelBonus;
     public int requiredLevel;
-    public int[] itemStatType = new int[ItemConst.MaxStats];
-    public int[] statPercentEditor = new int[ItemConst.MaxStats];
-    public float[] itemStatSocketCostMultiplier = new float[ItemConst.MaxStats];
-    public SocketColor[] socketColor = new SocketColor[ItemConst.MaxGemSockets];
-    public ItembondingType bonding = ItemBondingType.values()[0];
+    public int[] itemStatType = new int[MAX_ITEM_PROTO_STATS];
+    public int[] itemStatValue = new int[MAX_ITEM_PROTO_STATS];
+    public int[] itemStatAllocation = new int[MAX_ITEM_PROTO_STATS];
+    public float[] itemStatSocketCostMultiplier = new float[MAX_ITEM_PROTO_STATS];
+    public SocketColor[] socketColor = new SocketColor[MAX_ITEM_PROTO_SOCKETS];
+    public ItemBondingType bonding;
     public int appearanceModID;
     public float repairCostMultiplier;
     public int contentTuningId;
     public int playerLevelToItemLevelCurveId;
     public int disenchantLootId;
-    public int[] gemItemLevelBonus = new int[ItemConst.MaxGemSockets];
-    public int[] gemRelicType = new int[ItemConst.MaxGemSockets];
-    public short[] gemRelicRankBonus = new short[ItemConst.MaxGemSockets];
+    public int[] gemItemLevelBonus = new int[MAX_ITEM_PROTO_SOCKETS];
+    public int[] gemRelicType = new int[MAX_ITEM_PROTO_SOCKETS];
+    public short[] gemRelicRankBonus = new short[MAX_ITEM_PROTO_SOCKETS];
     public int relicType;
     public int requiredLevelOverride;
-    public int azeriteTierUnlockSetId;
     public int suffix;
     public int requiredLevelCurve;
-    public ItemEffectRecord[] effects = new ItemEffectRecord[13];
+    public ItemEffect[] effects = new ItemEffect[13];
     public int effectCount;
     public boolean canDisenchant;
     public boolean canScrap;
     public boolean hasFixedLevel;
-    private state state = new state();
+    private State state = new State();
 
-    public bonusData(ItemTemplate proto) {
-        if (proto == null) {
-            return;
-        }
-
+    public BonusData(ItemTemplate proto) {
         quality = proto.getQuality();
         itemLevelBonus = 0;
         requiredLevel = proto.getBaseRequiredLevel();
 
-        for (int i = 0; i < ItemConst.MaxStats; ++i) {
-            ItemStatType[i] = proto.getStatModifierBonusStat(i);
+        for (int i = 0; i < MAX_ITEM_PROTO_STATS; ++i) {
+            itemStatType[i] = proto.getStatModifierBonusStat(i);
+        }
+
+        for (int i = 0; i < MAX_ITEM_PROTO_STATS; ++i) {
+            itemStatValue[i] = proto.getItemStatValue(i);
         }
 
         for (int i = 0; i < ItemConst.MaxStats; ++i) {
@@ -243,21 +253,7 @@ public class BonusData {
         public int suffixPriority;
         public int appearanceModPriority;
         public int scalingStatDistributionPriority;
-        public int azeriteTierUnlockSetPriority;
         public int requiredLevelCurvePriority;
         public boolean hasQualityBonus;
-
-        public State clone() {
-            State varCopy = new state();
-
-            varCopy.suffixPriority = this.suffixPriority;
-            varCopy.appearanceModPriority = this.appearanceModPriority;
-            varCopy.scalingStatDistributionPriority = this.scalingStatDistributionPriority;
-            varCopy.azeriteTierUnlockSetPriority = this.azeriteTierUnlockSetPriority;
-            varCopy.requiredLevelCurvePriority = this.requiredLevelCurvePriority;
-            varCopy.hasQualityBonus = this.hasQualityBonus;
-
-            return varCopy;
-        }
     }
 }

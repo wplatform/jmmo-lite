@@ -1647,7 +1647,7 @@ public final class SpellManager {
         spellProcMap.clear(); // need for reload case
 
         //                                         0        1           2                3                 4                 5                 6
-        var result = DB.World.query("SELECT spellId, schoolMask, spellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, SpellFamilyMask3, " + "ProcFlags, ProcFlags2, spellTypeMask, spellPhaseMask, hitMask, attributesMask, disableEffectsMask, procsPerMinute, chance, cooldown, Charges FROM spell_proc");
+        var result = DB.World.query("SELECT spellId, schoolMask, spellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, SpellFamilyMask3, " + "ProcFlag, ProcFlags2, spellTypeMask, spellPhaseMask, hitMask, attributesMask, disableEffectsMask, procsPerMinute, chance, cooldown, Charges FROM spell_proc");
 
         int count = 0;
 
@@ -1683,7 +1683,7 @@ public final class SpellManager {
                 baseProcEntry.setSchoolMask(spellSchoolMask.forValue(result.<Integer>Read(1)));
                 baseProcEntry.setSpellFamilyName(SpellFamilyNames.forValue(result.<Integer>Read(2)));
                 baseProcEntry.setSpellFamilyMask(new Flag128(result.<Integer>Read(3), result.<Integer>Read(4), result.<Integer>Read(5), result.<Integer>Read(6)));
-                baseProcEntry.setProcFlags(new ProcFlagsInit(result.<Integer>Read(7), result.<Integer>Read(8), 2));
+                baseProcEntry.setProcFlags(new EnumFlag<ProcFlag>(result.<Integer>Read(7), result.<Integer>Read(8), 2));
                 baseProcEntry.setSpellTypeMask(ProcFlagsSpellType.forValue(result.<Integer>Read(9)));
                 baseProcEntry.setSpellPhaseMask(ProcFlagsSpellPhase.forValue(result.<Integer>Read(10)));
                 baseProcEntry.setHitMask(ProcFlagsHit.forValue(result.<Integer>Read(11)));
@@ -1740,7 +1740,7 @@ public final class SpellManager {
                     }
 
                     if (!procEntry.getProcFlags()) {
-                        Logs.SQL.error("`spell_proc` table entry for spellId {0} doesn't have `ProcFlags` second defined, proc will not be triggered", spellInfo.getId());
+                        Logs.SQL.error("`spell_proc` table entry for spellId {0} doesn't have `ProcFlag` second defined, proc will not be triggered", spellInfo.getId());
                     }
 
                     if ((boolean) (procEntry.getSpellTypeMask().getValue() & ~ProcFlagsSpellType.MaskAll.getValue())) {
@@ -1748,11 +1748,11 @@ public final class SpellManager {
                     }
 
                     if (procEntry.getSpellTypeMask() != 0 && !procEntry.getProcFlags().hasFlag(procFlags.SpellMask)) {
-                        Logs.SQL.error("`spell_proc` table entry for spellId {0} has `SpellTypeMask` second defined, but it won't be used for defined `ProcFlags` second", spellInfo.getId());
+                        Logs.SQL.error("`spell_proc` table entry for spellId {0} has `SpellTypeMask` second defined, but it won't be used for defined `ProcFlag` second", spellInfo.getId());
                     }
 
                     if (procEntry.getSpellPhaseMask() == 0 && procEntry.getProcFlags().hasFlag(procFlags.ReqSpellPhaseMask)) {
-                        Logs.SQL.error("`spell_proc` table entry for spellId {0} doesn't have `SpellPhaseMask` second defined, but it's required for defined `ProcFlags` second, proc will not be triggered", spellInfo.getId());
+                        Logs.SQL.error("`spell_proc` table entry for spellId {0} doesn't have `SpellPhaseMask` second defined, but it's required for defined `ProcFlag` second, proc will not be triggered", spellInfo.getId());
                     }
 
                     if ((boolean) (procEntry.getSpellPhaseMask().getValue() & ~ProcFlagsSpellPhase.MaskAll.getValue())) {
@@ -1760,7 +1760,7 @@ public final class SpellManager {
                     }
 
                     if (procEntry.getSpellPhaseMask() != 0 && !procEntry.getProcFlags().hasFlag(procFlags.ReqSpellPhaseMask)) {
-                        Logs.SQL.error("`spell_proc` table entry for spellId {0} has `SpellPhaseMask` second defined, but it won't be used for defined `ProcFlags` second", spellInfo.getId());
+                        Logs.SQL.error("`spell_proc` table entry for spellId {0} has `SpellPhaseMask` second defined, but it won't be used for defined `ProcFlag` second", spellInfo.getId());
                     }
 
                     if ((boolean) (procEntry.getHitMask().getValue() & ~ProcFlagsHit.MaskAll.getValue())) {
@@ -1768,7 +1768,7 @@ public final class SpellManager {
                     }
 
                     if (procEntry.getHitMask() != 0 && !(procEntry.getProcFlags().hasFlag(procFlags.TakenHitMask) || (procEntry.getProcFlags().hasFlag(procFlags.DoneHitMask) && (procEntry.getSpellPhaseMask() == 0 || (boolean) (procEntry.getSpellPhaseMask().getValue() & (ProcFlagsSpellPhase.hit.getValue() | ProcFlagsSpellPhase.Finish.getValue()).getValue()))))) {
-                        Logs.SQL.error("`spell_proc` table entry for spellId {0} has `HitMask` second defined, but it won't be used for defined `ProcFlags` and `SpellPhaseMask` values", spellInfo.getId());
+                        Logs.SQL.error("`spell_proc` table entry for spellId {0} has `HitMask` second defined, but it won't be used for defined `ProcFlag` and `SpellPhaseMask` values", spellInfo.getId());
                     }
 
                     for (var spellEffectInfo : spellInfo.getEffects()) {
@@ -1881,7 +1881,7 @@ public final class SpellManager {
                 if (procSpellTypeMask == 0) {
                     for (var spellEffectInfo : spellInfo.effects) {
                         if (spellEffectInfo.isAura()) {
-                            Logs.SQL.debug(String.format("Spell Id %1$s has DBC ProcFlags 0x%2$X 0x%3$X, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.", spellInfo.id, spellInfo.ProcFlags[0], spellInfo.ProcFlags[1]));
+                            Logs.SQL.debug(String.format("Spell Id %1$s has DBC ProcFlag 0x%2$X 0x%3$X, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.", spellInfo.id, spellInfo.ProcFlags[0], spellInfo.ProcFlags[1]));
 
                             break;
                         }
@@ -3003,11 +3003,11 @@ public final class SpellManager {
                 spellInfo.setStartRecoveryCategory(spellsResult.<Integer>Read(41));
                 spellInfo.setStartRecoveryTime(spellsResult.<Integer>Read(42));
                 spellInfo.setInterruptFlags(SpellInterruptFlags.forValue(spellsResult.<Integer>Read(43)));
-                spellInfo.setAuraInterruptFlags(SpellAuraInterruptFlags.forValue(spellsResult.<Integer>Read(44)));
-                spellInfo.setAuraInterruptFlags2(SpellAuraInterruptFlags2.forValue(spellsResult.<Integer>Read(45)));
-                spellInfo.setChannelInterruptFlags(SpellAuraInterruptFlags.forValue(spellsResult.<Integer>Read(46)));
-                spellInfo.setChannelInterruptFlags2(SpellAuraInterruptFlags2.forValue(spellsResult.<Integer>Read(47)));
-                spellInfo.setProcFlags(new ProcFlagsInit(spellsResult.<Integer>Read(48), spellsResult.<Integer>Read(49)));
+                spellInfo.setAuraInterruptFlags(SpellAuraInterruptFlag.forValue(spellsResult.<Integer>Read(44)));
+                spellInfo.setAuraInterruptFlags2(SpellAuraInterruptFlag2.forValue(spellsResult.<Integer>Read(45)));
+                spellInfo.setChannelInterruptFlags(SpellAuraInterruptFlag.forValue(spellsResult.<Integer>Read(46)));
+                spellInfo.setChannelInterruptFlags2(SpellAuraInterruptFlag2.forValue(spellsResult.<Integer>Read(47)));
+                spellInfo.setProcFlags(new EnumFlag<ProcFlag>(spellsResult.<Integer>Read(48), spellsResult.<Integer>Read(49)));
                 spellInfo.setProcChance(spellsResult.<Integer>Read(50));
                 spellInfo.setProcCharges(spellsResult.<Integer>Read(51));
                 spellInfo.setProcCooldown(spellsResult.<Integer>Read(52));
@@ -3372,7 +3372,7 @@ public final class SpellManager {
                 }
 
                 // Saving to DB happens before removing from world - skip saving these auras
-                if (spellInfo.hasAuraInterruptFlag(SpellAuraInterruptFlags.LeaveWorld)) {
+                if (spellInfo.hasAuraInterruptFlag(SpellAuraInterruptFlag.LeaveWorld)) {
                     spellInfo.AttributesCu |= SpellCustomAttributes.AuraCannotBeSaved;
                 }
             }
@@ -3773,7 +3773,7 @@ public final class SpellManager {
         // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
         applySpellFix(new int[]{61719}, spellInfo ->
         {
-            spellInfo.auraInterruptFlags = SpellAuraInterruptFlags.forValue(SpellAuraInterruptFlags.HostileActionReceived.getValue() | SpellAuraInterruptFlags.damage.getValue());
+            spellInfo.auraInterruptFlags = SpellAuraInterruptFlag.forValue(SpellAuraInterruptFlag.HostileActionReceived.getValue() | SpellAuraInterruptFlag.damage.getValue());
         });
 
         applySpellFix(new int[]{71838, 71839}, spellInfo ->
@@ -3845,7 +3845,7 @@ public final class SpellManager {
         // Test Ribbon Pole Channel
         applySpellFix(new int[]{29726}, spellInfo ->
         {
-            spellInfo.channelInterruptFlags &= ~SpellAuraInterruptFlags.action;
+            spellInfo.channelInterruptFlags &= ~SpellAuraInterruptFlag.action;
         });
 
         // Sic'em
@@ -4019,8 +4019,8 @@ public final class SpellManager {
         // Spinning Up (Mimiron)
         applySpellFix(new int[]{63414}, spellInfo ->
         {
-            spellInfo.channelInterruptFlags = SpellAuraInterruptFlags.NONE;
-            spellInfo.channelInterruptFlags2 = SpellAuraInterruptFlags2.NONE;
+            spellInfo.channelInterruptFlags = SpellAuraInterruptFlag.NONE;
+            spellInfo.channelInterruptFlags2 = SpellAuraInterruptFlag2.NONE;
             applySpellEffectFix(spellInfo, 0, spellEffectInfo ->
             {
                 spellEffectInfo.targetB = new spellImplicitTargetInfo(targets.UnitCaster);
@@ -4421,7 +4421,7 @@ public final class SpellManager {
         // Threatening Gaze
         applySpellFix(new int[]{24314}, spellInfo ->
         {
-            spellInfo.auraInterruptFlags |= SpellAuraInterruptFlags.forValue(SpellAuraInterruptFlags.action.getValue() | SpellAuraInterruptFlags.Moving.getValue().getValue() | SpellAuraInterruptFlags.Anim.getValue().getValue());
+            spellInfo.auraInterruptFlags |= SpellAuraInterruptFlag.forValue(SpellAuraInterruptFlag.action.getValue() | SpellAuraInterruptFlag.Moving.getValue().getValue() | SpellAuraInterruptFlag.Anim.getValue().getValue());
         });
 
         // Travel Form (dummy) - cannot be cast indoors.
@@ -4531,7 +4531,7 @@ public final class SpellManager {
         // Blaze of Glory
         applySpellFix(new int[]{99252}, spellInfo ->
         {
-            spellInfo.auraInterruptFlags |= SpellAuraInterruptFlags.LeaveWorld;
+            spellInfo.auraInterruptFlags |= SpellAuraInterruptFlag.LeaveWorld;
         });
         // ENDOF FIRELANDS SPELLS
 
@@ -4655,7 +4655,7 @@ public final class SpellManager {
 
                 // disable proc for magnet auras, they're handled differently
                 if (spellInfo.hasAura(AuraType.SpellMagnet)) {
-                    spellInfo.procFlags = new ProcFlagsInit();
+                    spellInfo.procFlags = new EnumFlag<ProcFlag>();
                 }
 
                 // due to the way spell system works, unit would change orientation in Spell::_cast

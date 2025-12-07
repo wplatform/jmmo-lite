@@ -12,6 +12,7 @@ import com.github.azeroth.game.movement.model.MovementForceType;
 import com.github.azeroth.game.movement.model.MovementInfo;
 import com.github.azeroth.game.movement.model.TransportInfo;
 import com.github.azeroth.game.movement.spline.MoveSpline;
+import com.github.azeroth.game.movement.spline.SplineFlag;
 import com.github.azeroth.game.networking.WorldPacket;
 
 public final class MovementIOUtil {
@@ -70,7 +71,7 @@ public final class MovementIOUtil {
         var movementInfo = new MovementInfo();
         movementInfo.setGuid(data.readPackedGuid());
         movementInfo.setTime(data.readUInt32());
-        movementInfo.setPos(new Position(data.readFloat(), data.readFloat(), data.readFloat(), data.readFloat()));
+        movementInfo.getPos().relocate(new Position(data.readFloat(), data.readFloat(), data.readFloat(), data.readFloat()));
         movementInfo.setPitch(data.readFloat());
         movementInfo.setStepUpStartElevation(data.readFloat());
 
@@ -185,18 +186,18 @@ public final class MovementIOUtil {
         data.flushBits();
 
         if (hasSplineMove) {
-            data.writeInt32((int) moveSpline.splineflags.flags.getValue()); // SplineFlags
+            data.writeInt32(moveSpline.splineFlags.flags.getFlag()); // SplineFlags
             data.writeInt32(moveSpline.timePassed()); // Elapsed
             data.writeInt32(moveSpline.duration()); // Duration
             data.writeFloat(1.0f); // DurationModifier
             data.writeFloat(1.0f); // NextDurationModifier
-            data.writeBits((byte) moveSpline.facing.type.getValue(), 2); // Face
-            var hasFadeObjectTime = data.writeBit(moveSpline.splineflags.hasFlag(SplineFlag.FadeObject) && moveSpline.effect_start_time < moveSpline.duration());
+            data.writeBits((byte) moveSpline.facing.type.ordinal(), 2); // Face
+            var hasFadeObjectTime = data.writeBit(moveSpline.splineFlags.hasFlag(SplineFlag.FadeObject) && moveSpline.effectStartTime < moveSpline.duration());
             data.writeBits(moveSpline.getPath().length, 16);
             data.writeBit(false); // HasSplineFilter
-            data.writeBit(moveSpline.spell_effect_extra != null); // HasSpellEffectExtraData
-            var hasJumpExtraData = data.writeBit(moveSpline.splineflags.hasFlag(SplineFlag.Parabolic) && (moveSpline.spell_effect_extra == null || moveSpline.effect_start_time != 0));
-            data.writeBit(moveSpline.anim_tier != null); // HasAnimTierTransition
+            data.writeBit(moveSpline.spellEffectExtra != null); // HasSpellEffectExtraData
+            var hasJumpExtraData = data.writeBit(moveSpline.splineFlags.hasFlag(SplineFlag.Parabolic) && (moveSpline.spellEffectExtra == null || moveSpline.effectStartTime != 0));
+            data.writeBit(moveSpline.animTierTransition != null); // HasAnimTierTransition
             data.writeBit(false); // HasUnknown901
             data.flushBits();
 
@@ -214,46 +215,46 @@ public final class MovementIOUtil {
             //}
 
             switch (moveSpline.facing.type) {
-                case FacingSpot:
+                case FACING_SPOT:
                     data.writeVector3(moveSpline.facing.f); // FaceSpot
 
                     break;
-                case FacingTarget:
+                case FACING_TARGET:
                     data.writeGuid(moveSpline.facing.target); // FaceGUID
 
                     break;
-                case FacingAngle:
+                case FACING_ANGLE:
                     data.writeFloat(moveSpline.facing.angle); // FaceDirection
 
                     break;
             }
 
             if (hasFadeObjectTime) {
-                data.writeInt32(moveSpline.effect_start_time); // FadeObjectTime
+                data.writeInt32(moveSpline.effectStartTime); // FadeObjectTime
             }
 
             for (var vec : moveSpline.getPath()) {
                 data.writeVector3(vec);
             }
 
-            if (moveSpline.spell_effect_extra != null) {
-                data.writeGuid(moveSpline.spell_effect_extra.target);
-                data.writeInt32(moveSpline.spell_effect_extra.spellVisualId);
-                data.writeInt32(moveSpline.spell_effect_extra.progressCurveId);
-                data.writeInt32(moveSpline.spell_effect_extra.parabolicCurveId);
+            if (moveSpline.spellEffectExtra != null) {
+                data.writeGuid(moveSpline.spellEffectExtra.target);
+                data.writeInt32(moveSpline.spellEffectExtra.spellVisualId);
+                data.writeInt32(moveSpline.spellEffectExtra.progressCurveId);
+                data.writeInt32(moveSpline.spellEffectExtra.parabolicCurveId);
             }
 
             if (hasJumpExtraData) {
-                data.writeFloat(moveSpline.vertical_acceleration);
-                data.writeInt32(moveSpline.effect_start_time);
+                data.writeFloat(moveSpline.verticalAcceleration);
+                data.writeInt32(moveSpline.effectStartTime);
                 data.writeInt32(0); // duration (override)
             }
 
-            if (moveSpline.anim_tier != null) {
-                data.writeInt32(moveSpline.anim_tier.tierTransitionId);
-                data.writeInt32(moveSpline.effect_start_time);
+            if (moveSpline.animTierTransition != null) {
+                data.writeInt32(moveSpline.animTierTransition.tierTransitionId);
+                data.writeInt32(moveSpline.effectStartTime);
                 data.writeInt32(0);
-                data.writeInt8(moveSpline.anim_tier.animTier);
+                data.writeInt8(moveSpline.animTierTransition.animTier.ordinal());
             }
 
             //if (HasUnknown901)

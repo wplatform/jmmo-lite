@@ -18,24 +18,17 @@ import com.github.azeroth.game.domain.map.*;
 import com.github.azeroth.game.domain.object.*;
 import com.github.azeroth.game.domain.object.enums.*;
 import com.github.azeroth.game.domain.unit.*;
-import com.github.azeroth.game.entity.areatrigger.AreaTrigger;
-import com.github.azeroth.game.entity.conversation.Conversation;
-import com.github.azeroth.game.entity.corpse.Corpse;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.creature.CreatureGroup;
 import com.github.azeroth.game.entity.creature.TempSummon;
-import com.github.azeroth.game.entity.dynamic.DynamicObject;
 import com.github.azeroth.game.entity.gobject.GameObject;
-import com.github.azeroth.game.entity.gobject.Transport;
-import com.github.azeroth.game.entity.object.update.UpdateData;
-import com.github.azeroth.game.entity.pet.Pet;
+import com.github.azeroth.game.entity.object.update.ObjectUpdateFlag;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.player.enums.DuelState;
 import com.github.azeroth.game.entity.player.enums.PlayerCommandState;
 import com.github.azeroth.game.entity.player.enums.PlayerFlag;
-import com.github.azeroth.game.entity.scene.SceneObject;
 import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.entity.vehicle.ITransport;
+import com.github.azeroth.game.entity.vehicle.TransportObject;
 import com.github.azeroth.game.loot.Loot;
 import com.github.azeroth.game.map.Map;
 import com.github.azeroth.game.map.*;
@@ -90,7 +83,7 @@ public abstract class WorldObject extends GenericObject {
     protected boolean storedInWorldObjectGridContainer;
     protected ZoneScript zoneScript;
     // transports (gameobjects only)
-    protected ITransport transport;
+    protected TransportObject transport;
 
     protected int zoneId;
     protected int areaId;
@@ -126,12 +119,13 @@ public abstract class WorldObject extends GenericObject {
     private final EventProcessor events = new EventProcessor();
 
     private int instanceId;
-    private WorldContext worldContext;
     private int faction;
     private int heartbeatTimer = ObjectDefine.HEARTBEAT_INTERVAL;
 
-
-    public WorldObject() {
+    public WorldObject(WorldContext worldContext, ObjectGuid guid, TypeId objectTypeId,
+                       EnumFlag<TypeMask> objectType, EnumFlag<ObjectUpdateFlag> updateFlag,
+                       short valuesCount, short dynamicValuesCount) {
+        super(worldContext, guid, objectTypeId, objectType, updateFlag, valuesCount, dynamicValuesCount);
         serverSideVisibility.setValue(ServerSideVisibilityType.GHOST, GhostVisibilityType.ALIVE.ordinal() | GhostVisibilityType.GHOST.ordinal());
         serverSideVisibilityDetect.setValue(ServerSideVisibilityType.GHOST, GhostVisibilityType.ALIVE.ordinal());
         staticFloorZ = MapDefine.VMAP_INVALID_HEIGHT_VALUE;
@@ -139,61 +133,6 @@ public abstract class WorldObject extends GenericObject {
     }
 
 
-    public WorldObject getWorldObject(ObjectGuid guid) {
-        return getWorldContext().getWorldObject(this, guid);
-    }
-
-    public GenericObject getObjectByTypeMask(ObjectGuid guid, TypeMask mask) {
-        return getWorldContext().getObjectByTypeMask(this, guid, mask);
-    }
-
-    public Corpse getCorpse(ObjectGuid guid) {
-        return getWorldContext().getCorpse(this, guid);
-    }
-
-    public GameObject getGameObject(ObjectGuid guid) {
-        return getWorldContext().getGameObject(this, guid);
-    }
-
-    public Transport getTransport(ObjectGuid guid) {
-        return getWorldContext().getTransport(this, guid);
-    }
-
-    public DynamicObject getDynamicObject(ObjectGuid guid) {
-        return getCurrMap().getDynamicObject(guid);
-    }
-
-    public AreaTrigger getAreaTrigger(ObjectGuid guid) {
-        return getWorldContext().getAreaTrigger(this, guid);
-    }
-
-    public SceneObject getSceneObject(ObjectGuid guid) {
-        return getWorldContext().getSceneObject(this, guid);
-    }
-
-    public Conversation getConversation(ObjectGuid guid) {
-        return getWorldContext().getConversation(this, guid);
-    }
-
-    public Unit getUnit(ObjectGuid guid) {
-        return getWorldContext().getUnit(this, guid);
-    }
-
-    public Creature getCreature(ObjectGuid guid) {
-        return getWorldContext().getCreature(this, guid);
-    }
-
-    public Pet getPet(ObjectGuid guid) {
-        return getWorldContext().getPet(this, guid);
-    }
-
-    public Player getPlayer(ObjectGuid guid) {
-        return getWorldContext().getPlayer(this, guid);
-    }
-
-    public Creature getCreatureOrPetOrVehicle(ObjectGuid guid) {
-        return getWorldContext().getCreatureOrPetOrVehicle(this, guid);
-    }
 
     public static boolean inSamePhase(WorldObject a, WorldObject b) {
         return a != null && b != null && a.inSamePhase(b);
@@ -205,7 +144,7 @@ public abstract class WorldObject extends GenericObject {
             return ReputationRank.NEUTRAL;
         }
 
-        var targetFactionTemplateEntry = target.getFactionTemplateEntry();
+        var targetFactionTemplateEntry = target.getFactionTemplate();
 
         if (targetFactionTemplateEntry == null) {
             return ReputationRank.NEUTRAL;
@@ -306,6 +245,23 @@ public abstract class WorldObject extends GenericObject {
         return !privateObjectOwner.isEmpty();
     }
 
+
+    public final float getPositionX() {
+        return location.getX();
+    }
+
+    public final float getPositionY() {
+        return location.getY();
+    }
+
+    public final float getPositionZ() {
+        return location.getZ();
+    }
+
+    public final float getOrientation() {
+        return location.getO();
+    }
+
     public final float getTransOffsetX() {
         return getMovementInfo().getTransport().getPos().getX();
     }
@@ -400,7 +356,7 @@ public abstract class WorldObject extends GenericObject {
         var guid = getCharmerOrOwnerGUID();
 
         if (guid.isPlayer()) {
-            return getPlayer(guid);
+            return worldContext.getPlayer(this, guid);
         }
 
         return toPlayer();
@@ -1475,9 +1431,9 @@ public abstract class WorldObject extends GenericObject {
                 || spellInfo.hasAttribute(SpellAttr0.IS_TRADESKILL)
                 || spellInfo.hasAttribute(SpellAttr3.IGNORE_CASTER_MODIFIERS))
                 && ((isPlayer() && spellInfo.getSpellFamilyName() != SpellFamilyName.GENERIC) || isCreature())) {
-            castTime = Math.round(unitCaster.getCanInstantCast() ? 0 : (castTime * unitCaster.getUnitData().getModCastingSpeed()));
+            castTime = Math.round(unitCaster.getCanInstantCast() ? 0 : (castTime * unitCaster.getModCastingSpeed()));
         } else if (spellInfo.hasAttribute(SpellAttr0.USES_RANGED_SLOT) && !spellInfo.hasAttribute(SpellAttr2.AUTO_REPEAT)) {
-            castTime = Math.round(castTime * unitCaster.getModAttackSpeedPct()[WeaponAttackType.RANGED_ATTACK.ordinal()]);
+            castTime = Math.round(castTime * unitCaster.getModAttackSpeedPct().get(WeaponAttackType.RANGED_ATTACK));
         } else if (worldContext.getSpellManager().isPartOfSkillLine(SkillType.COOKING, spellInfo.getId()) && unitCaster.hasAura(67556)) // cooking with Chef Hat.
         {
             castTime = 500;
@@ -1515,9 +1471,9 @@ public abstract class WorldObject extends GenericObject {
                 || spellInfo.hasAttribute(SpellAttr0.IS_TRADESKILL)
                 || spellInfo.hasAttribute(SpellAttr3.IGNORE_CASTER_MODIFIERS))
                 && ((isPlayer() && spellInfo.getSpellFamilyName() != SpellFamilyName.GENERIC) || isCreature())) {
-            duration = Math.round(duration * unitCaster.getUnitData().getModCastingSpeed());
+            duration = Math.round(duration * unitCaster.getModCastingSpeed());
         } else if (spellInfo.hasAttribute(SpellAttr0.USES_RANGED_SLOT) && !spellInfo.hasAttribute(SpellAttr2.AUTO_REPEAT)) {
-            duration = Math.round(duration * unitCaster.getModAttackSpeedPct()[WeaponAttackType.RANGED_ATTACK.ordinal()]);
+            duration = Math.round(duration * unitCaster.getModAttackSpeedPct().get(WeaponAttackType.RANGED_ATTACK));
         }
         return duration;
     }
@@ -1602,7 +1558,7 @@ public abstract class WorldObject extends GenericObject {
         sendMessageToSet(spellMissLog, true);
     }
 
-    public final FactionTemplate getFactionTemplateEntry() {
+    public final FactionTemplate getFactionTemplate() {
         var factionId = getFaction();
         var entry = worldContext.getDbcObjectManager().factionTemplate(factionId);
         if (entry == null) {
@@ -1612,18 +1568,15 @@ public abstract class WorldObject extends GenericObject {
                     break;
                 case UNIT:
                     Logs.UNIT.error("Creature (template id: {}) has invalid faction (faction template Id) #{}", toCreature().getCreatureTemplate().entry, factionId);
-
                     break;
                 case GAME_OBJECT:
                     if (factionId != 0) // Gameobjects may have faction template id = 0
                     {
                         Logs.UNIT.error("GameObject (template id: {}) has invalid faction (faction template Id) #{}", toGameObject().getTemplate().entry, factionId);
                     }
-
                     break;
                 default:
                     Logs.UNIT.error("Object (name={}, type={}) has invalid faction (faction template Id) #{}", getName(), getObjectTypeId(), factionId);
-
                     break;
             }
         }
@@ -1666,7 +1619,7 @@ public abstract class WorldObject extends GenericObject {
 
         // check forced reputation to support SPELL_AURA_FORCE_REACTION
         if (selfPlayerOwner != null) {
-            var targetFactionTemplateEntry = target.getFactionTemplateEntry();
+            var targetFactionTemplateEntry = target.getFactionTemplate();
 
             if (targetFactionTemplateEntry != null) {
                 var repRank = selfPlayerOwner.getReputationMgr().getForcedRankIfAny(targetFactionTemplateEntry);
@@ -1676,7 +1629,7 @@ public abstract class WorldObject extends GenericObject {
                 }
             }
         } else if (targetPlayerOwner != null) {
-            var selfFactionTemplateEntry = getFactionTemplateEntry();
+            var selfFactionTemplateEntry = getFactionTemplate();
 
             if (selfFactionTemplateEntry != null) {
                 var repRank = targetPlayerOwner.getReputationMgr().getForcedRankIfAny(selfFactionTemplateEntry);
@@ -1714,7 +1667,7 @@ public abstract class WorldObject extends GenericObject {
                 }
 
                 if (selfPlayerOwner != null) {
-                    var targetFactionTemplateEntry = targetUnit.getFactionTemplateEntry();
+                    var targetFactionTemplateEntry = targetUnit.getFactionTemplate();
 
                     if (targetFactionTemplateEntry != null) {
                         var repRank = selfPlayerOwner.getReputationMgr().getForcedRankIfAny(targetFactionTemplateEntry);
@@ -1749,7 +1702,7 @@ public abstract class WorldObject extends GenericObject {
         }
 
         // do checks dependant only on our faction
-        return getFactionReactionTo(getFactionTemplateEntry(), target);
+        return getFactionReactionTo(getFactionTemplate(), target);
     }
 
     public final boolean isHostileTo(WorldObject target) {
@@ -1761,7 +1714,7 @@ public abstract class WorldObject extends GenericObject {
     }
 
     public final boolean isHostileToPlayers() {
-        var my_faction = getFactionTemplateEntry();
+        var my_faction = getFactionTemplate();
 
         if (my_faction.getFaction() == 0) {
             return false;
@@ -1777,7 +1730,7 @@ public abstract class WorldObject extends GenericObject {
     }
 
     public final boolean isNeutralToAll() {
-        var my_faction = getFactionTemplateEntry();
+        var my_faction = getFactionTemplate();
 
         if (my_faction.getFaction() == 0) {
             return true;
@@ -2157,7 +2110,7 @@ public abstract class WorldObject extends GenericObject {
                     return true;
                 }
 
-                var factionTemplate = creature.getFactionTemplateEntry();
+                var factionTemplate = creature.getFactionTemplate();
 
                 if (factionTemplate != null) {
                     if (player.getReputationMgr().getForcedRankIfAny(factionTemplate) == null) {
@@ -2602,11 +2555,11 @@ public abstract class WorldObject extends GenericObject {
         notifyFlags.set(NotifyFlag.NONE);
     }
 
-    public final ITransport getTransport() {
+    public final TransportObject getTransport() {
         return transport;
     }
 
-    public final void setTransport(ITransport t) {
+    public final void setTransport(TransportObject t) {
         transport = t;
     }
 

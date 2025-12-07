@@ -9,13 +9,4 @@ public final class VehicleTeleport {
     public boolean vehicleExitVoluntary;
     public boolean vehicleExitTeleport;
 
-    public VehicleTeleport clone() {
-        VehicleTeleport varCopy = new VehicleTeleport();
-
-        varCopy.VehicleSeatIndex = this.VehicleSeatIndex;
-        varCopy.VehicleExitVoluntary = this.VehicleExitVoluntary;
-        varCopy.VehicleExitTeleport = this.VehicleExitTeleport;
-
-        return varCopy;
-    }
 }

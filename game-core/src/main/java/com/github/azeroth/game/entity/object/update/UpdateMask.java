@@ -1,149 +1,48 @@
 package com.github.azeroth.game.entity.object.update;
 
-import java.util.Arrays;
-
-
-
+import com.github.azeroth.game.networking.WorldPacket;
+import io.netty.buffer.ByteBuf;
 
 public class UpdateMask {
-    private final int blockCount;
-    private final int blocksMaskCount;
+    private UpdateMask() { }
 
-    private final int[] blocks;
+    // Block type in original C++ was a 32-bit unsigned integer
+    public static final int BLOCK_BITS = Integer.SIZE; // 32
 
-    private final int[] blocksMask;
-
-    public final boolean get(int index) {
-        int blockIndex = getBlockIndex(index);
-        int blockFlag = getBlockFlag(index);
-        return (blocks[blockIndex] & blockFlag) != 0;
+    /**
+     * Get number of 32-bit blocks required to hold bitCount bits.
+     */
+    public static int getBlockCount(int bitCount) {
+        return (bitCount + BLOCK_BITS - 1) / BLOCK_BITS;
     }
 
-
-    public UpdateMask(int bits) {
-        this(bits, null);
+    /**
+     * Encodes dynamic field change type into the blockCount value similar to C++ implementation.
+     * The original expression uses integer math to yield 0 unless updateType indicates VALUES.
+     *
+     * @param blockCount raw block count
+     * @param changeType change type enum
+     * @param updateType update type (same semantics as C++ caller)
+     * @return encoded value combining blockCount and change marker
+     */
+    public static int encodeDynamicFieldChangeType(int blockCount, DynFieldChangeType changeType, ObjectUpdateType updateType) {
+        int changeVal = changeType.getValue();
+        // replicate: ((changeType & VALUE_AND_SIZE_CHANGED) * ((3 - updateType) / 3))
+        int mask = changeVal & DynFieldChangeType.VALUE_AND_SIZE_CHANGED.getValue();
+        int divisor = (3 - updateType.ordinal()) / 3; // integer division: yields 0 unless updateType == 0
+        return blockCount | (mask * divisor);
     }
 
-
-    public UpdateMask(int bits, int[] input) {
-        blockCount = (bits + 31) / 32;
-        blocksMaskCount = (blockCount + 31) / 32;
-
-        blocks = new int[blockCount];
-
-        blocksMask = new int[blocksMaskCount];
-
-        if (input != null) {
-            var block = 0;
-
-            for (; block < input.length; ++block) {
-                if ((blocks[block] = input[block]) != 0) {
-
-                    blocksMask[getBlockIndex(block)] |= (int)getBlockFlag(block);
-                }
-            }
-
-            for (; block < blockCount; ++block) {
-                blocks[block] = 0;
-            }
-        }
+    /**
+     * Set a single bit (bitIndex) in the given int[] bitfield array.
+     * This mirrors the template SetUpdateBit for 32-bit blocks in C++.
+     */
+    public static void setUpdateBit(WorldPacket data, int bitBlockPos, int bitIndex) {
+        final int bitsPerBlock = Integer.SIZE;
+        int updatePos = bitBlockPos + (bitIndex / bitsPerBlock);
+        int offset = bitIndex % bitsPerBlock;
+        ByteBuf content = data.content();
+        content.setInt(updatePos, content.getInt(updatePos) | (1 << offset));
     }
 
-
-    public final int getBlocksMask(int index) {
-        return blocksMask[index];
-    }
-
-
-    public final int getBlock(int index) {
-        return blocks[index] ;
-    }
-
-    public final boolean isAnySet() {
-        return Arrays.stream(blocksMask).anyMatch(blockMask -> blockMask != 0);
-    }
-
-    public final void reset(int index) {
-        var blockIndex = getBlockIndex(index);
-
-        if ((blocks[blockIndex] &= ~(int)getBlockFlag(index)) == 0) {
-            blocksMask[getBlockIndex(blockIndex)] &= ~(int)getBlockFlag(blockIndex);
-        }
-    }
-
-    public final void resetAll() {
-        Arrays.fill(blocks, 0, blocks.length, 0);
-        Arrays.fill(blocksMask, 0, blocksMask.length, 0);
-    }
-
-    public final void set(int index) {
-        var blockIndex = getBlockIndex(index);
-        blocks[blockIndex] |= getBlockFlag(index);
-        blocksMask[getBlockIndex(blockIndex)] |= getBlockFlag(blockIndex);
-    }
-
-    public final void setAll() {
-        for (var i = 0; i < blocksMaskCount; ++i) {
-            blocksMask[i] = 0xFFFFFFFF;
-        }
-
-        for (var i = 0; i < blockCount; ++i) {
-            blocks[i] = 0xFFFFFFFF;
-        }
-
-        if ((blocksMaskCount % 32) != 0) {
-            var unused = 32 - (blocksMaskCount % 32);
-            blocksMask[blocksMaskCount - 1] &= (0xFFFFFFFF >>> unused);
-        }
-
-        if ((blockCount % 32) != 0) {
-            var unused = 32 - (blockCount % 32);
-            blocks[blockCount - 1] &= (0xFFFFFFFF >>> unused);
-        }
-    }
-
-    public final void and(UpdateMask right) {
-        for (var i = 0; i < blocksMaskCount; ++i) {
-            blocksMask[i] &= right.blocksMask[i];
-        }
-
-        for (var i = 0; i < blockCount; ++i) {
-            if ((blocks[i] &= right.blocks[i]) == 0) {
-                blocksMask[getBlockIndex(i)] &= ~(int)getBlockFlag(i);
-            }
-        }
-    }
-
-    public final void or(UpdateMask right) {
-        for (var i = 0; i < blocksMaskCount; ++i) {
-            blocksMask[i] |= right.blocksMask[i];
-        }
-
-        for (var i = 0; i < blockCount; ++i) {
-            blocks[i] |= right.blocks[i];
-        }
-    }
-
-    public static UpdateMask opBitwiseAnd(UpdateMask left, UpdateMask right) {
-        var result = left;
-        result.and(right);
-
-        return result;
-    }
-
-    public static UpdateMask opBitwiseOr(UpdateMask left, UpdateMask right) {
-        var result = left;
-        result.or(right);
-
-        return result;
-    }
-
-    //helpers
-    public static int getBlockIndex(int bit) {
-        return bit / 32;
-    }
-
-    public static int getBlockFlag(int bit) {
-        return 1 << (bit % 32);
-    }
 }

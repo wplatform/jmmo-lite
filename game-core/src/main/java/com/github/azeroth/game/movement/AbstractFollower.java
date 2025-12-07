@@ -23,13 +23,13 @@ public class AbstractFollower {
             return;
         }
 
-        if (target) {
+        if (target != null) {
             target.followerRemoved(this);
         }
 
         target = unit;
 
-        if (target) {
+        if (target != null) {
             target.followerAdded(this);
         }
     }

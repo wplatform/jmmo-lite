@@ -1,21 +1,23 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.groups.*;
+import game.movement.*;
+import game.spells.*;
+import game.*;
+import java.util.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.player.Player;
-import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.group.PlayerGroup;
-import com.github.azeroth.game.movement.ChaseRange;
-import com.github.azeroth.game.spell.Spell;
-import com.github.azeroth.game.spell.SpellCastTargets;
-import com.github.azeroth.game.spell.SpellInfo;
-
-import java.util.ArrayList;
-import java.util.Objects;
 
 
 public class PetAI extends CreatureAI {
-    private final ArrayList<ObjectGuid> allySet = new ArrayList<>();
+    private final ArrayList<ObjectGuid> allySet = new ArrayList<ObjectGuid>();
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _updateAlliesTimer;
     private int updateAlliesTimer;
 
     public PetAI(Creature creature) {
@@ -23,6 +25,8 @@ public class PetAI extends CreatureAI {
         updateAllies();
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         if (!me.isAlive() || me.getCharmInfo() == null) {
@@ -35,7 +39,7 @@ public class PetAI extends CreatureAI {
             // UpdateAllies self set update timer
             updateAllies();
         } else {
-            _updateAlliesTimer -= diff;
+            updateAlliesTimer -= diff;
         }
 
         if (me.getVictim() && me.getVictim().isAlive()) {
@@ -47,7 +51,7 @@ public class PetAI extends CreatureAI {
             }
 
             if (needToStop()) {
-                Log.outTrace(LogFilter.ScriptsAi, String.format("PetAI::UpdateAI: AI stopped attacking %1$s", me.getGUID()));
+                Log.outTrace(LogFilter.ScriptsAi, String.format("PetAI::UpdateAI: AI stopped attacking %1$s", me.getGUID().clone()));
                 stopAttack();
 
                 return;
@@ -67,7 +71,7 @@ public class PetAI extends CreatureAI {
                 // Aggressive - Allow auto select if owner or pet don't have a target
                 // Stay - Only pick from pet or owner targets / attackers so targets won't run by
                 //   while chasing our owner. Don't do auto select.
-                // All other cases (ie: defensive) - Targets are assigned by damageTaken(), ownerAttackedBy(), ownerAttacked(), etc.
+                // All other cases (ie: defensive) - Targets are assigned by DamageTaken(), OwnerAttackedBy(), OwnerAttacked(), etc.
                 var nextTarget = selectNextTarget(me.hasReactState(ReactStates.Aggressive));
 
                 if (nextTarget) {
@@ -82,8 +86,10 @@ public class PetAI extends CreatureAI {
 
         // Autocast (casted only in combat or persistent spells in any state)
         if (!me.hasUnitState(UnitState.Casting)) {
-            ArrayList<Tuple<unit, spell>> targetSpellStore = new ArrayList<Tuple<unit, spell>>();
+            ArrayList<Tuple<Unit, Spell>> targetSpellStore = new ArrayList<Tuple<Unit, Spell>>();
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: for (byte i = 0; i < Me.PetAutoSpellSize; ++i)
             for (byte i = 0; i < me.getPetAutoSpellSize(); ++i) {
                 var spellID = me.getPetAutoSpellOnPos(i);
 
@@ -91,7 +97,7 @@ public class PetAI extends CreatureAI {
                     continue;
                 }
 
-                var spellInfo = global.getSpellMgr().getSpellInfo(spellID, me.getMap().getDifficultyID());
+                var spellInfo = Global.getSpellMgr().getSpellInfo(spellID, me.getMap().getDifficultyID());
 
                 if (spellInfo == null) {
                     continue;
@@ -114,7 +120,7 @@ public class PetAI extends CreatureAI {
                         }
                     }
 
-                    Spell spell = new spell(me, spellInfo, TriggerCastFlags.NONE);
+                    Spell spell = new Spell(me, spellInfo, TriggerCastFlags.None);
                     var spellUsed = false;
 
                     // Some spells can target enemy or friendly (DK Ghoul's Leap)
@@ -127,7 +133,7 @@ public class PetAI extends CreatureAI {
 
                     if (target) {
                         if (canAttack(target) && spell.canAutoCast(target)) {
-                            targetSpellStore.add(Tuple.create(target, spell));
+                            targetSpellStore.add(Tuple.Create(target, spell));
                             spellUsed = true;
                         }
                     }
@@ -143,7 +149,7 @@ public class PetAI extends CreatureAI {
                     // No enemy, check friendly
                     if (!spellUsed) {
                         for (var tar : allySet) {
-                            var ally = global.getObjAccessor().GetUnit(me, tar);
+                            var ally = Global.getObjAccessor().getUnit(me, tar.clone());
 
                             //only buff targets that are in combat, unless the spell can only be cast while out of combat
                             if (!ally) {
@@ -151,7 +157,7 @@ public class PetAI extends CreatureAI {
                             }
 
                             if (spell.canAutoCast(ally)) {
-                                targetSpellStore.add(Tuple.create(ally, spell));
+                                targetSpellStore.add(Tuple.Create(ally, spell));
                                 spellUsed = true;
 
                                 break;
@@ -164,10 +170,10 @@ public class PetAI extends CreatureAI {
                         spell.close();
                     }
                 } else if (me.getVictim() && canAttack(me.getVictim()) && spellInfo.getCanBeUsedInCombat()) {
-                    Spell spell = new spell(me, spellInfo, TriggerCastFlags.NONE);
+                    Spell spell = new Spell(me, spellInfo, TriggerCastFlags.None);
 
                     if (spell.canAutoCast(me.getVictim())) {
-                        targetSpellStore.add(Tuple.create(me.getVictim(), spell));
+                        targetSpellStore.add(Tuple.Create(me.getVictim(), spell));
                     } else {
                         spell.close();
                     }
@@ -175,11 +181,11 @@ public class PetAI extends CreatureAI {
             }
 
             //found units to cast on to
-            if (!targetSpellStore.isEmpty()) {
-                var index = RandomUtil.IRand(0, targetSpellStore.size() - 1);
+            if (!targetSpellStore.Empty()) {
+                var index = RandomHelper.IRand(0, targetSpellStore.size() - 1);
                 var tss = targetSpellStore.get(index);
 
-
+//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# deconstruction declarations:
                 var(target, spell) = tss;
 
                 targetSpellStore.remove(index);
@@ -187,24 +193,24 @@ public class PetAI extends CreatureAI {
                 SpellCastTargets targets = new SpellCastTargets();
                 targets.setUnitTarget(target);
 
-                spell.prepare(targets);
+                spell.Prepare(targets);
             }
 
             // deleted cached Spell objects
             for (var pair : targetSpellStore) {
-                pair.item2.close();
+                pair.getItem2().Dispose();
             }
         }
 
         // Update speed as needed to prevent dropping too far behind and despawning
-        me.updateSpeed(UnitMoveType.run);
+        me.updateSpeed(UnitMoveType.Run);
         me.updateSpeed(UnitMoveType.Walk);
-        me.updateSpeed(UnitMoveType.flight);
+        me.updateSpeed(UnitMoveType.Flight);
     }
 
     @Override
     public void killedUnit(Unit victim) {
-        // Called from unit.kill() in case where pet or owner kills something
+        // Called from Unit.Kill() in case where pet or owner kills something
         // if owner killed this victim, pet may still be attacking something else
         if (me.getVictim() && me.getVictim() != victim) {
             return;
@@ -212,7 +218,7 @@ public class PetAI extends CreatureAI {
 
         // Clear target just in case. May help problem where health / focus / mana
         // regen gets stuck. Also resets attack command.
-        // Can't use stopAttack() because that activates movement handlers and ignores
+        // Can't use StopAttack() because that activates movement handlers and ignores
         // next target selection
         me.attackStop();
         me.interruptNonMeleeSpells(false);
@@ -229,7 +235,7 @@ public class PetAI extends CreatureAI {
 
     @Override
     public void attackStart(Unit target) {
-        // Overrides unit.AttackStart to prevent pet from switching off its assigned target
+        // Overrides Unit.AttackStart to prevent pet from switching off its assigned target
         if (target == null || target == me) {
             return;
         }
@@ -298,6 +304,8 @@ public class PetAI extends CreatureAI {
         attackStart(target);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void MovementInform(MovementGeneratorType type, uint id)
     @Override
     public void movementInform(MovementGeneratorType type, int id) {
         // Receives notification when pet reaches stay or follow owner
@@ -330,13 +338,13 @@ public class PetAI extends CreatureAI {
 
     public final void startAttackOnOwnersInCombatWith() {
         Player owner;
-        tangible.OutObject<unit> tempOut_owner = new tangible.OutObject<unit>();
-        if (!me.tryGetOwner(tempOut_owner)) {
-            owner = tempOut_owner.outArgValue;
+        tangible.OutObject<Unit> tempOutOwner = new tangible.OutObject<Unit>();
+        if (!me.tryGetOwner(tempOutOwner)) {
+        owner = tempOutOwner.outArgValue;
             return;
         } else {
-            owner = tempOut_owner.outArgValue;
-        }
+        owner = tempOutOwner.outArgValue;
+    }
 
         var summon = me.toTempSummon();
 
@@ -354,7 +362,7 @@ public class PetAI extends CreatureAI {
     }
 
     public final boolean canAttack(Unit victim) {
-        // Evaluates wether a pet can attack a specific target based on commandState, ReactState and other flags
+        // Evaluates wether a pet can attack a specific target based on CommandState, ReactState and other flags
         // IMPORTANT: The order in which things are checked is important, be careful if you add or remove checks
 
         // Hmmm...
@@ -365,13 +373,13 @@ public class PetAI extends CreatureAI {
         if (!victim.isAlive()) {
             // if target is invalid, pet should evade automaticly
             // Clear target to prevent getting stuck on dead targets
-            //me.attackStop();
-            //me.interruptNonMeleeSpells(false);
+            //me.AttackStop();
+            //me.InterruptNonMeleeSpells(false);
             return false;
         }
 
         if (me.getCharmInfo() == null) {
-            Log.outWarn(LogFilter.ScriptsAi, String.format("me.getCharmInfo() is NULL in PetAI::CanAttack(). Debug info: %1$s", getDebugInfo()));
+            Log.outWarn(LogFilter.ScriptsAi, String.format("me.GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: %1$s", getDebugInfo()));
 
             return false;
         }
@@ -400,7 +408,7 @@ public class PetAI extends CreatureAI {
         if (me.getVictim() && me.getVictim() != victim) {
             // Check if our owner selected this target and clicked "attack"
             Unit ownerTarget;
-            var owner = me.getCharmerOrOwner().toPlayer();
+            var owner = me.getCharmerOrOwner().getAsPlayer();
 
             if (owner) {
                 ownerTarget = owner.getSelectedUnit();
@@ -409,7 +417,7 @@ public class PetAI extends CreatureAI {
             }
 
             if (ownerTarget && me.getCharmInfo().isCommandAttack()) {
-                return (Objects.equals(victim.getGUID(), ownerTarget.getGUID()));
+                return (ObjectGuid.opEquals(victim.getGUID().clone(), ownerTarget.getGUID().clone()));
             }
         }
 
@@ -424,32 +432,32 @@ public class PetAI extends CreatureAI {
 
     @Override
     public void receiveEmote(Player player, TextEmotes emoteId) {
-        if (ObjectGuid.opNotEquals(me.getOwnerGUID(), player.getGUID())) {
+        if (ObjectGuid.opNotEquals(me.getOwnerGUID().clone(), player.getGUID().clone())) {
             return;
         }
 
         switch (emoteId) {
             case Cower:
                 if (me.isPet() && me.getAsPet().isPetGhoul()) {
-                    me.handleEmoteCommand(emote.OneshotOmnicastGhoul);
+                    me.handleEmoteCommand(Emote.OneshotOmnicastGhoul);
                 }
 
                 break;
             case Angry:
                 if (me.isPet() && me.getAsPet().isPetGhoul()) {
-                    me.handleEmoteCommand(emote.StateStun);
+                    me.handleEmoteCommand(Emote.StateStun);
                 }
 
                 break;
             case Glare:
                 if (me.isPet() && me.getAsPet().isPetGhoul()) {
-                    me.handleEmoteCommand(emote.StateStun);
+                    me.handleEmoteCommand(Emote.StateStun);
                 }
 
                 break;
             case Soothe:
                 if (me.isPet() && me.getAsPet().isPetGhoul()) {
-                    me.handleEmoteCommand(emote.OneshotOmnicastGhoul);
+                    me.handleEmoteCommand(Emote.OneshotOmnicastGhoul);
                 }
 
                 break;
@@ -471,6 +479,8 @@ public class PetAI extends CreatureAI {
         damageTaken(attacker, damage, damageType, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     @Override
     public void damageTaken(Unit attacker, tangible.RefObject<Double> damage, DamageEffectType damageType, SpellInfo spellInfo) {
         attackStart(attacker);
@@ -491,15 +501,12 @@ public class PetAI extends CreatureAI {
     @Override
     public void moveInLineOfSight(Unit who) {
     }
-
     @Override
-    public void moveInLineOfSight_Safe(Unit who) {
+    public void moveInLineOfSightSafe(Unit who) {
     }
-
     @Override
     public void justAppeared() {
     } // we will control following manually
-
     @Override
     public void enterEvadeMode(EvadeReason why) {
     }
@@ -573,7 +580,7 @@ public class PetAI extends CreatureAI {
         }
 
         if (me.getCharmInfo() == null) {
-            Log.outWarn(LogFilter.ScriptsAi, String.format("me.getCharmInfo() is NULL in PetAI::HandleReturnMovement(). Debug info: %1$s", getDebugInfo()));
+            Log.outWarn(LogFilter.ScriptsAi, String.format("me.GetCharmInfo() is NULL in PetAI::HandleReturnMovement(). Debug info: %1$s", getDebugInfo()));
 
             return;
         }
@@ -583,39 +590,41 @@ public class PetAI extends CreatureAI {
                 // Return to previous position where stay was clicked
 
                 float x;
-                tangible.OutObject<Float> tempOut_x = new tangible.OutObject<Float>();
+                tangible.OutObject<Float> tempOutX = new tangible.OutObject<Float>();
                 float y;
-                tangible.OutObject<Float> tempOut_y = new tangible.OutObject<Float>();
+                tangible.OutObject<Float> tempOutY = new tangible.OutObject<Float>();
                 float z;
-                tangible.OutObject<Float> tempOut_z = new tangible.OutObject<Float>();
-                me.getCharmInfo().getStayPosition(tempOut_x, tempOut_y, tempOut_z);
-                z = tempOut_z.outArgValue;
-                y = tempOut_y.outArgValue;
-                x = tempOut_x.outArgValue;
+                tangible.OutObject<Float> tempOutZ = new tangible.OutObject<Float>();
+                me.getCharmInfo().getStayPosition(tempOutX, tempOutY, tempOutZ);
+            z = tempOutZ.outArgValue;
+            y = tempOutY.outArgValue;
+            x = tempOutX.outArgValue;
                 clearCharmInfoFlags();
                 me.getCharmInfo().setIsReturning(true);
 
-                if (me.hasUnitState(UnitState.chase)) {
-                    me.getMotionMaster().remove(MovementGeneratorType.chase);
+                if (me.hasUnitState(UnitState.Chase)) {
+                    me.getMotionMaster().remove(MovementGeneratorType.Chase);
                 }
 
-                me.getMotionMaster().movePoint((int) me.getGUID().getCounter(), x, y, z);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: Me.MotionMaster.MovePoint((uint)Me.GUID.Counter, x, y, z);
+                me.getMotionMaster().movePoint((int)me.getGUID().getCounter(), x, y, z);
             }
-        } else // COMMAND_FOLLOW
-        {
+        }
+        else { // COMMAND_FOLLOW
             if (!me.getCharmInfo().isFollowing() && !me.getCharmInfo().isReturning()) {
                 clearCharmInfoFlags();
                 me.getCharmInfo().setIsReturning(true);
 
-                if (me.hasUnitState(UnitState.chase)) {
-                    me.getMotionMaster().remove(MovementGeneratorType.chase);
+                if (me.hasUnitState(UnitState.Chase)) {
+                    me.getMotionMaster().remove(MovementGeneratorType.Chase);
                 }
 
                 me.getMotionMaster().moveFollow(me.getCharmerOrOwner(), SharedConst.PetFollowDist, me.getFollowAngle());
             }
         }
 
-        me.removeUnitFlag(UnitFlag.PET_IN_COMBAT); // on player pets, this flag indicates that we're actively going after a target - we're returning, so remove it
+        me.removeUnitFlag(UnitFlags.PetInCombat); // on player pets, this flag indicates that we're actively going after a target - we're returning, so remove it
     }
 
     private void doAttack(Unit target, boolean chase) {
@@ -623,11 +632,11 @@ public class PetAI extends CreatureAI {
         // for next update / creature kill
 
         if (me.attack(target, true)) {
-            me.setUnitFlag(UnitFlag.PET_IN_COMBAT); // on player pets, this flag indicates we're actively going after a target - that's what we're doing, so set it
+            me.setUnitFlag(UnitFlags.PetInCombat); // on player pets, this flag indicates we're actively going after a target - that's what we're doing, so set it
 
             // Play sound to let the player know the pet is attacking something it picked on its own
             if (me.hasReactState(ReactStates.Aggressive) && !me.getCharmInfo().isCommandAttack()) {
-                me.sendPetAIReaction(me.getGUID());
+                me.sendPetAIReaction(me.getGUID().clone());
             }
 
             if (chase) {
@@ -641,9 +650,9 @@ public class PetAI extends CreatureAI {
 
                 // Pets with ranged attacks should not care about the chase angle at all.
                 var chaseDistance = me.getPetChaseDistance();
-                var angle = chaseDistance == 0.0f ? (float) Math.PI : 0.0f;
-                var tolerance = chaseDistance == 0.0f ? MathUtil.PiOver4 : ((float) Math.PI * 2);
-                me.getMotionMaster().moveChase(target, new ChaseRange(0.0f, chaseDistance), new chaseAngle(angle, tolerance));
+                var angle = chaseDistance == 0.0f ? MathF.PI : 0.0f;
+                var tolerance = chaseDistance == 0.0f ? MathFunctions.PiOver4 : (MathF.PI * 2);
+                me.getMotionMaster().moveChase(target, new ChaseRange(0.0f, chaseDistance), new ChaseAngle(angle, tolerance));
             } else {
                 clearCharmInfoFlags();
                 me.getCharmInfo().setIsAtStay(true);
@@ -667,7 +676,7 @@ public class PetAI extends CreatureAI {
         var owner = me.getCharmerOrOwner();
 
         if (owner) {
-            if (owner.getLocation().getExactDist(me.getLocation()) >= (owner.getVisibilityRange() - 10.0f)) {
+            if (owner.location.getExactDist(me.location) >= (owner.getVisibilityRange() - 10.0f)) {
                 return true;
             }
         }
@@ -692,7 +701,7 @@ public class PetAI extends CreatureAI {
     }
 
     private void updateAllies() {
-        updateAlliesTimer = 10 * time.InMilliseconds; // update friendly targets every 10 seconds, lesser checks increase performance
+        updateAlliesTimer = 10 * Time.InMilliseconds; // update friendly targets every 10 seconds, lesser checks increase performance
 
         var owner = me.getCharmerOrOwner();
 
@@ -701,7 +710,7 @@ public class PetAI extends CreatureAI {
         }
 
         PlayerGroup group = null;
-        var player = owner.toPlayer();
+        var player = owner.getAsPlayer();
 
         if (player) {
             group = player.getGroup();
@@ -718,32 +727,31 @@ public class PetAI extends CreatureAI {
         }
 
         allySet.clear();
-        allySet.add(me.getGUID());
+        allySet.add(me.getGUID().clone());
 
-        if (group) // add group
-        {
-            for (var refe = group.getFirstMember(); refe != null; refe = refe.next()) {
+        if (group) { // add group
+            for (var refe = group.getFirstMember(); refe != null; refe = refe.Next()) {
                 var target = refe.getSource();
 
-                if (!target || !target.isInMap(owner) || !group.sameSubGroup(owner.toPlayer(), target)) {
+                if (!target || !target.isInMap(owner) || !group.sameSubGroup(owner.getAsPlayer(), target)) {
                     continue;
                 }
 
-                if (Objects.equals(target.getGUID(), owner.getGUID())) {
+                if (ObjectGuid.opEquals(target.getGUID().clone(), owner.getGUID().clone())) {
                     continue;
                 }
 
-                allySet.add(target.getGUID());
+                allySet.add(target.getGUID().clone());
             }
-        } else // remove group
-        {
-            allySet.add(owner.getGUID());
+        }
+        else { // remove group
+            allySet.add(owner.getGUID().clone());
         }
     }
 
-    /**
-     * Quick access to set all flags to FALSE
-     */
+    /** 
+      Quick access to set all flags to FALSE
+    */
     private void clearCharmInfoFlags() {
         var ci = me.getCharmInfo();
 

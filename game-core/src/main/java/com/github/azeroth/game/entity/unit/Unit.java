@@ -3,6 +3,7 @@ package com.github.azeroth.game.entity.unit;
 
 import com.github.azeroth.common.EnumFlag;
 import com.github.azeroth.common.Flag128;
+import com.github.azeroth.dbc.defines.CriteriaType;
 import com.github.azeroth.dbc.domain.DungeonEncounter;
 import com.github.azeroth.dbc.domain.LiquidType;
 import com.github.azeroth.defines.*;
@@ -16,6 +17,7 @@ import com.github.azeroth.game.combat.ThreatManager;
 import com.github.azeroth.game.domain.map.MapDefine;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.WorldLocation;
+import com.github.azeroth.game.domain.object.enums.TypeMask;
 import com.github.azeroth.game.domain.unit.*;
 import com.github.azeroth.game.entity.areatrigger.AreaTrigger;
 import com.github.azeroth.game.entity.creature.Creature;
@@ -25,11 +27,12 @@ import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.domain.object.enums.TypeId;
-import com.github.azeroth.game.entity.object.update.UnitData;
+import com.github.azeroth.game.entity.object.update.ObjectUpdateFlag;
 import com.github.azeroth.game.entity.pet.Pet;
 import com.github.azeroth.game.entity.player.KillRewarder;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.totem.Totem;
+import com.github.azeroth.game.entity.vehicle.TransportObject;
 import com.github.azeroth.game.entity.vehicle.Vehicle;
 import com.github.azeroth.game.group.PlayerGroup;
 import com.github.azeroth.game.loot.Loot;
@@ -40,7 +43,7 @@ import com.github.azeroth.game.map.grid.Cell;
 import com.github.azeroth.game.movement.AbstractFollower;
 import com.github.azeroth.game.movement.MotionMaster;
 import com.github.azeroth.game.movement.MovementGenerator;
-import com.github.azeroth.game.movement.SpellEffectExtraData;
+import com.github.azeroth.game.movement.model.SpellEffectExtraData;
 import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
 import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 import com.github.azeroth.game.movement.enums.MovementSlot;
@@ -51,6 +54,7 @@ import com.github.azeroth.game.movement.spline.MoveSpline;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 import com.github.azeroth.game.networking.WorldPacket;
 import com.github.azeroth.game.networking.opcode.ServerOpCode;
+import com.github.azeroth.game.networking.packet.combat.BreakTarget;
 import com.github.azeroth.game.networking.packet.movement.MoveSetActiveMover;
 import com.github.azeroth.game.networking.packet.movement.MoveSetSpeed;
 import com.github.azeroth.game.networking.packet.movement.MoveSplineSetSpeed;
@@ -61,11 +65,9 @@ import com.github.azeroth.game.spell.*;
 
 import com.github.azeroth.game.spell.auras.enums.AuraTriggerOnPowerChangeDirection;
 import com.github.azeroth.game.spell.auras.enums.AuraType;
-import com.github.azeroth.game.spell.enums.SpellAuraInterruptFlag;
-import com.github.azeroth.game.spell.enums.SpellAuraInterruptFlag2;
-import com.github.azeroth.game.spell.enums.SpellCustomAttributes;
-import com.github.azeroth.game.spell.enums.SpellGroup;
+import com.github.azeroth.game.spell.enums.*;
 import com.github.azeroth.game.spell.events.DelayedCastEvent;
+import com.github.azeroth.game.world.WorldContext;
 import com.github.azeroth.time.GameTime;
 import com.github.azeroth.utils.MathUtil;
 import com.github.azeroth.utils.RandomUtil;
@@ -82,7 +84,7 @@ import java.util.function.Predicate;
 
 import static com.github.azeroth.defines.SharedDefine.MAX_POWERS_PER_CLASS;
 import static com.github.azeroth.game.domain.unit.UnitDefine.*;
-import static java.util.logging.Logger.global;
+import static com.github.azeroth.game.entity.object.update.UpdateFields.*;
 
 
 @Getter
@@ -94,10 +96,12 @@ public abstract class Unit extends WorldObject {
     private final Object healthLock = new Object();
     private final ArrayList<AbstractFollower> followingMe = new ArrayList<>();
     private final MotionMaster motionMaster;
-    private final int[] reactiveTimer = new int[ReactiveType.values().length];
-    private final int[] baseAttackSpeed = new int[WeaponAttackType.values().length];
-    private final float[] modAttackSpeedPct = new float[WeaponAttackType.values().length];
-    private final int[] attackTimer = new int[WeaponAttackType.values().length];
+
+    private final EnumMap<ReactiveType, Integer> reactiveTimer = new EnumMap<>(ReactiveType.class);
+    private final EnumMap<WeaponAttackType, Integer> baseAttackSpeed = new EnumMap<>(WeaponAttackType.class);
+    private final EnumMap<WeaponAttackType, Float> modAttackSpeedPct = new EnumMap<>(WeaponAttackType.class);
+    private final EnumMap<WeaponAttackType, Integer> attackTimer = new EnumMap<>(WeaponAttackType.class);
+
     // threat+combat management
     private final CombatManager combatManager;
     private final ThreatManager threatManager;
@@ -114,11 +118,11 @@ public abstract class Unit extends WorldObject {
     private final HashMap<Integer,List<AuraApplication>> appliedAuras = new HashMap<>();
     private final HashMap<Integer,List<Aura>> ownedAuras = new HashMap<>();
     private final ArrayList<Aura> scAuras = new ArrayList<>();
-    private final DiminishingReturn[] diminishing = new DiminishingReturn[DiminishingGroup.values().length];
+    private final EnumMap<DiminishingGroup, DiminishingReturn> diminishing = new EnumMap<>(DiminishingGroup.class);
     private final ArrayList<AreaTrigger> areaTrigger = new ArrayList<>();
-    protected float[] createStats = new float[Stats.values().length];
-    private final float[] floatStatPosBuff = new float[Stats.values().length];
-    private final float[] floatStatNegBuff = new float[Stats.values().length];
+    protected EnumMap<Stats, Float> createStats = new EnumMap<>(Stats.class);
+    protected EnumMap<Stats, Float> floatStatPosBuff = new EnumMap<>(Stats.class);
+    protected EnumMap<Stats, Float> floatStatNegBuff = new EnumMap<>(Stats.class);
     public boolean canDualWield;
 
     private MovementForces movementForces;
@@ -146,8 +150,8 @@ public abstract class Unit extends WorldObject {
     private short movementAnimKitId;
     private short meleeAnimKitId;
     //AI
-    private Stack<IUnitAI> unitAis = new Stack<>();
-    private IUnitAI ai;
+    private Stack<UnitAI> unitAis = new Stack<>();
+    private UnitAI ai;
     //Movement
     private float[] speedRate = new float[UnitMoveType.values().length];
     private final MoveSpline moveSpline;
@@ -174,7 +178,6 @@ public abstract class Unit extends WorldObject {
     private float[][] auraFlatModifiersGroup = new float[UnitMod.values().length][UnitModifierFlatType.values().length];
     private float[][] auraPctModifiersGroup = new float[UnitMod.values().length][UnitModifierPctType.values().length];
     //General
-    private UnitData unitData;
     private ArrayList<GameObject> gameObjects = new ArrayList<>();
     private ArrayList<DynamicObject> dynamicObjects = new ArrayList<>();
     private ObjectGuid[] summonSlot = new ObjectGuid[7];
@@ -183,7 +186,7 @@ public abstract class Unit extends WorldObject {
     private Vehicle vehicle;
     private Vehicle vehicleKit;
     private int lastSanctuaryTime;
-    private EnumFlag<UnitTypeMask> unitTypeMask;
+    private final EnumFlag<UnitTypeMask> unitTypeMask = EnumFlag.of(UnitTypeMask.class);
     private DeathState deathState;
 
 
@@ -196,16 +199,18 @@ public abstract class Unit extends WorldObject {
 
 
 
-    public Unit() {
+    public Unit(WorldContext worldContext, ObjectGuid guid, TypeId objectTypeId,
+                EnumFlag<TypeMask> objectType, EnumFlag<ObjectUpdateFlag> updateFlag,
+                short valuesCount, short dynamicValuesCount) {
+        super(worldContext, guid, objectTypeId, objectType, updateFlag, valuesCount, dynamicValuesCount);
         moveSpline = new MoveSpline();
         motionMaster = new MotionMaster(this);
         combatManager = new CombatManager(this);
         threatManager = new ThreatManager(this);
         spellHistory = new SpellHistory(this);
 
-
-        updateFlag.movementUpdate = true;
-
+        objectType.addFlag(TypeMask.UNIT);
+        updateFlag.addFlag(ObjectUpdateFlag.LIVING);
         setDeathState(DeathState.ALIVE);
 
         for (var immunity : SpellImmunity.values()) {
@@ -348,14 +353,14 @@ public abstract class Unit extends WorldObject {
                         var lootid = creature.getLootId();
 
                         if (lootid != 0) {
-                            loot.fillLoot(lootid, LootStorage.CREATURE, looter, dungeonEncounter != null, false, creature.getLootMode(), creature.getMap().getDifficultyLootItemContext());
+                            loot.fillLoot(lootid, LootStorage.CREATURE, looter, false, false, creature.getLootMode(), creature.getMap().getDifficultyLootItemContext());
                         }
 
-                        if (creature.getLootMode() > 0) {
+                        if (creature.getLootMode() != null) {
                             loot.generateMoneyLoot(creature.getCreatureTemplate().minGold, creature.getCreatureTemplate().maxGold);
                         }
 
-                        if (group) {
+                        if (group != null) {
                             loot.notifyLootList(creature.getMap());
                         }
 
@@ -372,10 +377,10 @@ public abstract class Unit extends WorldObject {
                     }
                 } else {
                     for (var tapper : tappers) {
-                        Loot loot = new Loot(creature.getMap(), creature.getGUID(), LootType.Corpse, null);
+                        Loot loot = new Loot(creature.getMap(), creature.getGUID(), LootType.CORPSE, null);
 
                         if (dungeonEncounter != null) {
-                            loot.setDungeonEncounterId(dungeonEncounter.id);
+                            loot.setDungeonEncounterId(dungeonEncounter.getId());
                         }
 
                         var lootid = creature.getLootId();
@@ -384,13 +389,11 @@ public abstract class Unit extends WorldObject {
                             loot.fillLoot(lootid, LootStorage.CREATURE, tapper, true, false, creature.getLootMode(), creature.getMap().getDifficultyLootItemContext());
                         }
 
-                        if (creature.getLootMode() > 0) {
+                        if (creature.getLootMode() != null) {
                             loot.generateMoneyLoot(creature.getCreatureTemplate().minGold, creature.getCreatureTemplate().maxGold);
                         }
 
-                        if (loot != null) {
-                            creature.getPersonalLoot().put(tapper.getGUID(), loot);
-                        }
+                        creature.getPersonalLoot().put(tapper.getGUID(), loot);
                     }
                 }
             }
@@ -404,22 +407,22 @@ public abstract class Unit extends WorldObject {
             var owner = attacker.getOwnerUnit();
 
             if (owner != null) {
-                procSkillsAndAuras(owner, victim, new ProcFlagsInit(procFlags.kill), new ProcFlagsInit(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
+                procSkillsAndAuras(owner, victim, EnumFlag.of(ProcFlag.KILL), EnumFlag.of(ProcFlag.NONE), ProcFlagsSpellType.MASK_ALL, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
             }
         }
 
         if (!victim.isCritter()) {
-            procSkillsAndAuras(attacker, victim, new ProcFlagsInit(procFlags.kill), new ProcFlagsInit(procFlags.Heartbeat), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
+            procSkillsAndAuras(attacker, victim, EnumFlag.of(ProcFlag.KILL), EnumFlag.of(ProcFlag.HEARTBEAT), ProcFlagsSpellType.MASK_ALL, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
 
             for (var tapper : tappers) {
                 if (tapper.isAtGroupRewardDistance(victim)) {
-                    procSkillsAndAuras(tapper, victim, new ProcFlagsInit(procFlags.NONE, ProcFlags2.TargetDies), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
+                    procSkillsAndAuras(tapper, victim, EnumFlag.of(ProcFlag.NONE), EnumFlag.of(ProcFlag.HEARTBEAT), ProcFlagsSpellType.MASK_ALL, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
                 }
             }
         }
 
         // Proc auras on death - must be before aura/combat remove
-        procSkillsAndAuras(victim, victim, new ProcFlagsInit(procFlags.NONE), new ProcFlagsInit(procFlags.Death), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
+        procSkillsAndAuras(victim, victim, EnumFlag.of(ProcFlag.NONE), EnumFlag.of(ProcFlag.DEATH), ProcFlagsSpellType.MASK_ALL, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
 
         // update get killing blow achievements, must be done before setDeathState to be able to require auras on target
         // and before Spirit of Redemption as it also removes auras
@@ -444,7 +447,7 @@ public abstract class Unit extends WorldObject {
 
             if (pet != null && pet.isAlive() && pet.isControlled()) {
                 if (pet.isAIEnabled()) {
-                    pet.getAI().killedUnit(victim);
+                    pet.getAi().killedUnit(victim);
                 } else {
                     Log.outError(LogFilter.unit, String.format("Pet doesn't have any AI in unit.kill() %1$s", pet.getDebugInfo()));
                 }
@@ -472,7 +475,7 @@ public abstract class Unit extends WorldObject {
 
             // Call KilledUnit for creatures
             if (attacker != null && attacker.isCreature() && attacker.isAIEnabled()) {
-                attacker.toCreature().getAI().killedUnit(victim);
+                attacker.toCreature().getAi().killedUnit(victim);
             }
 
             // last damage from non duel opponent or opponent controlled creature
@@ -501,11 +504,11 @@ public abstract class Unit extends WorldObject {
 
             // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
             if (attacker != null && attacker.isCreature() && attacker.isAIEnabled()) {
-                attacker.toCreature().getAI().killedUnit(victim);
+                attacker.toCreature().getAi().killedUnit(victim);
             }
 
             // Call creature just died function
-            var ai = creature.getAI();
+            var ai = creature.getAi();
 
             if (ai != null) {
                 ai.justDied(attacker);
@@ -518,8 +521,8 @@ public abstract class Unit extends WorldObject {
 
                 if (summoner != null) {
                     if (summoner.isCreature()) {
-                        if (summoner.toCreature().getAI() != null) {
-                            summoner.toCreature().getAI().summonedCreatureDies(creature, attacker);
+                        if (summoner.toCreature().getAi() != null) {
+                            summoner.toCreature().getAi().summonedCreatureDies(creature, attacker);
                         }
                     } else if (summoner.isGameObject()) {
                         if (summoner.toGameObject().getAI() != null) {
@@ -642,27 +645,27 @@ public abstract class Unit extends WorldObject {
         }
     }
 
-    public static double dealDamage(Unit attacker, Unit victim, double damage, CleanDamage cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo spellProto) {
+    public static float dealDamage(Unit attacker, Unit victim, float damage, CleanDamage cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo spellProto) {
         return dealDamage(attacker, victim, damage, cleanDamage, damagetype, damageSchoolMask, spellProto, true);
     }
 
-    public static double dealDamage(Unit attacker, Unit victim, double damage, CleanDamage cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask) {
+    public static float dealDamage(Unit attacker, Unit victim, float damage, CleanDamage cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask) {
         return dealDamage(attacker, victim, damage, cleanDamage, damagetype, damageSchoolMask, null, true);
     }
 
-    public static double dealDamage(Unit attacker, Unit victim, double damage, CleanDamage cleanDamage, DamageEffectType damagetype) {
-        return dealDamage(attacker, victim, damage, cleanDamage, damagetype, spellSchoolMask.NORMAL, null, true);
+    public static float dealDamage(Unit attacker, Unit victim, float damage, CleanDamage cleanDamage, DamageEffectType damagetype) {
+        return dealDamage(attacker, victim, damage, cleanDamage, damagetype, SpellSchoolMask.NORMAL, null, true);
     }
 
-    public static double dealDamage(Unit attacker, Unit victim, double damage, CleanDamage cleanDamage) {
-        return dealDamage(attacker, victim, damage, cleanDamage, DamageEffectType.Direct, spellSchoolMask.NORMAL, null, true);
+    public static float dealDamage(Unit attacker, Unit victim, float damage, CleanDamage cleanDamage) {
+        return dealDamage(attacker, victim, damage, cleanDamage, DamageEffectType.DIRECT_DAMAGE, SpellSchoolMask.NORMAL, null, true);
     }
 
-    public static double dealDamage(Unit attacker, Unit victim, double damage) {
-        return dealDamage(attacker, victim, damage, null, DamageEffectType.Direct, spellSchoolMask.NORMAL, null, true);
+    public static float dealDamage(Unit attacker, Unit victim, float damage) {
+        return dealDamage(attacker, victim, damage, null, DamageEffectType.DIRECT_DAMAGE, SpellSchoolMask.NORMAL, null, true);
     }
 
-    public static double dealDamage(Unit attacker, Unit victim, double damage, CleanDamage cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo spellProto, boolean durabilityLoss) {
+    public static float dealDamage(Unit attacker, Unit victim, float damage, CleanDamage cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo spellProto, boolean durabilityLoss) {
         var damageDone = damage;
         var damageTaken = damage;
 
@@ -670,47 +673,39 @@ public abstract class Unit extends WorldObject {
             damageTaken = (damage / victim.getHealthMultiplierForTarget(attacker));
         }
 
+        // call script hooks
         {
-            // call script hooks
-            var tmpDamage = damageTaken;
+            float tmpDamage = damageTaken;
 
-            if (victim.getAI() != null) {
-                tangible.RefObject<Double> tempRef_tmpDamage = new tangible.RefObject<Double>(tmpDamage);
-                victim.getAI().damageTaken(attacker, tempRef_tmpDamage, damagetype, spellProto);
-                tmpDamage = tempRef_tmpDamage.refArgValue;
-            }
+            // sparring
+            Creature victimCreature = victim.toCreature();
+            if (victimCreature != null)
+                tmpDamage = victimCreature.calculateDamageForSparring(attacker, tmpDamage);
 
-            if (attacker != null) {
-                if (attacker.getAI() != null) {
-                    tangible.RefObject<Double> tempRef_tmpDamage2 = new tangible.RefObject<Double>(tmpDamage);
-                    attacker.getAI().damageDealt(victim, tempRef_tmpDamage2, damagetype);
-                    tmpDamage = tempRef_tmpDamage2.refArgValue;
-                }
-            }
-            {
-                if (attacker.getAI() != null) {
-                    tangible.RefObject<Double> tempRef_tmpDamage3 = new tangible.RefObject<Double>(tmpDamage);
-                    attacker.getAI().damageDealt(victim, tempRef_tmpDamage3, damagetype);
-                    tmpDamage = tempRef_tmpDamage3.refArgValue;
-                }
-            }
+            UnitAI victimAI = victim.getAi();
+            if (victimAI != null)
+                victimAI.damageTaken(attacker, tmpDamage, damagetype, spellProto);
+
+
+            UnitAI attackerAI = attacker != null ? attacker.getAi() : null;
+            if (attackerAI != null)
+                attackerAI.damageDealt(victim, tmpDamage, damagetype);
 
             // Hook for OnDamage Event
-            tangible.RefObject<Double> tempRef_tmpDamage4 = new tangible.RefObject<Double>(tmpDamage);
-            global.getScriptMgr().<IUnitOnDamage>ForEach(p -> p.OnDamage(attacker, victim, tempRef_tmpDamage4));
-            tmpDamage = tempRef_tmpDamage4.refArgValue;
+            sScriptMgr->OnDamage(attacker, victim, tmpDamage);
 
             // if any script modified damage, we need to also apply the same modification to unscaled damage value
-            if (tmpDamage != damageTaken) {
-                if (attacker) {
-                    damageDone = (int) (tmpDamage * victim.getHealthMultiplierForTarget(attacker));
-                } else {
+            if (tmpDamage != damageTaken)
+            {
+                if (attacker)
+                    damageDone = tmpDamage * victim->GetHealthMultiplierForTarget(attacker);
+                else
                     damageDone = tmpDamage;
-                }
 
                 damageTaken = tmpDamage;
             }
         }
+
 
         // Signal to pets that their owner was attacked - except when DOT.
         if (attacker != victim && damagetype != DamageEffectType.DOT) {
@@ -718,7 +713,7 @@ public abstract class Unit extends WorldObject {
                 var cControlled = controlled.toCreature();
 
                 if (cControlled != null) {
-                    var controlledAI = cControlled.getAI();
+                    var controlledAI = cControlled.getAi();
 
                     if (controlledAI != null) {
                         controlledAI.ownerAttackedBy(attacker);
@@ -734,13 +729,13 @@ public abstract class Unit extends WorldObject {
         }
 
         if (damagetype != DamageEffectType.NoDamage) {
-            // interrupting auras with SpellAuraInterruptFlags.Damage before checking !damage (absorbed damage breaks that type of auras)
+            // interrupting auras with SpellAuraInterruptFlag.Damage before checking !damage (absorbed damage breaks that type of auras)
             if (spellProto != null) {
                 if (!spellProto.hasAttribute(SpellAttr4.ReactiveDamageProc)) {
-                    victim.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.damage, spellProto);
+                    victim.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.damage, spellProto);
                 }
             } else {
-                victim.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.damage);
+                victim.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.damage);
             }
 
             if (damageTaken == 0 && damagetype != DamageEffectType.DOT && cleanDamage != null && cleanDamage.getAbsorbedDamage() != 0) {
@@ -790,10 +785,10 @@ public abstract class Unit extends WorldObject {
         }
 
         // Rage from Damage made (only from direct weapon damage)
-        if (attacker != null && cleanDamage != null && (cleanDamage.getAttackType() == WeaponAttackType.BaseAttack || cleanDamage.getAttackType() == WeaponAttackType.OffAttack) && damagetype == DamageEffectType.Direct && attacker != victim && attacker.getDisplayPowerType() == powerType.Rage) {
+        if (attacker != null && cleanDamage != null && (cleanDamage.getAttackType() == WeaponAttackType.BASE_ATTACK || cleanDamage.getAttackType() == WeaponAttackType.OFF_ATTACK) && damagetype == DamageEffectType.Direct && attacker != victim && attacker.getDisplayPowerType() == powerType.Rage) {
             var rage = (int) (attacker.getBaseAttackTime(cleanDamage.getAttackType()) / 1000.0f * 1.75f);
 
-            if (cleanDamage.getAttackType() == WeaponAttackType.OffAttack) {
+            if (cleanDamage.getAttackType() == WeaponAttackType.OFF_ATTACK) {
                 rage /= 2;
             }
 
@@ -891,7 +886,7 @@ public abstract class Unit extends WorldObject {
 
             if (damagetype != DamageEffectType.NoDamage && damagetype != DamageEffectType.Self && victim.hasAuraType(AuraType.SchoolAbsorbOverkill)) {
                 var vAbsorbOverkill = victim.getAuraEffectsByType(AuraType.SchoolAbsorbOverkill);
-                DamageInfo damageInfo = new DamageInfo(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype, cleanDamage != null ? cleanDamage.getAttackType() : WeaponAttackType.BaseAttack);
+                DamageInfo damageInfo = new DamageInfo(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype, cleanDamage != null ? cleanDamage.getAttackType() : WeaponAttackType.BASE_ATTACK);
 
                 for (var absorbAurEff : vAbsorbOverkill) {
                     var baseAura = absorbAurEff.getBase();
@@ -975,7 +970,7 @@ public abstract class Unit extends WorldObject {
             victim.modifyHealth(-(int) damageTaken);
 
             if (damagetype == DamageEffectType.Direct || damagetype == DamageEffectType.SpellDirect) {
-                victim.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.NonPeriodicDamage, spellProto);
+                victim.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.NonPeriodicDamage, spellProto);
             }
 
             if (!victim.isTypeId(TypeId.PLAYER)) {
@@ -1055,7 +1050,7 @@ public abstract class Unit extends WorldObject {
                     var spell1 = victim.getCurrentSpell(CurrentSpellType.Channeled);
 
                     if (spell1 != null) {
-                        if (spell1.getState() == SpellState.Casting && spell1.spellInfo.hasChannelInterruptFlag(SpellAuraInterruptFlags.DamageChannelDuration)) {
+                        if (spell1.getState() == SpellState.Casting && spell1.spellInfo.hasChannelInterruptFlag(SpellAuraInterruptFlag.DamageChannelDuration)) {
                             spell1.delayedChannel();
                         }
                     }
@@ -1377,7 +1372,7 @@ public abstract class Unit extends WorldObject {
                 splitDamage = tempRef_splitDamage3.refArgValue;
 
                 SpellNonMeleeDamage log = new SpellNonMeleeDamage(damageInfo.getAttacker(), caster, itr.getSpellInfo(), itr.getBase().getSpellVisual(), damageInfo.getSchoolMask(), itr.getBase().getCastId());
-                CleanDamage cleanDamage = new cleanDamage(splitDamage, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.NORMAL);
+                CleanDamage cleanDamage = new cleanDamage(splitDamage, 0, WeaponAttackType.BASE_ATTACK, MeleeHitOutcome.NORMAL);
                 splitDamage = dealDamage(damageInfo.getAttacker(), caster, splitDamage, cleanDamage, DamageEffectType.Direct, damageInfo.getSchoolMask(), itr.getSpellInfo(), false);
                 log.damage = splitDamage;
                 log.originalDamage = splitDamage;
@@ -1387,7 +1382,7 @@ public abstract class Unit extends WorldObject {
                 caster.sendSpellNonMeleeDamageLog(log);
 
                 // break 'Fear' and similar auras
-                procSkillsAndAuras(damageInfo.getAttacker(), caster, new ProcFlagsInit(procFlags.NONE), new ProcFlagsInit(procFlags.TakeHarmfulSpell), ProcFlagsSpellType.damage, ProcFlagsSpellPhase.hit, ProcFlagsHit.NONE, null, damageInfo, null);
+                procSkillsAndAuras(damageInfo.getAttacker(), caster, new EnumFlag<ProcFlag>(procFlags.NONE), new EnumFlag<ProcFlag>(procFlags.TakeHarmfulSpell), ProcFlagsSpellType.damage, ProcFlagsSpellPhase.hit, ProcFlagsHit.NONE, null, damageInfo, null);
             }
         }
     }
@@ -1816,14 +1811,17 @@ public abstract class Unit extends WorldObject {
         return hitMask;
     }
 
-    public static void procSkillsAndAuras(Unit actor, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo) {
-        var attType = damageInfo != null ? damageInfo.getAttackType() : WeaponAttackType.BaseAttack;
+    public static void procSkillsAndAuras(Unit actor, Unit actionTarget, EnumFlag<ProcFlag> typeMaskActor,
+                                          EnumFlag<ProcFlag> typeMaskActionTarget, ProcFlagsSpellType spellTypeMask,
+                                          ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell,
+                                          DamageInfo damageInfo, HealInfo healInfo) {
+        var attType = damageInfo != null ? damageInfo.getAttackType() : WeaponAttackType.BASE_ATTACK;
 
-        if (typeMaskActor && actor != null) {
+        if (!typeMaskActor.isEmpty() && actor != null) {
             actor.procSkillsAndReactives(false, actionTarget, typeMaskActor, hitMask, attType);
         }
 
-        if (typeMaskActionTarget && actionTarget) {
+        if (!typeMaskActionTarget.isEmpty() && actionTarget != null) {
             actionTarget.procSkillsAndReactives(true, actor, typeMaskActionTarget, hitMask, attType);
         }
 
@@ -1880,13 +1878,13 @@ public abstract class Unit extends WorldObject {
         var victim = healInfo.getTarget();
         var addhealth = healInfo.getHeal();
 
-        var victimAI = victim.getAI();
+        var victimAI = victim.getAi();
 
         if (victimAI != null) {
             victimAI.healReceived(healer, addhealth);
         }
 
-        var healerAI = healer != null ? healer.getAI() : null;
+        var healerAI = healer != null ? healer.getAi() : null;
 
         if (healerAI != null) {
             healerAI.healDone(victim, addhealth);
@@ -2053,8 +2051,8 @@ public abstract class Unit extends WorldObject {
             }
         }
 
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags.EnteringCombat);
-        procSkillsAndAuras(this, null, new ProcFlagsInit(procFlags.EnterCombat), new ProcFlagsInit(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag.EnteringCombat);
+        procSkillsAndAuras(this, null, new EnumFlag<ProcFlag>(procFlags.EnterCombat), new EnumFlag<ProcFlag>(procFlags.NONE), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.NONE, ProcFlagsHit.NONE, null, null, null);
     }
 
     public void atExitCombat() {
@@ -2062,7 +2060,7 @@ public abstract class Unit extends WorldObject {
             pair.base.callScriptEnterLeaveCombatHandlers(pair, false);
         }
 
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags.LeavingCombat);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag.LeavingCombat);
     }
 
     public void atEngage(Unit target) {
@@ -2276,7 +2274,7 @@ public abstract class Unit extends WorldObject {
         var victim = getVictim();
 
         if (victim != null) {
-            if (victim.getFactionTemplateEntry().faction == factionId) {
+            if (victim.getFactionTemplate().faction == factionId) {
                 attackStop();
 
                 if (isNonMeleeSpellCast(false)) {
@@ -2295,7 +2293,7 @@ public abstract class Unit extends WorldObject {
         for (var i = 0; i < attackers.size(); ) {
             var unit = attackers.get(i);
 
-            if (unit.getFactionTemplateEntry().faction == factionId) {
+            if (unit.getFactionTemplate().faction == factionId) {
                 unit.attackStop();
                 i = 0;
             } else {
@@ -2306,7 +2304,7 @@ public abstract class Unit extends WorldObject {
         ArrayList<CombatReference> refsToEnd = new ArrayList<>();
 
         for (var pair : combatManager.getPvECombatRefs().entrySet()) {
-            if (pair.getValue().getOther(this).getFactionTemplateEntry().faction == factionId) {
+            if (pair.getValue().getOther(this).getFactionTemplate().faction == factionId) {
                 refsToEnd.add(pair.getValue());
             }
         }
@@ -2323,7 +2321,7 @@ public abstract class Unit extends WorldObject {
     public final void handleProcExtraAttackFor(Unit victim, int count) {
         while (count != 0) {
             --count;
-            attackerStateUpdate(victim, WeaponAttackType.BaseAttack, true);
+            attackerStateUpdate(victim, WeaponAttackType.BASE_ATTACK, true);
         }
     }
 
@@ -2445,7 +2443,7 @@ public abstract class Unit extends WorldObject {
 
         // delay offhand weapon attack by 50% of the base attack time
         if (haveOffhandWeapon() && getObjectTypeId() != TypeId.PLAYER) {
-            setAttackTimer(WeaponAttackType.OffAttack, Math.max(getAttackTimer(WeaponAttackType.OffAttack), getAttackTimer(WeaponAttackType.BaseAttack) + MathUtil.CalculatePct(getBaseAttackTime(WeaponAttackType.BaseAttack), 50)));
+            setAttackTimer(WeaponAttackType.OFF_ATTACK, Math.max(getAttackTimer(WeaponAttackType.OFF_ATTACK), getAttackTimer(WeaponAttackType.BASE_ATTACK) + MathUtil.CalculatePct(getBaseAttackTime(WeaponAttackType.BASE_ATTACK), 50)));
         }
 
         if (meleeAttack) {
@@ -2459,7 +2457,7 @@ public abstract class Unit extends WorldObject {
                 var cControlled = controlled.toCreature();
 
                 if (cControlled != null) {
-                    var controlledAI = cControlled.getAI();
+                    var controlledAI = cControlled.getAi();
 
                     if (controlledAI != null) {
                         controlledAI.ownerAttacked(victim);
@@ -2566,7 +2564,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void resetAttackTimer() {
-        resetAttackTimer(WeaponAttackType.BaseAttack);
+        resetAttackTimer(WeaponAttackType.BASE_ATTACK);
     }
 
     public final void resetAttackTimer(WeaponAttackType type) {
@@ -2574,19 +2572,19 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void setAttackTimer(WeaponAttackType type, int time) {
-        getAttackTimer()[type.getValue()] = time;
+        attackTimer.put(type, time);
     }
 
     public final int getAttackTimer(WeaponAttackType type) {
-        return getAttackTimer()[type.getValue()];
+        return attackTimer.get(type);
     }
 
     public final boolean isAttackReady() {
-        return isAttackReady(WeaponAttackType.BaseAttack);
+        return isAttackReady(WeaponAttackType.BASE_ATTACK);
     }
 
     public final boolean isAttackReady(WeaponAttackType type) {
-        return getAttackTimer()[type.getValue()] == 0;
+        return getAttackTimer(type) == 0;
     }
 
     public final int getBaseAttackTime(WeaponAttackType att) {
@@ -2598,7 +2596,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void attackerStateUpdate(Unit victim) {
-        attackerStateUpdate(victim, WeaponAttackType.BaseAttack, false);
+        attackerStateUpdate(victim, WeaponAttackType.BASE_ATTACK, false);
     }
 
     public final void attackerStateUpdate(Unit victim, WeaponAttackType attType, boolean extra) {
@@ -2618,15 +2616,15 @@ public abstract class Unit extends WorldObject {
             return;
         }
 
-        if ((attType == WeaponAttackType.BaseAttack || attType == WeaponAttackType.OffAttack) && !isWithinLOSInMap(victim)) {
+        if ((attType == WeaponAttackType.BASE_ATTACK || attType == WeaponAttackType.OFF_ATTACK) && !isWithinLOSInMap(victim)) {
             return;
         }
 
         atTargetAttacked(victim, true);
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags.attacking);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag.attacking);
 
         // ignore ranged case
-        if (attType != WeaponAttackType.BaseAttack && attType != WeaponAttackType.OffAttack) {
+        if (attType != WeaponAttackType.BASE_ATTACK && attType != WeaponAttackType.OFF_ATTACK) {
             return;
         }
 
@@ -2635,7 +2633,7 @@ public abstract class Unit extends WorldObject {
         }
 
         // melee attack spell casted at main hand attack only - no normal melee dmg dealt
-        if (attType == WeaponAttackType.BaseAttack && getCurrentSpell(CurrentSpellType.Melee) != null && !extra) {
+        if (attType == WeaponAttackType.BASE_ATTACK && getCurrentSpell(CurrentSpellType.Melee) != null && !extra) {
             getCurrentSpells().get(CurrentSpellType.Melee).cast();
         } else {
             // attack can be redirected to another target
@@ -2645,7 +2643,7 @@ public abstract class Unit extends WorldObject {
             AuraEffect meleeAttackAuraEffect = null;
             int meleeAttackSpellId = 0;
 
-            if (attType == WeaponAttackType.BaseAttack) {
+            if (attType == WeaponAttackType.BASE_ATTACK) {
                 if (!meleeAttackOverrides.isEmpty()) {
                     meleeAttackAuraEffect = meleeAttackOverrides.get(0);
                     meleeAttackSpellId = meleeAttackAuraEffect.getSpellEffectInfo().triggerSpell;
@@ -2674,8 +2672,8 @@ public abstract class Unit extends WorldObject {
                 damageInfo.absorb = tempRef_Absorb.refArgValue;
                 damageInfo.damage = tempRef_Damage.refArgValue;
 
-                IUnitAI aI;
-                tangible.OutObject<IUnitAI> tempOut_aI = new tangible.OutObject<IUnitAI>();
+                UnitAI aI;
+                tangible.OutObject<UnitAI> tempOut_aI = new tangible.OutObject<UnitAI>();
                 if (tryGetAI(tempOut_aI)) {
                     aI = tempOut_aI.outArgValue;
                     aI.onMeleeAttack(damageInfo, attType, extra);
@@ -2804,7 +2802,7 @@ public abstract class Unit extends WorldObject {
         if (myPlayerOwner && targetPlayerOwner && !(myPlayerOwner.getDuel() != null && myPlayerOwner.getDuel().getOpponent() == targetPlayerOwner)) {
             myPlayerOwner.updatePvP(true);
             myPlayerOwner.setContestedPvP(targetPlayerOwner);
-            myPlayerOwner.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
+            myPlayerOwner.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.PvPActive);
         }
     }
 
@@ -2844,12 +2842,12 @@ public abstract class Unit extends WorldObject {
             maxDamage = tempOut_maxDamage.outArgValue;
             minDamage = tempOut_minDamage.outArgValue;
 
-            if (isInFeralForm() && attType == WeaponAttackType.BaseAttack) {
+            if (isInFeralForm() && attType == WeaponAttackType.BASE_ATTACK) {
                 double minOffhandDamage;
                 tangible.OutObject<Double> tempOut_minOffhandDamage = new tangible.OutObject<Double>();
                 double maxOffhandDamage;
                 tangible.OutObject<Double> tempOut_maxOffhandDamage = new tangible.OutObject<Double>();
-                calculateMinMaxDamage(WeaponAttackType.OffAttack, normalized, addTotalPct, tempOut_minOffhandDamage, tempOut_maxOffhandDamage);
+                calculateMinMaxDamage(WeaponAttackType.OFF_ATTACK, normalized, addTotalPct, tempOut_minOffhandDamage, tempOut_maxOffhandDamage);
                 maxOffhandDamage = tempOut_maxOffhandDamage.outArgValue;
                 minOffhandDamage = tempOut_minOffhandDamage.outArgValue;
                 minDamage += minOffhandDamage;
@@ -2901,7 +2899,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final double getWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type) {
-        if (attType == WeaponAttackType.OffAttack && !haveOffhandWeapon()) {
+        if (attType == WeaponAttackType.OFF_ATTACK && !haveOffhandWeapon()) {
             return 0.0f;
         }
 
@@ -2969,7 +2967,7 @@ public abstract class Unit extends WorldObject {
             double ap = getUnitData().attackPower + getUnitData().attackPowerModPos + getUnitData().attackPowerModNeg;
 
             if (includeWeapon) {
-                if (attType == WeaponAttackType.BaseAttack) {
+                if (attType == WeaponAttackType.BASE_ATTACK) {
                     ap += Math.max(getUnitData().mainHandWeaponAttackPower, getUnitData().rangedWeaponAttackPower);
                 } else {
                     ap += getUnitData().offHandWeaponAttackPower;
@@ -3027,7 +3025,7 @@ public abstract class Unit extends WorldObject {
             MathUtil.applyPercentModFloatVar(tempRef_Object, val, !apply);
             getModAttackSpeedPct()[att.getValue()] = tempRef_Object.refArgValue;
 
-            if (att == WeaponAttackType.BaseAttack) {
+            if (att == WeaponAttackType.BASE_ATTACK) {
                 applyPercentModUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modHaste), (float) val, !apply);
             } else if (att == WeaponAttackType.RangedAttack) {
                 applyPercentModUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modRangedHaste), (float) val, !apply);
@@ -3037,7 +3035,7 @@ public abstract class Unit extends WorldObject {
             MathUtil.applyPercentModFloatVar(tempRef_Object2, -val, apply);
             getModAttackSpeedPct()[att.getValue()] = tempRef_Object2.refArgValue;
 
-            if (att == WeaponAttackType.BaseAttack) {
+            if (att == WeaponAttackType.BASE_ATTACK) {
                 applyPercentModUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modHaste), -(float) val, apply);
             } else if (att == WeaponAttackType.RangedAttack) {
                 applyPercentModUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().modRangedHaste), -(float) val, apply);
@@ -3081,8 +3079,8 @@ public abstract class Unit extends WorldObject {
         damageInfo.outArgValue.setTargetState(victimState.forValue(0));
 
         damageInfo.outArgValue.setAttackType(attackType);
-        damageInfo.outArgValue.setProcAttacker(new ProcFlagsInit());
-        damageInfo.outArgValue.setProcVictim(new ProcFlagsInit());
+        damageInfo.outArgValue.setProcAttacker(new EnumFlag<ProcFlag>());
+        damageInfo.outArgValue.setProcVictim(new EnumFlag<ProcFlag>());
         damageInfo.outArgValue.setCleanDamage(0);
         damageInfo.outArgValue.setHitOutCome(MeleeHitOutcome.Evade);
 
@@ -3097,13 +3095,13 @@ public abstract class Unit extends WorldObject {
         // Select HitInfo/procAttacker/procVictim flag based on attack type
         switch (attackType) {
             case BaseAttack:
-                damageInfo.outArgValue.setProcAttacker(new ProcFlagsInit(procFlags.DealMeleeSwing.getValue() | procFlags.MainHandWeaponSwing.getValue()));
-                damageInfo.outArgValue.setProcVictim(new ProcFlagsInit(procFlags.TakeMeleeSwing));
+                damageInfo.outArgValue.setProcAttacker(new EnumFlag<ProcFlag>(procFlags.DealMeleeSwing.getValue() | procFlags.MainHandWeaponSwing.getValue()));
+                damageInfo.outArgValue.setProcVictim(new EnumFlag<ProcFlag>(procFlags.TakeMeleeSwing));
 
                 break;
             case OffAttack:
-                damageInfo.outArgValue.setProcAttacker(new ProcFlagsInit(procFlags.DealMeleeSwing.getValue() | procFlags.OffHandWeaponSwing.getValue()));
-                damageInfo.outArgValue.setProcVictim(new ProcFlagsInit(procFlags.TakeMeleeSwing));
+                damageInfo.outArgValue.setProcAttacker(new EnumFlag<ProcFlag>(procFlags.DealMeleeSwing.getValue() | procFlags.OffHandWeaponSwing.getValue()));
+                damageInfo.outArgValue.setProcVictim(new EnumFlag<ProcFlag>(procFlags.TakeMeleeSwing));
                 damageInfo.outArgValue.setHitInfo(hitInfo.OffHand);
 
                 break;
@@ -3439,6 +3437,42 @@ public abstract class Unit extends WorldObject {
         return !sharedVision.isEmpty();
     }
 
+
+    public final EnumFlag<NPCFlag> getNpcFlags() { return EnumFlag.of(getInt32Value(UNIT_NPC_FLAGS)); }
+    public final boolean hasNpcFlag(NPCFlag flags) { return hasFlag(UNIT_NPC_FLAGS, flags); }
+    void SetNpcFlag(NPCFlags flags) { SetUInt32Value(UNIT_NPC_FLAGS, flags); }
+    void RemoveNpcFlag(NPCFlags flags) { RemoveFlag(UNIT_NPC_FLAGS, flags); }
+    void ReplaceAllNpcFlags(NPCFlags flags) { ToggleFlag(UNIT_NPC_FLAGS, flags); }
+
+    NPCFlags2 GetNpcFlags2() const { return NPCFlags2(GetUInt32Value(UNIT_NPC_FLAGS + 1)); }
+    bool HasNpcFlag2(NPCFlags2 flags) const { return HasFlag(UNIT_NPC_FLAGS + 1, flags); }
+    void SetNpcFlag2(NPCFlags2 flags) { SetUInt32Value(UNIT_NPC_FLAGS + 1, flags); }
+    void RemoveNpcFlag2(NPCFlags2 flags) { RemoveFlag(UNIT_NPC_FLAGS + 1, flags); }
+    void ReplaceAllNpcFlags2(NPCFlags2 flags) { ToggleFlag(UNIT_NPC_FLAGS + 1, flags); }
+
+    boolean IsVendor()          { return HasNpcFlag(UNIT_NPC_FLAG_VENDOR); }
+    boolean IsTrainer()         { return HasNpcFlag(UNIT_NPC_FLAG_TRAINER); }
+    bool IsQuestGiver()     const { return HasNpcFlag(UNIT_NPC_FLAG_QUESTGIVER); }
+    bool IsGossip()         const { return HasNpcFlag(UNIT_NPC_FLAG_GOSSIP); }
+    bool IsTaxi()           const { return HasNpcFlag(UNIT_NPC_FLAG_FLIGHTMASTER); }
+    bool IsGuildMaster()    const { return HasNpcFlag(UNIT_NPC_FLAG_PETITIONER); }
+    bool IsBattleMaster()   const { return HasNpcFlag(UNIT_NPC_FLAG_BATTLEMASTER); }
+    bool IsBanker()         const { return HasNpcFlag(UNIT_NPC_FLAG_BANKER); }
+    bool IsInnkeeper()      const { return HasNpcFlag(UNIT_NPC_FLAG_INNKEEPER); }
+    bool IsSpiritHealer()   const { return HasNpcFlag(UNIT_NPC_FLAG_SPIRIT_HEALER); }
+    bool IsAreaSpiritHealer() const { return HasNpcFlag(UNIT_NPC_FLAG_AREA_SPIRIT_HEALER); }
+    bool IsTabardDesigner() const { return HasNpcFlag(UNIT_NPC_FLAG_TABARDDESIGNER); }
+    bool IsAuctioner()      const { return HasNpcFlag(UNIT_NPC_FLAG_AUCTIONEER); }
+    bool IsArmorer()        const { return HasNpcFlag(UNIT_NPC_FLAG_REPAIR); }
+    bool IsWildBattlePet()  const { return HasNpcFlag(UNIT_NPC_FLAG_WILD_BATTLE_PET); }
+    bool IsServiceProvider() const;
+    bool IsSpiritService() const { return HasNpcFlag(UNIT_NPC_FLAG_SPIRIT_HEALER | UNIT_NPC_FLAG_AREA_SPIRIT_HEALER); }
+    bool IsAreaSpiritHealerIndividual() const { return HasNpcFlag2(UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL); }
+    bool IsCritter() const { return GetCreatureType() == CREATURE_TYPE_CRITTER; }
+
+    bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }
+
+
     public final NPCFlag getNpcFlags() {
         return NPCFlag.forValue(getUnitData().npcFlags.get(0));
     }
@@ -3759,7 +3793,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public float getFollowAngle() {
-        return MathUtil.PiOver2;
+        return MathUtil.PI_OVER_2;
     }
 
     @Override
@@ -3913,7 +3947,7 @@ public abstract class Unit extends WorldObject {
         setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().sheatheState), (byte) value.getValue());
 
         if (value == sheathState.Unarmed) {
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags.Sheathing);
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag.Sheathing);
         }
     }
 
@@ -3988,15 +4022,15 @@ public abstract class Unit extends WorldObject {
     }
 
     public final boolean isAlive() {
-        return getDeathState() == deathState.Alive;
+        return deathState == DeathState.ALIVE;
     }
 
     public final boolean isDying() {
-        return getDeathState() == deathState.JustDied;
+        return deathState == DeathState.JUST_DIED;
     }
 
     public final boolean isDead() {
-        return (getDeathState() == deathState.Dead || getDeathState() == deathState.Corpse);
+        return (deathState == DeathState.DEAD || deathState == DeathState.CORPSE);
     }
 
     public final boolean isSummon() {
@@ -4004,23 +4038,23 @@ public abstract class Unit extends WorldObject {
     }
 
     public final boolean isGuardian() {
-        return getUnitTypeMask().hasFlag(UnitTypeMask.Guardian);
+        return getUnitTypeMask().hasFlag(UnitTypeMask.GUARDIAN);
     }
 
     public final boolean isPet() {
-        return getUnitTypeMask().hasFlag(UnitTypeMask.pet);
+        return getUnitTypeMask().hasFlag(UnitTypeMask.PET);
     }
 
     public final boolean isHunterPet() {
-        return getUnitTypeMask().hasFlag(UnitTypeMask.HunterPet);
+        return getUnitTypeMask().hasFlag(UnitTypeMask.HUNTER_PET);
     }
 
     public final boolean isTotem() {
-        return getUnitTypeMask().hasFlag(UnitTypeMask.totem);
+        return getUnitTypeMask().hasFlag(UnitTypeMask.TOTEM);
     }
 
     public final boolean isVehicle() {
-        return getUnitTypeMask().hasFlag(UnitTypeMask.vehicle);
+        return getUnitTypeMask().hasFlag(UnitTypeMask.VEHICLE);
     }
 
     @Override
@@ -4090,13 +4124,7 @@ public abstract class Unit extends WorldObject {
         transformSpell = value;
     }
 
-    public final Vehicle getVehicle1() {
-        return getVehicle();
-    }
 
-    public final void setVehicle1(Vehicle value) {
-        setVehicle(value);
-    }
 
     //Unit
 
@@ -4118,8 +4146,8 @@ public abstract class Unit extends WorldObject {
         return null;
     }
 
-    public final ITransport getDirectTransport() {
-        var veh = getVehicle1();
+    public final TransportObject getDirectTransport() {
+        var veh = getVehicle();
 
         if (veh != null) {
             return veh;
@@ -4130,12 +4158,12 @@ public abstract class Unit extends WorldObject {
 
 
 
-    public void setAI(IUnitAI value) {
+    public void setAi(UnitAI value) {
         pushAI(value);
         refreshAI();
     }
 
-    public final IUnitAI getBaseAI() {
+    public final UnitAI getBaseAI() {
         return getAi();
     }
 
@@ -4215,10 +4243,10 @@ public abstract class Unit extends WorldObject {
 //			}
 
         if (!spellPausesCombatTimer(CurrentSpellType.generic) && !spellPausesCombatTimer(CurrentSpellType.Channeled)) {
-            var base_att = getAttackTimer(WeaponAttackType.BaseAttack);
+            var base_att = getAttackTimer(WeaponAttackType.BASE_ATTACK);
 
             if (base_att != 0) {
-                setAttackTimer(WeaponAttackType.BaseAttack, (diff >= base_att ? 0 : base_att - diff));
+                setAttackTimer(WeaponAttackType.BASE_ATTACK, (diff >= base_att ? 0 : base_att - diff));
             }
 
             var ranged_att = getAttackTimer(WeaponAttackType.RangedAttack);
@@ -4227,10 +4255,10 @@ public abstract class Unit extends WorldObject {
                 setAttackTimer(WeaponAttackType.RangedAttack, (diff >= ranged_att ? 0 : ranged_att - diff));
             }
 
-            var off_att = getAttackTimer(WeaponAttackType.OffAttack);
+            var off_att = getAttackTimer(WeaponAttackType.OFF_ATTACK);
 
             if (off_att != 0) {
-                setAttackTimer(WeaponAttackType.OffAttack, (diff >= off_att ? 0 : off_att - diff));
+                setAttackTimer(WeaponAttackType.OFF_ATTACK, (diff >= off_att ? 0 : off_att - diff));
             }
         }
 
@@ -4538,7 +4566,7 @@ public abstract class Unit extends WorldObject {
         super.addToWorld();
         motionMaster.addToWorld();
 
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags.EnterWorld);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag.EnterWorld);
     }
 
     @Override
@@ -4547,7 +4575,7 @@ public abstract class Unit extends WorldObject {
 
         if (isInWorld()) {
             duringRemoveFromWorld = true;
-            var ai = getAI();
+            var ai = getAi();
 
             if (ai != null) {
                 ai.onDespawn();
@@ -4560,7 +4588,7 @@ public abstract class Unit extends WorldObject {
             removeCharmAuras();
             removeAurasByType(AuraType.BindSight);
             removeNotOwnSingleTargetAuras();
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags.LeaveWorld);
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag.LeaveWorld);
 
             removeAllGameObjects();
             removeAllDynObjects();
@@ -4627,7 +4655,7 @@ public abstract class Unit extends WorldObject {
         getDynamicObjects().add(dynObj);
 
         if (isTypeId(TypeId.UNIT) && isAIEnabled()) {
-            toCreature().getAI().justRegisteredDynObject(dynObj);
+            toCreature().getAi().justRegisteredDynObject(dynObj);
         }
     }
 
@@ -4635,7 +4663,7 @@ public abstract class Unit extends WorldObject {
         getDynamicObjects().remove(dynObj);
 
         if (isTypeId(TypeId.UNIT) && isAIEnabled()) {
-            toCreature().getAI().justUnregisteredDynObject(dynObj);
+            toCreature().getAi().justUnregisteredDynObject(dynObj);
         }
     }
 
@@ -4682,7 +4710,7 @@ public abstract class Unit extends WorldObject {
         }
 
         if (isTypeId(TypeId.UNIT) && toCreature().isAIEnabled()) {
-            toCreature().getAI().justSummonedGameobject(gameObj);
+            toCreature().getAi().justSummonedGameobject(gameObj);
         }
     }
 
@@ -4719,7 +4747,7 @@ public abstract class Unit extends WorldObject {
         getGameObjects().remove(gameObj);
 
         if (isTypeId(TypeId.UNIT) && toCreature().isAIEnabled()) {
-            toCreature().getAI().summonedGameobjectDespawn(gameObj);
+            toCreature().getAi().summonedGameobjectDespawn(gameObj);
         }
 
         if (del) {
@@ -4764,7 +4792,7 @@ public abstract class Unit extends WorldObject {
         areaTrigger.add(areaTrigger);
 
         if (isTypeId(TypeId.UNIT) && isAIEnabled()) {
-            toCreature().getAI().justRegisteredAreaTrigger(areaTrigger);
+            toCreature().getAi().justRegisteredAreaTrigger(areaTrigger);
         }
     }
 
@@ -4772,7 +4800,7 @@ public abstract class Unit extends WorldObject {
         areaTrigger.remove(areaTrigger);
 
         if (isTypeId(TypeId.UNIT) && isAIEnabled()) {
-            toCreature().getAI().justUnregisteredAreaTrigger(areaTrigger);
+            toCreature().getAi().justUnregisteredAreaTrigger(areaTrigger);
         }
     }
 
@@ -4859,7 +4887,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final boolean isContestedGuard() {
-        var entry = getFactionTemplateEntry();
+        var entry = getFactionTemplate();
 
         if (entry != null) {
             return entry.IsContestedGuardFaction();
@@ -4874,7 +4902,7 @@ public abstract class Unit extends WorldObject {
 
     @Override
     public String getDebugInfo() {
-        var str = String.format("%1$s\nIsAIEnabled: %2$s DeathState: %3$s UnitMovementFlags: %4$s UnitMovementFlags2: %5$s Class: %6$s\n", super.getDebugInfo(), isAIEnabled(), getDeathState(), getUnitMovementFlags(), getUnitMovementFlags2(), getUnitClass()) + String.format(" %1$s GetCharmedGUID(): %2$s\nGetCharmerGUID(): %3$s\n%4$s\n", (getMoveSpline() != null ? getMoveSpline().toString() : "Movespline: <none>\n"), getCharmedGUID(), getCharmerGUID(), (getVehicleKit1() != null ? getVehicleKit1().getDebugInfo() : "No vehicle kit")) + String.format("m_Controlled size: %1$s", getControlled().size());
+        var str = String.format("%1$s\nIsAIEnabled: %2$s DeathState: %3$s UnitMovementFlags: %4$s UnitMovementFlags2: %5$s Class: %6$s\n", super.getDebugInfo(), isAIEnabled(), deathState, getUnitMovementFlags(), getUnitMovementFlags2(), getUnitClass()) + String.format(" %1$s GetCharmedGUID(): %2$s\nGetCharmerGUID(): %3$s\n%4$s\n", (getMoveSpline() != null ? getMoveSpline().toString() : "Movespline: <none>\n"), getCharmedGUID(), getCharmerGUID(), (getVehicleKit1() != null ? getVehicleKit1().getDebugInfo() : "No vehicle kit")) + String.format("m_Controlled size: %1$s", getControlled().size());
 
         var controlledCount = 0;
 
@@ -5174,9 +5202,9 @@ public abstract class Unit extends WorldObject {
             }
         }
 
-        if (hasUnitTypeMask(UnitTypeMask.Accessory)) {
+        if (hasUnitTypeMask(UnitTypeMask.ACCESSORY)) {
             // Vehicle just died, we die too
-            if (vehicle.GetBase().getDeathState() == deathState.JustDied) {
+            if (vehicle.getBase().getDeathState() == DeathState.JUST_DIED) {
                 setDeathState(deathState.JustDied);
             }
             // If for other reason we as minion are exiting the vehicle (ejected, master dismounted) - unsummon
@@ -5205,28 +5233,16 @@ public abstract class Unit extends WorldObject {
     public final boolean isOnVehicle(Unit vehicle) {
         return getVehicle() != null && getVehicle() == vehicle.getVehicleKit();
     }
+    
 
-    public final boolean tryGetAI(tangible.OutObject<IUnitAI> ai) {
-        ai.outArgValue = getBaseAI();
-
-        return ai.outArgValue != null;
-    }
-
-    public final boolean tryGetCreatureAI(tangible.OutObject<CreatureAI> ai) {
-        IUnitAI tempVar = getAI();
-        ai.outArgValue = tempVar instanceof CreatureAI ? (CreatureAI) tempVar : null;
-
-        return ai.outArgValue != null;
-    }
-
-    public final IUnitAI getTopAI() {
+    public final UnitAI getTopAI() {
         synchronized (getUnitAis()) {
             return getUnitAis().empty() ? null : getUnitAis().peek();
         }
     }
 
     public final void AIUpdateTick(int diff) {
-        var ai = getAI();
+        var ai = getAi();
 
         if (ai != null) {
             synchronized (getUnitAis()) {
@@ -5235,7 +5251,7 @@ public abstract class Unit extends WorldObject {
         }
     }
 
-    public final void pushAI(IUnitAI newAI) {
+    public final void pushAI(UnitAI newAI) {
         synchronized (getUnitAis()) {
             getUnitAis().push(newAI);
         }
@@ -5422,8 +5438,13 @@ public abstract class Unit extends WorldObject {
         return modelid;
     }
 
+    public final Pet toPet() {
+        return isPet() ? (this instanceof Pet ? (Pet) this : null) : null;
+    }
+
+
     public final Totem toTotem() {
-        return isTotem() ? (this instanceof Totem ? (totem) this : null) : null;
+        return isTotem() ? (this instanceof Totem ? (Totem) this : null) : null;
     }
 
     public final TempSummon toTempSummon() {
@@ -5484,7 +5505,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void addInterruptMask(SpellAuraInterruptFlags flags, SpellAuraInterruptFlags2 flags2) {
-        interruptMask = SpellAuraInterruptFlags.forValue(interruptMask.getValue() | flags.getValue());
+        interruptMask = SpellAuraInterruptFlag.forValue(interruptMask.getValue() | flags.getValue());
         interruptMask2 = SpellAuraInterruptFlags2.forValue(interruptMask2.getValue() | flags2.getValue());
     }
 
@@ -5670,6 +5691,8 @@ public abstract class Unit extends WorldObject {
     }
 
     public void setDisplayId(int modelId, float displayScale) {
+
+
         setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().displayID), modelId);
         setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().displayScale), displayScale);
         // Set Gender by modelId
@@ -5753,139 +5776,118 @@ public abstract class Unit extends WorldObject {
         setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().nativeXDisplayScale), displayScale);
     }
 
-    public final boolean hasUnitFlag(UnitFlag flags) {
-        return (unitData.getFlags() &flags.value) != 0;
+    public final float getModCastingSpeed() {
+        return getFloatValue(UNIT_MOD_CAST_SPEED);
     }
 
-    public final boolean hasUnitFlag(UnitFlag... flags) {
-        for (UnitFlag flag : flags) {
-            if ((unitData.getFlags() & flag.value) != 0) {
-                return true;
-            }
-        }
-        return false;
+    public final void setModCastingSpeed(float castingSpeed) {
+        setFloatValue(UNIT_MOD_CAST_SPEED, castingSpeed);
+    }
+
+    public final void setModSpellHaste(float spellHaste) {
+        setFloatValue(UNIT_MOD_CAST_HASTE, spellHaste);
+    }
+
+    public final void setModHaste(float haste) {
+        setFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+    }
+
+    public final void setModRangedHaste(float rangedHaste) {
+        setFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, rangedHaste);
+    }
+
+    public final void setModHasteRegen(float hasteRegen) {
+        setFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, hasteRegen);
+    }
+
+    public final void setModTimeRate(float timeRate) {
+        setFloatValue(UNIT_FIELD_MOD_TIME_RATE, timeRate);
+    }
+
+    public final boolean hasUnitFlag(UnitFlag flags) {
+        return hasFlag(UNIT_FIELD_FLAGS, flags);
+    }
+
+    public final EnumFlag<UnitFlag> getUnitFlag() {
+        return EnumFlag.of(UnitFlag.class, getInt32Value(UNIT_FIELD_FLAGS));
     }
 
     public final void setUnitFlag(UnitFlag flags) {
-        unitData.setFlags(unitData.getFlags() | flags.value);
+        setFlag(UNIT_FIELD_FLAGS, flags);
+    }
+
+    public final void setUnitFlag(UnitFlag... flags) {
+        for (UnitFlag flag : flags) {
+            setFlag(UNIT_FIELD_FLAGS, flag);
+        }
+    }
+
+    public final void removeUnitFlag(UnitFlag... flags) {
+        for (UnitFlag flag : flags) {
+            removeFlag(UNIT_FIELD_FLAGS, flag);
+        }
+
     }
 
     public final void removeUnitFlag(UnitFlag flags) {
-        unitData.setFlags(unitData.getFlags() & ~flags.value);
+        removeFlag(UNIT_FIELD_FLAGS, flags);
     }
 
     public final void replaceAllUnitFlags(UnitFlag flags) {
-        unitData.setFlags(flags.value);
+        toggleFlag(UNIT_FIELD_FLAGS, flags);
     }
 
     public final boolean hasUnitFlag2(UnitFlag2 flags) {
-        return (unitData.getFlags2() &flags.value) != 0;
+        return hasFlag(UNIT_FIELD_FLAGS_2, flags);
     }
 
-    public final boolean hasUnitFlag2(UnitFlag2... flags) {
-        for (UnitFlag2 flag : flags) {
-            if ((unitData.getFlags2() & flag.value) != 0) {
-                return true;
-            }
-        }
-        return false;
+    public final EnumFlag<UnitFlag2> getUnitFlag2() {
+        return EnumFlag.of(UnitFlag2.class, getInt32Value(UNIT_FIELD_FLAGS_2));
     }
 
     public final void setUnitFlag2(UnitFlag2 flags) {
-        unitData.setFlags2(unitData.getFlags2() | flags.value);
+        setFlag(UNIT_FIELD_FLAGS_2, flags);
     }
 
     public final void removeUnitFlag2(UnitFlag2 flags) {
-        unitData.setFlags2(unitData.getFlags2() & ~flags.value);
+        removeFlag(UNIT_FIELD_FLAGS_2, flags);
     }
 
     public final void replaceAllUnitFlags2(UnitFlag2 flags) {
-        unitData.setFlags2(flags.value);
+        toggleFlag(UNIT_FIELD_FLAGS_2, flags);
     }
 
     public final boolean hasUnitFlag3(UnitFlag3 flags) {
-        return (unitData.getFlags3() &flags.value) != 0;
+        return hasFlag(UNIT_FIELD_FLAGS_3, flags);
     }
 
-    public final boolean hasUnitFlag3(UnitFlag3... flags) {
-        for (UnitFlag3 flag : flags) {
-            if ((unitData.getFlags3() & flag.value) != 0) {
-                return true;
-            }
-        }
-        return false;
+    public final EnumFlag<UnitFlag3> getUnitFlag3() {
+        return EnumFlag.of(UnitFlag3.class, getInt32Value(UNIT_FIELD_FLAGS_3));
     }
 
     public final void setUnitFlag3(UnitFlag3 flags) {
-        unitData.setFlags3(unitData.getFlags3() | flags.value);
+        setFlag(UNIT_FIELD_FLAGS_3, flags);
     }
 
     public final void removeUnitFlag3(UnitFlag3 flags) {
-        unitData.setFlags3(unitData.getFlags3() & ~flags.value);
+        removeFlag(UNIT_FIELD_FLAGS_3, flags);
     }
 
     public final void replaceAllUnitFlags3(UnitFlag3 flags) {
-        unitData.setFlags3(flags.value);
-    }
-
-    public final boolean hasDynamicFlag(UnitDynFlag flag) {
-        return super.hasDynamicFlag(flag);
-    }
-
-    public final void setDynamicFlag(UnitDynFlag flag) {
-        super.setDynamicFlag(flag);
-    }
-
-    public final void removeDynamicFlag(UnitDynFlag flag) {
-        super.removeDynamicFlag(flag);
-    }
-
-    public final void replaceAllDynamicFlags(UnitDynFlag flag) {
-        super.replaceAllDynamicFlags(flag);
+        toggleFlag(UNIT_FIELD_FLAGS_3, flags);
     }
 
     public final void setCreatedBySpell(int spellId) {
-        unitData.setCreatedBySpell(spellId);
+        setInt32Value(UNIT_CREATED_BY_SPELL, spellId);
     }
 
-    public final boolean hasPvpFlag(UnitPVPStateFlag flags) {
-        return hasByteFlag(UNIT_FIELD_BYTES_2, FIELD_BYTE_OFFSET_1, flags);
+    public final Emote GetEmoteState() { return Emote(getInt32Value(UNIT_NPC_EMOTE_STATE)); }
+    public final void setEmoteState(Emote emote) {
+        setInt32Value(UNIT_NPC_EMOTE_STATE, emote);
     }
 
-    public final void setPvpFlag(UnitPVPStateFlag flags) {
-        setUpdateFieldFlagValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().pvpFlags), (byte) flags.getValue());
-    }
-
-    public final void removePvpFlag(UnitPVPStateFlag flags) {
-        removeUpdateFieldFlagValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().pvpFlags), (byte) flags.getValue());
-    }
-
-    public final void replaceAllPvpFlags(UnitPVPStateFlag flags) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().pvpFlags), (byte) flags.getValue());
-    }
-
-    public final boolean hasPetFlag(UnitPetFlags flags) {
-        return (getUnitData().petFlags & (byte) flags.getValue()) != 0;
-    }
-
-    public final void setPetFlag(UnitPetFlags flags) {
-        setUpdateFieldFlagValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().petFlags), (byte) flags.getValue());
-    }
-
-    public final void removePetFlag(UnitPetFlags flags) {
-        removeUpdateFieldFlagValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().petFlags), (byte) flags.getValue());
-    }
-
-    public final void replaceAllPetFlags(UnitPetFlags flags) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().petFlags), (byte) flags.getValue());
-    }
-
-    public final void setPetNumberForClient(int petNumber) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().petNumber), petNumber);
-    }
-
-    public final void setPetNameTimestamp(int timestamp) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().petNameTimestamp), timestamp);
+    public final SheathState getSheath() {
+        return SheathState(getByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_SHEATH_STATE));
     }
 
     public final void deMorph() {
@@ -5901,7 +5903,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void addUnitState(UnitState f) {
-        state = UnitState.forValue(state.getValue() | f.getValue());
+        state.addFlag(f);
     }
 
     public final boolean hasUnitState(UnitState f) {
@@ -5909,7 +5911,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void clearUnitState(UnitState f) {
-        state = UnitState.forValue(state.getValue() & ~f.getValue());
+        state.removeFlag(f);
     }
 
     @Override
@@ -6079,7 +6081,7 @@ public abstract class Unit extends WorldObject {
         setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().standState), (byte) state.getValue());
 
         if (isStandState()) {
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags.standing);
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag.standing);
         }
 
         if (isTypeId(TypeId.PLAYER)) {
@@ -6252,7 +6254,7 @@ public abstract class Unit extends WorldObject {
 
     public final boolean haveOffhandWeapon() {
         if (isTypeId(TypeId.PLAYER)) {
-            return toPlayer().getWeaponForAttack(WeaponAttackType.OffAttack, true) != null;
+            return toPlayer().getWeaponForAttack(WeaponAttackType.OFF_ATTACK, true) != null;
         } else {
             return canDualWield;
         }
@@ -6875,7 +6877,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public SpellSchoolMask getMeleeDamageSchoolMask() {
-        return getMeleeDamageSchoolMask(WeaponAttackType.BaseAttack);
+        return getMeleeDamageSchoolMask(WeaponAttackType.BASE_ATTACK);
     }
 
     public SpellSchoolMask getMeleeDamageSchoolMask(WeaponAttackType attackType) {
@@ -6908,7 +6910,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void updateAllDamageDoneMods() {
-        for (var attackType = WeaponAttackType.BaseAttack; attackType.getValue() < WeaponAttackType.max.getValue(); ++attackType) {
+        for (var attackType = WeaponAttackType.BASE_ATTACK; attackType.getValue() < WeaponAttackType.max.getValue(); ++attackType) {
             updateDamageDoneMods(attackType);
         }
     }
@@ -6917,8 +6919,8 @@ public abstract class Unit extends WorldObject {
 
 //		(UnitMods unitMod, double factor) = switch(attackType)
 //			{
-//				case WeaponAttackType.BaseAttack -> (UnitMods.DamageMainHand, 1.0f);
-//				case WeaponAttackType.OffAttack -> (UnitMods.DamageOffHand, 0.5f);
+//				case WeaponAttackType.BASE_ATTACK -> (UnitMods.DamageMainHand, 1.0f);
+//				case WeaponAttackType.OFF_ATTACK -> (UnitMods.DamageOffHand, 0.5f);
 //				case WeaponAttackType.RangedAttack -> (UnitMods.DamageRanged, 1.0f);
 //				default -> throw new NotImplementedException();
 //			};
@@ -6932,7 +6934,7 @@ public abstract class Unit extends WorldObject {
             return checkAttackFitToAuraRequirement(attackType, aurEff);
         });
 
-        if (attackType == WeaponAttackType.OffAttack) {
+        if (attackType == WeaponAttackType.OFF_ATTACK) {
             factor *= getTotalAuraMultiplier(AuraType.ModOffhandDamagePct, auraEffect -> checkAttackFitToAuraRequirement(attackType, auraEffect));
         }
 
@@ -6940,7 +6942,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void updateAllDamagePctDoneMods() {
-        for (var attackType = WeaponAttackType.BaseAttack; attackType.getValue() < WeaponAttackType.max.getValue(); ++attackType) {
+        for (var attackType = WeaponAttackType.BASE_ATTACK; attackType.getValue() < WeaponAttackType.max.getValue(); ++attackType) {
             updateDamagePctDoneMods(attackType);
         }
     }
@@ -7194,7 +7196,7 @@ public abstract class Unit extends WorldObject {
     }
 
     private boolean hasScheduledAIChange() {
-        var ai = getAI();
+        var ai = getAi();
 
         if (ai != null) {
             return ai instanceof ScheduledChangeAI;
@@ -7293,29 +7295,29 @@ public abstract class Unit extends WorldObject {
 
         if (damageInfo.getTargetState() == victimState.Parry && (!victim.isCreature() || victim.toCreature().getCreatureTemplate().flagsExtra.hasFlag(CreatureFlagExtra.NoParryHasten))) {
             // Get attack timers
-            float offtime = victim.getAttackTimer(WeaponAttackType.OffAttack);
-            float basetime = victim.getAttackTimer(WeaponAttackType.BaseAttack);
+            float offtime = victim.getAttackTimer(WeaponAttackType.OFF_ATTACK);
+            float basetime = victim.getAttackTimer(WeaponAttackType.BASE_ATTACK);
 
             // Reduce attack time
             if (victim.haveOffhandWeapon() && offtime < basetime) {
-                var percent20 = victim.getBaseAttackTime(WeaponAttackType.OffAttack) * 0.20f;
+                var percent20 = victim.getBaseAttackTime(WeaponAttackType.OFF_ATTACK) * 0.20f;
                 var percent60 = 3.0f * percent20;
 
                 if (offtime > percent20 && offtime <= percent60) {
-                    victim.setAttackTimer(WeaponAttackType.OffAttack, (int) percent20);
+                    victim.setAttackTimer(WeaponAttackType.OFF_ATTACK, (int) percent20);
                 } else if (offtime > percent60) {
                     offtime -= 2.0f * percent20;
-                    victim.setAttackTimer(WeaponAttackType.OffAttack, (int) offtime);
+                    victim.setAttackTimer(WeaponAttackType.OFF_ATTACK, (int) offtime);
                 }
             } else {
-                var percent20 = victim.getBaseAttackTime(WeaponAttackType.BaseAttack) * 0.20f;
+                var percent20 = victim.getBaseAttackTime(WeaponAttackType.BASE_ATTACK) * 0.20f;
                 var percent60 = 3.0f * percent20;
 
                 if (basetime > percent20 && basetime <= percent60) {
-                    victim.setAttackTimer(WeaponAttackType.BaseAttack, (int) percent20);
+                    victim.setAttackTimer(WeaponAttackType.BASE_ATTACK, (int) percent20);
                 } else if (basetime > percent60) {
                     basetime -= 2.0f * percent20;
-                    victim.setAttackTimer(WeaponAttackType.BaseAttack, (int) basetime);
+                    victim.setAttackTimer(WeaponAttackType.BASE_ATTACK, (int) basetime);
                 }
             }
         }
@@ -7387,7 +7389,7 @@ public abstract class Unit extends WorldObject {
                     damage = spellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
                 }
 
-                DamageInfo damageInfo1 = new DamageInfo(this, victim, damage, spellInfo, spellInfo.getSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
+                DamageInfo damageInfo1 = new DamageInfo(this, victim, damage, spellInfo, spellInfo.getSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BASE_ATTACK);
                 calcAbsorbResist(damageInfo1);
                 damage = damageInfo1.getDamage();
 
@@ -7745,9 +7747,6 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void pauseMovement(int timer, MovementSlot slot, boolean forced) {
-        if (MotionMaster.isInvalidMovementSlot(slot)) {
-            return;
-        }
 
         var movementGenerator = getMotionMaster().getCurrentMovementGenerator(slot);
 
@@ -7769,10 +7768,6 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void resumeMovement(int timer, MovementSlot slot) {
-        if (MotionMaster.isInvalidMovementSlot(slot)) {
-            return;
-        }
-
         var movementGenerator = getMotionMaster().getCurrentMovementGenerator(slot);
 
         if (movementGenerator != null) {
@@ -8496,9 +8491,9 @@ public abstract class Unit extends WorldObject {
 
         // remove appropriate auras if we are swimming/not swimming respectively
         if (isInWater()) {
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags.UnderWater);
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag.UnderWater);
         } else {
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags.AboveWater);
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag.AboveWater);
         }
 
         // liquid aura handling
@@ -9008,7 +9003,7 @@ public abstract class Unit extends WorldObject {
             player.sendMovementSetCollisionHeight(player.getCollisionHeight(), UpdateCollisionHeightReason.mount);
         }
 
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags.mount);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag.mount);
     }
 
     public final void dismount() {
@@ -9031,7 +9026,7 @@ public abstract class Unit extends WorldObject {
             removeVehicleKit();
         }
 
-        removeAurasWithInterruptFlags(SpellAuraInterruptFlags.Dismount);
+        removeAurasWithInterruptFlags(SpellAuraInterruptFlag.Dismount);
 
         // only resummon old pet if the player is already added to a map
         // this prevents adding a pet to a not created map which would otherwise cause a crash
@@ -9177,6 +9172,10 @@ public abstract class Unit extends WorldObject {
 
     public final boolean hasUnitMovementFlag(MovementFlag f) {
         return movementInfo.flags.hasFlag(f);
+    }
+
+    public final boolean hasUnitMovementFlag(MovementFlag... f) {
+        return movementInfo.flags.hasAnyFlag(f);
     }
 
     public final int getUnitMovementFlags() {
@@ -9593,11 +9592,11 @@ public abstract class Unit extends WorldObject {
     private void interruptMovementBasedAuras() {
         // TODO: Check if orientation transport offset changed instead of only global orientation
         if (positionUpdateInfo.turned) {
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags.Turning);
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag.Turning);
         }
 
         if (positionUpdateInfo.relocated && !getVehicle1()) {
-            removeAurasWithInterruptFlags(SpellAuraInterruptFlags.Moving);
+            removeAurasWithInterruptFlags(SpellAuraInterruptFlag.Moving);
         }
     }
 
@@ -9615,7 +9614,7 @@ public abstract class Unit extends WorldObject {
 
     public final void updateCharmAI() {
         if (isCharmed()) {
-            IUnitAI newAI = null;
+            UnitAI newAI = null;
 
             if (isPlayer()) {
                 var charmer = getCharmer();
@@ -9625,7 +9624,7 @@ public abstract class Unit extends WorldObject {
                     var creatureCharmer = charmer.toCreature();
 
                     if (creatureCharmer != null) {
-                        var charmerAI = creatureCharmer.getAI();
+                        var charmerAI = creatureCharmer.getAi();
 
                         if (charmerAI != null) {
                             newAI = charmerAI.getAIForCharmedPlayer(toPlayer());
@@ -9647,13 +9646,13 @@ public abstract class Unit extends WorldObject {
                 }
             }
 
-            setAI(newAI);
+            setAi(newAI);
             newAI.onCharmed(true);
         } else {
             restoreDisabledAI();
             // Hack: this is required because we want to call onCharmed(true) on the restored AI
             refreshAI();
-            var ai = getAI();
+            var ai = getAi();
 
             if (ai != null) {
                 ai.onCharmed(true);
@@ -10011,7 +10010,7 @@ public abstract class Unit extends WorldObject {
 
         if (!isPlayer() || !charmer.isPlayer()) {
             // AI will schedule its own change if appropriate
-            var ai = getAI();
+            var ai = getAi();
 
             if (ai != null) {
                 ai.onCharmed(false);
@@ -10120,7 +10119,7 @@ public abstract class Unit extends WorldObject {
         applyControlStatesIfNeeded();
 
         if (!isPlayer() || charmer.isCreature()) {
-            var charmedAI = getAI();
+            var charmedAI = getAi();
 
             if (charmedAI != null) {
                 charmedAI.onCharmed(false); // AI will potentially schedule a charm ai update
@@ -10629,7 +10628,7 @@ public abstract class Unit extends WorldObject {
             float overrideSP = thisPlayer.getActivePlayerData().overrideSpellPowerByAPPercent;
 
             if (overrideSP > 0.0f) {
-                return (int) (MathUtil.CalculatePct(getTotalAttackPowerValue(WeaponAttackType.BaseAttack), overrideSP) + 0.5f);
+                return (int) (MathUtil.CalculatePct(getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK), overrideSP) + 0.5f);
             }
         }
 
@@ -10713,14 +10712,14 @@ public abstract class Unit extends WorldObject {
                 ApCoeffMod /= 100.0f;
             }
 
-            var attType = WeaponAttackType.BaseAttack;
+            var attType = WeaponAttackType.BASE_ATTACK;
 
             if ((spellProto.isRangedWeaponSpell() && spellProto.getDmgClass() != SpellDmgClass.Melee)) {
                 attType = WeaponAttackType.RangedAttack;
             }
 
             if (spellProto.hasAttribute(SpellAttr3.RequiresOffHandWeapon) && !spellProto.hasAttribute(SpellAttr3.RequiresMainHandWeapon)) {
-                attType = WeaponAttackType.OffAttack;
+                attType = WeaponAttackType.OFF_ATTACK;
             }
 
             var APbonus = victim.getTotalAuraModifier(attType != WeaponAttackType.RangedAttack ? AuraType.MeleeAttackPowerAttackerBonus : AuraType.RangedAttackPowerAttackerBonus);
@@ -10974,7 +10973,7 @@ public abstract class Unit extends WorldObject {
             float overrideSP = thisPlayer.getActivePlayerData().overrideSpellPowerByAPPercent;
 
             if (overrideSP > 0.0f) {
-                return (MathUtil.CalculatePct(getTotalAttackPowerValue(WeaponAttackType.BaseAttack), overrideSP) + 0.5f);
+                return (MathUtil.CalculatePct(getTotalAttackPowerValue(WeaponAttackType.BASE_ATTACK), overrideSP) + 0.5f);
             }
         }
 
@@ -11070,8 +11069,8 @@ public abstract class Unit extends WorldObject {
         var coeff = spellEffectInfo.bonusCoefficient;
 
         if (spellEffectInfo.bonusCoefficientFromAp > 0.0f) {
-            var attType = (spellProto.isRangedWeaponSpell() && spellProto.getDmgClass() != SpellDmgClass.Melee) ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack;
-            var APbonus = victim.getTotalAuraModifier(attType == WeaponAttackType.BaseAttack ? AuraType.MeleeAttackPowerAttackerBonus : AuraType.RangedAttackPowerAttackerBonus);
+            var attType = (spellProto.isRangedWeaponSpell() && spellProto.getDmgClass() != SpellDmgClass.Melee) ? WeaponAttackType.RangedAttack : WeaponAttackType.BASE_ATTACK;
+            var APbonus = victim.getTotalAuraModifier(attType == WeaponAttackType.BASE_ATTACK ? AuraType.MeleeAttackPowerAttackerBonus : AuraType.RangedAttackPowerAttackerBonus);
             APbonus += getTotalAttackPowerValue(attType);
 
             DoneTotal += (spellEffectInfo.BonusCoefficientFromAp * stack * APbonus);
@@ -11273,7 +11272,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final double spellCritChanceDone(Spell spell, AuraEffect aurEff, SpellSchoolMask schoolMask) {
-        return spellCritChanceDone(spell, aurEff, schoolMask, WeaponAttackType.BaseAttack);
+        return spellCritChanceDone(spell, aurEff, schoolMask, WeaponAttackType.BASE_ATTACK);
     }
 
     public final double spellCritChanceDone(Spell spell, AuraEffect aurEff, SpellSchoolMask schoolMask, WeaponAttackType attackType) {
@@ -11330,7 +11329,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final double spellCritChanceTaken(Unit caster, Spell spell, AuraEffect aurEff, SpellSchoolMask schoolMask, double doneChance) {
-        return spellCritChanceTaken(caster, spell, aurEff, schoolMask, doneChance, WeaponAttackType.BaseAttack);
+        return spellCritChanceTaken(caster, spell, aurEff, schoolMask, doneChance, WeaponAttackType.BASE_ATTACK);
     }
 
     public final double spellCritChanceTaken(Unit caster, Spell spell, AuraEffect aurEff, SpellSchoolMask schoolMask, double doneChance, WeaponAttackType attackType) {
@@ -11446,7 +11445,7 @@ public abstract class Unit extends WorldObject {
             return SpellMissInfo.NONE;
         }
 
-        var attType = WeaponAttackType.BaseAttack;
+        var attType = WeaponAttackType.BASE_ATTACK;
 
         // Check damage class instead of attack type to correctly handle judgements
         // - they are meele, but can't be dodged/parried/deflected because of ranged dmg class
@@ -11762,7 +11761,7 @@ public abstract class Unit extends WorldObject {
         var auras = getAuraEffectsByType(type);
 
         for (var eff : auras) {
-            if ((excludeAura == 0 || excludeAura != eff.getSpellInfo().getId()) && eff.getSpellInfo().hasAuraInterruptFlag(SpellAuraInterruptFlags.damage)) {
+            if ((excludeAura == 0 || excludeAura != eff.getSpellInfo().getId()) && eff.getSpellInfo().hasAuraInterruptFlag(SpellAuraInterruptFlag.damage)) {
                 return true;
             }
         }
@@ -12457,7 +12456,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void calculateSpellDamageTaken(SpellNonMeleeDamage damageInfo, double damage, SpellInfo spellInfo) {
-        calculateSpellDamageTaken(damageInfo, damage, spellInfo, WeaponAttackType.BaseAttack, false, false, null);
+        calculateSpellDamageTaken(damageInfo, damage, spellInfo, WeaponAttackType.BASE_ATTACK, false, false, null);
     }
 
     public final void calculateSpellDamageTaken(SpellNonMeleeDamage damageInfo, double damage, SpellInfo spellInfo, WeaponAttackType attackType, boolean crit, boolean blocked, Spell spell) {
@@ -12571,7 +12570,7 @@ public abstract class Unit extends WorldObject {
 
         damageInfo.damage = (int) damage;
         damageInfo.originalDamage = (int) damage;
-        DamageInfo dmgInfo = new DamageInfo(damageInfo, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack, ProcFlagsHit.NONE);
+        DamageInfo dmgInfo = new DamageInfo(damageInfo, DamageEffectType.SpellDirect, WeaponAttackType.BASE_ATTACK, ProcFlagsHit.NONE);
         calcAbsorbResist(dmgInfo, spell);
         damageInfo.absorb = dmgInfo.getAbsorb();
         damageInfo.resist = dmgInfo.getResist();
@@ -12609,7 +12608,7 @@ public abstract class Unit extends WorldObject {
         }
 
         // Call default DealDamage
-        CleanDamage cleanDamage = new cleanDamage(damageInfo.cleanDamage, damageInfo.absorb, WeaponAttackType.BaseAttack, MeleeHitOutcome.NORMAL);
+        CleanDamage cleanDamage = new cleanDamage(damageInfo.cleanDamage, damageInfo.absorb, WeaponAttackType.BASE_ATTACK, MeleeHitOutcome.NORMAL);
         damageInfo.damage = dealDamage(this, victim, damageInfo.damage, cleanDamage, DamageEffectType.SpellDirect, damageInfo.schoolMask, damageInfo.spell, durabilityLoss);
     }
 
@@ -12987,7 +12986,7 @@ public abstract class Unit extends WorldObject {
             }
 
             if (isCreature() && isAIEnabled()) {
-                toCreature().getAI().onSpellFailed(spell.spellInfo);
+                toCreature().getAi().onSpellFailed(spell.spellInfo);
             }
 
             ScriptManager.getInstance().<IUnitSpellInterrupted>ForEach(s -> s.spellInterrupted(spell, interruptingSpell));
@@ -12999,7 +12998,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void updateInterruptMask() {
-        interruptMask = SpellAuraInterruptFlags.NONE;
+        interruptMask = SpellAuraInterruptFlag.NONE;
         interruptMask2 = SpellAuraInterruptFlags2.NONE;
 
         for (var aurApp : interruptableAuras) {
@@ -13176,7 +13175,7 @@ public abstract class Unit extends WorldObject {
 
         if (creature && creature.isAIEnabled()) {
             tangible.RefObject<Boolean> tempRef_spellClickHandled = new tangible.RefObject<Boolean>(spellClickHandled);
-            creature.getAI().onSpellClick(clicker, tempRef_spellClickHandled);
+            creature.getAi().onSpellClick(clicker, tempRef_spellClickHandled);
             spellClickHandled = tempRef_spellClickHandled.refArgValue;
         }
     }
@@ -13399,11 +13398,11 @@ public abstract class Unit extends WorldObject {
         return dispelList;
     }
 
-    public final void removeAurasWithInterruptFlags(SpellAuraInterruptFlags flag) {
+    public final void removeAurasWithInterruptFlags(SpellAuraInterruptFlag flag) {
         removeAurasWithInterruptFlags(flag, null);
     }
 
-    public final void removeAurasWithInterruptFlags(SpellAuraInterruptFlags flag, SpellInfo source) {
+    public final void removeAurasWithInterruptFlags(SpellAuraInterruptFlag flag, SpellInfo source) {
         if (!hasInterruptFlag(flag)) {
             return;
         }
@@ -14949,7 +14948,7 @@ public abstract class Unit extends WorldObject {
         return dots;
     }
 
-    private void procSkillsAndReactives(boolean isVictim, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsHit hitMask, WeaponAttackType attType) {
+    private void procSkillsAndReactives(boolean isVictim, Unit procTarget, EnumFlag<ProcFlag> typeMask, ProcFlagsHit hitMask, WeaponAttackType attType) {
         // Player is loaded now - do not allow passive spell casts to proc
         if (isPlayer() && toPlayer().getSession().getPlayerLoading()) {
             return;
@@ -15037,7 +15036,7 @@ public abstract class Unit extends WorldObject {
         }
     }
 
-    private void triggerAurasProcOnEvent(ArrayList<AuraApplication> myProcAuras, ArrayList<AuraApplication> targetProcAuras, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo) {
+    private void triggerAurasProcOnEvent(ArrayList<AuraApplication> myProcAuras, ArrayList<AuraApplication> targetProcAuras, Unit actionTarget, EnumFlag<ProcFlag> typeMaskActor, EnumFlag<ProcFlag> typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo) {
         // prepare data for self trigger
         ProcEventInfo myProcEventInfo = new ProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
         ArrayList<Tuple<HashSet<Integer>, AuraApplication>> myAurasTriggeringProc = new ArrayList<Tuple<HashSet<Integer>, AuraApplication>>();
@@ -15748,29 +15747,6 @@ public abstract class Unit extends WorldObject {
         unitData.getResistances().set(school.ordinal(), val);
     }
 
-    public final void setModCastingSpeed(float castingSpeed) {
-        unitData.setModCastingSpeed(castingSpeed);
-    }
-
-    public final void setModSpellHaste(float spellHaste) {
-        unitData.setModSpellHaste(spellHaste);
-    }
-
-    public final void setModHaste(float haste) {
-        unitData.setModHaste(haste);
-    }
-
-    public final void setModRangedHaste(float rangedHaste) {
-        unitData.setModRangedHaste(rangedHaste);
-    }
-
-    public final void setModHasteRegen(float hasteRegen) {
-        unitData.setModHasteRegen(hasteRegen);
-    }
-
-    public final void setModTimeRate(float timeRate) {
-        unitData.setModTimeRate(timeRate);
-    }
 
     public final void initStatBuffMods() {
 
@@ -16288,11 +16264,11 @@ public abstract class Unit extends WorldObject {
 
                 break;
             case DamageMainHand:
-                updateDamagePhysical(WeaponAttackType.BaseAttack);
+                updateDamagePhysical(WeaponAttackType.BASE_ATTACK);
 
                 break;
             case DamageOffHand:
-                updateDamagePhysical(WeaponAttackType.OffAttack);
+                updateDamagePhysical(WeaponAttackType.OFF_ATTACK);
 
                 break;
             case DamageRanged:
@@ -16512,10 +16488,10 @@ public abstract class Unit extends WorldObject {
 
         if (playerVictim) {
             if (playerVictim.getCanParry()) {
-                var tmpitem = playerVictim.getWeaponForAttack(WeaponAttackType.BaseAttack, true);
+                var tmpitem = playerVictim.getWeaponForAttack(WeaponAttackType.BASE_ATTACK, true);
 
                 if (!tmpitem) {
-                    tmpitem = playerVictim.getWeaponForAttack(WeaponAttackType.OffAttack, true);
+                    tmpitem = playerVictim.getWeaponForAttack(WeaponAttackType.OFF_ATTACK, true);
                 }
 
                 if (tmpitem) {

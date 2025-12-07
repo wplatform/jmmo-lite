@@ -407,17 +407,70 @@ public class ItemSparse implements DbcEntity {
     private Byte expansionID;
 
     @Id
-    
     @Column("VerifiedBuild")
     private Integer verifiedBuild;
 
-    public short[] getStatModifierBonusStat() {
-        return new short[] {
-                statModifierBonusStat1, statModifierBonusStat2, statModifierBonusStat3,
-                statModifierBonusStat4, statModifierBonusStat5, statModifierBonusStat6,
-                statModifierBonusStat7, statModifierBonusStat8, statModifierBonusStat9,
-                statModifierBonusStat10
+    public byte getStatModifierBonusStat(int index) {
+        return switch (index) {
+            case 0 -> statModifierBonusStat1;
+            case 1 -> statModifierBonusStat2;
+            case 2 -> statModifierBonusStat3;
+            case 3 -> statModifierBonusStat4;
+            case 4 -> statModifierBonusStat5;
+            case 5 -> statModifierBonusStat6;
+            case 6 -> statModifierBonusStat7;
+            case 7 -> statModifierBonusStat8;
+            case 8 -> statModifierBonusStat9;
+            case 9 -> statModifierBonusStat10;
+            default -> throw new ArrayIndexOutOfBoundsException("Out of bounds: " + index);
         };
     }
 
+    public short getItemStatValue(int index) {
+        return switch (index) {
+            case 0 -> itemStatValue1;
+            case 1 -> itemStatValue2;
+            case 2 -> itemStatValue3;
+            case 3 -> itemStatValue4;
+            case 4 -> itemStatValue5;
+            case 5 -> itemStatValue6;
+            case 6 -> itemStatValue7;
+            case 7 -> itemStatValue8;
+            case 8 -> itemStatValue9;
+            case 9 -> itemStatValue10;
+            default -> throw new ArrayIndexOutOfBoundsException("Out of bounds: " + index);
+        };
+    }
+
+    public int getStatPercentEditor(int index) {
+        return switch (index) {
+            case 0 -> statPercentEditor1;
+            case 1 -> statPercentEditor2;
+            case 2 -> statPercentEditor3;
+            case 3 -> statPercentEditor4;
+            case 4 -> statPercentEditor5;
+            case 5 -> statPercentEditor6;
+            case 6 -> statPercentEditor7;
+            case 7 -> statPercentEditor8;
+            case 8 -> statPercentEditor9;
+            case 9 -> statPercentEditor10;
+            default -> throw new ArrayIndexOutOfBoundsException("Out of bounds: " + index);
+        };
+    }
+
+    public float getStatPercentageOfSocket(int index) {
+        return switch (index) {
+            case 0 -> statPercentageOfSocket1;
+            case 1 -> statPercentageOfSocket2;
+            case 2 -> statPercentageOfSocket3;
+            case 3 -> statPercentageOfSocket4;
+            case 4 -> statPercentageOfSocket5;
+            case 5 -> statPercentageOfSocket6;
+            case 6 -> statPercentageOfSocket7;
+            case 7 -> statPercentageOfSocket8;
+            case 8 -> statPercentageOfSocket9;
+            case 9 -> statPercentageOfSocket10;
+            default -> throw new ArrayIndexOutOfBoundsException("Out of bounds: " + index);
+        };
+    }
 }

@@ -27,7 +27,7 @@ class ProcReflectDelayed extends BasicEvent {
         var spellPhaseMask = ProcFlagsSpellPhase.NONE;
         var hitMask = ProcFlagsHit.Reflect;
 
-        unit.procSkillsAndAuras(caster, victim, new ProcFlagsInit(typeMaskActor), new ProcFlagsInit(typeMaskActionTarget), spellTypeMask, spellPhaseMask, hitMask, null, null, null);
+        unit.procSkillsAndAuras(caster, victim, new EnumFlag<ProcFlag>(typeMaskActor), new EnumFlag<ProcFlag>(typeMaskActionTarget), spellTypeMask, spellPhaseMask, hitMask, null, null, null);
 
         return true;
     }

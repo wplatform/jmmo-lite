@@ -5,7 +5,7 @@ public class SpellProcEntry {
     private SpellschoolMask schoolMask = spellSchoolMask.values()[0];
     private spellFamilyNames spellFamilyName = SpellFamilyNames.values()[0];
     private Flag128 spellFamilyMask = new Flag128(4);
-    private procFlagsInit procFlags;
+    private EnumFlag<ProcFlag> procFlags;
     private ProcFlagsSpellType spellTypeMask = ProcFlagsSpellType.values()[0];
     private ProcFlagsSpellPhase spellPhaseMask = ProcFlagsSpellPhase.values()[0];
     private ProcFlagsHit hitMask = ProcFlagsHit.values()[0];
@@ -40,11 +40,11 @@ public class SpellProcEntry {
         spellFamilyMask = value;
     }
 
-    public final ProcFlagsInit getProcFlags() {
+    public final EnumFlag<ProcFlag> getProcFlags() {
         return procFlags;
     }
 
-    public final void setProcFlags(ProcFlagsInit value) {
+    public final void setProcFlags(EnumFlag<ProcFlag> value) {
         procFlags = value;
     }
 

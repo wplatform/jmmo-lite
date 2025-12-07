@@ -1,42 +1,52 @@
 package com.github.azeroth.game.movement;
 
 
-import com.github.azeroth.game.ai.AISelector;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.enums.TypeId;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.enums.*;
 import com.github.azeroth.game.movement.generator.*;
+import com.github.azeroth.game.movement.model.SpellEffectExtraData;
+import com.github.azeroth.game.movement.model.SplineChainLink;
+import com.github.azeroth.game.movement.model.SplineChainResumeInfo;
 import com.github.azeroth.game.movement.spline.MoveSpline;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 import com.github.azeroth.utils.MathUtil;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
+@Getter
 public class MotionMaster {
     public static final float GRAVITY = 19.29110527038574f;
     public static final float SPEED_CHARGE = 42.0f;
     private static final IdleMovementGenerator staticIdleMovement = new IdleMovementGenerator();
 
-    private static int splineId;
+    private static final AtomicInteger splineIdGenerator = new AtomicInteger(0);
 
     private final Unit owner;
-    private final TreeSet<MovementGenerator> generators = new TreeSet<MovementGenerator>(new movementGeneratorComparator());
+    private final TreeSet<MovementGenerator> generators = new TreeSet<>();
 
-    private final MultiMap<Integer, MovementGenerator> baseUnitStatesMap = new MultiMap<Integer, MovementGenerator>();
-    private final ConcurrentQueue<DelayedAction> delayedActions = new ConcurrentQueue<DelayedAction>();
-    private MovementGenerator defaultGenerator;
-    private MotionMasterFlags flags = MotionMasterFlags.values()[0];
+    private final EnumMap<UnitState, List<MovementGenerator>> baseUnitStatesMap = new EnumMap<>(UnitState.class);
+    private final DelayQueue<DelayedAction> delayedActions = new DelayQueue<>();
+    private volatile MovementGenerator defaultGenerator;
+    private MotionMasterFlag flags = MotionMasterFlag.NONE;
 
     public MotionMaster(Unit unit) {
         owner = unit;
-        setFlags(MotionMasterFlags.InitializationPending);
+        setFlags(MotionMasterFlag.INITIALIZATION_PENDING);
     }
 
 
-    public static int getSplineId() {
-        return splineId++;
+    public static int newSplineId() {
+        int i = splineIdGenerator.incrementAndGet();
+        if(i == Integer.MAX_VALUE) {
+            splineIdGenerator.set(0);
+        }
+        return i;
     }
 
     public static MovementGenerator getIdleMovementGenerator() {
@@ -47,21 +57,7 @@ public class MotionMaster {
         return (movement == getIdleMovementGenerator());
     }
 
-    public static boolean isInvalidMovementGeneratorType(MovementGeneratorType type) {
-        return type == MovementGeneratorType.MaxDB || type.getValue() >= MovementGeneratorType.max.getValue();
-    }
 
-    public static boolean isInvalidMovementSlot(MovementSlot slot) {
-        return slot.getValue() >= MovementSlot.max.getValue();
-    }
-
-    private Unit getOwner() {
-        return owner;
-    }
-
-    private MovementGenerator getDefaultGenerator() {
-        return defaultGenerator;
-    }
 
     private void setDefaultGenerator(MovementGenerator value) {
         defaultGenerator = value;
@@ -72,9 +68,6 @@ public class MotionMaster {
     }
 
 
-    private MultiMap<Integer, MovementGenerator> getBaseUnitStatesMap() {
-        return baseUnitStatesMap;
-    }
 
     private ConcurrentQueue<DelayedAction> getDelayedActions() {
         return delayedActions;
@@ -84,7 +77,7 @@ public class MotionMaster {
         return flags;
     }
 
-    private void setFlags(MotionMasterFlags value) {
+    private void setFlags(MotionMasterFlag value) {
         flags = value;
     }
 
@@ -122,9 +115,7 @@ public class MotionMaster {
     }
 
     public final boolean empty() {
-        synchronized (getGenerators()) {
-            return getDefaultGenerator() == null && getGenerators().isEmpty();
-        }
+        return getDefaultGenerator() == null && getGenerators().isEmpty();
     }
 
     public final int size() {
@@ -176,12 +167,12 @@ public class MotionMaster {
     public final MovementSlot getCurrentSlot() {
         synchronized (getGenerators()) {
             if (!getGenerators().isEmpty()) {
-                return MovementSlot.active;
+                return MovementSlot.ACTIVE;
             }
         }
 
         if (getDefaultGenerator() != null) {
-            return MovementSlot.Default;
+            return MovementSlot.DEFAULT;
         }
 
         return MovementSlot.max;
@@ -216,7 +207,7 @@ public class MotionMaster {
     }
 
     public final MovementGeneratorType getCurrentMovementGeneratorType(MovementSlot slot) {
-        if (empty() || isInvalidMovementSlot(slot)) {
+        if (empty()) {
             return MovementGeneratorType.max;
         }
 
@@ -234,7 +225,7 @@ public class MotionMaster {
     }
 
     public final MovementGenerator getCurrentMovementGenerator(MovementSlot slot) {
-        if (empty() || isInvalidMovementSlot(slot)) {
+        if (empty()) {
             return null;
         }
 
@@ -256,7 +247,7 @@ public class MotionMaster {
     }
 
     public final MovementGenerator getMovementGenerator(tangible.Func1Param<MovementGenerator, Boolean> filter, MovementSlot slot) {
-        if (empty() || isInvalidMovementSlot(slot)) {
+        if (empty()) {
             return null;
         }
 
@@ -293,7 +284,7 @@ public class MotionMaster {
     }
 
     public final boolean hasMovementGenerator(tangible.Func1Param<MovementGenerator, Boolean> filter, MovementSlot slot) {
-        if (empty() || isInvalidMovementSlot(slot)) {
+        if (empty()) {
             return false;
         }
 
@@ -370,7 +361,7 @@ public class MotionMaster {
     }
 
     public final void remove(MovementGenerator movement, MovementSlot slot) {
-        if (movement == null || isInvalidMovementSlot(slot)) {
+        if (movement == null) {
             return;
         }
 
@@ -411,9 +402,6 @@ public class MotionMaster {
     }
 
     public final void remove(MovementGeneratorType type, MovementSlot slot) {
-        if (isInvalidMovementGeneratorType(type) || isInvalidMovementSlot(slot)) {
-            return;
-        }
 
         if (hasFlag(MotionMasterFlags.Delayed)) {
             getDelayedActions().Enqueue(new DelayedAction(() -> remove(type, slot), MotionMasterDelayedActionType.RemoveType));
@@ -462,9 +450,6 @@ public class MotionMaster {
     }
 
     public final void clear(MovementSlot slot) {
-        if (isInvalidMovementSlot(slot)) {
-            return;
-        }
 
         if (hasFlag(MotionMasterFlags.Delayed)) {
             getDelayedActions().Enqueue(new DelayedAction(() -> clear(slot), MotionMasterDelayedActionType.ClearSlot));
@@ -638,12 +623,9 @@ public class MotionMaster {
     }
 
     public final void moveChase(Unit target, float dist, float angle) {
-        moveChase(target, new ChaseRange(dist), new chaseAngle(angle));
+        moveChase(target, new ChaseRange(dist), new ChaseAngle(angle));
     }
 
-    public final void moveChase(Unit target, float dist) {
-        moveChase(target, new ChaseRange(dist));
-    }
 
     public final void moveChase(Unit target, ChaseRange dist) {
         moveChase(target, dist, null);
@@ -655,7 +637,7 @@ public class MotionMaster {
 
     public final void moveChase(Unit target, ChaseRange dist, ChaseAngle angle) {
         // Ignore movement request if target not exist
-        if (!target || target == getOwner()) {
+        if (target == null || target == getOwner()) {
             return;
         }
 
@@ -663,11 +645,7 @@ public class MotionMaster {
     }
 
     public final void moveConfused() {
-        if (getOwner().isTypeId(TypeId.PLAYER)) {
-            add(new ConfusedMovementGenerator<Player>());
-        } else {
-            add(new ConfusedMovementGenerator<Creature>());
-        }
+        add(new ConfusedMovementGenerator());
     }
 
 
@@ -823,8 +801,8 @@ public class MotionMaster {
 		*/
 
         PointMovementGenerator movement = new PointMovementGenerator(id, x, y, z, generatePath, speed, null, target, spellEffectExtraData);
-        movement.priority = MovementGeneratorPriority.Highest;
-        movement.baseUnitState = UnitState.Charging;
+        movement.priority = MovementGeneratorPriority.HIGHEST;
+        movement.baseUnitState = UnitState.CHARGING;
         add(movement);
     }
 
@@ -1291,12 +1269,6 @@ public class MotionMaster {
     }
 
     public final void launchMoveSpline(tangible.Action1Param<MoveSplineInit> initializer, int id, MovementGeneratorPriority priority, MovementGeneratorType type) {
-        if (isInvalidMovementGeneratorType(type)) {
-            Log.outDebug(LogFilter.movement, String.format("MotionMaster::LaunchMoveSpline: '%1$s', tried to launch a spline with an invalid MovementGeneratorType: %2$s (Id: %3$s, Priority: %4$s)", getOwner().getGUID(), type, id, priority));
-
-            return;
-        }
-
         GenericMovementGenerator movement = new GenericMovementGenerator(initializer, type, id);
         movement.priority = priority;
         add(movement);
@@ -1311,9 +1283,6 @@ public class MotionMaster {
             return;
         }
 
-        if (isInvalidMovementSlot(slot)) {
-            return;
-        }
 
         if (hasFlag(MotionMasterFlags.Delayed)) {
 

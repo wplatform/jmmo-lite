@@ -152,7 +152,7 @@ class PetCommands {
             }
 
             if (target.isPet()) {
-                return target.getAsPet();
+                return target.toPet();
             }
 
             return null;

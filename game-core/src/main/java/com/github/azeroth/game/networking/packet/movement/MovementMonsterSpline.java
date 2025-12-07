@@ -1,5 +1,6 @@
 package com.github.azeroth.game.networking.packet.movement;
 
+import com.badlogic.gdx.math.Vector3;
 import com.github.azeroth.game.networking.WorldPacket;
 
 public class MovementMonsterSpline {
@@ -7,7 +8,7 @@ public class MovementMonsterSpline {
     public Vector3 destination;
     public boolean crzTeleport;
     public byte stopDistanceTolerance; // Determines how far from spline destination the mover is allowed to stop in place 0, 0, 3.0, 2.76, numeric_limits<float>::max, 1.1, float(INT_MAX); default before this field existed was distance 3.0 (index 2)
-    public movementSpline move;
+    public MovementSpline move;
 
     public MovementMonsterSpline() {
         move = new MovementSpline();

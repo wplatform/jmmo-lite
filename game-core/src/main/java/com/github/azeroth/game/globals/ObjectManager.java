@@ -2269,7 +2269,7 @@ public final class ObjectManager {
                         Logs.SQL.error("Table `creature` has creature (GUID: {} Entry: {}) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature is not in instance.", data.spawnId, data.id);
                 }
 
-                if (data.movementType >= MovementGeneratorType.MAX_DB_MOTION_TYPE) {
+                if (data.movementType >= MovementGeneratorType.MAX_DB.ordinal()) {
                     Logs.SQL.error("Table `creature` has creature (GUID: {} Entry: {}) with wrong movement generator type ({}), ignored and set to IDLE.", data.spawnId, data.id, data.movementType);
                     data.movementType = (byte) MovementGeneratorType.IDLE.ordinal();
                 }
@@ -8026,7 +8026,7 @@ public final class ObjectManager {
 
         var isTransportMap = isTransportMap(mapId);
 
-        int[] ints = StringUtil.distinctSplitInts(difficultyString, ",");
+        int[] ints = StringUtil.distinctTokenizeInts(difficultyString, ",");
 
         for (int difficultyId : ints) {
             Difficulty difficulty = difficultyId > Difficulty.values().length || difficultyId < 0 ? Difficulty.NONE : Difficulty.values()[difficultyId];

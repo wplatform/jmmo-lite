@@ -1,15 +1,22 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.object.WorldObject;
-import com.github.azeroth.game.entity.unit.Unit;
+
 
 public class GuardAI extends ScriptedAI {
     public GuardAI(Creature creature) {
         super(creature);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         if (!updateVictim()) {
@@ -21,7 +28,7 @@ public class GuardAI extends ScriptedAI {
 
     @Override
     public boolean canSeeAlways(WorldObject obj) {
-        var unit = obj.toUnit();
+        var unit = obj.getAsUnit();
 
         if (unit != null) {
             if (unit.isControlledByPlayer() && me.isEngagedBy(unit)) {
@@ -42,7 +49,7 @@ public class GuardAI extends ScriptedAI {
             return;
         }
 
-        Log.outTrace(LogFilter.ScriptsAi, String.format("GuardAI::EnterEvadeMode: %1$s enters evade mode.", me.getGUID()));
+        Log.outTrace(LogFilter.ScriptsAi, String.format("GuardAI::EnterEvadeMode: %1$s enters evade mode.", me.getGUID().clone()));
 
         me.removeAllAuras();
         me.combatStop(true);

@@ -2,7 +2,6 @@ package com.github.azeroth.game.entity.creature;
 
 
 import com.github.azeroth.dbc.domain.SummonProperty;
-import com.github.azeroth.game.domain.creature.CreatureTemplate;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.object.WorldObject;
@@ -252,8 +251,8 @@ public class TempSummon extends Creature {
 
         if (owner != null) {
             if (owner.isCreature()) {
-                if (owner.toCreature().getAI() != null) {
-                    owner.toCreature().getAI().justSummoned(this);
+                if (owner.toCreature().getAi() != null) {
+                    owner.toCreature().getAi().justSummoned(this);
                 }
             } else if (owner.isGameObject()) {
                 if (owner.toGameObject().getAI() != null) {
@@ -262,7 +261,7 @@ public class TempSummon extends Creature {
             }
 
             if (isAIEnabled()) {
-                getAI().isSummonedBy(owner);
+                getAi().isSummonedBy(owner);
             }
         }
     }
@@ -348,7 +347,7 @@ public class TempSummon extends Creature {
         }
 
         if (isPet()) {
-            getAsPet().remove(PetSaveMode.NotInSlot);
+            toPet().remove(PetSaveMode.NotInSlot);
             return;
         }
 
@@ -356,8 +355,8 @@ public class TempSummon extends Creature {
 
         if (owner != null) {
             if (owner.isCreature()) {
-                if (owner.toCreature().getAI() != null) {
-                    owner.toCreature().getAI().summonedCreatureDespawn(this);
+                if (owner.toCreature().getAi() != null) {
+                    owner.toCreature().getAi().summonedCreatureDespawn(this);
                 }
             } else if (owner.isGameObject()) {
                 if (owner.toGameObject().getAI() != null) {

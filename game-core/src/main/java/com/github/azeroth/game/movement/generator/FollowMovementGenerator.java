@@ -1,13 +1,17 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.ai.CreatureAI;
+import com.github.azeroth.game.domain.object.Position;
+import com.github.azeroth.game.domain.unit.UnitMoveType;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.*;
-import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
-import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
-import com.github.azeroth.game.movement.enums.MovementGeneratorType;
-import com.github.azeroth.game.movement.enums.PathType;
+import com.github.azeroth.game.movement.enums.*;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
+import com.github.azeroth.time.TimeTracker;
+
+import java.util.Objects;
 
 public class FollowMovementGenerator extends MovementGenerator {
 
@@ -16,21 +20,20 @@ public class FollowMovementGenerator extends MovementGenerator {
     private final float range;
     private final TimeTracker checkTimer;
     private final AbstractFollower abstractFollower;
-    private chaseAngle angle = new chaseAngle();
+    private final ChaseAngle angle;
     private PathGenerator path;
     private Position lastTargetPosition;
 
     public FollowMovementGenerator(Unit target, float range, ChaseAngle angle) {
         abstractFollower = new AbstractFollower(target);
-        range = range;
-        angle = angle;
+        this.range = range;
+        this.angle = angle;
 
-        mode = MovementGeneratorMode.Default;
+        mode = MovementGeneratorMode.DEFAULT;
         priority = MovementGeneratorPriority.NORMAL;
-        flags = MovementGeneratorFlags.InitializationPending;
-        baseUnitState = UnitState.Follow;
-
-        checkTimer = new timeTracker(CHECK_INTERVAL);
+        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        baseUnitState = UnitState.FOLLOW;
+        checkTimer = new TimeTracker(CHECK_INTERVAL);
     }
 
     private static boolean positionOkay(Unit owner, Unit target, float range) {
@@ -38,29 +41,25 @@ public class FollowMovementGenerator extends MovementGenerator {
     }
 
     private static boolean positionOkay(Unit owner, Unit target, float range, ChaseAngle angle) {
-        if (owner.getLocation().getExactDistSq(target.getLocation()) > (owner.getCombatReach() + target.getCombatReach() + range) * (owner.getCombatReach() + target.getCombatReach() + range)) {
+        if (owner.getLocation().getExactDistSq(target.getLocation()) > Math.pow(owner.getCombatReach() + target.getCombatReach() + range, 2)) {
             return false;
         }
-
-        return !angle != null || angle.getValue().isAngleOkay(target.getLocation().getRelativeAngle(owner.getLocation()));
+        return angle == null || angle.isAngleOkay(target.getLocation().getRelativeAngle(owner.getLocation()));
     }
 
     private static void doMovementInform(Unit owner, Unit target) {
         if (!owner.isCreature()) {
             return;
         }
-
-        var ai = owner.toCreature().getAI();
-
-        if (ai != null) {
-            ai.movementInform(MovementGeneratorType.Follow, (int) target.getGUID().getCounter());
+        if (owner.getAi() instanceof CreatureAI ai) {
+            ai.movementInform(MovementGeneratorType.FOLLOW, target.getGUID().entry());
         }
     }
 
     @Override
     public void initialize(Unit owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Deactivated.getValue());
-        addFlag(MovementGeneratorFlags.initialized.getValue() | MovementGeneratorFlags.InformEnabled.getValue());
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.DEACTIVATED);
+        flags.addFlag(MovementGeneratorFlag.INITIALIZED, MovementGeneratorFlag.INFORM_ENABLED);
 
         owner.stopMoving();
         updatePetSpeed(owner);
@@ -70,7 +69,7 @@ public class FollowMovementGenerator extends MovementGenerator {
 
     @Override
     public void reset(Unit owner) {
-        removeFlag(MovementGeneratorFlags.Deactivated);
+        flags.removeFlag(MovementGeneratorFlag.DEACTIVATED);
         initialize(owner);
     }
 
@@ -89,7 +88,7 @@ public class FollowMovementGenerator extends MovementGenerator {
             return false;
         }
 
-        if (owner.hasUnitState(UnitState.NotMove) || owner.isMovementPreventedByCasting()) {
+        if (owner.hasUnitState(UnitState.NOT_MOVE) || owner.isMovementPreventedByCasting()) {
             path = null;
             owner.stopMoving();
             lastTargetPosition = null;
@@ -99,11 +98,11 @@ public class FollowMovementGenerator extends MovementGenerator {
 
         checkTimer.update(diff);
 
-        if (checkTimer.Passed) {
+        if (checkTimer.passed()) {
             checkTimer.reset(CHECK_INTERVAL);
 
-            if (hasFlag(MovementGeneratorFlags.InformEnabled) && positionOkay(owner, target, range, angle)) {
-                removeFlag(MovementGeneratorFlags.InformEnabled);
+            if (flags.hasFlag(MovementGeneratorFlag.INFORM_ENABLED) && positionOkay(owner, target, range, angle)) {
+                flags.removeFlag(MovementGeneratorFlag.INFORM_ENABLED);
                 path = null;
                 owner.stopMoving();
                 lastTargetPosition = new Position();
@@ -113,17 +112,17 @@ public class FollowMovementGenerator extends MovementGenerator {
             }
         }
 
-        if (owner.hasUnitState(UnitState.FollowMove) && owner.getMoveSpline().finalized()) {
-            removeFlag(MovementGeneratorFlags.InformEnabled);
+        if (owner.hasUnitState(UnitState.FOLLOW_MOVE) && owner.getMoveSpline().finalized()) {
+            flags.removeFlag(MovementGeneratorFlag.INFORM_ENABLED);
             path = null;
-            owner.clearUnitState(UnitState.FollowMove);
+            owner.clearUnitState(UnitState.FOLLOW_MOVE);
             doMovementInform(owner, target);
         }
 
         if (lastTargetPosition == null || lastTargetPosition.getExactDistSq(target.getLocation()) > 0.0f) {
             lastTargetPosition = new Position(target.getLocation());
 
-            if (owner.hasUnitState(UnitState.FollowMove) || !positionOkay(owner, target, range + FOLLOW_RANGE_TOLERANCE)) {
+            if (owner.hasUnitState(UnitState.FOLLOW_MOVE) || !positionOkay(owner, target, range + FOLLOW_RANGE_TOLERANCE)) {
                 if (path == null) {
                     path = new PathGenerator(owner);
                 }
@@ -136,8 +135,8 @@ public class FollowMovementGenerator extends MovementGenerator {
                 if (angle.isAngleOkay(curAngle)) {
                     tAngle = curAngle;
                 } else {
-                    var diffUpper = position.normalizeOrientation(curAngle - angle.upperBound());
-                    var diffLower = position.normalizeOrientation(angle.lowerBound() - curAngle);
+                    var diffUpper = Position.normalizeOrientation(curAngle - angle.upperBound());
+                    var diffLower = Position.normalizeOrientation(angle.lowerBound() - curAngle);
 
                     if (diffUpper < diffLower) {
                         tAngle = angle.upperBound();
@@ -155,7 +154,7 @@ public class FollowMovementGenerator extends MovementGenerator {
 
                 // pets are allowed to "cheat" on pathfinding when following their master
                 var allowShortcut = false;
-                var oPet = owner.getAsPet();
+                var oPet = owner.toPet();
 
                 if (oPet != null) {
                     if (Objects.equals(target.getGUID(), oPet.getOwnerGUID())) {
@@ -171,8 +170,8 @@ public class FollowMovementGenerator extends MovementGenerator {
                     return true;
                 }
 
-                owner.addUnitState(UnitState.FollowMove);
-                addFlag(MovementGeneratorFlags.InformEnabled);
+                owner.addUnitState(UnitState.FOLLOW_MOVE);
+                addFlag(MovementGeneratorFlag.INFORM_ENABLED);
 
                 MoveSplineInit init = new MoveSplineInit(owner);
                 init.movebyPath(path.getPath());
@@ -187,17 +186,17 @@ public class FollowMovementGenerator extends MovementGenerator {
 
     @Override
     public void deactivate(Unit owner) {
-        addFlag(MovementGeneratorFlags.Deactivated);
-        removeFlag(MovementGeneratorFlags.Transitory.getValue() | MovementGeneratorFlags.InformEnabled.getValue());
-        owner.clearUnitState(UnitState.FollowMove);
+        flags.addFlag(MovementGeneratorFlag.DEACTIVATED);
+        flags.removeFlag(MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.INFORM_ENABLED);
+        owner.clearUnitState(UnitState.FOLLOW_MOVE);
     }
 
     @Override
     public void finalize(Unit owner, boolean active, boolean movementInform) {
-        addFlag(MovementGeneratorFlags.Finalized);
+        flags.addFlag(MovementGeneratorFlag.FINALIZED);
 
         if (active) {
-            owner.clearUnitState(UnitState.FollowMove);
+            owner.clearUnitState(UnitState.FOLLOW_MOVE);
             updatePetSpeed(owner);
         }
     }
@@ -208,7 +207,7 @@ public class FollowMovementGenerator extends MovementGenerator {
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.Follow;
+        return MovementGeneratorType.FOLLOW;
     }
 
     @Override
@@ -217,13 +216,13 @@ public class FollowMovementGenerator extends MovementGenerator {
     }
 
     private void updatePetSpeed(Unit owner) {
-        var oPet = owner.getAsPet();
+        var oPet = owner.toPet();
 
         if (oPet != null) {
-            if (!abstractFollower.getTarget() || Objects.equals(abstractFollower.getTarget().getGUID(), owner.getOwnerGUID())) {
-                oPet.updateSpeed(UnitMoveType.run);
-                oPet.updateSpeed(UnitMoveType.Walk);
-                oPet.updateSpeed(UnitMoveType.swim);
+            if (abstractFollower.getTarget() == null || Objects.equals(abstractFollower.getTarget().getGUID(), owner.getOwnerGUID())) {
+                oPet.updateSpeed(UnitMoveType.RUN);
+                oPet.updateSpeed(UnitMoveType.WALK);
+                oPet.updateSpeed(UnitMoveType.SWIM);
             }
         }
     }

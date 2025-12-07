@@ -1,48 +1,80 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.maps.grids.*;
+import game.spells.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.domain.misc.WaypointMoveType;
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.object.WorldObject;
-import com.github.azeroth.game.entity.player.Player;
-import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.spell.SpellInfo;
+
 
 public class SmartAI extends CreatureAI {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public uint EscortQuestID;
+    public int escortQuestID;
     private static final int SMART_ESCORT_MAX_PLAYER_DIST = 60;
     private static final int SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2;
-    private final smartScript script = new smartScript();
-    private final waypointPath path = new waypointPath();
+    private final SmartScript script = new SmartScript();
+    private final WaypointPath path = new WaypointPath();
+
     // Vehicle conditions
     private final boolean hasConditions;
-    public int escortQuestID;
+
     private boolean isCharmed;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _followCreditType;
     private int followCreditType;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _followArrivedTimer;
     private int followArrivedTimer;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _followCredit;
     private int followCredit;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _followArrivedEntry;
     private int followArrivedEntry;
-    private ObjectGuid followGuid = ObjectGuid.EMPTY;
+    private ObjectGuid followGuid = new ObjectGuid();
     private float followDist;
     private float followAngle;
 
     private SmartEscortState escortState = SmartEscortState.values()[0];
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _escortNPCFlags;
     private int escortNPCFlags;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _escortInvokerCheckTimer;
     private int escortInvokerCheckTimer;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _currentWaypointNode;
     private int currentWaypointNode;
     private boolean waypointReached;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _waypointPauseTimer;
     private int waypointPauseTimer;
     private boolean waypointPauseForced;
     private boolean repeatWaypointPath;
-    private boolean _OOCReached;
+    private boolean oOCReached;
     private boolean waypointPathEnded;
 
     private boolean run;
     private boolean evadeDisabled;
     private boolean canCombatMove;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _invincibilityHpLevel;
     private int invincibilityHpLevel;
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _despawnTime;
     private int despawnTime;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _despawnState;
     private int despawnState;
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: uint _conditionsTimer;
     private int conditionsTimer;
 
     // Gossip
@@ -54,7 +86,7 @@ public class SmartAI extends CreatureAI {
         run = true;
         canCombatMove = true;
 
-        hasConditions = global.getConditionMgr().hasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, creature.getEntry());
+        hasConditions = Global.getConditionMgr().hasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, creature.getEntry());
     }
 
 
@@ -78,6 +110,9 @@ public class SmartAI extends CreatureAI {
         startPath(false, 0, false, null, 1);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void StartPath(bool run = false, uint pathId = 0, bool repeat = false, Unit invoker = null, uint nodeId = 1)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void startPath(boolean run, int pathId, boolean repeat, Unit invoker, int nodeId) {
         if (hasEscortState(SmartEscortState.Escorting)) {
             stopPath();
@@ -91,7 +126,7 @@ public class SmartAI extends CreatureAI {
             }
         }
 
-        if (path.nodes.isEmpty()) {
+        if (path.nodes.Empty()) {
             return;
         }
 
@@ -104,27 +139,31 @@ public class SmartAI extends CreatureAI {
         escortState = SmartEscortState.Escorting;
 
         if (invoker && invoker.isPlayer()) {
-            escortNPCFlags = (int) me.getNpcFlags().getValue();
-            me.replaceAllNpcFlags(NPCFlags.NONE);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: _escortNPCFlags = (uint)Me.NpcFlags;
+            escortNPCFlags = (int)me.getNpcFlags().getValue();
+            me.replaceAllNpcFlags(NPCFlags.None);
         }
 
         me.getMotionMaster().movePath(path, repeatWaypointPath);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void PausePath(uint delay, bool forced)
     public final void pausePath(int delay, boolean forced) {
         if (!hasEscortState(SmartEscortState.Escorting)) {
             me.pauseMovement(delay, MovementSlot.Default, forced);
 
             if (me.getMotionMaster().getCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint) {
-
-                var(nodeId, pathId) = me.CurrentWaypointInfo;
+//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C# deconstruction declarations:
+                var(nodeId, pathId) = Me.CurrentWaypointInfo;
                 getScript().processEventsFor(SmartEvents.WaypointPaused, null, nodeId, pathId);
             }
 
             return;
         }
 
-        if (hasEscortState(SmartEscortState.paused)) {
+        if (hasEscortState(SmartEscortState.Paused)) {
             Log.outError(LogFilter.Server, String.format("SmartAI.PausePath: Creature entry %1$s wanted to pause waypoint movement while already paused, ignoring.", me.getEntry()));
 
             return;
@@ -136,22 +175,21 @@ public class SmartAI extends CreatureAI {
             waypointPauseForced = forced;
             setRun(run);
             me.pauseMovement();
-            me.setHomePosition(me.getLocation());
+            me.setHomePosition(me.location);
         } else {
             waypointReached = false;
         }
 
-        addEscortState(SmartEscortState.paused);
+        addEscortState(SmartEscortState.Paused);
         getScript().processEventsFor(SmartEvents.WaypointPaused, null, currentWaypointNode, getScript().getPathId());
     }
-
     public final boolean canResumePath() {
         if (!hasEscortState(SmartEscortState.Escorting)) {
             // The whole resume logic doesn't support this case
             return false;
         }
 
-        return hasEscortState(SmartEscortState.paused);
+        return hasEscortState(SmartEscortState.Paused);
     }
 
 
@@ -167,10 +205,13 @@ public class SmartAI extends CreatureAI {
         stopPath(0, 0, false);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void StopPath(uint despawnTime = 0, uint quest = 0, bool fail = false)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void stopPath(int despawnTime, int quest, boolean fail) {
         if (!hasEscortState(SmartEscortState.Escorting)) {
-
-            ( int nodeId, int pathId)waypointInfo = new ();
+//C# TO JAVA CONVERTER TODO TASK: Tuple variables are not converted by C# to Java Converter:
+            (int nodeId, int pathId) waypointInfo = new();
 
             if (me.getMotionMaster().getCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint) {
                 waypointInfo = me.CurrentWaypointInfo;
@@ -183,12 +224,12 @@ public class SmartAI extends CreatureAI {
             me.getMotionMaster().moveIdle();
 
             if (waypointInfo.Item1 != 0) {
-                getScript().processEventsFor(SmartEvents.WaypointStopped, null, waypointInfo.Item1, waypointInfo.item2);
+                getScript().processEventsFor(SmartEvents.WaypointStopped, null, waypointInfo.Item1, waypointInfo.Item2);
             }
 
             if (!fail) {
                 if (waypointInfo.Item1 != 0) {
-                    getScript().processEventsFor(SmartEvents.WaypointEnded, null, waypointInfo.Item1, waypointInfo.item2);
+                    getScript().processEventsFor(SmartEvents.WaypointEnded, null, waypointInfo.Item1, waypointInfo.Item2);
                 }
 
                 if (despawnState == 1) {
@@ -219,8 +260,10 @@ public class SmartAI extends CreatureAI {
         endPath(false);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void EndPath(bool fail = false)
     public final void endPath(boolean fail) {
-        removeEscortState(SmartEscortState.Escorting.getValue() | SmartEscortState.paused.getValue() | SmartEscortState.Returning.getValue());
+        removeEscortState(SmartEscortState.Escorting.getValue() | SmartEscortState.Paused.getValue() | SmartEscortState.Returning.getValue());
         path.nodes.clear();
         waypointPauseTimer = 0;
 
@@ -235,35 +278,35 @@ public class SmartAI extends CreatureAI {
             if (targets.size() == 1 && getScript().isPlayer(targets.get(0))) {
                 var player = targets.get(0).AsPlayer;
 
-                if (!fail && player.isAtGroupRewardDistance(me) && player.getCorpse() == null) {
-                    player.groupEventHappens(escortQuestID, me);
+                if (!fail && player.IsAtGroupRewardDistance(me) && player.GetCorpse() == null) {
+                    player.GroupEventHappens(escortQuestID, me);
                 }
 
                 if (fail) {
-                    player.failQuest(escortQuestID);
+                    player.FailQuest(escortQuestID);
                 }
 
-                var group = player.group;
+                var group = player.Group;
 
                 if (group) {
-                    for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.next()) {
-                        var groupGuy = groupRef.source;
+                    for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next()) {
+                        var groupGuy = groupRef.Source;
 
-                        if (!groupGuy.isInMap(player)) {
+                        if (!groupGuy.IsInMap(player)) {
                             continue;
                         }
 
-                        if (!fail && groupGuy.isAtGroupRewardDistance(me) && !groupGuy.getCorpse()) {
-                            groupGuy.areaExploredOrEventHappens(escortQuestID);
+                        if (!fail && groupGuy.IsAtGroupRewardDistance(me) && !groupGuy.GetCorpse()) {
+                            groupGuy.AreaExploredOrEventHappens(escortQuestID);
                         } else if (fail) {
-                            groupGuy.failQuest(escortQuestID);
+                            groupGuy.FailQuest(escortQuestID);
                         }
                     }
                 }
             } else {
                 for (var obj : targets) {
                     if (getScript().isPlayer(obj)) {
-                        var player = obj.toPlayer();
+                        var player = obj.getAsPlayer();
 
                         if (!fail && player.isAtGroupRewardDistance(me) && player.getCorpse() == null) {
                             player.areaExploredOrEventHappens(escortQuestID);
@@ -287,8 +330,7 @@ public class SmartAI extends CreatureAI {
             if (isAIControlled()) {
                 startPath(run, getScript().getPathId(), repeatWaypointPath);
             }
-        } else if (pathid == getScript().getPathId()) // if it's not the same pathid, our script wants to start another path; don't override it
-        {
+        } else if (pathid == getScript().getPathId()) { // if it's not the same pathid, our script wants to start another path; don't override it
             getScript().setPathId(0);
         }
 
@@ -300,7 +342,7 @@ public class SmartAI extends CreatureAI {
     public final void resumePath() {
         getScript().processEventsFor(SmartEvents.WaypointResumed, null, currentWaypointNode, getScript().getPathId());
 
-        removeEscortState(SmartEscortState.paused);
+        removeEscortState(SmartEscortState.Paused);
 
         waypointPauseForced = false;
         waypointReached = false;
@@ -310,6 +352,8 @@ public class SmartAI extends CreatureAI {
         me.resumeMovement();
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         if (!me.isAlive()) {
@@ -341,6 +385,8 @@ public class SmartAI extends CreatureAI {
         doMeleeAttackIfReady();
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void WaypointReached(uint nodeId, uint pathId)
     @Override
     public void waypointReached(int nodeId, int pathId) {
         if (!hasEscortState(SmartEscortState.Escorting)) {
@@ -356,7 +402,7 @@ public class SmartAI extends CreatureAI {
         if (waypointPauseTimer != 0 && !waypointPauseForced) {
             waypointReached = true;
             me.pauseMovement();
-            me.setHomePosition(me.getLocation());
+            me.setHomePosition(me.location);
         } else if (hasEscortState(SmartEscortState.Escorting) && me.getMotionMaster().getCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint) {
             if (currentWaypointNode == path.nodes.size()) {
                 waypointPathEnded = true;
@@ -366,6 +412,8 @@ public class SmartAI extends CreatureAI {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void WaypointPathEnded(uint nodeId, uint pathId)
     @Override
     public void waypointPathEnded(int nodeId, int pathId) {
         if (!hasEscortState(SmartEscortState.Escorting)) {
@@ -375,32 +423,36 @@ public class SmartAI extends CreatureAI {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void MovementInform(MovementGeneratorType movementType, uint id)
     @Override
     public void movementInform(MovementGeneratorType movementType, int id) {
-        if (movementType == MovementGeneratorType.Point && id == eventId.SmartEscortLastOCCPoint) {
+        if (movementType == MovementGeneratorType.Point && id == EventId.SmartEscortLastOCCPoint) {
             me.clearUnitState(UnitState.Evade);
         }
 
-        getScript().processEventsFor(SmartEvents.Movementinform, null, (int) movementType.getValue(), id);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.Movementinform, null, (uint)movementType, id);
+        getScript().processEventsFor(SmartEvents.Movementinform, null, (int)movementType.getValue(), id);
 
         if (!hasEscortState(SmartEscortState.Escorting)) {
             return;
         }
 
-        if (movementType != MovementGeneratorType.Point && id == eventId.SmartEscortLastOCCPoint) {
-            _OOCReached = true;
+        if (movementType != MovementGeneratorType.Point && id == EventId.SmartEscortLastOCCPoint) {
+            oOCReached = true;
         }
     }
 
     public final void startAttackOnOwnersInCombatWith() {
         Player owner;
-        tangible.OutObject<unit> tempOut_owner = new tangible.OutObject<unit>();
-        if (!me.tryGetOwner(tempOut_owner)) {
-            owner = tempOut_owner.outArgValue;
+        tangible.OutObject<Unit> tempOutOwner = new tangible.OutObject<Unit>();
+        if (!me.tryGetOwner(tempOutOwner)) {
+        owner = tempOutOwner.outArgValue;
             return;
         } else {
-            owner = tempOut_owner.outArgValue;
-        }
+        owner = tempOutOwner.outArgValue;
+    }
 
         var summon = me.toTempSummon();
 
@@ -420,9 +472,11 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void enterEvadeMode() {
-        enterEvadeMode(EvadeReason.other);
+        enterEvadeMode(EvadeReason.Other);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     @Override
     public void enterEvadeMode(EvadeReason why) {
         if (evadeDisabled) {
@@ -456,7 +510,7 @@ public class SmartAI extends CreatureAI {
             addEscortState(SmartEscortState.Returning);
             returnToLastOOCPos();
         } else {
-            var target = !followGuid.isEmpty() ? global.getObjAccessor().GetUnit(me, followGuid) : null;
+            var target = !followGuid.isEmpty() ? Global.getObjAccessor().getUnit(me, followGuid.clone()) : null;
 
             if (target) {
                 me.getMotionMaster().moveFollow(target, followDist, followAngle);
@@ -497,9 +551,9 @@ public class SmartAI extends CreatureAI {
 
         despawnTime = 0;
         despawnState = 0;
-        escortState = SmartEscortState.NONE;
+        escortState = SmartEscortState.None;
 
-        followGuid.clear(); //do not reset follower on reset(), we need it after combat evade
+        followGuid.clear(); //do not reset follower on Reset(), we need it after combat evade
         followDist = 0;
         followAngle = 0;
         followCredit = 0;
@@ -525,7 +579,7 @@ public class SmartAI extends CreatureAI {
         getScript().onReset();
         getScript().processEventsFor(SmartEvents.ReachedHome);
 
-        var formation = me.getFormation();
+        var formation = me.formation;
 
         if (formation == null || formation.getLeader() == me || !formation.isFormed()) {
             if (me.getMotionMaster().getCurrentMovementGeneratorType(MovementSlot.Default) != MovementGeneratorType.Waypoint) {
@@ -560,7 +614,7 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void killedUnit(Unit victim) {
-        getScript().processEventsFor(SmartEvents.kill, victim);
+        getScript().processEventsFor(SmartEvents.Kill, victim);
     }
 
     @Override
@@ -585,7 +639,7 @@ public class SmartAI extends CreatureAI {
         }
 
         if (who != null && me.attack(who, true)) {
-            me.getMotionMaster().clear(MovementGeneratorPriority.NORMAL);
+            me.getMotionMaster().clear(MovementGeneratorPriority.Normal);
             me.pauseMovement();
 
             if (canCombatMove) {
@@ -597,12 +651,12 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void spellHit(WorldObject caster, SpellInfo spellInfo) {
-        getScript().processEventsFor(SmartEvents.SpellHit, caster.toUnit(), 0, 0, false, spellInfo, caster.toGameObject());
+        getScript().processEventsFor(SmartEvents.SpellHit, caster.getAsUnit(), 0, 0, false, spellInfo, caster.getAsGameObject());
     }
 
     @Override
     public void spellHitTarget(WorldObject target, SpellInfo spellInfo) {
-        getScript().processEventsFor(SmartEvents.SpellHitTarget, target.toUnit(), 0, 0, false, spellInfo, target.toGameObject());
+        getScript().processEventsFor(SmartEvents.SpellHitTarget, target.getAsUnit(), 0, 0, false, spellInfo, target.getAsGameObject());
     }
 
     @Override
@@ -626,37 +680,48 @@ public class SmartAI extends CreatureAI {
         damageTaken(attacker, damage, damageType, null);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     @Override
     public void damageTaken(Unit attacker, tangible.RefObject<Double> damage, DamageEffectType damageType, SpellInfo spellInfo) {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.Damaged, attacker, (uint)damage);
         getScript().processEventsFor(SmartEvents.Damaged, attacker, damage.refArgValue.intValue());
 
-        if (!isAIControlled()) // don't allow players to use unkillable units
-        {
+        if (!isAIControlled()) { // don't allow players to use unkillable units
             return;
         }
 
         if (invincibilityHpLevel != 0 && (damage.refArgValue >= me.getHealth() - invincibilityHpLevel)) {
-            damage.refArgValue = (int) (me.getHealth() - invincibilityHpLevel); // damage should not be nullified, because of player damage req.
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: damage = (uint)(Me.Health - _invincibilityHpLevel);
+            damage.refArgValue = (int)(me.getHealth() - invincibilityHpLevel); // damage should not be nullified, because of player damage req.
         }
     }
 
     @Override
     public void healReceived(Unit by, double addhealth) {
-        getScript().processEventsFor(SmartEvents.ReceiveHeal, by, (int) addhealth);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.ReceiveHeal, by, (uint)addhealth);
+        getScript().processEventsFor(SmartEvents.ReceiveHeal, by, (int)addhealth);
     }
 
     @Override
     public void receiveEmote(Player player, TextEmotes emoteId) {
-        getScript().processEventsFor(SmartEvents.ReceiveEmote, player, (int) emoteId.getValue());
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.ReceiveEmote, player, (uint)emoteId);
+        getScript().processEventsFor(SmartEvents.ReceiveEmote, player, (int)emoteId.getValue());
     }
 
     @Override
     public void isSummonedBy(WorldObject summoner) {
-        getScript().processEventsFor(SmartEvents.JustSummoned, summoner.toUnit(), 0, 0, false, null, summoner.toGameObject());
+        getScript().processEventsFor(SmartEvents.JustSummoned, summoner.getAsUnit(), 0, 0, false, null, summoner.getAsGameObject());
     }
 
     @Override
     public void damageDealt(Unit victim, tangible.RefObject<Double> damage, DamageEffectType damageType) {
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.DamagedTarget, victim, (uint)damage);
         getScript().processEventsFor(SmartEvents.DamagedTarget, victim, damage.refArgValue.intValue());
     }
 
@@ -667,7 +732,9 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void corpseRemoved(long respawnDelay) {
-        getScript().processEventsFor(SmartEvents.CorpseRemoved, null, (int) respawnDelay);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.CorpseRemoved, null, (uint)respawnDelay);
+        getScript().processEventsFor(SmartEvents.CorpseRemoved, null, (int)respawnDelay);
     }
 
     @Override
@@ -677,16 +744,17 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void passengerBoarded(Unit passenger, byte seatId, boolean apply) {
-        getScript().processEventsFor(apply ? SmartEvents.PassengerBoarded : SmartEvents.PassengerRemoved, passenger, (int) seatId, 0, apply);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: GetScript().ProcessEventsFor(apply ? SmartEvents.PassengerBoarded : SmartEvents.PassengerRemoved, passenger, (uint)seatId, 0, apply);
+        getScript().processEventsFor(apply ? SmartEvents.PassengerBoarded : SmartEvents.PassengerRemoved, passenger, (int)seatId, 0, apply);
     }
 
     @Override
     public void onCharmed(boolean isNew) {
         var charmed = me.isCharmed();
 
-        if (charmed) // do this before we change charmed state, as charmed state might prevent these things from processing
-        {
-            if (hasEscortState(SmartEscortState.Escorting.getValue() | SmartEscortState.paused.getValue() | SmartEscortState.Returning.getValue())) {
+        if (charmed) { // do this before we change charmed state, as charmed state might prevent these things from processing
+            if (hasEscortState(SmartEscortState.Escorting.getValue() | SmartEscortState.Paused.getValue() | SmartEscortState.Returning.getValue())) {
                 endPath(true);
             }
         }
@@ -704,16 +772,16 @@ public class SmartAI extends CreatureAI {
                 me.setWalk(!run);
             }
 
-            if (!me.getLastCharmerGuid().isEmpty()) {
+            if (!me.lastCharmerGuid.isEmpty()) {
                 if (!me.hasReactState(ReactStates.Passive)) {
-                    var lastCharmer = global.getObjAccessor().GetUnit(me, me.getLastCharmerGuid());
+                    var lastCharmer = Global.getObjAccessor().getUnit(me, me.lastCharmerGuid.clone());
 
                     if (lastCharmer != null) {
                         me.engageWithTarget(lastCharmer);
                     }
                 }
 
-                me.getLastCharmerGuid().clear();
+                me.lastCharmerGuid.clear();
 
                 if (!me.isInCombat()) {
                     enterEvadeMode(EvadeReason.NoHostiles);
@@ -723,27 +791,34 @@ public class SmartAI extends CreatureAI {
 
         getScript().processEventsFor(SmartEvents.Charmed, null, 0, 0, charmed);
 
-        if (!getScript().hasAnyEventWithFlag(SmartEventFlags.WhileCharmed)) // we can change AI if there are no events with this flag
-        {
+        if (!getScript().hasAnyEventWithFlag(SmartEventFlags.WhileCharmed)) { // we can change AI if there are no events with this flag
             super.onCharmed(isNew);
         }
     }
 
     @Override
     public void doAction(int param) {
-        getScript().processEventsFor(SmartEvents.ActionDone, null, (int) param);
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.ActionDone, null, (uint)param);
+        getScript().processEventsFor(SmartEvents.ActionDone, null, (int)param);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override uint GetData(uint id)
     @Override
     public int getData(int id) {
         return 0;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void SetData(uint id, uint value)
     @Override
     public void setData(int id, int value) {
         setData(id, value, null);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void SetData(uint id, uint value, Unit invoker)
     public final void setData(int id, int value, Unit invoker) {
         getScript().processEventsFor(SmartEvents.DataSet, invoker, id, value);
     }
@@ -754,12 +829,12 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public ObjectGuid getGUID(int id) {
-        return ObjectGuid.Empty;
+        return ObjectGuid.empty;
     }
 
     public final void setRun(boolean run) {
         me.setWalk(!run);
-        run = run;
+        this.run = run;
 
         for (var node : path.nodes) {
             node.moveType = run ? WaypointMoveType.Run : WaypointMoveType.Walk;
@@ -771,6 +846,8 @@ public class SmartAI extends CreatureAI {
         setDisableGravity(true);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void SetDisableGravity(bool disable = true)
     public final void setDisableGravity(boolean disable) {
         me.setDisableGravity(disable);
     }
@@ -787,6 +864,8 @@ public class SmartAI extends CreatureAI {
         return gossipReturn;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     @Override
     public boolean onGossipSelect(Player player, int menuId, int gossipListId) {
         gossipReturn = false;
@@ -795,6 +874,8 @@ public class SmartAI extends CreatureAI {
         return gossipReturn;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override bool OnGossipSelectCode(Player player, uint menuId, uint gossipListId, string code)
     @Override
     public boolean onGossipSelectCode(Player player, int menuId, int gossipListId, String code) {
         return false;
@@ -805,6 +886,8 @@ public class SmartAI extends CreatureAI {
         getScript().processEventsFor(SmartEvents.AcceptedQuest, player, quest.id);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     @Override
     public void onQuestReward(Player player, Quest quest, LootItemType type, int opt) {
         getScript().processEventsFor(SmartEvents.RewardQuest, player, quest.id, opt);
@@ -815,6 +898,8 @@ public class SmartAI extends CreatureAI {
         setCombatMove(on, false);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void SetCombatMove(bool on, bool stopMoving = false)
     public final void setCombatMove(boolean on, boolean stopMoving) {
         if (canCombatMove == on) {
             return;
@@ -828,15 +913,14 @@ public class SmartAI extends CreatureAI {
 
         if (me.isEngaged()) {
             if (on) {
-                if (!me.hasReactState(ReactStates.Passive) && me.getVictim() && !me.getMotionMaster().hasMovementGenerator(movement ->
-                {
-                    return movement.getMovementGeneratorType() == MovementGeneratorType.chase && movement.mode == MovementGeneratorMode.Default && movement.priority == MovementGeneratorPriority.NORMAL;
+                if (!me.hasReactState(ReactStates.Passive) && me.getVictim() && !me.getMotionMaster().hasMovementGenerator(movement -> {
+                    return movement.GetMovementGeneratorType() == MovementGeneratorType.Chase && movement.Mode == MovementGeneratorMode.Default && movement.Priority == MovementGeneratorPriority.Normal;
                 })) {
                     setRun(run);
                     me.getMotionMaster().moveChase(me.getVictim());
                 }
             } else {
-                var movement = me.getMotionMaster().getMovementGenerator(a -> a.getMovementGeneratorType() == MovementGeneratorType.chase && a.mode == MovementGeneratorMode.Default && a.priority == MovementGeneratorPriority.NORMAL);
+                var movement = me.getMotionMaster().getMovementGenerator(a -> a.GetMovementGeneratorType() == MovementGeneratorType.Chase && a.Mode == MovementGeneratorMode.Default && a.Priority == MovementGeneratorPriority.Normal);
 
                 if (movement != null) {
                     me.getMotionMaster().remove(movement);
@@ -849,6 +933,8 @@ public class SmartAI extends CreatureAI {
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void SetFollow(Unit target, float dist, float angle, uint credit, uint end, uint creditType)
     public final void setFollow(Unit target, float dist, float angle, int credit, int end, int creditType) {
         if (target == null) {
             stopFollow(false);
@@ -856,7 +942,7 @@ public class SmartAI extends CreatureAI {
             return;
         }
 
-        followGuid = target.getGUID();
+        followGuid = target.getGUID().clone();
         followDist = dist;
         followAngle = angle;
         followArrivedTimer = 1000;
@@ -883,13 +969,13 @@ public class SmartAI extends CreatureAI {
             return;
         }
 
-        var player = global.getObjAccessor().getPlayer(me, followGuid);
+        var player = Global.getObjAccessor().GetPlayer(me, followGuid.clone());
 
         if (player != null) {
             if (followCreditType == 0) {
-                player.rewardPlayerAndGroupAtEvent(followCredit, me);
+                player.RewardPlayerAndGroupAtEvent(followCredit, me);
             } else {
-                player.groupEventHappens(followCredit, me);
+                player.GroupEventHappens(followCredit, me);
             }
         }
 
@@ -903,10 +989,15 @@ public class SmartAI extends CreatureAI {
         setTimedActionList(e, entry, invoker, 0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker, uint startFromEventId = 0)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void setTimedActionList(SmartScriptHolder e, int entry, Unit invoker, int startFromEventId) {
         getScript().setTimedActionList(e, entry, invoker, startFromEventId);
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void OnGameEvent(bool start, ushort eventId)
     @Override
     public void onGameEvent(boolean start, short eventId) {
         getScript().processEventsFor(start ? SmartEvents.GameEventStart : SmartEvents.GameEventEnd, null, eventId);
@@ -923,8 +1014,7 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void reset() {
-        if (!hasEscortState(SmartEscortState.Escorting)) //dont mess up escort movement after combat
-        {
+        if (!hasEscortState(SmartEscortState.Escorting)) { //dont mess up escort movement after combat
             setRun(run);
         }
 
@@ -932,15 +1022,15 @@ public class SmartAI extends CreatureAI {
     }
 
     public final boolean hasEscortState(SmartEscortState escortState) {
-        return (escortState.getValue() & escortState.getValue()) != 0;
+        return (this.escortState.getValue() & escortState.getValue()) != 0;
     }
 
     public final void addEscortState(SmartEscortState escortState) {
-        escortState = SmartEscortState.forValue(escortState.getValue() | escortState.getValue());
+        this.escortState = game.ai.SmartEscortState.forValue(this.escortState.getValue() | escortState.getValue());
     }
 
     public final void removeEscortState(SmartEscortState escortState) {
-        escortState = SmartEscortState.forValue(escortState.getValue() & ~escortState.getValue());
+        this.escortState = game.ai.SmartEscortState.forValue(this.escortState.getValue() & ~escortState.getValue());
     }
 
     public final boolean canCombatMove() {
@@ -951,6 +1041,8 @@ public class SmartAI extends CreatureAI {
         return script;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void SetInvincibilityHpLevel(uint level)
     public final void setInvincibilityHpLevel(int level) {
         invincibilityHpLevel = level;
     }
@@ -960,6 +1052,9 @@ public class SmartAI extends CreatureAI {
         setDespawnTime(t, 0);
     }
 
+//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+//ORIGINAL LINE: public void SetDespawnTime(uint t, uint r = 0)
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
     public final void setDespawnTime(int t, int r) {
         despawnTime = t;
         despawnState = t != 0 ? 1 : 0;
@@ -969,6 +1064,8 @@ public class SmartAI extends CreatureAI {
         despawnState = 2;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public void SetWPPauseTimer(uint time)
     public final void setWPPauseTimer(int time) {
         waypointPauseTimer = time;
     }
@@ -981,26 +1078,28 @@ public class SmartAI extends CreatureAI {
         return !isCharmed;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: bool LoadPath(uint entry)
     private boolean loadPath(int entry) {
         if (hasEscortState(SmartEscortState.Escorting)) {
             return false;
         }
 
-        var path = global.getSmartAIMgr().getPath(entry);
+        var path = Global.getSmartAIMgr().getPath(entry);
 
-        if (path == null || path.nodes.isEmpty()) {
+        if (path == null || path.nodes.Empty()) {
             getScript().setPathId(0);
 
             return false;
         }
 
-        path.id = path.id;
-        path.nodes.addAll(path.nodes);
+        this.path.id = path.id;
+        this.path.nodes.addAll(path.nodes);
 
-        for (var waypoint : path.nodes) {
-            waypoint.x = MapDefine.normalizeMapCoord(waypoint.x);
-            waypoint.y = MapDefine.normalizeMapCoord(waypoint.y);
-            waypoint.moveType = _run ? WaypointMoveType.Run : WaypointMoveType.Walk;
+        for (var waypoint : this.path.nodes) {
+            waypoint.x = GridDefines.normalizeMapCoord(waypoint.x);
+            waypoint.y = GridDefines.normalizeMapCoord(waypoint.y);
+            waypoint.moveType = run ? WaypointMoveType.Run : WaypointMoveType.Walk;
         }
 
         getScript().setPathId(entry);
@@ -1014,7 +1113,7 @@ public class SmartAI extends CreatureAI {
         }
 
         me.setWalk(false);
-        me.getMotionMaster().movePoint(eventId.SmartEscortLastOCCPoint, me.getHomePosition());
+        me.getMotionMaster().movePoint(EventId.SmartEscortLastOCCPoint, me.getHomePosition());
     }
 
     private boolean isEscortInvokerInRange() {
@@ -1026,17 +1125,17 @@ public class SmartAI extends CreatureAI {
             if (targets.size() == 1 && getScript().isPlayer(targets.get(0))) {
                 var player = targets.get(0).AsPlayer;
 
-                if (me.getDistance(player) <= checkDist) {
+                if (me.GetDistance(player) <= checkDist) {
                     return true;
                 }
 
-                var group = player.group;
+                var group = player.Group;
 
                 if (group) {
-                    for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.next()) {
-                        var groupGuy = groupRef.source;
+                    for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next()) {
+                        var groupGuy = groupRef.Source;
 
-                        if (groupGuy.isInMap(player) && me.getDistance(groupGuy) <= checkDist) {
+                        if (groupGuy.IsInMap(player) && me.GetDistance(groupGuy) <= checkDist) {
                             return true;
                         }
                     }
@@ -1044,7 +1143,7 @@ public class SmartAI extends CreatureAI {
             } else {
                 for (var obj : targets) {
                     if (getScript().isPlayer(obj)) {
-                        if (me.getDistance(obj.toPlayer()) <= checkDist) {
+                        if (me.GetDistance(obj.getAsPlayer()) <= checkDist) {
                             return true;
                         }
                     }
@@ -1069,7 +1168,7 @@ public class SmartAI extends CreatureAI {
         }
 
         //experimental (unknown) flag not present
-        if (!me.getCreatureTemplate().typeFlags.hasFlag(CreatureTypeFlags.CanAssist)) {
+        if (!me.getTemplate().typeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist)) {
             return false;
         }
 
@@ -1092,7 +1191,7 @@ public class SmartAI extends CreatureAI {
         }
 
         // or if enemy is in evade mode
-        if (who.isCreature() && who.toCreature().isInEvadeMode()) {
+        if (who.isCreature() && who.getAsCreature().isInEvadeMode()) {
             return false;
         }
 
@@ -1110,23 +1209,25 @@ public class SmartAI extends CreatureAI {
         return false;
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: void CheckConditions(uint diff)
     private void checkConditions(int diff) {
         if (!hasConditions) {
             return;
         }
 
         if (conditionsTimer <= diff) {
-            var vehicleKit = me.getVehicleKit();
+            var vehicleKit = me.getVehicleKit1();
 
             if (vehicleKit != null) {
-                for (var pair : vehicleKit.Seats.entrySet()) {
-                    var passenger = global.getObjAccessor().GetUnit(me, pair.getValue().passenger.guid);
+                for (var pair : vehicleKit.seats.entrySet()) {
+                    var passenger = Global.getObjAccessor().getUnit(me, pair.getValue().Passenger.Guid);
 
                     if (passenger != null) {
-                        var player = passenger.toPlayer();
+                        var player = passenger.getAsPlayer();
 
                         if (player != null) {
-                            if (!global.getConditionMgr().isObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, me.getEntry(), player, me)) {
+                            if (!Global.getConditionMgr().IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, me.getEntry(), player, me)) {
                                 player.exitVehicle();
 
                                 return; // check other pessanger in next tick
@@ -1138,10 +1239,12 @@ public class SmartAI extends CreatureAI {
 
             conditionsTimer = 1000;
         } else {
-            _conditionsTimer -= diff;
+            conditionsTimer -= diff;
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: void UpdatePath(uint diff)
     private void updatePath(int diff) {
         if (!hasEscortState(SmartEscortState.Escorting)) {
             return;
@@ -1160,21 +1263,20 @@ public class SmartAI extends CreatureAI {
 
             escortInvokerCheckTimer = 1000;
         } else {
-            _escortInvokerCheckTimer -= diff;
+            escortInvokerCheckTimer -= diff;
         }
 
         // handle pause
-        if (hasEscortState(SmartEscortState.paused) && (waypointReached || waypointPauseForced)) {
+        if (hasEscortState(SmartEscortState.Paused) && (waypointReached || waypointPauseForced)) {
             // Resume only if there was a pause timer set
             if (waypointPauseTimer != 0 && !me.isInCombat() && !hasEscortState(SmartEscortState.Returning)) {
                 if (waypointPauseTimer <= diff) {
                     resumePath();
                 } else {
-                    _waypointPauseTimer -= diff;
+                    waypointPauseTimer -= diff;
                 }
             }
-        } else if (waypointPathEnded) // end path
-        {
+        } else if (waypointPathEnded) { // end path
             waypointPathEnded = false;
             stopPath();
 
@@ -1182,18 +1284,19 @@ public class SmartAI extends CreatureAI {
         }
 
         if (hasEscortState(SmartEscortState.Returning)) {
-            if (_OOCReached) //reached OOC WP
-            {
-                _OOCReached = false;
+            if (oOCReached) { //reached OOC WP
+                oOCReached = false;
                 removeEscortState(SmartEscortState.Returning);
 
-                if (!hasEscortState(SmartEscortState.paused)) {
+                if (!hasEscortState(SmartEscortState.Paused)) {
                     resumePath();
                 }
             }
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: void UpdateFollow(uint diff)
     private void updateFollow(int diff) {
         if (followGuid.isEmpty()) {
             if (followArrivedTimer < diff) {
@@ -1205,11 +1308,13 @@ public class SmartAI extends CreatureAI {
 
                 followArrivedTimer = 1000;
             } else {
-                _followArrivedTimer -= diff;
+                followArrivedTimer -= diff;
             }
         }
     }
 
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: void UpdateDespawn(uint diff)
     private void updateDespawn(int diff) {
         if (despawnState <= 1 || despawnState > 3) {
             return;
@@ -1224,7 +1329,7 @@ public class SmartAI extends CreatureAI {
                 me.despawnOrUnsummon();
             }
         } else {
-            _despawnTime -= diff;
+            despawnTime -= diff;
         }
     }
 }

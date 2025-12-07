@@ -5,9 +5,8 @@ import com.github.azeroth.common.Logs;
 import com.github.azeroth.dbc.DbcObjectManager;
 import com.github.azeroth.dbc.domain.SandboxScaling;
 import com.github.azeroth.defines.*;
-import com.github.azeroth.game.ai.AISelector;
 import com.github.azeroth.game.ai.CreatureAI;
-import com.github.azeroth.game.ai.IUnitAI;
+import com.github.azeroth.game.ai.UnitAI;
 import com.github.azeroth.game.domain.creature.*;
 import com.github.azeroth.game.domain.map.MapDefine;
 import com.github.azeroth.game.domain.map.PositionFullTerrainStatus;
@@ -16,6 +15,7 @@ import com.github.azeroth.game.domain.object.ObjectDefine;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.WorldLocation;
+import com.github.azeroth.game.domain.creature.NodeAndPathId;
 import com.github.azeroth.game.domain.spawn.RespawnInfo;
 import com.github.azeroth.game.domain.unit.*;
 import com.github.azeroth.game.entity.object.*;
@@ -114,7 +114,8 @@ public class Creature extends Unit implements GirdObject {
     private int respawnDelay;
     private float wanderDistance;
 
-    private int waypointPath;
+    private int waypointPathId;
+    private NodeAndPathId currentWaypointNodeInfo;
     private CreatureGroup formation;
     // There's many places not ready for dynamic spawns. This allows them to live on for now.
     private boolean respawnCompatibilityMode;
@@ -123,7 +124,9 @@ public class Creature extends Unit implements GirdObject {
     private CellMoveState moveState;
     private Position newPosition = new Position();
 
-    CreatureDifficulty creatureDifficulty;
+    private CreatureDifficulty creatureDifficulty;
+
+    private float sparringHealthPct;
 
     public Creature() {
         this(false);
@@ -134,7 +137,7 @@ public class Creature extends Unit implements GirdObject {
         setRespawnDelay(300);
         setCorpseDelay(60);
         boundaryCheckTime = 2500;
-        setReactState(ReactState.Aggressive);
+        setReactState(ReactState.AGGRESSIVE);
         setDefaultMovementType(MovementGeneratorType.IDLE);
         regenerateHealth = true;
         meleeDamageSchoolMask = SpellSchoolMask.NORMAL;
@@ -145,10 +148,8 @@ public class Creature extends Unit implements GirdObject {
         setSightDistance(ObjectDefine.SIGHT_RANGE_UNIT);
 
         resetLootMode(); // restore default loot mode
-
         homePosition = new WorldLocation();
-
-        _currentWaypointNodeInfo = new ValueTuple<Integer, Integer>();
+        currentWaypointNodeInfo = NodeAndPathId.of(0, 0);
     }
 
     public static Creature createCreature(int entry, Map map, Position pos) {
@@ -277,12 +278,6 @@ public class Creature extends Unit implements GirdObject {
     }
 
 
-
-    public CreatureAI getAI() {
-        IUnitAI tempVar = super.getAI();
-        return tempVar instanceof CreatureAI ? (CreatureAI) tempVar : null;
-    }
-
     @Override
     public void addToWorld() {
         // Register the creature for guid lookup
@@ -390,7 +385,7 @@ public class Creature extends Unit implements GirdObject {
             //DestroyForNearbyPlayers(); // old updateObjectVisibility()
             setLoot(null);
             var respawnDelay = getRespawnDelay();
-            var ai = getAI();
+            var ai = getAi();
 
             if (ai != null) {
                 ai.corpseRemoved(respawnDelay);
@@ -427,7 +422,7 @@ public class Creature extends Unit implements GirdObject {
             setHomePosition(respawn);
             getMap().creatureRelocation(this, respawn);
         } else {
-            var ai = getAI();
+            var ai = getAi();
 
             if (ai != null) {
                 ai.corpseRemoved(getRespawnDelay());
@@ -720,7 +715,7 @@ public class Creature extends Unit implements GirdObject {
             }
 
             triggerJustAppeared = false;
-            getAI().justAppeared();
+            getAi().justAppeared();
         }
 
         updateMovementFlags();
@@ -833,7 +828,7 @@ public class Creature extends Unit implements GirdObject {
                 // periodic check to see if the creature has passed an evade boundary
                 if (isAIEnabled() && !isInEvadeMode() && isEngaged()) {
                     if (diff >= boundaryCheckTime) {
-                        getAI().checkInRoom();
+                        getAi().checkInRoom();
                         boundaryCheckTime = 2500;
                     } else {
                         _boundaryCheckTime -= diff;
@@ -909,7 +904,7 @@ public class Creature extends Unit implements GirdObject {
                     cannotReachTimer += diff;
 
                     if (cannotReachTimer >= SharedConst.CreatureNoPathEvadeTime) {
-                        var ai = getAI();
+                        var ai = getAi();
 
                         if (ai != null) {
                             ai.enterEvadeMode(EvadeReason.NOPATH);
@@ -1113,7 +1108,7 @@ public class Creature extends Unit implements GirdObject {
 
         lastUsedScriptID = getScriptId();
 
-        if (isSpiritHealer() || isSpiritGuide() || getCreatureTemplate().flagsExtra.hasFlag(CreatureFlagExtra.GhostVisibility)) {
+        if (isSpiritHealer() || isAreaSpiritHealer() || getCreatureTemplate().flagsExtra.hasFlag(CreatureFlagExtra.GhostVisibility)) {
             getServerSideVisibility().setValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
             getServerSideVisibilityDetect().setValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
         }
@@ -1187,7 +1182,7 @@ public class Creature extends Unit implements GirdObject {
         if (!iAuras.isEmpty()) {
             for (var itr : iAuras) {
                 if (itr.getBase().isPermanent()) {
-                    getAI().enterEvadeMode(EvadeReason.other);
+                    getAi().enterEvadeMode(EvadeReason.other);
 
                     break;
                 }
@@ -1197,7 +1192,7 @@ public class Creature extends Unit implements GirdObject {
         }
 
         // enter in evade mode in other case
-        getAI().enterEvadeMode(EvadeReason.NoHostiles);
+        getAi().enterEvadeMode(EvadeReason.NoHostiles);
 
         return null;
     }
@@ -1314,7 +1309,7 @@ public class Creature extends Unit implements GirdObject {
 
         var movetype = getMotionMaster().getCurrentMovementGeneratorType();
 
-        if (movetype == MovementGeneratorType.Waypoint || movetype == MovementGeneratorType.Point || (isAIEnabled() && getAI().isEscorted())) {
+        if (movetype == MovementGeneratorType.Waypoint || movetype == MovementGeneratorType.Point || (isAIEnabled() && getAi().isEscorted())) {
             setHomePosition(getLocation());
             // if its a vehicle, set the home positon of every creature passenger at engage
             // so that they are in combat range if hostile
@@ -1336,7 +1331,7 @@ public class Creature extends Unit implements GirdObject {
             }
         }
 
-        var ai = getAI();
+        var ai = getAi();
 
         if (ai != null) {
             ai.justEngagedWith(target);
@@ -1369,7 +1364,7 @@ public class Creature extends Unit implements GirdObject {
 
     @Override
     public String getDebugInfo() {
-        return String.format("%1$s\nAIName: %2$s ScriptName: %3$s WaypointPath: %4$s SpawnId: %5$s", super.getDebugInfo(), getAIName(), getScriptName(), getWaypointPath(), getSpawnId());
+        return String.format("%1$s\nAIName: %2$s ScriptName: %3$s WaypointPath: %4$s SpawnId: %5$s", super.getDebugInfo(), getAIName(), getScriptName(), getWaypointPathId(), getSpawnId());
     }
 
     @Override
@@ -1731,21 +1726,36 @@ public class Creature extends Unit implements GirdObject {
 
     public final float getSpellDamageMod(CreatureClassification rank) {
         WorldSetting worldSettings = getWorldContext().getWorldSettings();
-        switch (rank) // define rates for each elite rank
+        return switch (rank) // define rates for each elite rank
         {
-            case Normal:
-                return WorldConfig.getFloatValue(WorldCfg.RateCreatureNormalSpelldamage);
-            case Elite:
-                return WorldConfig.getFloatValue(WorldCfg.RateCreatureEliteEliteSpelldamage);
-            case RareElite:
-                return WorldConfig.getFloatValue(WorldCfg.RateCreatureEliteRareeliteSpelldamage);
-            case WorldBoss:
-                return WorldConfig.getFloatValue(WorldCfg.RateCreatureEliteWorldbossSpelldamage);
-            case Rare:
-                return WorldConfig.getFloatValue(WorldCfg.RateCreatureEliteRareSpelldamage);
-            default:
-                return WorldConfig.getFloatValue(WorldCfg.RateCreatureEliteEliteSpelldamage);
-        }
+            case Normal -> worldSettings.rate.creatureSpellDamageNormal;
+            case Elite -> worldSettings.rate.creatureSpellDamageElite;
+            case RareElite -> worldSettings.rate.creatureSpellDamageRareElite;
+            case Obsolete -> worldSettings.rate.creatureSpellDamageObsolete;
+            case Rare -> worldSettings.rate.creatureSpellDamageRare;
+            case Trivial -> worldSettings.rate.creatureSpellDamageTrivial;
+            case MinusMob -> worldSettings.rate.creatureSpellDamageMinusMob;
+        };
+    }
+
+    public final float calculateDamageForSparring(Unit attacker, float damage) {
+        if (getSparringHealthPct() == 0)
+            return damage;
+
+        if (!attacker.isCreature() || attacker.isCharmedOwnedByPlayerOrPlayer() || isCharmedOwnedByPlayerOrPlayer())
+            return damage;
+
+        if (getHealthPct() <= getSparringHealthPct())
+            return 0;
+
+        float sparringHealth = getMaxHealth() * getSparringHealthPct() / 100;
+        if (getHealth() - damage <= sparringHealth)
+            return getHealth() - sparringHealth;
+
+        if (damage >= getHealth())
+            return getHealth() - 1;
+
+        return damage;
     }
 
     @Override
@@ -1836,7 +1846,7 @@ public class Creature extends Unit implements GirdObject {
 
     @Override
     public boolean canAlwaysSee(WorldObject obj) {
-        return isAIEnabled() && this.getAI().canSeeAlways(obj);
+        return isAIEnabled() && this.getAi().canSeeAlways(obj);
     }
 
     public final boolean canStartAttack(Unit who, boolean force) {
@@ -2085,7 +2095,7 @@ public class Creature extends Unit implements GirdObject {
                 //Re-initialize reactstate that could be altered by movementgenerators
                 initializeReactState();
 
-                IUnitAI ai = getAI();
+                UnitAI ai = getAi();
 
                 if (ai != null) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
                 {
@@ -2456,7 +2466,7 @@ public class Creature extends Unit implements GirdObject {
             return false;
         }
 
-        var ai = getAI();
+        var ai = getAi();
 
         if (ai != null) {
             if (!ai.canAIAttack(victim)) {
@@ -2551,7 +2561,7 @@ public class Creature extends Unit implements GirdObject {
 
         //Load Path
         if (creatureAddon.pathId != 0) {
-            setWaypointPath(creatureAddon.pathId);
+            setWaypointPathId(creatureAddon.pathId);
         }
 
         if (creatureAddon.auras != null) {
@@ -3231,9 +3241,6 @@ public class Creature extends Unit implements GirdObject {
         setImmuneToNPC(apply, hasReactState(ReactState.PASSIVE));
     }
 
-    public final <T extends CreatureAI> T getAI() {
-        return (T) getAi();
-    }
 
 
         @Override
@@ -3404,7 +3411,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final void loadPath(int pathid) {
-        setWaypointPath(pathid);
+        setWaypointPathId(pathid);
     }
 
     public final void updateCurrentWaypointInfo(int nodeId, int pathId) {
@@ -3748,7 +3755,7 @@ public class Creature extends Unit implements GirdObject {
 
     @Override
     public boolean isEngaged() {
-        var ai = getAI();
+        var ai = getAi();
 
         if (ai != null) {
             return ai.isEngaged();
@@ -3758,7 +3765,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final boolean isEscorted() {
-        var ai = getAI();
+        var ai = getAi();
 
         if (ai != null) {
             return ai.isEscorted();
@@ -3766,6 +3773,8 @@ public class Creature extends Unit implements GirdObject {
 
         return false;
     }
+
+
 
     public final boolean getCanGeneratePickPocketLoot() {
         return pickpocketLootRestore <= GameTime.getGameTime();
@@ -4166,24 +4175,6 @@ public class Creature extends Unit implements GirdObject {
         transportHomePosition.relocate(value);
     }
 
-
-//	public (uint nodeId, uint pathId) CurrentWaypointInfo
-//		{
-//			get
-//			{
-//				return _currentWaypointNodeInfo;
-//			}
-//		}
-
-
-    public final int getWaypointPath() {
-        return waypointPath;
-    }
-
-
-    private void setWaypointPath(int value) {
-        waypointPath = value;
-    }
 
     public final CreatureGroup getFormation() {
         return formation;

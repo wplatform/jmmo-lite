@@ -1,14 +1,17 @@
 package com.github.azeroth.game.networking.packet.movement;
 
-import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.networking.ClientPacket;
+import io.netty.buffer.ByteBuf;
 
-class SummonResponse extends ClientPacket {
+public class SummonResponse extends ClientPacket {
     public boolean accept;
-    public ObjectGuid summonerGUID = ObjectGuid.EMPTY;
+    public ObjectGuid summonerGUID;
 
-    public SummonResponse(WorldPacket packet) {
-        super(packet);
+    public SummonResponse(ByteBuf data) {
+        super(data);
     }
+
 
     @Override
     public void read() {

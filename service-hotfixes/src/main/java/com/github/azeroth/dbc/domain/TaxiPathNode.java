@@ -32,42 +32,40 @@ import lombok.ToString;
 })
 public class TaxiPathNode implements DbcEntity {
     @Column("LocX")
-    private Float locX;
+    private float locX;
 
     @Column("LocY")
-    private Float locY;
+    private float locY;
 
     @Column("LocZ")
-    private Float locZ;
+    private float locZ;
 
     @Column("PathID")
-    private Short pathID;
+    private short pathID;
 
     @Column("ContinentID")
-    private Short continentID;
+    private short continentID;
 
     @Column("NodeIndex")
-    private Short nodeIndex;
+    private short nodeIndex;
 
     @Id
-
     @Column("ID")
     private int id;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("Delay")
-    private Integer delay;
+    private int delay;
 
     @Column("ArrivalEventID")
-    private Integer arrivalEventID;
+    private int arrivalEventID;
 
     @Column("DepartureEventID")
-    private Integer departureEventID;
+    private int departureEventID;
 
     @Id
-
     @Column("VerifiedBuild")
     private Integer verifiedBuild;
 

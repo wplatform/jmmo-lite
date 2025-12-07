@@ -1,6 +1,5 @@
 package com.github.azeroth.game.entity.player.model;
 
-import com.github.azeroth.game.entity.object.update.SpellPctModByLabel;
 import com.github.azeroth.game.spell.Aura;
 
 public class SpellPctModifierByLabel extends SpellModifier {

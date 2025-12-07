@@ -191,7 +191,7 @@ public class CharacterHandler {
             }
         }
 
-        pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
+        pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlag::Login);
 
         pCurrChar->SendInitialPacketsAfterAddToMap();
 

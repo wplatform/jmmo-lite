@@ -1,7 +1,12 @@
 package com.github.azeroth.game.movement;
 
 
-class DelayedAction {
+import com.github.azeroth.game.movement.enums.MotionMasterDelayedActionType;
+
+import java.util.concurrent.Delayed;
+import java.util.concurrent.TimeUnit;
+
+public class DelayedAction implements Delayed {
     private final tangible.Action0Param tangible.Action0Param;
     private final tangible.Func0Param<Boolean> validator;
     private final MotionMasterDelayedActiontype type;
@@ -22,5 +27,15 @@ class DelayedAction {
         if (validator.invoke()) {
             tangible.Action0Param.invoke();
         }
+    }
+
+    @Override
+    public long getDelay(TimeUnit unit) {
+        return 0;
+    }
+
+    @Override
+    public int compareTo(Delayed o) {
+        return 0;
     }
 }

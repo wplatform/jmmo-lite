@@ -1,24 +1,33 @@
 package com.github.azeroth.game.networking.packet.item;
 
 
-import com.github.azeroth.game.entity.SocketedGem;
+
 import com.github.azeroth.game.entity.item.Item;
 import com.github.azeroth.game.entity.item.ItemMod;
-import com.github.azeroth.game.entity.item.ItemModList;
+import com.github.azeroth.game.entity.item.enums.ItemModifier;
 import com.github.azeroth.game.entity.player.VoidStorageItem;
 import com.github.azeroth.game.loot.LootItem;
 import com.github.azeroth.game.networking.WorldPacket;
+import com.github.azeroth.game.networking.packet.common.CompactArray;
+import lombok.EqualsAndHashCode;
 
+import static com.github.azeroth.game.entity.object.update.UpdateFields.ITEM_FIELD_MODIFIERS_MASK;
+
+@EqualsAndHashCode
 public class ItemInstance {
     public int itemID;
+    public int randomPropertiesSeed;
+    public int randomPropertiesID;
     public ItemBonuses itemBonus;
-    public ItemModList modifications = new ItemModList();
+    public CompactArray<Integer> modifications = new CompactArray();
 
     public ItemInstance() {
     }
 
     public ItemInstance(Item item) {
         itemID = item.getEntry();
+        randomPropertiesSeed = item.getItemSuffixFactor();
+        randomPropertiesID   = item.getItemRandomPropertyId();
         var bonusListIds = item.getBonusListIDs();
 
         if (!bonusListIds.isEmpty()) {
@@ -27,8 +36,11 @@ public class ItemInstance {
             itemBonus.context = item.getContext();
         }
 
-        for (var mod : item.getItemData().modifiers.getValue().VALUES) {
-            modifications.VALUES.add(new ItemMod(mod.value, ItemModifier.forValue(mod.type)));
+        int mask = item.getInt32Value(ITEM_FIELD_MODIFIERS_MASK);
+        if(mask != 0) {
+            for (int i = 0; mask != 0; mask >>= 1, ++i)
+                if ((mask & 1) != 0)
+                    modifications.insert(i, item.getModifier(ItemModifier(i)));
         }
     }
 
@@ -81,37 +93,6 @@ public class ItemInstance {
         }
     }
 
-    public static boolean opEquals(ItemInstance left, ItemInstance right) {
-        if (left == right) {
-            return true;
-        }
-
-        if (left == null) {
-            return false;
-        }
-
-        if (right == null) {
-            return false;
-        }
-
-        if (left.itemID != right.itemID) {
-            return false;
-        }
-
-        if (left.itemBonus != null && right.itemBonus != null && ItemBonuses.opNotEquals(left.itemBonus, right.itemBonus)) {
-            return false;
-        }
-
-        if (left.modifications != right.modifications) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public static boolean opNotEquals(ItemInstance left, ItemInstance right) {
-        return !(ItemInstance.opEquals(left, right));
-    }
 
     public final void write(WorldPacket data) {
         data.writeInt32(itemID);
@@ -140,19 +121,5 @@ public class ItemInstance {
         if (itemBonus != null) {
             itemBonus.read(data);
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return (new integer(itemID)).hashCode() ^ itemBonus.hashCode() ^ modifications.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ItemInstance) {
-            return ItemInstance.opEquals((ItemInstance) obj, this);
-        }
-
-        return false;
     }
 }

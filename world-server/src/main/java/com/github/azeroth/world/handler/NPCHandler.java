@@ -133,7 +133,7 @@ public class NPCHandler {
         if (FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->GetFaction()))
         _player->GetReputationMgr().SetVisible(factionTemplateEntry);
 
-        GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
+        GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlag::Interacting);
 
         // Stop the npc if moving
         if (uint32 pause = unit->GetMovementTemplate().GetInteractionPauseTimer())

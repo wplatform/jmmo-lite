@@ -1,8 +1,15 @@
-package com.github.azeroth.game.ai;
+package game.ai;
 
-import com.github.azeroth.game.entity.areatrigger.AreaTrigger;
+import game.entities.*;
+import game.*;
 
-class NullAreaTriggerAI extends AreaTriggerAI {
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
+
+
+public class NullAreaTriggerAI extends AreaTriggerAI {
     public NullAreaTriggerAI(AreaTrigger areaTrigger) {
         super(areaTrigger);
     }

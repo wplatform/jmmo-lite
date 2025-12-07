@@ -1,13 +1,19 @@
-package com.github.azeroth.game.ai;
+package game.ai;
+
+import Framework.Constants.*;
+import game.entities.*;
+import game.*;
+
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
-import com.github.azeroth.game.entity.creature.Creature;
-import com.github.azeroth.game.entity.unit.Unit;
+
 
 public class PossessedAI extends CreatureAI {
     public PossessedAI(Creature creature) {
         super(creature);
-        creature.setReactState(ReactStates.Passive);
+        creature.reactState = ReactStates.Passive;
     }
 
     @Override
@@ -15,7 +21,8 @@ public class PossessedAI extends CreatureAI {
         me.attack(target, true);
     }
 
-
+//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+//ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
         if (me.getVictim() != null) {
@@ -26,11 +33,10 @@ public class PossessedAI extends CreatureAI {
             }
         }
     }
-
     @Override
     public void justDied(Unit unit) {
         // We died while possessed, disable our loot
-        me.removeDynamicFlag(UnitDynFlag.Lootable);
+        me.removeDynamicFlag(UnitDynFlags.Lootable);
     }
 
     @Override

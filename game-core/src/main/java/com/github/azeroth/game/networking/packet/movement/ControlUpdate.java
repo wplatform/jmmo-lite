@@ -1,12 +1,16 @@
 package com.github.azeroth.game.networking.packet.movement;
 
 
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.networking.ServerPacket;
+import com.github.azeroth.game.networking.opcode.ServerOpCode;
+
 public class ControlUpdate extends ServerPacket {
     public boolean on;
-    public ObjectGuid guid = ObjectGuid.EMPTY;
+    public ObjectGuid guid;
 
     public ControlUpdate() {
-        super(ServerOpcode.ControlUpdate);
+        super(ServerOpCode.SMSG_CONTROL_UPDATE);
     }
 
     @Override

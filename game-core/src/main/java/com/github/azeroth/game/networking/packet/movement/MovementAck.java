@@ -11,13 +11,4 @@ public final class MovementAck {
         status = MovementIOUtil.readMovementInfo(data);
         ackIndex = data.readInt32();
     }
-
-    public MovementAck clone() {
-        MovementAck varCopy = new movementAck();
-
-        varCopy.status = this.status;
-        varCopy.ackIndex = this.ackIndex;
-
-        return varCopy;
-    }
 }

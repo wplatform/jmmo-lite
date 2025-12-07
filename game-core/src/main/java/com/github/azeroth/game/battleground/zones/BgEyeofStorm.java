@@ -399,7 +399,7 @@ class BgEyeofStorm extends Battleground {
         setFlagPicker(player.getGUID());
         //get flag aura on player
         player.castSpell(player, EotSMisc.spellNetherstormFlag, true);
-        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
+        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.PvPActive);
 
         if (getPlayerTeam(player.getGUID()) == Team.ALLIANCE) {
             sendBroadcastText(EotSBroadcastTexts.takenFlag, ChatMsg.BgSystemAlliance, player);
@@ -903,7 +903,7 @@ class BgEyeofStorm extends Battleground {
         m_FlagState = EotSFlagState.WaitRespawn;
         player.removeAura(EotSMisc.spellNetherstormFlag);
 
-        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
+        player.removeAurasWithInterruptFlags(SpellAuraInterruptFlag.PvPActive);
 
         var team = getPlayerTeam(player.getGUID());
 
