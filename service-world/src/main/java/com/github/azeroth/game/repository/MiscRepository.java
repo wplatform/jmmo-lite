@@ -143,10 +143,6 @@ public interface MiscRepository {
 
     @Query("SELECT ID, GhostZone FROM graveyard_zone")
     Stream<int[]> streamAllGraveyardZone();
-
-    @Modifying
-    @Query("INSERT INTO graveyard_zone (ID, GhostZone) VALUES (:id, :ghostZone)")
-    void insertGraveyardZone(int id, int ghostZone);
     
     @Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget," +
             "ConditionValue1, ConditionValue2, ConditionValue3, ConditionStringValue1," +
@@ -202,6 +198,12 @@ public interface MiscRepository {
 
     @Query("SELECT item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionID, IgnoreFiltering FROM npc_vendor WHERE entry = :entry ORDER BY slot ASC")
     List<NpcVendor> findNpcVendorsByEntry(@Param("entry") int entry);
+
+    @Query("SELECT PathId, MoveType, Flags FROM waypoint_path")
+    Stream<WaypointPath> streamAllWaypointPaths();
+
+    @Query("SELECT PathId, NodeId, PositionX, PositionY, PositionZ, Orientation, Delay FROM waypoint_path_node ORDER BY PathId, NodeId")
+    Stream<WaypointNode> streamAllWaypointPathNodes();
 
     @Query("SELECT PathId, MoveType, Flags FROM waypoint_path WHERE PathId = :pathId")
     List<WaypointPath> findWaypointPathByPathId(@Param("pathId") int pathId);

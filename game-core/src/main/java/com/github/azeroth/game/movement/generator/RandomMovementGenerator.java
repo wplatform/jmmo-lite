@@ -163,17 +163,17 @@ public class RandomMovementGenerator extends MovementGenerator {
             timer.reset(overrideTimer);
         }
 
-        removeFlag(MovementGeneratorFlags.paused);
+        removeFlag(MovementGeneratorFlag.PAUSED);
     }
 
     @Override
     public void unitSpeedChanged() {
-        addFlag(MovementGeneratorFlags.SpeedUpdatePending);
+        addFlag(MovementGeneratorFlag.SPEED_UPDATE_PENDING);
     }
 
     @Override
     public MovementGeneratorType getMovementGeneratorType() {
-        return MovementGeneratorType.random;
+        return MovementGeneratorType.RANDOM;
     }
 
     private void setRandomLocation(Creature owner) {
@@ -181,8 +181,8 @@ public class RandomMovementGenerator extends MovementGenerator {
             return;
         }
 
-        if (owner.hasUnitState(UnitState.NotMove.getValue() | UnitState.LostControl.getValue()) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (owner.hasUnitState(UnitState.NOT_MOVE, UnitState.LOST_CONTROL) || owner.isMovementPreventedByCasting()) {
+            addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
             path = null;
 

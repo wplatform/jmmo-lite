@@ -11,7 +11,7 @@ import com.github.azeroth.game.movement.enums.*;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 import com.github.azeroth.time.TimeTracker;
 
-class ChaseMovementGenerator extends MovementGenerator {
+public class ChaseMovementGenerator extends MovementGenerator {
     private static final int RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
     private final TimeTracker rangeCheckTimer;
     private final boolean movingTowards = true;

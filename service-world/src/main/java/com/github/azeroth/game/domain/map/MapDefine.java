@@ -17,13 +17,13 @@ public interface MapDefine {
     float LIQUID_TILE_SIZE = (533.333f / 128.f);
 
 
-    String VMAP_MAGIC = "VMAP_4.B";
+    String VMAP_MAGIC = "VMAP_4.E";
     // used in extracted vmap files with raw data
     String GAME_OBJECT_MODELS = "GameObjectModels.dtree";
-    String RAW_VMAP_MAGIC = "VMAP04B";
+    String RAW_VMAP_MAGIC = "VMAP04E";
 
     int MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-    int MMAP_VERSION = 15;
+    int MMAP_VERSION = 16;
 
 
     float VMAP_INVALID_HEIGHT = -100000.0f; // for check

@@ -804,7 +804,7 @@ public class SmartScript {
                 for (var target : targets) {
                     // Special handling for vehicles
                     if (isUnit(target)) {
-                        var vehicle = target.getAsUnit().getVehicleKit1();
+                        var vehicle = target.getAsUnit().getVehicleKit();
 
                         if (vehicle != null) {
                             for (var seat : vehicle.seats.entrySet()) {
@@ -1117,7 +1117,7 @@ public class SmartScript {
                 }
 
                 // Special handling for vehicles
-                var vehicle = unit.getVehicleKit1();
+                var vehicle = unit.getVehicleKit();
 
                 if (vehicle != null) {
                     for (var seat : vehicle.seats.entrySet()) {
@@ -1259,7 +1259,7 @@ public class SmartScript {
 
                             Log.outDebug(LogFilter.ScriptsAi, "SmartScript.ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player {0}, Killcredit: {1}", target.getGUID().toString(), e.action.killedMonster.creature);
                         } else if (isUnit(target)) { // Special handling for vehicles
-                            var vehicle = target.getAsUnit().getVehicleKit1();
+                            var vehicle = target.getAsUnit().getVehicleKit();
 
                             if (vehicle != null) {
                                 for (var seat : vehicle.seats.entrySet()) {
@@ -3684,7 +3684,7 @@ public class SmartScript {
             }
             case VehiclePassenger: {
                 if (me && me.isVehicle()) {
-                    for (var pair : me.getVehicleKit1().seats.entrySet()) {
+                    for (var pair : me.getVehicleKit().seats.entrySet()) {
                         if (e.target.vehicle.seatMask == 0 || (e.target.vehicle.seatMask & (1 << pair.getKey())) != 0) {
                             var u = Global.getObjAccessor().getUnit(me, pair.getValue().Passenger.Guid);
 

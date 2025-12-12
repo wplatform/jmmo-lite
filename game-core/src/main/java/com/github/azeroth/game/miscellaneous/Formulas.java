@@ -44,7 +44,7 @@ public class Formulas {
                 }
             }
 
-            level = (int) ((pl_level - 7) - (count - 1));
+            level = (pl_level - 7) - (count - 1);
         } else {
             level = pl_level - 10;
         }

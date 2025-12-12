@@ -23,6 +23,7 @@ import com.github.azeroth.game.entity.creature.CreatureGroup;
 import com.github.azeroth.game.entity.creature.TempSummon;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.entity.object.update.ObjectUpdateFlag;
+import com.github.azeroth.game.entity.object.update.UpdateData;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.player.enums.DuelState;
 import com.github.azeroth.game.entity.player.enums.PlayerCommandState;
@@ -166,7 +167,7 @@ public abstract class WorldObject extends GenericObject {
             }
 
             if (target.isUnit() && !target.toUnit().hasUnitFlag2(UnitFlag2.IGNORE_REPUTATION)) {
-                int faction = factionTemplateEntry.getFaction().intValue();
+                int faction = factionTemplateEntry.getFaction();
                 Faction factionEntry = worldContext.getDbcObjectManager().faction(faction);
 
                 if (factionEntry != null) {
@@ -260,6 +261,10 @@ public abstract class WorldObject extends GenericObject {
 
     public final float getOrientation() {
         return location.getO();
+    }
+
+    public final int getMapId() {
+        return location.getMapId();
     }
 
     public final float getTransOffsetX() {
@@ -1677,7 +1682,7 @@ public abstract class WorldObject extends GenericObject {
                         }
 
                         if (!selfPlayerOwner.hasUnitFlag2(UnitFlag2.IGNORE_REPUTATION)) {
-                            var targetFactionEntry = worldContext.getDbcObjectManager().faction(targetFactionTemplateEntry.getFaction().intValue());
+                            var targetFactionEntry = worldContext.getDbcObjectManager().faction(targetFactionTemplateEntry.getFaction());
 
                             if (targetFactionEntry != null) {
                                 if (targetFactionEntry.canHaveReputation()) {
@@ -1720,7 +1725,7 @@ public abstract class WorldObject extends GenericObject {
             return false;
         }
 
-        var raw_faction = worldContext.getDbcObjectManager().faction(my_faction.getFaction().intValue());
+        var raw_faction = worldContext.getDbcObjectManager().faction(my_faction.getFaction());
 
         if (raw_faction != null && raw_faction.canHaveReputation()) {
             return false;
@@ -1736,7 +1741,7 @@ public abstract class WorldObject extends GenericObject {
             return true;
         }
 
-        var raw_faction = worldContext.getDbcObjectManager().faction(my_faction.getFaction().intValue());
+        var raw_faction = worldContext.getDbcObjectManager().faction(my_faction.getFaction());
 
         if (raw_faction != null && raw_faction.canHaveReputation()) {
             return false;
@@ -2114,7 +2119,7 @@ public abstract class WorldObject extends GenericObject {
 
                 if (factionTemplate != null) {
                     if (player.getReputationMgr().getForcedRankIfAny(factionTemplate) == null) {
-                        var factionEntry = worldContext.getDbcObjectManager().faction(factionTemplate.getFaction().intValue());
+                        var factionEntry = worldContext.getDbcObjectManager().faction(factionTemplate.getFaction());
 
                         if (factionEntry != null) {
                             var repState = player.getReputationMgr().getState(factionEntry);

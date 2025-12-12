@@ -1217,7 +1217,7 @@ public class SmartAI extends CreatureAI {
         }
 
         if (conditionsTimer <= diff) {
-            var vehicleKit = me.getVehicleKit1();
+            var vehicleKit = me.getVehicleKit();
 
             if (vehicleKit != null) {
                 for (var pair : vehicleKit.seats.entrySet()) {

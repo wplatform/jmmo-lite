@@ -2,6 +2,7 @@ package com.github.azeroth.game.entity.creature;
 
 
 import com.github.azeroth.common.Logs;
+import com.github.azeroth.common.Pair;
 import com.github.azeroth.dbc.DbcObjectManager;
 import com.github.azeroth.dbc.domain.SandboxScaling;
 import com.github.azeroth.defines.*;
@@ -15,7 +16,6 @@ import com.github.azeroth.game.domain.object.ObjectDefine;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.WorldLocation;
-import com.github.azeroth.game.domain.creature.NodeAndPathId;
 import com.github.azeroth.game.domain.spawn.RespawnInfo;
 import com.github.azeroth.game.domain.unit.*;
 import com.github.azeroth.game.entity.object.*;
@@ -115,7 +115,7 @@ public class Creature extends Unit implements GirdObject {
     private float wanderDistance;
 
     private int waypointPathId;
-    private NodeAndPathId currentWaypointNodeInfo;
+    private final Pair<Integer, Integer> currentWaypointNodeInfo = Pair.of(0, 0);
     private CreatureGroup formation;
     // There's many places not ready for dynamic spawns. This allows them to live on for now.
     private boolean respawnCompatibilityMode;
@@ -149,7 +149,7 @@ public class Creature extends Unit implements GirdObject {
 
         resetLootMode(); // restore default loot mode
         homePosition = new WorldLocation();
-        currentWaypointNodeInfo = NodeAndPathId.of(0, 0);
+        currentWaypointNodeInfo = Pair.of(0, 0);
     }
 
     public static Creature createCreature(int entry, Map map, Position pos) {
@@ -294,7 +294,7 @@ public class Creature extends Unit implements GirdObject {
             initializeAI();
 
             if (isVehicle()) {
-                getVehicleKit1().Install();
+                getVehicleKit().Install();
             }
 
             if (getZoneScript() != null) {
@@ -1005,8 +1005,8 @@ public class Creature extends Unit implements GirdObject {
         getAi().initializeAI();
 
         // Initialize vehicle
-        if (getVehicleKit1() != null) {
-            getVehicleKit1().reset();
+        if (getVehicleKit() != null) {
+            getVehicleKit().reset();
         }
 
         return true;
@@ -1313,7 +1313,7 @@ public class Creature extends Unit implements GirdObject {
             setHomePosition(getLocation());
             // if its a vehicle, set the home positon of every creature passenger at engage
             // so that they are in combat range if hostile
-            var vehicle = getVehicleKit1();
+            var vehicle = getVehicleKit();
 
             if (vehicle != null) {
 
@@ -3059,7 +3059,7 @@ public class Creature extends Unit implements GirdObject {
     }
 
     @Override
-    public void setDisplayId(int modelId, float displayScale) {
+    public void setDisplayId(int modelId, boolean set) {
         super.setDisplayId(modelId, displayScale);
 
         var minfo = global.getObjectMgr().getCreatureModelInfo(modelId);
@@ -3415,7 +3415,8 @@ public class Creature extends Unit implements GirdObject {
     }
 
     public final void updateCurrentWaypointInfo(int nodeId, int pathId) {
-        _currentWaypointNodeInfo = (nodeId, pathId)
+        currentWaypointNodeInfo.first(nodeId);
+        currentWaypointNodeInfo.second(pathId);
     }
 
     public final void resetPlayerDamageReq() {

@@ -1,48 +1,104 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.badlogic.gdx.math.Vector3;
+import com.github.azeroth.common.Assert;
+import com.github.azeroth.common.Logs;
+import com.github.azeroth.game.domain.misc.WaypointNode;
 import com.github.azeroth.game.domain.misc.WaypointPath;
+import com.github.azeroth.game.domain.misc.WaypointPathFlag;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.movement.MovementGenerator;
-import com.github.azeroth.game.movement.enums.MovementGeneratorFlag;
-import com.github.azeroth.game.movement.enums.MovementGeneratorMode;
-import com.github.azeroth.game.movement.enums.MovementGeneratorPriority;
-import com.github.azeroth.game.movement.enums.MovementGeneratorType;
+import com.github.azeroth.game.movement.PathGenerator;
+import com.github.azeroth.game.movement.enums.*;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 import com.github.azeroth.time.TimeTracker;
 
-public class WaypointMovementGenerator extends MovementGenerator {
-    private final TimeTracker nextMoveTime;
-    private final boolean repeating;
-    private final boolean loadedFromDB;
-    private int pathId;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
+public class WaypointMovementGenerator extends MovementGenerator {
+
+
+    private static final Duration SEND_NEXT_POINT_EARLY_DELTA = Duration.ofMillis(1500);
+
+
+    private int pathId;
     private WaypointPath path;
     private int currentNode;
+    TimeTracker duration;
+    Float speed;
+    MovementWalkRunSpeedSelectionMode speedSelectionMode;
+    Duration[] waitTimeRangeAtPathEnd;
+    Float wanderDistanceAtPathEnds;
+    Boolean followPathBackwardsFromEndToStart;
+    Boolean exactSplinePath;
+    boolean repeating;
+    boolean generatePath;
+
+    TimeTracker moveTimer;
+    TimeTracker nextMoveTime;
+    int[] waypointTransitionSplinePoints;
+    int waypointTransitionSplinePointsIndex;
+    boolean isReturningToStart;
+    boolean loadedFromDB;
 
 
-    public WaypointMovementGenerator(int pathId) {
-        this(pathId, true);
-    }
 
-    public WaypointMovementGenerator() {
-        this(0, true);
-    }
 
-    public WaypointMovementGenerator(int pathId, boolean repeating) {
-        this.nextMoveTime = new TimeTracker(0);
+    public WaypointMovementGenerator(int pathId,
+                                     boolean repeating,
+                                     Duration duration,
+                                     Float speed,
+                                     MovementWalkRunSpeedSelectionMode speedSelectionMode,
+                                     Duration[] waitTimeRangeAtPathEnd,
+                                     Float wanderDistanceAtPathEnds,
+                                     Boolean followPathBackwardsFromEndToStart,
+                                     Boolean exactSplinePath,
+                                     boolean generatePath) {
+        this(null, repeating, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd, wanderDistanceAtPathEnds,
+                followPathBackwardsFromEndToStart, exactSplinePath, generatePath);
         this.pathId = pathId;
-        this.repeating = repeating;
         this.loadedFromDB = true;
-
-        mode = MovementGeneratorMode.DEFAULT;
-        priority = MovementGeneratorPriority.NORMAL;
-        flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
-        baseUnitState = UnitState.ROAMING;
     }
+
+    public WaypointMovementGenerator(WaypointPath path,
+                              boolean repeating,
+                              Duration duration,
+                              Float speed,
+                              MovementWalkRunSpeedSelectionMode speedSelectionMode,
+                              Duration[] waitTimeRangeAtPathEnd,
+                              Float wanderDistanceAtPathEnds,
+                              Boolean followPathBackwardsFromEndToStart,
+                              Boolean exactSplinePath,
+                              boolean generatePath) {
+        this.path = path;
+        this.repeating = repeating;
+        this.duration = duration == null ? null : new TimeTracker(duration);
+        this.speed = speed;
+        this.speedSelectionMode = speedSelectionMode;
+        this.waitTimeRangeAtPathEnd = waitTimeRangeAtPathEnd;
+        this.wanderDistanceAtPathEnds = wanderDistanceAtPathEnds;
+        this.followPathBackwardsFromEndToStart = followPathBackwardsFromEndToStart;
+        this.exactSplinePath = exactSplinePath;
+        this.generatePath = generatePath;
+        this.moveTimer = new TimeTracker(0);
+        this.nextMoveTime = new TimeTracker(0);
+        this.waypointTransitionSplinePointsIndex = 0;
+        this.isReturningToStart = false;
+
+        this.mode = MovementGeneratorMode.DEFAULT;
+        this.priority = MovementGeneratorPriority.NORMAL;
+        this.flags.set(MovementGeneratorFlag.INITIALIZATION_PENDING);
+        this.baseUnitState = UnitState.ROAMING;
+
+        this.path.buildSegments();
+    }
+
 
 
     @Override
@@ -84,7 +140,7 @@ public class WaypointMovementGenerator extends MovementGenerator {
             nextMoveTime.reset(1); // Needed so that Update does not behave as if node was reached
         }
 
-        removeFlag(MovementGeneratorFlags.paused);
+        removeFlag(MovementGeneratorFlag.PAUSED);
     }
 
     @Override
@@ -95,29 +151,26 @@ public class WaypointMovementGenerator extends MovementGenerator {
             return null;
         }
 
-        var waypoint = path.nodes.ElementAt(currentNode);
+        Assert.isTrue(currentNode < path.nodes.size(),
+                "WaypointMovementGenerator::GetResetPosition: tried to reference a node id ({}) which is not included in path ({}})", currentNode, path.id);
 
-        x.outArgValue = waypoint.x;
-        y.outArgValue = waypoint.y;
-        z.outArgValue = waypoint.z;
-
-        return true;
+        var waypoint = path.nodes.get(currentNode);
+        return new Position(waypoint.x, waypoint.y, waypoint.z);
     }
 
     @Override
-    public void doInitialize(Creature owner) {
-        removeFlag(MovementGeneratorFlags.InitializationPending.getValue() | MovementGeneratorFlags.Transitory.getValue().getValue() | MovementGeneratorFlags.Deactivated.getValue().getValue());
-
+    public void initialize(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.INITIALIZATION_PENDING, MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
+        var creature = owner.toCreature();
         if (loadedFromDB) {
             if (pathId == 0) {
-                pathId = owner.getWaypointPathId();
+                pathId = creature.getWaypointPathId();
             }
-
-            path = global.getWaypointMgr().getPath(pathId);
+            path = creature.getWorldContext().getWayPointManager().getPath(pathId);
         }
 
         if (path == null) {
-            Logs.SQL.error(String.format("WaypointMovementGenerator::DoInitialize: couldn't load path for creature (%1$s) (_pathId: %2$s)", owner.getGUID(), pathId));
+            Logs.SQL.error("WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({}) (_pathId: {})", owner.getGUID(), pathId);
 
             return;
         }
@@ -128,34 +181,54 @@ public class WaypointMovementGenerator extends MovementGenerator {
     }
 
     @Override
-    public void doReset(Creature owner) {
-        removeFlag(MovementGeneratorFlags.Transitory.getValue() | MovementGeneratorFlags.Deactivated.getValue());
+    public void reset(Unit owner) {
+        flags.removeFlag(MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
 
         owner.stopMoving();
 
-        if (!hasFlag(MovementGeneratorFlags.Finalized) && nextMoveTime.Passed) {
+        if (!flags.hasFlag(MovementGeneratorFlag.FINALIZED) && nextMoveTime.passed()) {
             nextMoveTime.reset(1); // Needed so that Update does not behave as if node was reached
         }
     }
 
     @Override
-    public boolean doUpdate(Creature owner, int diff) {
-        if (!owner || !owner.isAlive()) {
+    public boolean update(Unit owner, int diff) {
+        if (owner == null || !owner.isAlive() || owner.toCreature() == null) {
             return true;
         }
 
-        if (hasFlag(MovementGeneratorFlags.Finalized.getValue() | MovementGeneratorFlags.paused.getValue()) || path == null || path.nodes.isEmpty()) {
+        Creature creature = owner.toCreature();
+
+
+        if (flags.hasFlag(MovementGeneratorFlag.FINALIZED, MovementGeneratorFlag.PAUSED)) {
             return true;
         }
 
-        if (owner.hasUnitState(UnitState.NotMove.getValue() | UnitState.LostControl.getValue()) || owner.isMovementPreventedByCasting()) {
-            addFlag(MovementGeneratorFlags.Interrupted);
+        if (path == null || path.nodes.isEmpty())
+            return true;
+
+
+        if (duration != null)
+        {
+            duration.update(diff);
+            if (duration.passed())
+            {
+                removeFlag(MovementGeneratorFlag.TRANSITORY);
+                addFlag(MovementGeneratorFlag.INFORM_ENABLED);
+                addFlag(MovementGeneratorFlag.FINALIZED);
+                creature.updateCurrentWaypointInfo(0, 0);
+                return false;
+            }
+        }
+
+        if (owner.hasUnitState(UnitState.NOT_MOVE, UnitState.LOST_CONTROL) || owner.isMovementPreventedByCasting()) {
+            addFlag(MovementGeneratorFlag.INTERRUPTED);
             owner.stopMoving();
 
             return true;
         }
 
-        if (hasFlag(MovementGeneratorFlags.Interrupted)) {
+        if (hasFlag(MovementGeneratorFlag.INTERRUPTED)) {
             /*
              *  relaunch only if
              *  - has a tiner? -> was it interrupted while not waiting aka moving? need to check both:
@@ -166,20 +239,34 @@ public class WaypointMovementGenerator extends MovementGenerator {
              *
              *  TODO: ((nextMoveTime.Passed() && VALID_MOVEMENT) || (!nextMoveTime.Passed() && !hasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED)))
              */
-            if (hasFlag(MovementGeneratorFlags.initialized) && (nextMoveTime.Passed || !hasFlag(MovementGeneratorFlags.InformEnabled))) {
-                startMove(owner, true);
+            if (hasFlag(MovementGeneratorFlag.INITIALIZED) && (nextMoveTime.passed() || !hasFlag(MovementGeneratorFlag.INFORM_ENABLED))) {
+                startMove(creature, true);
 
                 return true;
             }
 
-            removeFlag(MovementGeneratorFlags.Interrupted);
+            removeFlag(MovementGeneratorFlag.INTERRUPTED);
         }
 
         // if it's moving
-        if (!owner.getMoveSpline().finalized()) {
+        if (!updateMoveTimer(diff) && !creature.getMoveSpline().finalized()) {
             // set home position at place (every MotionMaster::UpdateMotion)
-            if (owner.getTransGUID().isEmpty()) {
-                owner.setHomePosition(owner.getLocation());
+            if (creature.getTransGUID().isEmpty()) {
+                creature.setHomePosition(owner.getLocation());
+            }
+
+            // handle switching points in continuous segments
+            if (isExactSplinePath())
+            {
+                if (waypointTransitionSplinePointsIndex < waypointTransitionSplinePoints.length
+                        && owner.getMoveSpline().currentPathIdx() >= waypointTransitionSplinePoints[waypointTransitionSplinePointsIndex])
+                {
+                    OnArrived(owner);
+                    ++_waypointTransitionSplinePointsIndex;
+                    if (ComputeNextNode())
+                        if (CreatureAI* ai = owner->AI())
+                            ai->WaypointStarted(path->Nodes[_currentNode].Id, path->Id);
+                }
             }
 
             // relaunch movement if its speed has changed
@@ -289,6 +376,104 @@ public class WaypointMovementGenerator extends MovementGenerator {
         owner.updateCurrentWaypointInfo(waypoint.id, path.id);
     }
 
+    void CreateSingularPointPath(Unit owner, WaypointPath path, int currentNode, boolean generatePath,
+                                 List<Vector3> points, List<Integer> waypointTransitionSplinePoints)
+    {
+        WaypointNode waypoint = path.nodes.get(currentNode);
+        points.add(new Vector3(owner.getPositionX(), owner.getPositionY(), owner.getPositionZ()));
+
+        if (generatePath)
+        {
+            PathGenerator generator = new PathGenerator(owner);
+            boolean result = generator.calculatePath(waypoint.x, waypoint.y, waypoint.z);
+            if (result && !(generator.getPathType().hasFlag(PathType.NOPATH)))
+                points.addAll(Arrays.asList(generator.getPath()).subList(1, generator.getPath().length));
+            else
+                points.add(new Vector3(waypoint.x, waypoint.y, waypoint.z));
+        }
+        else
+            points.add(new Vector3(waypoint.x, waypoint.y, waypoint.z));
+
+        waypointTransitionSplinePoints.add(points.size() - 1);
+    }
+
+    void CreateMergedPath(Unit owner, WaypointPath path, int previousNode, int currentNode,
+                          boolean isReturningToStart, boolean generatePath, boolean isCyclic,
+                          List<Vector3> points, List<Integer> waypointTransitionSplinePoints,
+                          WaypointNode lastWaypointOnPath)
+    {
+        List<WaypointNode> segment = [&]
+        {
+            // find the continuous segment that our destination waypoint is on
+            auto segmentItr = std::ranges::find_if(path->ContinuousSegments, [&](std::pair<std::size_t, std::size_t> const& segmentRange)
+            {
+                auto isInSegmentRange = [&](uint32 node) { return node >= segmentRange.first && node < segmentRange.first + segmentRange.second; };
+                return isInSegmentRange(currentNode) && isInSegmentRange(previousNode);
+            });
+
+            // handle path returning directly from last point to first
+            if (segmentItr == path->ContinuousSegments.end())
+            {
+                if (currentNode != 0 || previousNode != path->Nodes.size() - 1)
+                    return std::span(&path->Nodes[currentNode], 1);
+
+                segmentItr = path->ContinuousSegments.begin();
+            }
+
+            if (!isReturningToStart)
+                return std::span(&path->Nodes[currentNode], segmentItr->second - (currentNode - segmentItr->first));
+
+            return std::span(&path->Nodes[segmentItr->first], currentNode - segmentItr->first + 1);
+        }();
+
+    *lastWaypointOnPath = !isReturningToStart ? &segment.back() : &segment.front();
+
+        waypointTransitionSplinePoints->clear();
+        auto fillPath = [&]<typename iterator>(iterator itr, iterator end)
+        {
+            Optional<PathGenerator> generator;
+            if (generatePath)
+                generator.emplace(owner);
+
+            Position source = owner->GetPosition();
+            points->emplace_back(source.GetPositionX(), source.GetPositionY(), source.GetPositionZ());
+
+            while (itr != end)
+            {
+                if (generator)
+                {
+                    bool result = generator->CalculatePath(source.GetPositionX(), source.GetPositionY(), source.GetPositionZ(), itr->X, itr->Y, itr->Z);
+                    if (result && !(generator->GetPathType() & PATHFIND_NOPATH))
+                        points->insert(points->end(), generator->GetPath().begin() + 1, generator->GetPath().end());
+                    else
+                        generator.reset(); // when path generation to a waypoint fails, add all remaining points without pathfinding (preserve legacy behavior of MoveSplineInit::MoveTo)
+                }
+
+                if (!generator)
+                    points->emplace_back(itr->X, itr->Y, itr->Z);
+
+                waypointTransitionSplinePoints->push_back(points->size() - 1);
+
+                source.Relocate(itr->X, itr->Y, itr->Z);
+                ++itr;
+            }
+        };
+
+        if (isCyclic)
+        {
+            // create new cyclic path starting at current node
+            std::vector<WaypointNode> cyclicPath = path->Nodes;
+            std::rotate(cyclicPath.begin(), cyclicPath.begin() + currentNode, cyclicPath.end());
+            fillPath(cyclicPath.begin(), cyclicPath.end());
+            return;
+        }
+
+        if (!isReturningToStart)
+            fillPath(segment.begin(), segment.end());
+        else
+            fillPath(segment.rbegin(), segment.rend());
+    }
+
 
     private void startMove(Creature owner) {
         startMove(owner, false);
@@ -380,11 +565,11 @@ public class WaypointMovementGenerator extends MovementGenerator {
         }
 
         switch (waypoint.moveType) {
-            case Land:
+            case LAND:
                 init.setAnimation(animTier.ground);
 
                 break;
-            case Takeoff:
+            case TAKEOFF:
                 init.setAnimation(animTier.Hover);
 
                 break;
@@ -392,7 +577,7 @@ public class WaypointMovementGenerator extends MovementGenerator {
                 init.setWalk(false);
 
                 break;
-            case Walk:
+            case WALK:
                 init.setWalk(true);
 
                 break;
@@ -423,6 +608,26 @@ public class WaypointMovementGenerator extends MovementGenerator {
             return true;
         }
 
+        return false;
+    }
+
+    private boolean isExactSplinePath()
+    {
+        if (exactSplinePath != null)
+            return exactSplinePath;
+
+        return this.path.flags.hasFlag(WaypointPathFlag.ExactSplinePath);
+    }
+
+    private boolean updateMoveTimer(int diff) { return updateTimer(moveTimer, diff); }
+    private boolean updateWaitTimer(int diff) { return updateTimer(nextMoveTime, diff); }
+
+    private boolean updateTimer(TimeTracker timer, int diff) {
+        timer.update(diff);
+        if (timer.passed()) {
+            timer.reset(0);
+            return true;
+        }
         return false;
     }
 }

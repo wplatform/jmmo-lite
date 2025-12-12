@@ -31,6 +31,7 @@ import com.github.azeroth.game.map.MMapManager;
 import com.github.azeroth.game.map.MapManager;
 import com.github.azeroth.game.map.TerrainManager;
 import com.github.azeroth.game.map.collision.VMapManager;
+import com.github.azeroth.game.movement.waypoint.WayPointManager;
 import com.github.azeroth.game.pools.PoolManager;
 import com.github.azeroth.game.pvp.OutdoorPvpManager;
 import com.github.azeroth.game.spell.SpellManager;
@@ -135,6 +136,11 @@ public interface WorldContext {
     default OutdoorPvpManager getOutDoorPvpManager() {
         return getBean(OutdoorPvpManager.class);
     }
+
+    default WayPointManager getWayPointManager() {
+        return getBean(WayPointManager.class);
+    }
+
 
     // these functions return objects only if in map of specified object
     default WorldObject getWorldObject(WorldObject source, ObjectGuid guid) {

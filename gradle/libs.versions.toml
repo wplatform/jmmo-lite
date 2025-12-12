@@ -1,7 +1,7 @@
 [versions]
 
 slf4j = "2.0.13"
-netty = "4.1.112.Final"
+netty = "4.2.7.Final"
 springBoot = "3.3.2"
 junit = "5.10.2"
 lombok = "1.18.34"
@@ -9,6 +9,7 @@ protobuf = "4.28.0"
 iouring = "0.0.21.Final"
 h2database = "2.3.232"
 gdx = "1.13.0"
+detour = "1.5.11"
 
 
 [libraries]
@@ -27,6 +28,7 @@ protobuf = { group = "com.google.protobuf", name = "protobuf-java", version.ref 
 protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf"}
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 gdx = { group = "com.badlogicgames.gdx", name = "gdx", version.ref = "gdx" }
+recast = { group = "org.recast4j", name = "detour", version.ref = "detour" }
 
 
 # Testing

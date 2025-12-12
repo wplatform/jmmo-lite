@@ -1,18 +1,30 @@
 package com.github.azeroth.common;
 
-public record Pair<K extends Comparable<K>, V extends Comparable<V>>(K first, V second) implements Comparable<Pair<K, V>> {
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-    public static <K extends Comparable<K>, V extends Comparable<V>> Pair<K, V> of(K key, V value) {
-        return new Pair<>(key, value);
+@EqualsAndHashCode
+@AllArgsConstructor(staticName = "of")
+@NoArgsConstructor
+public class Pair<K, V> {
+    private K first;
+    private V second;
+
+
+    public void first(K first) {
+        this.first = first;
     }
 
-    @Override
-    public int compareTo(Pair<K, V> o) {
-        int result = this.first.compareTo(o.first);
-        if (result == 0) {
-            result = this.second.compareTo(o.second);
-        }
-        return result;
+    public void second(V second) {
+        this.second = second;
+    }
 
+    public K first() {
+        return first;
+    }
+
+    public V second() {
+        return second;
     }
 }

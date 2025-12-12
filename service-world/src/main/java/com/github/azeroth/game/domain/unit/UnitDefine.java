@@ -3,7 +3,6 @@ package com.github.azeroth.game.domain.unit;
 
 public interface UnitDefine {
 
-    int VISUAL_WAYPOINT = 1;
     int WORLD_TRIGGER = 12999;
 
     int ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE = 197886;

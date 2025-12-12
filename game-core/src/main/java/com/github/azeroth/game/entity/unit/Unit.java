@@ -14,7 +14,9 @@ import com.github.azeroth.game.chat.CustomChatTextBuilder;
 import com.github.azeroth.game.combat.CombatManager;
 import com.github.azeroth.game.combat.CombatReference;
 import com.github.azeroth.game.combat.ThreatManager;
+import com.github.azeroth.game.domain.creature.CreatureModel;
 import com.github.azeroth.game.domain.map.MapDefine;
+import com.github.azeroth.game.domain.object.ObjectDefine;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.WorldLocation;
 import com.github.azeroth.game.domain.object.enums.TypeMask;
@@ -55,6 +57,8 @@ import com.github.azeroth.game.movement.spline.MoveSplineInit;
 import com.github.azeroth.game.networking.WorldPacket;
 import com.github.azeroth.game.networking.opcode.ServerOpCode;
 import com.github.azeroth.game.networking.packet.combat.BreakTarget;
+import com.github.azeroth.game.networking.packet.misc.SetMeleeAnimKit;
+import com.github.azeroth.game.networking.packet.misc.SetPlayHoverAnim;
 import com.github.azeroth.game.networking.packet.movement.MoveSetActiveMover;
 import com.github.azeroth.game.networking.packet.movement.MoveSetSpeed;
 import com.github.azeroth.game.networking.packet.movement.MoveSplineSetSpeed;
@@ -3700,7 +3704,8 @@ public abstract class Unit extends WorldObject {
             return;
         }
 
-        if (animKitId != 0 && !CliDB.AnimKitStorage.containsKey(animKitId)) {
+
+        if (animKitId != 0 && !worldContext.getDbcObjectManager().animKit().contains(animKitId)) {
             return;
         }
 
@@ -3773,7 +3778,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void setNativeDisplayId(int displayId) {
-        setNativeDisplayId(displayId, 1f);
+        setNativeDisplayId(displayId, false);
     }
 
     public final float getNativeDisplayScale() {
@@ -4902,7 +4907,7 @@ public abstract class Unit extends WorldObject {
 
     @Override
     public String getDebugInfo() {
-        var str = String.format("%1$s\nIsAIEnabled: %2$s DeathState: %3$s UnitMovementFlags: %4$s UnitMovementFlags2: %5$s Class: %6$s\n", super.getDebugInfo(), isAIEnabled(), deathState, getUnitMovementFlags(), getUnitMovementFlags2(), getUnitClass()) + String.format(" %1$s GetCharmedGUID(): %2$s\nGetCharmerGUID(): %3$s\n%4$s\n", (getMoveSpline() != null ? getMoveSpline().toString() : "Movespline: <none>\n"), getCharmedGUID(), getCharmerGUID(), (getVehicleKit1() != null ? getVehicleKit1().getDebugInfo() : "No vehicle kit")) + String.format("m_Controlled size: %1$s", getControlled().size());
+        var str = String.format("%1$s\nIsAIEnabled: %2$s DeathState: %3$s UnitMovementFlags: %4$s UnitMovementFlags2: %5$s Class: %6$s\n", super.getDebugInfo(), isAIEnabled(), deathState, getUnitMovementFlags(), getUnitMovementFlags2(), getUnitClass()) + String.format(" %1$s GetCharmedGUID(): %2$s\nGetCharmerGUID(): %3$s\n%4$s\n", (getMoveSpline() != null ? getMoveSpline().toString() : "Movespline: <none>\n"), getCharmedGUID(), getCharmerGUID(), (getVehicleKit() != null ? vehicleKit.getDebugInfo() : "No vehicle kit")) + String.format("m_Controlled size: %1$s", getControlled().size());
 
         var controlledCount = 0;
 
@@ -5015,7 +5020,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void _EnterVehicle(Vehicle vehicle, byte seatId, AuraApplication aurApp) {
-        if (!isAlive() || getVehicleKit1() == vehicle || vehicle.GetBase().isOnVehicle(this)) {
+        if (!isAlive() || vehicleKit == vehicle || vehicle.GetBase().isOnVehicle(this)) {
             return;
         }
 
@@ -5540,7 +5545,7 @@ public abstract class Unit extends WorldObject {
                         displayPower = cEntry.displayPower;
                     }
                 } else if (getObjectTypeId() == TypeId.UNIT) {
-                    var vehicle = getVehicleKit1();
+                    var vehicle = vehicleKit;
 
                     if (vehicle) {
                         var powerDisplay = CliDB.PowerDisplayStorage.get(vehicle.GetVehicleInfo().PowerDisplayID[0]);
@@ -5690,7 +5695,7 @@ public abstract class Unit extends WorldObject {
         setObjectScale((float) Math.max(scale, scaleMin));
     }
 
-    public void setDisplayId(int modelId, float displayScale) {
+    public void setDisplayId(int modelId, boolean setNative) {
 
 
         setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().displayID), modelId);
@@ -5771,9 +5776,29 @@ public abstract class Unit extends WorldObject {
         setDisplayId(getNativeDisplayId());
     }
 
-    public final void setNativeDisplayId(int displayId, float displayScale) {
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().nativeDisplayID), displayId);
-        setUpdateFieldValue(getValues().modifyValue(getUnitData()).modifyValue(getUnitData().nativeXDisplayScale), displayScale);
+    public final void setNativeDisplayId(int displayId, boolean setNative) {
+
+        float displayScale = ObjectDefine.DEFAULT_PLAYER_DISPLAY_SCALE;
+
+        if (isCreature() && !isPet()) {
+            var model = toCreature().getCreatureTemplate().getModelWithDisplayId(displayId);
+            if (model != null) {
+                displayScale = model.displayScale;
+            }
+        }
+        setInt32Value(UNIT_FIELD_DISPLAY_ID, displayId);
+        setObjectScale(displayScale);
+
+        if (setNative) {
+            setInt32Value(UNIT_FIELD_NATIVE_DISPLAY_ID, displayId);
+            setObjectScale(displayScale);
+        }
+        // Set Gender by ModelInfo
+        var modelInfo = worldContext.getObjectManager().getCreatureModelInfo(displayId);
+        if (modelInfo != null) {
+            setGender(modelInfo.gender);
+        }
+        calculateHoverHeight();
     }
 
     public final float getModCastingSpeed() {
@@ -5802,6 +5827,10 @@ public abstract class Unit extends WorldObject {
 
     public final void setModTimeRate(float timeRate) {
         setFloatValue(UNIT_FIELD_MOD_TIME_RATE, timeRate);
+    }
+
+    public final boolean hasUnitFlag(UnitFlag... flags) {
+        return getUnitFlag().hasAnyFlag(flags);
     }
 
     public final boolean hasUnitFlag(UnitFlag flags) {
@@ -5908,6 +5937,10 @@ public abstract class Unit extends WorldObject {
 
     public final boolean hasUnitState(UnitState f) {
         return state.hasFlag(f);
+    }
+
+    public final boolean hasUnitState(UnitState... f) {
+        return state.hasAnyFlag(f);
     }
 
     public final void clearUnitState(UnitState f) {
@@ -8956,13 +8989,15 @@ public abstract class Unit extends WorldObject {
     }
 
     public final void mount(int mount, int vehicleId, int creatureEntry) {
-        removeAurasByType(AuraType.CosmeticMounted);
+        removeAurasByType(AuraType.COSMETIC_MOUNTED);
 
         if (mount != 0) {
             setMountDisplayId(mount);
         }
 
-        setUnitFlag(UnitFlag.mount);
+        setUnitFlag(UnitFlag.MOUNT);
+
+        calculateHoverHeight();
 
         var player = toPlayer();
 
@@ -8973,7 +9008,7 @@ public abstract class Unit extends WorldObject {
                     player.sendOnCancelExpectedVehicleRideAura();
 
                     // mounts can also have accessories
-                    getVehicleKit1().InstallAllAccessories(false);
+                    vehicleKit.InstallAllAccessories(false);
                 }
             }
 
@@ -9021,7 +9056,7 @@ public abstract class Unit extends WorldObject {
         }
 
         // dismount as a vehicle
-        if (isTypeId(TypeId.PLAYER) && getVehicleKit1() != null) {
+        if (isTypeId(TypeId.PLAYER) && vehicleKit != null) {
             // Remove vehicle from player
             removeVehicleKit();
         }
@@ -9355,7 +9390,7 @@ public abstract class Unit extends WorldObject {
         getLocation().setO(orientation);
 
         if (isVehicle()) {
-            getVehicleKit1().RelocatePassengers();
+            vehicleKit.RelocatePassengers();
         }
     }
 
@@ -9364,7 +9399,7 @@ public abstract class Unit extends WorldObject {
         getLocation().relocate(getLocation().getX(), getLocation().getY(), newZ);
 
         if (isVehicle()) {
-            getVehicleKit1().RelocatePassengers();
+            vehicleKit.RelocatePassengers();
         }
     }
 
@@ -9530,11 +9565,9 @@ public abstract class Unit extends WorldObject {
 
     private void setPlayHoverAnim(boolean enable) {
         playHoverAnim = enable;
-
-        SetPlayHoverAnim data = new setPlayHoverAnim();
+        SetPlayHoverAnim data = new SetPlayHoverAnim();
         data.unitGUID = getGUID();
         data.playHoverAnim = enable;
-
         sendMessageToSet(data, true);
     }
 
@@ -13091,8 +13124,8 @@ public abstract class Unit extends WorldObject {
     public final void handleSpellClick(Unit clicker, byte seatId) {
         var spellClickHandled = false;
 
-        var spellClickEntry = getVehicleKit1() != null ? getVehicleKit1().getCreatureEntry() : getEntry();
-        var flags = getVehicleKit1() ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.NONE;
+        var spellClickEntry = vehicleKit != null ? vehicleKit.getCreatureEntry() : getEntry();
+        var flags = vehicleKit ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.NONE;
 
         var clickBounds = global.getObjectMgr().getSpellClickInfoMapBounds(spellClickEntry);
 
@@ -16581,6 +16614,29 @@ public abstract class Unit extends WorldObject {
     }
 
 
+    private void calculateHoverHeight() {
+        float hoverHeight = ObjectDefine.DEFAULT_PLAYER_HOVER_HEIGHT;
+        float displayScale = ObjectDefine.DEFAULT_PLAYER_DISPLAY_SCALE;
 
+        int displayId = isMounted() ? getMountDisplayId() : getDisplayId();
+
+        // Get DisplayScale for creatures
+        if (isCreature()) {
+            CreatureModel model = toCreature().getCreatureTemplate().getModelWithDisplayId(displayId);
+            if (model != null) {
+                displayScale = model.displayScale;
+            }
+
+        }
+        var displayInfo = worldContext.getDbcObjectManager().creatureDisplayInfo(displayId);
+        if (displayInfo != null) {
+            var modelData = worldContext.getDbcObjectManager().creatureModelData(displayId);
+            if (modelData != null) {
+                hoverHeight = modelData.getHoverHeight() * modelData.getModelScale() * displayInfo.getCreatureModelScale() * displayScale;
+            }
+        }
+
+        setHoverHeight(hoverHeight != 0 ? hoverHeight : ObjectDefine.DEFAULT_PLAYER_HOVER_HEIGHT);
+    }
 
 }

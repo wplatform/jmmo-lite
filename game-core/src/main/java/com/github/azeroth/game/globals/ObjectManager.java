@@ -1256,7 +1256,7 @@ public final class ObjectManager {
                     }
                     while (spellInfo != null)
                     {
-                        spellScriptsStorage.compute(spellInfo.getId(), Functions.addToList(new Pair<>(getScriptId(scriptName), true)));
+                        spellScriptsStorage.compute(spellInfo.getId(), Functions.addToList(Pair.of(getScriptId(scriptName), true)));
 
                         spellInfo = spellInfo.getNextRankSpell();
                     }
@@ -1266,7 +1266,7 @@ public final class ObjectManager {
                     if (spellInfo.isRanked())
                         Logs.SQL.error("Scriptname: `{}` spell (Id: {}) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, spellId);
 
-                    spellScriptsStorage.compute(spellInfo.getId(), Functions.addToList(new Pair<>(getScriptId(scriptName), true)));
+                    spellScriptsStorage.compute(spellInfo.getId(), Functions.addToList(Pair.of(getScriptId(scriptName), true)));
                 }
 
                 count.incrementAndGet();
@@ -1588,7 +1588,7 @@ public final class ObjectManager {
 
             });
         }
-        Logs.SQL.error(">> Loaded {} creature template sparring rows in {} ms", count, System.currentTimeMillis() - oldMSTime);
+        Logs.SQL.info(">> Loaded {} creature template sparring rows in {} ms", count, System.currentTimeMillis() - oldMSTime);
     }
 
     void loadCreatureTemplateDifficulty(HashMap<Integer, CreatureTemplate> templateHashMap) {
@@ -1614,7 +1614,7 @@ public final class ObjectManager {
 
             });
         }
-        Logs.SQL.error(">> Loaded {} creature template difficulty data in {} ms", count, System.currentTimeMillis() - oldMSTime);
+        Logs.SQL.info(">> Loaded {} creature template difficulty data in {} ms", count, System.currentTimeMillis() - oldMSTime);
     }
 
     public void loadCreatureAddons(Map<Integer, CreatureData> creatureData) {
@@ -4419,7 +4419,7 @@ public final class ObjectManager {
                 int count = itemTemplate.getBuyCount();
                 // special amount for food/drink
                 if (itemTemplate.getItemClass() == ItemClass.CONSUMABLE
-                        && itemTemplate.getSubClass() == ItemSubclassConsumable.FOOD_DRINK) {
+                        && itemTemplate.getSubClass() == ItemSubclassConsumable.FOOD_DRINK.ordinal()) {
                     if (!itemTemplate.getEffects().isEmpty()) {
                         Short spellCategoryID = itemTemplate.getEffects().getFirst().getSpellCategoryID();
                         count = switch (SpellCategory.valueOf(spellCategoryID)) {
@@ -7993,7 +7993,7 @@ public final class ObjectManager {
     }
 
     private boolean checkAndFixGOChairHeightId(GameObjectTemplate goInfo, int dataN, int N) {
-        int bound = UnitStandStateType.STATE_SIT_HIGH_CHAIR.ordinal() - UnitStandStateType.STATE_SIT_LOW_CHAIR.ordinal();
+        int bound = UnitStandStateType.SIT_HIGH_CHAIR.ordinal() - UnitStandStateType.SIT_LOW_CHAIR.ordinal();
         if (dataN <= bound) {
             return true;
         }

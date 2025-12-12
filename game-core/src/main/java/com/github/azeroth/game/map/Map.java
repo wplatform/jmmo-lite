@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.IntIntMap;
 
 import com.github.azeroth.character.repository.CharacterRepository;
 import com.github.azeroth.common.Assert;
+import com.github.azeroth.common.EnumFlag;
 import com.github.azeroth.common.Logs;
 import com.github.azeroth.common.YieldResult;
 import com.github.azeroth.dbc.defines.*;
@@ -96,6 +97,9 @@ public class Map {
     private final Difficulty spawnMode;
     private final ArrayList<WorldObject> worldObjects = new ArrayList<>();
     private final TerrainInfo terrain;
+    private short forceEnabledNavMeshFilterFlags;
+    private short forceDisabledNavMeshFilterFlags;
+
     private final TreeMap<Long, ArrayList<ScriptAction>> scriptSchedule = new TreeMap<Long, ArrayList<ScriptAction>>();
     private final BitSet markedCells = new BitSet(MapDefine.TOTAL_NUMBER_OF_CELLS_PER_MAP * MapDefine.TOTAL_NUMBER_OF_CELLS_PER_MAP);
     private final HashMap<Integer, ZoneDynamicInfo> zoneDynamicInfo = new HashMap<>();
@@ -1217,6 +1221,25 @@ public class Map {
         corpseBones.clear();
     }
 
+    // custom PathGenerator include and exclude filter flags
+    // these modify what kind of terrain types are available in current instance
+    // for example this can be used to mark offmesh connections as enabled/disabled
+    public final void setForceEnabledNavMeshFilterFlag(short flag) {
+        forceEnabledNavMeshFilterFlags |= flag;
+    }
+
+    public final void removeForceEnabledNavMeshFilterFlag(short flag) {
+        forceEnabledNavMeshFilterFlags &= (short) ~flag;
+    }
+
+    public final void setForceDisabledNavMeshFilterFlag(short flag) {
+        forceDisabledNavMeshFilterFlags |= flag;
+    }
+
+    public final void removeForceDisabledNavMeshFilterFlag(short flag) {
+        forceDisabledNavMeshFilterFlags &= (short) ~flag;
+    }
+
     public final PositionFullTerrainStatus getFullTerrainStatusForPosition(PhaseShift phaseShift, Position pos, Byte reqLiquidType) {
         return getFullTerrainStatusForPosition(phaseShift, pos, reqLiquidType, MapDefine.DEFAULT_COLLISION_HEIGHT);
     }
@@ -1225,39 +1248,36 @@ public class Map {
         return terrain.getFullTerrainStatusForPosition(phaseShift, getId(), pos, reqLiquidType, collisionHeight, dynamicTree);
     }
 
-    public final ZLiquidStatus getLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlag reqLiquidType) {
+    public final EnumFlag<ZLiquidStatus> getLiquidStatus(PhaseShift phaseShift, Position pos, Byte reqLiquidType) {
         return getLiquidStatus(phaseShift, pos, reqLiquidType, MapDefine.DEFAULT_COLLISION_HEIGHT);
     }
 
-    public final ZLiquidStatus getLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlag reqLiquidType, float collisionHeight) {
+    public final EnumFlag<ZLiquidStatus> getLiquidStatus(PhaseShift phaseShift, Position pos, Byte reqLiquidType, float collisionHeight) {
         return getLiquidStatus(phaseShift, pos.getX(), pos.getY(), pos.getZ(), reqLiquidType, collisionHeight);
     }
 
-    public final ZLiquidStatus getLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlag reqLiquidType) {
+    public final EnumFlag<ZLiquidStatus> getLiquidStatus(PhaseShift phaseShift, float x, float y, float z, Byte reqLiquidType) {
         return getLiquidStatus(phaseShift, x, y, z, reqLiquidType, MapDefine.DEFAULT_COLLISION_HEIGHT);
     }
 
-    public final ZLiquidStatus getLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlag reqLiquidType, float collisionHeight) {
-        tangible.OutObject<LiquidData> tempOut__ = new tangible.OutObject<LiquidData>();
-        var tempVar = terrain.getLiquidStatus(phaseShift, getId(), x, y, z, reqLiquidType, tempOut__, collisionHeight);
-        _ = tempOut__.outArgValue;
-        return tempVar;
+    public final EnumFlag<ZLiquidStatus> getLiquidStatus(PhaseShift phaseShift, float x, float y, float z, Byte reqLiquidType, float collisionHeight) {
+        return getLiquidStatus(phaseShift, x, y, z, reqLiquidType, null, collisionHeight);
     }
 
-    public final ZLiquidStatus getLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlag reqLiquidType, tangible.OutObject<LiquidData> data) {
+    public final EnumFlag<ZLiquidStatus> getLiquidStatus(PhaseShift phaseShift, Position pos, Byte reqLiquidType, LiquidData data) {
         return getLiquidStatus(phaseShift, pos, reqLiquidType, data, MapDefine.DEFAULT_COLLISION_HEIGHT);
     }
 
-    public final ZLiquidStatus getLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlag reqLiquidType, tangible.OutObject<LiquidData> data, float collisionHeight) {
-        return terrain.getLiquidStatus(phaseShift, getId(), pos.getX(), pos.getY(), pos.getZ(), reqLiquidType, data, collisionHeight);
+    public final EnumFlag<ZLiquidStatus> getLiquidStatus(PhaseShift phaseShift, Position pos, Byte reqLiquidType, LiquidData data, float collisionHeight) {
+        return terrain.getLiquidStatus(phaseShift, getId(), pos, reqLiquidType, data, collisionHeight);
     }
 
-    public final ZLiquidStatus getLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlag reqLiquidType, tangible.OutObject<LiquidData> data) {
+    public final EnumFlag<ZLiquidStatus> getLiquidStatus(PhaseShift phaseShift, float x, float y, float z, Byte reqLiquidType, LiquidData data) {
         return getLiquidStatus(phaseShift, x, y, z, reqLiquidType, data, MapDefine.DEFAULT_COLLISION_HEIGHT);
     }
 
-    public final ZLiquidStatus getLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlag reqLiquidType, tangible.OutObject<LiquidData> data, float collisionHeight) {
-        return terrain.getLiquidStatus(phaseShift, getId(), x, y, z, reqLiquidType, data, collisionHeight);
+    public final EnumFlag<ZLiquidStatus> getLiquidStatus(PhaseShift phaseShift, float x, float y, float z, Byte reqLiquidType, LiquidData data, float collisionHeight) {
+        return terrain.getLiquidStatus(phaseShift, getId(), new Position(x, y, z), reqLiquidType, data, collisionHeight);
     }
 
     public final int getAreaId(PhaseShift phaseShift, Position pos) {
@@ -1313,6 +1333,10 @@ public class Map {
 
     public final boolean isUnderWater(PhaseShift phaseShift, Position position) {
         return terrain.isUnderWater(phaseShift, getId(), position);
+    }
+
+    public final boolean isUnderWater(PhaseShift phaseShift, float x, float y, float z) {
+        return terrain.isUnderWater(phaseShift, getId(), new Position(x, y, z));
     }
 
     public final float getWaterOrGroundLevel(PhaseShift phaseShift, Position position) {

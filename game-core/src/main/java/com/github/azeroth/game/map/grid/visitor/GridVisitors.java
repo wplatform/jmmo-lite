@@ -13,6 +13,7 @@ import com.github.azeroth.game.entity.dynamic.DynamicObject;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.entity.object.FindCreatureOptions;
 import com.github.azeroth.game.entity.object.WorldObject;
+import com.github.azeroth.game.entity.object.update.UpdateData;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.map.Map;

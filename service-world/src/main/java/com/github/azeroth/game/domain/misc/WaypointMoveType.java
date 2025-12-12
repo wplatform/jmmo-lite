@@ -2,14 +2,11 @@ package com.github.azeroth.game.domain.misc;
 
 
 public enum WaypointMoveType {
-    Walk,
-    run,
-    Land,
-    Takeoff,
-
-    max;
-
-    public static final int SIZE = Integer.SIZE;
+    WALK,
+    RUN,
+    LAND,
+    TAKEOFF,
+    MAX;
 
     public static WaypointMoveType forValue(int value) {
         return values()[value];

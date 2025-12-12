@@ -10,6 +10,4 @@ dependencies {
     implementation libs.gdx
     implementation project(':common-utility')
     implementation project(':service-hotfixes')
-    implementation group: 'org.recast4j', name: 'detour', version: '1.5.8'
-
 }

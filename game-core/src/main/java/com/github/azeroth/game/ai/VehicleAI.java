@@ -58,7 +58,7 @@ public class VehicleAI extends CreatureAI {
     public void onCharmed(boolean isNew) {
         var charmed = me.isCharmed();
 
-        if (!me.getVehicleKit1().isVehicleInUse() && !charmed && hasConditions) { //was used and has conditions
+        if (!me.getVehicleKit().isVehicleInUse() && !charmed && hasConditions) { //was used and has conditions
             doDismiss = true; //needs reset
         } else if (charmed) {
             doDismiss = false; //in use again
@@ -79,7 +79,7 @@ public class VehicleAI extends CreatureAI {
         }
 
         if (conditionsTimer <= diff) {
-            var vehicleKit = me.getVehicleKit1();
+            var vehicleKit = me.getVehicleKit();
 
             if (vehicleKit) {
                 for (var pair : vehicleKit.seats.entrySet()) {

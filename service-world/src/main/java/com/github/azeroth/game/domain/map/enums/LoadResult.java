@@ -2,18 +2,10 @@ package com.github.azeroth.game.domain.map.enums;
 
 public enum LoadResult {
     Success,
+    AlreadyLoaded,
     FileNotFound,
     VersionMismatch,
     ReadFromFileFailed,
-    DisabledInConfig;
-
-    public static final int SIZE = Integer.SIZE;
-
-    public static LoadResult forValue(int value) {
-        return values()[value];
-    }
-
-    public int getValue() {
-        return this.ordinal();
-    }
+    DisabledInConfig,
+    LibraryError
 }

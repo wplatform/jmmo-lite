@@ -8,6 +8,7 @@ plugins {
 
 dependencies {
     implementation libs.gdx
+    implementation libs.recast
     implementation libs.netty.handler
     implementation project(':common-utility')
     implementation project(':service-hotfixes')

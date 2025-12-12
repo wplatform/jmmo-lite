@@ -7,11 +7,11 @@ public class WaypointNode {
     public Float orientation = null;
     public int delay;
     public int eventId;
-    public WaypointMoveType moveType = WaypointMoveType.values()[0];
+    public WaypointMoveType moveType;
     public byte eventChance;
 
     public WaypointNode() {
-        moveType = WaypointMoveType.run;
+        moveType = WaypointMoveType.RUN;
     }
 
 
@@ -31,7 +31,7 @@ public class WaypointNode {
         this.orientation = orientation;
         this.delay = delay;
         this.eventId = 0;
-        this.moveType = WaypointMoveType.Walk;
+        this.moveType = WaypointMoveType.WALK;
         this.eventChance = 100;
     }
 }
