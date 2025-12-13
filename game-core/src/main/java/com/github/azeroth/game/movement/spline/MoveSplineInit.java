@@ -139,7 +139,7 @@ public class MoveSplineInit {
 
         unit.sendMessageToSet(packet, true);
 
-        return moveSpline.duration();
+        return (int)moveSpline.duration();
     }
 
     public final void stop() {

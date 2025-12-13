@@ -207,7 +207,7 @@ public abstract class Unit extends WorldObject {
                 EnumFlag<TypeMask> objectType, EnumFlag<ObjectUpdateFlag> updateFlag,
                 short valuesCount, short dynamicValuesCount) {
         super(worldContext, guid, objectTypeId, objectType, updateFlag, valuesCount, dynamicValuesCount);
-        moveSpline = new MoveSpline();
+        moveSpline = new MoveSpline(this);
         motionMaster = new MotionMaster(this);
         combatManager = new CombatManager(this);
         threatManager = new ThreatManager(this);

@@ -23,6 +23,10 @@ public class MoveSplineFlag {
         return flags.hasFlag(f);
     }
 
+    public final boolean hasAnyFlag(SplineFlag... f) {
+        return flags.hasAnyFlag(f);
+    }
+
     public final void setFlag(SplineFlag f, boolean set) {
         if (set) {
             setFlag(f);

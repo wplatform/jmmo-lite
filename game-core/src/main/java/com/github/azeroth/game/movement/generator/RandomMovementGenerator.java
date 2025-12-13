@@ -190,8 +190,8 @@ public class RandomMovementGenerator extends MovementGenerator {
         }
 
         Position position = new Position(reference);
-        var distance = RandomUtil.FRand(0.0f, wanderDistance);
-        var angle = RandomUtil.FRand(0.0f, (float) Math.PI * 2.0f);
+        var distance = RandomUtil.randomFloat(0.0f, wanderDistance);
+        var angle = RandomUtil.randomFloat(0.0f, (float) Math.PI * 2.0f);
         owner.movePositionToFirstCollision(position, distance, angle);
 
         // Check if the destination is in LOS
@@ -217,9 +217,9 @@ public class RandomMovementGenerator extends MovementGenerator {
             return;
         }
 
-        removeFlag(MovementGeneratorFlags.Transitory.getValue() | MovementGeneratorFlags.TimedPaused.getValue());
+        flags.removeFlag(MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.TIMED_PAUSED);
 
-        owner.addUnitState(UnitState.RoamingMove);
+        owner.addUnitState(UnitState.ROAMING_MOVE);
 
         var walk = true;
 
@@ -241,15 +241,15 @@ public class RandomMovementGenerator extends MovementGenerator {
         init.setWalk(walk);
         var splineDuration = (int) init.launch();
 
-        --_wanderSteps;
+        --wanderSteps;
 
         if (wanderSteps != 0) // Creature has yet to do steps before pausing
         {
             timer.reset(splineDuration);
         } else {
             // Creature has made all its steps, time for a little break
-            timer.reset(splineDuration + RandomUtil.URand(4, 10) * time.InMilliseconds); // Retails seems to use rounded numbers so we do as well
-            wanderSteps = RandomUtil.URand(2, 10);
+            timer.reset(splineDuration + RandomUtil.randomInt(4, 10) * 1000); // Retails seems to use rounded numbers so we do as well
+            wanderSteps = RandomUtil.randomInt(2, 10);
         }
 
         // Call for creature group update

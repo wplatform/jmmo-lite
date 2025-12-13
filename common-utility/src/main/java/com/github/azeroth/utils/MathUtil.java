@@ -12,7 +12,7 @@ public class MathUtil {
     public static final float Log2E = 1.4427f;
 
     public static final float TWO_PI = 6.283185f;
-    public static final float PI = 3.14159f;
+    public static final float PI = 3.141596f;
     public static final float PI_OVER_2 = 1.570796f;
     public static final float PI_OVER_4 = 0.785398f;
 

@@ -1,6 +1,7 @@
 package com.github.azeroth.game.movement.generator;
 
 
+import com.github.azeroth.game.ai.CreatureAI;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
@@ -110,10 +111,8 @@ class GenericMovementGenerator extends MovementGenerator {
             owner.castSpell(owner.getWorldContext().getUnit(owner, arrivalSpellTargetGuid), arrivalSpellId, true);
         }
 
-        var creature = owner.toCreature();
-
-        if (creature != null && creature.getAi() != null) {
-            creature.getAi().movementInform(type, pointId);
+        if (owner.getAi() instanceof CreatureAI ai) {
+            ai.movementInform(type, pointId);
         }
     }
 }

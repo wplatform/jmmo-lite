@@ -23,7 +23,7 @@ public class WayPointManager {
     private static final int WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES = 2;
 
     private final HashMap<Integer /*pathId*/, WaypointPath> pathStore = new HashMap<>();
-    private final HashMap<PathAndNodeId, ObjectGuid> nodeToVisualWaypointGUIDsMap = new HashMap<>();
+    private final HashMap<Pair<Integer /*pathId*/, Integer /*nodeId*/>, ObjectGuid> nodeToVisualWaypointGUIDsMap = new HashMap<>();
     private final HashMap<ObjectGuid, Pair<WaypointPath, WaypointNode>> visualWaypointGUIDToNodeMap = new HashMap<>();
 
 
@@ -77,7 +77,7 @@ public class WayPointManager {
     public void visualizePath(Unit owner, WaypointPath path, Integer displayId) {
         for (WaypointNode node : path.nodes)
         {
-            var pathNodePair = PathAndNodeId.of(path.id, node.id);
+            var pathNodePair = Pair.of(path.id, node.id);
 
 
 
@@ -103,7 +103,7 @@ public class WayPointManager {
     public void deVisualizePath(Unit owner, WaypointPath path) {
         for (WaypointNode node : path.nodes)
         {
-            var pathNodePair = PathAndNodeId.of(path.id, node.id);
+            var pathNodePair = Pair.of(path.id, node.id);
             var objectGuid = nodeToVisualWaypointGUIDsMap.get(pathNodePair);
             if (objectGuid == null)
                 continue;
@@ -170,7 +170,7 @@ public class WayPointManager {
     }
 
     public ObjectGuid getVisualGUIDByNode(int pathId, int nodeId) {
-        var pathNodePair = PathAndNodeId.of(pathId, nodeId);
+        var pathNodePair = Pair.of(pathId, nodeId);
         return nodeToVisualWaypointGUIDsMap.get(pathNodePair);
     }
 

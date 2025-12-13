@@ -2,6 +2,7 @@ package com.github.azeroth.game.movement;
 
 
 import com.github.azeroth.defines.EventId;
+import com.github.azeroth.game.ai.CreatureAI;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.enums.TypeId;
 import com.github.azeroth.game.domain.unit.UnitState;
@@ -160,7 +161,7 @@ public class PointMovementGenerator extends MovementGenerator {
 
     @Override
     public void reset(Unit owner) {
-        flags.removeFlag(MovementGeneratorFlag.TRANSIENT, MovementGeneratorFlag.DEACTIVATED);
+        flags.removeFlag(MovementGeneratorFlag.TRANSITORY, MovementGeneratorFlag.DEACTIVATED);
         initialize(owner);
     }
 
@@ -241,8 +242,8 @@ public class PointMovementGenerator extends MovementGenerator {
 
     public final void movementInform(Unit owner) {
         if (owner.isTypeId(TypeId.UNIT)) {
-            if (owner.toCreature().getAi() != null) {
-                owner.toCreature().getAi().movementInform(MovementGeneratorType.POINT, movementId);
+            if (owner.getAi() instanceof CreatureAI ai) {
+                ai.movementInform(MovementGeneratorType.POINT, movementId);
             }
         }
     }
