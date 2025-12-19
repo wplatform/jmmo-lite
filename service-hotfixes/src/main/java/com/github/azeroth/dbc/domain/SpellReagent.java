@@ -31,59 +31,59 @@ public class SpellReagent implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("Reagent1")
-    private Integer reagent1;
+    private int reagent1;
 
     @Column("Reagent2")
-    private Integer reagent2;
+    private int reagent2;
 
     @Column("Reagent3")
-    private Integer reagent3;
+    private int reagent3;
 
     @Column("Reagent4")
-    private Integer reagent4;
+    private int reagent4;
 
     @Column("Reagent5")
-    private Integer reagent5;
+    private int reagent5;
 
     @Column("Reagent6")
-    private Integer reagent6;
+    private int reagent6;
 
     @Column("Reagent7")
-    private Integer reagent7;
+    private int reagent7;
 
     @Column("Reagent8")
-    private Integer reagent8;
+    private int reagent8;
 
     @Column("ReagentCount1")
-    private Short reagentCount1;
+    private short reagentCount1;
 
     @Column("ReagentCount2")
-    private Short reagentCount2;
+    private short reagentCount2;
 
     @Column("ReagentCount3")
-    private Short reagentCount3;
+    private short reagentCount3;
 
     @Column("ReagentCount4")
-    private Short reagentCount4;
+    private short reagentCount4;
 
     @Column("ReagentCount5")
-    private Short reagentCount5;
+    private short reagentCount5;
 
     @Column("ReagentCount6")
-    private Short reagentCount6;
+    private short reagentCount6;
 
     @Column("ReagentCount7")
-    private Short reagentCount7;
+    private short reagentCount7;
 
     @Column("ReagentCount8")
-    private Short reagentCount8;
+    private short reagentCount8;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

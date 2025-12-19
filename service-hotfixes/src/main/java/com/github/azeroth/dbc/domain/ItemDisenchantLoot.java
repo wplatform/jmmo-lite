@@ -34,29 +34,29 @@ public class ItemDisenchantLoot implements DbcEntity {
     private int id;
 
     @Column("MinLevel")
-    private Short minLevel;
+    private short minLevel;
 
     @Column("MaxLevel")
-    private Short maxLevel;
+    private short maxLevel;
 
     @Column("SkillRequired")
-    private Short skillRequired;
+    private short skillRequired;
 
     @Column("Subclass")
-    private Byte subclass;
+    private byte subclass;
 
     @Column("Quality")
-    private Byte quality;
+    private byte quality;
 
     @Column("ExpansionID")
-    private Byte expansionID;
+    private byte expansionID;
 
     @Column("Class")
-    private Byte klass;
+    private byte klass;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

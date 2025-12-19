@@ -44,29 +44,29 @@ public class ScenarioStep implements DbcEntity {
     private LocalizedString title;
 
     @Column("ScenarioID")
-    private Short scenarioID;
+    private short scenarioID;
 
     @Column("Supersedes")
-    private Short supersedes;
+    private short supersedes;
 
     @Column("RewardQuestID")
-    private Integer rewardQuestID;
+    private int rewardQuestID;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("Criteriatreeid")
-    private Integer criteriatreeid;
+    private int criteriatreeid;
 
     @Column("RelatedStep")
-    private Integer relatedStep;
+    private int relatedStep;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

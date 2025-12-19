@@ -27,7 +27,7 @@ public class ServerMessagesLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Text_lang")

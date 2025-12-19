@@ -57,92 +57,92 @@ public class BattleMasterList implements DbcEntity {
     private LocalizedString longDescription;
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
     @Column("MapID1")
-    private Short mapID1;
+    private short mapID1;
 
     @Column("MapID2")
-    private Short mapID2;
+    private short mapID2;
 
     @Column("MapID3")
-    private Short mapID3;
+    private short mapID3;
 
     @Column("MapID4")
-    private Short mapID4;
+    private short mapID4;
 
     @Column("MapID5")
-    private Short mapID5;
+    private short mapID5;
 
     @Column("MapID6")
-    private Short mapID6;
+    private short mapID6;
 
     @Column("MapID7")
-    private Short mapID7;
+    private short mapID7;
 
     @Column("MapID8")
-    private Short mapID8;
+    private short mapID8;
 
     @Column("MapID9")
-    private Short mapID9;
+    private short mapID9;
 
     @Column("MapID10")
-    private Short mapID10;
+    private short mapID10;
 
     @Column("MapID11")
-    private Short mapID11;
+    private short mapID11;
 
     @Column("MapID12")
-    private Short mapID12;
+    private short mapID12;
 
     @Column("MapID13")
-    private Short mapID13;
+    private short mapID13;
 
     @Column("MapID14")
-    private Short mapID14;
+    private short mapID14;
 
     @Column("MapID15")
-    private Short mapID15;
+    private short mapID15;
 
     @Column("MapID16")
-    private Short mapID16;
+    private short mapID16;
 
     @Column("HolidayWorldState")
-    private Short holidayWorldState;
+    private short holidayWorldState;
 
     @Column("RequiredPlayerConditionID")
-    private Short requiredPlayerConditionID;
+    private short requiredPlayerConditionID;
 
     @Column("InstanceType")
-    private Byte instanceType;
+    private byte instanceType;
 
     @Column("GroupsAllowed")
-    private Byte groupsAllowed;
+    private byte groupsAllowed;
 
     @Column("MaxGroupSize")
-    private Byte maxGroupSize;
+    private byte maxGroupSize;
 
     @Column("MinLevel")
-    private Byte minLevel;
+    private byte minLevel;
 
     @Column("MaxLevel")
-    private Byte maxLevel;
+    private byte maxLevel;
 
     @Column("RatedPlayers")
-    private Byte ratedPlayers;
+    private byte ratedPlayers;
 
     @Column("MinPlayers")
-    private Byte minPlayers;
+    private byte minPlayers;
 
     @Column("MaxPlayers")
-    private Byte maxPlayers;
+    private byte maxPlayers;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

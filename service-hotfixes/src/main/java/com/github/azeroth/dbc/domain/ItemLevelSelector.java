@@ -29,14 +29,14 @@ public class ItemLevelSelector implements DbcEntity {
     private int id;
 
     @Column("MinItemLevel")
-    private Short minItemLevel;
+    private short minItemLevel;
 
     @Column("ItemLevelSelectorQualitySetID")
-    private Short itemLevelSelectorQualitySetID;
+    private short itemLevelSelectorQualitySetID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

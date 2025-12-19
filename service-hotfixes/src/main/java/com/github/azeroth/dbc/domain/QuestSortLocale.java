@@ -27,7 +27,7 @@ public class QuestSortLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("SortName_lang")

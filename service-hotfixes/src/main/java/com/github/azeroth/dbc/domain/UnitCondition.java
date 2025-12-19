@@ -31,83 +31,83 @@ public class UnitCondition implements DbcEntity {
     private int id;
 
     @Column("Value1")
-    private Integer value1;
+    private int value1;
 
     @Column("Value2")
-    private Integer value2;
+    private int value2;
 
     @Column("Value3")
-    private Integer value3;
+    private int value3;
 
     @Column("Value4")
-    private Integer value4;
+    private int value4;
 
     @Column("Value5")
-    private Integer value5;
+    private int value5;
 
     @Column("Value6")
-    private Integer value6;
+    private int value6;
 
     @Column("Value7")
-    private Integer value7;
+    private int value7;
 
     @Column("Value8")
-    private Integer value8;
+    private int value8;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("Variable1")
-    private Byte variable1;
+    private byte variable1;
 
     @Column("Variable2")
-    private Byte variable2;
+    private byte variable2;
 
     @Column("Variable3")
-    private Byte variable3;
+    private byte variable3;
 
     @Column("Variable4")
-    private Byte variable4;
+    private byte variable4;
 
     @Column("Variable5")
-    private Byte variable5;
+    private byte variable5;
 
     @Column("Variable6")
-    private Byte variable6;
+    private byte variable6;
 
     @Column("Variable7")
-    private Byte variable7;
+    private byte variable7;
 
     @Column("Variable8")
-    private Byte variable8;
+    private byte variable8;
 
     @Column("Op1")
-    private Byte op1;
+    private byte op1;
 
     @Column("Op2")
-    private Byte op2;
+    private byte op2;
 
     @Column("Op3")
-    private Byte op3;
+    private byte op3;
 
     @Column("Op4")
-    private Byte op4;
+    private byte op4;
 
     @Column("Op5")
-    private Byte op5;
+    private byte op5;
 
     @Column("Op6")
-    private Byte op6;
+    private byte op6;
 
     @Column("Op7")
-    private Byte op7;
+    private byte op7;
 
     @Column("Op8")
-    private Byte op8;
+    private byte op8;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

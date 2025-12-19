@@ -27,7 +27,7 @@ public class BroadcastTextLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Text_lang")

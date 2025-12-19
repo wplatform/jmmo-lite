@@ -27,7 +27,7 @@ public class GarrFollowerLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("HordeSourceText_lang")

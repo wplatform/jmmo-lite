@@ -32,23 +32,23 @@ public class ItemUpgrade implements DbcEntity {
     private int id;
 
     @Column("CurrencyAmount")
-    private Integer currencyAmount;
+    private int currencyAmount;
 
     @Column("PrerequisiteID")
-    private Short prerequisiteID;
+    private short prerequisiteID;
 
     @Column("CurrencyType")
-    private Short currencyType;
+    private short currencyType;
 
     @Column("ItemUpgradePathID")
-    private Short itemUpgradePathID;
+    private short itemUpgradePathID;
 
     @Column("ItemLevelIncrement")
-    private Byte itemLevelIncrement;
+    private byte itemLevelIncrement;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

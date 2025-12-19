@@ -29,14 +29,14 @@ public class GlyphBindableSpell implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("GlyphPropertiesID")
-    private Short glyphPropertiesID;
+    private short glyphPropertiesID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

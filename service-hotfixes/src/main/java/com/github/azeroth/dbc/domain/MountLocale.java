@@ -27,7 +27,7 @@ public class MountLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Name_lang")

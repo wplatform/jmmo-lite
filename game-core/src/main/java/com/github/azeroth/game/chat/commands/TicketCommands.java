@@ -6,7 +6,7 @@ import com.github.azeroth.game.chat.QuotedString;
 import com.github.azeroth.game.supportsystem.BugTicket;
 import com.github.azeroth.game.supportsystem.ComplaintTicket;
 import com.github.azeroth.game.supportsystem.SuggestionTicket;
-import game.*;
+
 
 class TicketCommands {
     

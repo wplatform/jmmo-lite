@@ -31,29 +31,29 @@ public class SpellClassOption implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("SpellClassMask1")
-    private Integer spellClassMask1;
+    private int spellClassMask1;
 
     @Column("SpellClassMask2")
-    private Integer spellClassMask2;
+    private int spellClassMask2;
 
     @Column("SpellClassMask3")
-    private Integer spellClassMask3;
+    private int spellClassMask3;
 
     @Column("SpellClassMask4")
-    private Integer spellClassMask4;
+    private int spellClassMask4;
 
     @Column("SpellClassSet")
-    private Byte spellClassSet;
+    private byte spellClassSet;
 
     @Column("ModalNextSpell")
-    private Integer modalNextSpell;
+    private int modalNextSpell;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

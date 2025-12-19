@@ -23,6 +23,6 @@ public class HotfixBlob {
 
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

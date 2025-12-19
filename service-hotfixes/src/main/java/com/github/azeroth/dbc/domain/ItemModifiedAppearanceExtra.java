@@ -34,26 +34,26 @@ public class ItemModifiedAppearanceExtra implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
 
     @Column("UnequippedIconFileDataID")
-    private Integer unequippedIconFileDataID;
+    private int unequippedIconFileDataID;
 
 
     @Column("SheatheType")
-    private Short sheatheType;
+    private short sheatheType;
 
 
     @Column("DisplayWeaponSubclassID")
-    private Byte displayWeaponSubclassID;
+    private byte displayWeaponSubclassID;
 
 
     @Column("DisplayInventoryType")
-    private Byte displayInventoryType;
+    private byte displayInventoryType;
 
 }

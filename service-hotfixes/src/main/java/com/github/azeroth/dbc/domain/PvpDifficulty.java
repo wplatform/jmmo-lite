@@ -31,20 +31,20 @@ public class PvpDifficulty implements DbcEntity {
     private int id;
 
     @Column("RangeIndex")
-    private Byte rangeIndex;
+    private byte rangeIndex;
 
     @Column("MinLevel")
-    private Short minLevel;
+    private short minLevel;
 
     @Column("MaxLevel")
-    private Short maxLevel;
+    private short maxLevel;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

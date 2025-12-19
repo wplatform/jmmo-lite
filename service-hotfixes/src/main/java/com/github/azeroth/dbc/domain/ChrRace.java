@@ -80,88 +80,88 @@ public class ChrRace implements DbcEntity {
     private LocalizedString nameFemaleLowercase;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("MaleDisplayId")
-    private Integer maleDisplayId;
+    private int maleDisplayId;
 
     @Column("FemaleDisplayId")
-    private Integer femaleDisplayId;
+    private int femaleDisplayId;
 
     @Column("CreateScreenFileDataID")
-    private Integer createScreenFileDataID;
+    private int createScreenFileDataID;
 
     @Column("SelectScreenFileDataID")
-    private Integer selectScreenFileDataID;
+    private int selectScreenFileDataID;
 
     @Column("MaleCustomizeOffset1")
-    private Float maleCustomizeOffset1;
+    private float maleCustomizeOffset1;
 
     @Column("MaleCustomizeOffset2")
-    private Float maleCustomizeOffset2;
+    private float maleCustomizeOffset2;
 
     @Column("MaleCustomizeOffset3")
-    private Float maleCustomizeOffset3;
+    private float maleCustomizeOffset3;
 
     @Column("FemaleCustomizeOffset1")
-    private Float femaleCustomizeOffset1;
+    private float femaleCustomizeOffset1;
 
     @Column("FemaleCustomizeOffset2")
-    private Float femaleCustomizeOffset2;
+    private float femaleCustomizeOffset2;
 
     @Column("FemaleCustomizeOffset3")
-    private Float femaleCustomizeOffset3;
+    private float femaleCustomizeOffset3;
 
     @Column("LowResScreenFileDataID")
-    private Integer lowResScreenFileDataID;
+    private int lowResScreenFileDataID;
 
     @Column("StartingLevel")
-    private Integer startingLevel;
+    private int startingLevel;
 
     @Column("UiDisplayOrder")
-    private Integer uiDisplayOrder;
+    private int uiDisplayOrder;
 
     @Column("FactionID")
-    private Short factionID;
+    private short factionID;
 
     @Column("ResSicknessSpellID")
-    private Short resSicknessSpellID;
+    private short resSicknessSpellID;
 
     @Column("SplashSoundID")
-    private Short splashSoundID;
+    private short splashSoundID;
 
     @Column("CinematicSequenceID")
-    private Short cinematicSequenceID;
+    private short cinematicSequenceID;
 
     @Column("BaseLanguage")
-    private Byte baseLanguage;
+    private byte baseLanguage;
 
     @Column("CreatureType")
-    private Byte creatureType;
+    private byte creatureType;
 
     @Column("Alliance")
-    private Byte alliance;
+    private byte alliance;
 
     @Column("RaceRelated")
-    private Byte raceRelated;
+    private byte raceRelated;
 
     @Column("UnalteredVisualRaceID")
-    private Byte unalteredVisualRaceID;
+    private byte unalteredVisualRaceID;
 
     @Column("CharComponentTextureLayoutID")
-    private Byte charComponentTextureLayoutID;
+    private byte charComponentTextureLayoutID;
 
     @Column("DefaultClassID")
-    private Byte defaultClassID;
+    private byte defaultClassID;
 
     @Column("NeutralRaceID")
-    private Byte neutralRaceID;
+    private byte neutralRaceID;
 
     @Column("DisplayRaceID")
-    private Byte displayRaceID;
+    private byte displayRaceID;
 
     @Column("CharComponentTexLayoutHiResID")
-    private Byte charComponentTexLayoutHiResID;
+    private byte charComponentTexLayoutHiResID;
 
     @Id
 
@@ -169,41 +169,41 @@ public class ChrRace implements DbcEntity {
     private int id;
 
     @Column("HighResMaleDisplayId")
-    private Integer highResMaleDisplayId;
+    private int highResMaleDisplayId;
 
     @Column("HighResFemaleDisplayId")
-    private Integer highResFemaleDisplayId;
+    private int highResFemaleDisplayId;
 
     @Column("HeritageArmorAchievementID")
-    private Integer heritageArmorAchievementID;
+    private int heritageArmorAchievementID;
 
     @Column("MaleSkeletonFileDataID")
-    private Integer maleSkeletonFileDataID;
+    private int maleSkeletonFileDataID;
 
     @Column("FemaleSkeletonFileDataID")
-    private Integer femaleSkeletonFileDataID;
+    private int femaleSkeletonFileDataID;
 
     @Column("AlteredFormStartVisualKitID1")
-    private Integer alteredFormStartVisualKitID1;
+    private int alteredFormStartVisualKitID1;
 
     @Column("AlteredFormStartVisualKitID2")
-    private Integer alteredFormStartVisualKitID2;
+    private int alteredFormStartVisualKitID2;
 
     @Column("AlteredFormStartVisualKitID3")
-    private Integer alteredFormStartVisualKitID3;
+    private int alteredFormStartVisualKitID3;
 
     @Column("AlteredFormFinishVisualKitID1")
-    private Integer alteredFormFinishVisualKitID1;
+    private int alteredFormFinishVisualKitID1;
 
     @Column("AlteredFormFinishVisualKitID2")
-    private Integer alteredFormFinishVisualKitID2;
+    private int alteredFormFinishVisualKitID2;
 
     @Column("AlteredFormFinishVisualKitID3")
-    private Integer alteredFormFinishVisualKitID3;
+    private int alteredFormFinishVisualKitID3;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -1,28 +1,27 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
 import Framework.Configuration.*;
-import Framework.Constants.*;
+
 import Framework.Database.*;
 import game.datastorage.*;
-import game.entities.*;
+
 import game.movement.*;
-import game.*;
+
 import java.util.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
 
 
 
 
 public class SmartAIManager extends Singleton<SmartAIManager> {
     private final MultiMap<Integer, SmartScriptHolder>[] eventMap = new MultiMap<Integer, SmartScriptHolder>[SmartScriptType.Max.getValue()];
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: readonly Dictionary<uint, WaypointPath> _waypointStore = new();
     private final HashMap<Integer, WaypointPath> waypointStore = new HashMap<Integer, WaypointPath>();
 
     private SmartAIManager() {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (byte i = 0; i < (int)SmartScriptType.Max; i++)
         for (byte i = 0; i < SmartScriptType.Max.getValue(); i++) {
             eventMap[i] = new MultiMap<Integer, SmartScriptHolder>();
@@ -32,7 +31,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
     public final void loadFromDB() {
         var oldMSTime = Time.getMSTime();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (byte i = 0; i < (int)SmartScriptType.Max; i++)
         for (byte i = 0; i < SmartScriptType.Max.getValue(); i++) {
             eventMap[i].Clear(); //Drop Existing SmartAI List
@@ -64,7 +63,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                 continue;
             }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var source_type = (SmartScriptType)result.Read<byte>(1);
             var sourceType = SmartScriptType.forValue(result.<Byte>Read(1));
 
@@ -81,7 +80,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
             if (temp.entryOrGuid >= 0) {
                 switch (sourceType) {
                     case Creature:
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (Global.ObjectMgr.GetCreatureTemplate((uint)temp.EntryOrGuid) == null)
                         if (Global.getObjectMgr().getCreatureTemplate((int)temp.entryOrGuid) == null) {
                             if (ConfigMgr.GetDefaultValue("load.autoclean", false)) {
@@ -96,7 +95,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         break;
 
                     case GameObject: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (Global.ObjectMgr.GetGameObjectTemplate((uint)temp.EntryOrGuid) == null)
                         if (Global.getObjectMgr().getGameObjectTemplate((int)temp.entryOrGuid) == null) {
                             if (ConfigMgr.GetDefaultValue("load.autoclean", false)) {
@@ -111,7 +110,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         break;
                     }
                     case AreaTrigger: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (CliDB.AreaTableStorage.LookupByKey((uint)temp.EntryOrGuid) == null)
                         if (CliDB.areaTableStorage.LookupByKey((int)temp.entryOrGuid) == null) {
                             if (ConfigMgr.GetDefaultValue("load.autoclean", false)) {
@@ -126,7 +125,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         break;
                     }
                     case Scene: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (Global.ObjectMgr.GetSceneTemplate((uint)temp.EntryOrGuid) == null)
                         if (Global.getObjectMgr().getSceneTemplate((int)temp.entryOrGuid) == null) {
                             if (ConfigMgr.GetDefaultValue("load.autoclean", false)) {
@@ -141,7 +140,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         break;
                     }
                     case Quest: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (Global.ObjectMgr.GetQuestTemplate((uint)temp.EntryOrGuid) == null)
                         if (Global.getObjectMgr().getQuestTemplate((int)temp.entryOrGuid) == null) {
                             if (ConfigMgr.GetDefaultValue("load.autoclean", false)) {
@@ -159,7 +158,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         break; //nothing to check, really
                     case Max:
                     case AreaTriggerEntity: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)temp.EntryOrGuid, false)) == null)
                         if (Global.getAreaTriggerDataStorage().getAreaTriggerTemplate(new AreaTriggerId((int)temp.entryOrGuid, false)) == null) {
                             if (ConfigMgr.GetDefaultValue("load.autoclean", false)) {
@@ -174,7 +173,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         break;
                     }
                     case AreaTriggerEntityServerside: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)temp.EntryOrGuid, true)) == null)
                         if (Global.getAreaTriggerDataStorage().getAreaTriggerTemplate(new AreaTriggerId((int)temp.entryOrGuid, true)) == null) {
                             if (ConfigMgr.GetDefaultValue("load.autoclean", false)) {
@@ -200,7 +199,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
             } else {
                 switch (sourceType) {
                     case Creature: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var creature = Global.ObjectMgr.GetCreatureData((ulong)-temp.EntryOrGuid);
                         var creature = Global.getObjectMgr().getCreatureData((long)-temp.entryOrGuid);
 
@@ -239,7 +238,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         break;
                     }
                     case GameObject: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var gameObject = Global.ObjectMgr.GetGameObjectData((ulong)-temp.EntryOrGuid);
                         var gameObject = Global.getObjectMgr().getGameObjectData((long)-temp.entryOrGuid);
 
@@ -289,80 +288,80 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
             }
 
             temp.sourceType = sourceType;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.EventId = result.Read<ushort>(2);
             temp.eventId = result.<Short>Read(2);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Link = result.Read<ushort>(3);
             temp.link = result.<Short>Read(3);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.type = (SmartEvents)result.Read<byte>(4);
             temp.event.type = SmartEvents.forValue(result.<Byte>Read(4));
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.event_phase_mask = result.Read<ushort>(5);
             temp.event.eventPhaseMask = result.<Short>Read(5);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.event_chance = result.Read<byte>(6);
             temp.event.eventChance = result.<Byte>Read(6);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.event_flags = (SmartEventFlags)result.Read<ushort>(7);
             temp.event.eventFlags = SmartEventFlags.forValue(result.<Short>Read(7));
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.raw.param1 = result.Read<uint>(8);
             temp.event.raw.param1 = result.<Integer>Read(8);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.raw.param2 = result.Read<uint>(9);
             temp.event.raw.param2 = result.<Integer>Read(9);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.raw.param3 = result.Read<uint>(10);
             temp.event.raw.param3 = result.<Integer>Read(10);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.raw.param4 = result.Read<uint>(11);
             temp.event.raw.param4 = result.<Integer>Read(11);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Event.raw.param5 = result.Read<uint>(12);
             temp.event.raw.param5 = result.<Integer>Read(12);
             temp.event.paramString = result.<String>Read(13);
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Action.type = (SmartActions)result.Read<byte>(14);
             temp.action.type = SmartActions.forValue(result.<Byte>Read(14));
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Action.raw.param1 = result.Read<uint>(15);
             temp.action.raw.param1 = result.<Integer>Read(15);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Action.raw.param2 = result.Read<uint>(16);
             temp.action.raw.param2 = result.<Integer>Read(16);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Action.raw.param3 = result.Read<uint>(17);
             temp.action.raw.param3 = result.<Integer>Read(17);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Action.raw.param4 = result.Read<uint>(18);
             temp.action.raw.param4 = result.<Integer>Read(18);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Action.raw.param5 = result.Read<uint>(19);
             temp.action.raw.param5 = result.<Integer>Read(19);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Action.raw.param6 = result.Read<uint>(20);
             temp.action.raw.param6 = result.<Integer>Read(20);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Action.raw.param7 = result.Read<uint>(21);
             temp.action.raw.param7 = result.<Integer>Read(21);
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Target.type = (SmartTargets)result.Read<byte>(22);
             temp.target.type = SmartTargets.forValue(result.<Byte>Read(22));
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Target.raw.param1 = result.Read<uint>(23);
             temp.target.raw.param1 = result.<Integer>Read(23);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Target.raw.param2 = result.Read<uint>(24);
             temp.target.raw.param2 = result.<Integer>Read(24);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Target.raw.param3 = result.Read<uint>(25);
             temp.target.raw.param3 = result.<Integer>Read(25);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: temp.Target.raw.param4 = result.Read<uint>(26);
             temp.target.raw.param4 = result.<Integer>Read(26);
             temp.target.x = result.<Float>Read(27);
@@ -427,7 +426,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         } while (result.NextRow());
 
         // Post Loading Validation
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (byte i = 0; i < (int)SmartScriptType.Max; ++i)
         for (byte i = 0; i < SmartScriptType.Max.getValue(); ++i) {
             if (eventMap[i] == null) {
@@ -470,24 +469,24 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
             return;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint count = 0;
         int count = 0;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint total = 0;
         int total = 0;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint lastEntry = 0;
         int lastEntry = 0;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint lastId = 1;
         int lastId = 1;
 
         do {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var entry = result.Read<uint>(0);
             var entry = result.<Integer>Read(0);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var id = result.Read<uint>(1);
             var id = result.<Integer>Read(1);
             var x = result.<Float>Read(2);
@@ -499,7 +498,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                 o = result.<Float>Read(5);
             }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var delay = result.Read<uint>(6);
             var delay = result.<Integer>Read(6);
 
@@ -532,10 +531,10 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
     public final ArrayList<SmartScriptHolder> getScript(int entry, SmartScriptType type) {
         ArrayList<SmartScriptHolder> temp = new ArrayList<SmartScriptHolder>();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (_eventMap[(uint)type].ContainsKey(entry))
         if (eventMap[(int)type.getValue()].ContainsKey(entry)) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: foreach (var holder in _eventMap[(uint)type][entry])
             for (var holder : eventMap[(int)type.getValue()].get(entry)) {
                 temp.add(new SmartScriptHolder(holder));
@@ -549,13 +548,13 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return temp;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public WaypointPath GetPath(uint id)
     public final WaypointPath getPath(int id) {
         return waypointStore.LookupByKey(id);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public static SmartScriptHolder FindLinkedSourceEvent(List<SmartScriptHolder> list, uint eventId)
     public static SmartScriptHolder findLinkedSourceEvent(ArrayList<SmartScriptHolder> list, int eventId) {
         var sch = tangible.ListHelper.find(list, p -> p.Link == eventId);
@@ -567,7 +566,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return null;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public SmartScriptHolder FindLinkedEvent(List<SmartScriptHolder> list, uint link)
     public final SmartScriptHolder findLinkedEvent(ArrayList<SmartScriptHolder> list, int link) {
         var sch = tangible.ListHelper.find(list, p -> p.EventId == link && p.GetEventType() == SmartEvents.Link);
@@ -579,7 +578,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return null;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public static uint GetTypeMask(SmartScriptType smartScriptType)
     public static int getTypeMask(SmartScriptType smartScriptType) {
         return switch (smartScriptType) {
@@ -600,7 +599,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         };
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public static uint GetEventMask(SmartEvents smartEvent)
     public static int getEventMask(SmartEvents smartEvent) {
         return switch (smartEvent) {
@@ -702,8 +701,8 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
 
 //C# TO JAVA CONVERTER TODO TASK: Java annotations will not correspond to .NET attributes:
 //ORIGINAL LINE: public static void TC_SAI_IS_BOOLEAN_VALID(SmartScriptHolder e, uint value, [CallerArgumentExpression("value")] string valueName = null)
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
+
     public static void tcSaiIsBooleanValid(SmartScriptHolder e, int value, String valueName) {
         if (value > 1) {
             Log.outError(LogFilter.Sql, String.format("SmartAIMgr: %1$s uses param %2$s of type Boolean with value %3$s, valid values are 0 or 1, skipped.", e, valueName, value));
@@ -795,7 +794,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                     return false;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: ulong guid = e.Target.unitGUID.dbGuid;
                 long guid = e.target.unitGUID.dbGuid;
                 var data = Global.getObjectMgr().getCreatureData(guid);
@@ -817,7 +816,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                     return false;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: ulong guid = e.Target.goGUID.dbGuid;
                 long guid = e.target.goGUID.dbGuid;
                 var data = Global.getObjectMgr().getGameObjectData(guid);
@@ -907,7 +906,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsSpellVisualKitValid(SmartScriptHolder e, uint entry)
     private static boolean isSpellVisualKitValid(SmartScriptHolder e, int entry) {
         if (!CliDB.spellVisualKitStorage.containsKey(entry)) {
@@ -1008,7 +1007,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         var paramsCount = paramsStructSize / (Integer.SIZE / Byte.SIZE);
 
         for (var index = paramsCount; index < rawCount; index++) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint value = 0;
             int value = 0;
 
@@ -1187,7 +1186,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         var paramsCount = paramsStructSize / (Integer.SIZE / Byte.SIZE);
 
         for (var index = paramsCount; index < rawCount; index++) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint value = 0;
             int value = 0;
 
@@ -1266,7 +1265,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         var paramsCount = paramsStructSize / (Integer.SIZE / Byte.SIZE);
 
         for (var index = paramsCount; index < rawCount; index++) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint value = 0;
             int value = 0;
 
@@ -1317,7 +1316,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
             return false;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Event.event_phase_mask > (uint)SmartEventPhaseBits.All)
         if (e.event.eventPhaseMask > (int)SmartEventPhaseBits.All.getValue()) {
             Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid phase mask ({2}), skipped.", e.entryOrGuid, e.eventId, e.event.eventPhaseMask);
@@ -1409,7 +1408,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         return false;
                     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Event.los.hostilityMode >= (uint)LOSHostilityMode.End)
                     if (e.event.los.hostilityMode >= (int)LOSHostilityMode.End.getValue()) {
                         Log.outError(LogFilter.Sql, String.format("SmartAIMgr: %1$s uses hostilityMode with invalid value %2$s (max allowed value %3$s), skipped.", e, e.event.los.hostilityMode, LOSHostilityMode.End - 1));
@@ -1421,7 +1420,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
 
                     break;
                 case Respawn:
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && CliDB.MapStorage.LookupByKey(e.Event.respawn.map) == null)
                     if (e.event.respawn.type == (int)SmartRespawnCondition.Map.getValue() && CliDB.mapStorage.LookupByKey(e.event.respawn.map) == null) {
                         Log.outError(LogFilter.ScriptsAi, String.format("SmartAIMgr: %1$s uses non-existent Map entry %2$s, skipped.", e, e.event.respawn.map));
@@ -1429,7 +1428,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         return false;
                     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && !CliDB.AreaTableStorage.ContainsKey(e.Event.respawn.area))
                     if (e.event.respawn.type == (int)SmartRespawnCondition.Area.getValue() && !CliDB.areaTableStorage.containsKey(e.event.respawn.area)) {
                         Log.outError(LogFilter.ScriptsAi, String.format("SmartAIMgr: %1$s uses non-existent Area entry %2$s, skipped.", e, e.event.respawn.area));
@@ -1956,7 +1955,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                         }
                     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: ulong guid = e.Action.crossCast.targetParam1;
                     long guid = e.action.crossCast.targetParam1;
                     var spawnType = targetType == SmartTargets.CreatureGuid ? SpawnObjectType.Creature : SpawnObjectType.GameObject;
@@ -2011,7 +2010,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
 
                 break;
             case SetEventPhase:
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.setEventPhase.phase >= (uint)SmartPhase.Max)
                 if (e.action.setEventPhase.phase >= (int)SmartPhase.Max.getValue()) {
                     Log.outError(LogFilter.ScriptsAi, String.format("SmartAIMgr: %1$s attempts to set phase %2$s. Phase mask cannot be used past phase %3$s, skipped.", e, e.action.setEventPhase.phase, SmartPhase.Max - 1));
@@ -2026,7 +2025,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
 
                     return false;
                 }
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: else if (e.Action.incEventPhase.inc > (uint)SmartPhase.Max || e.Action.incEventPhase.dec > (uint)SmartPhase.Max)
                 else if (e.action.incEventPhase.inc > (int)SmartPhase.Max.getValue() || e.action.incEventPhase.dec > (int)SmartPhase.Max.getValue()) {
                     Log.outError(LogFilter.ScriptsAi, String.format("SmartAIMgr: %1$s attempts to increment phase by too large value, skipped.", e));
@@ -2044,7 +2043,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
 
                 break;
             case RandomPhase: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.randomPhase.phase1 >= (uint)SmartPhase.Max || e.Action.randomPhase.phase2 >= (uint)SmartPhase.Max || e.Action.randomPhase.phase3 >= (uint)SmartPhase.Max || e.Action.randomPhase.phase4 >= (uint)SmartPhase.Max || e.Action.randomPhase.phase5 >= (uint)SmartPhase.Max || e.Action.randomPhase.phase6 >= (uint)SmartPhase.Max)
                 if (e.action.randomPhase.phase1 >= (int)SmartPhase.Max.getValue() || e.action.randomPhase.phase2 >= (int)SmartPhase.Max.getValue() || e.action.randomPhase.phase3 >= (int)SmartPhase.Max.getValue() || e.action.randomPhase.phase4 >= (int)SmartPhase.Max.getValue() || e.action.randomPhase.phase5 >= (int)SmartPhase.Max.getValue() || e.action.randomPhase.phase6 >= (int)SmartPhase.Max.getValue()) {
                     Log.outError(LogFilter.Sql, String.format("SmartAIMgr: Entry %1$s SourceType %2$s Event %3$s Action %4$s attempts to set invalid phase, skipped.", e.entryOrGuid, e.getScriptType(), e.eventId, e.getActionType()));
@@ -2055,7 +2054,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                 break;
             }
             case RandomPhaseRange: { //PhaseMin, PhaseMax
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.randomPhaseRange.phaseMin >= (uint)SmartPhase.Max || e.Action.randomPhaseRange.phaseMax >= (uint)SmartPhase.Max)
                 if (e.action.randomPhaseRange.phaseMin >= (int)SmartPhase.Max.getValue() || e.action.randomPhaseRange.phaseMax >= (int)SmartPhase.Max.getValue()) {
                     Log.outError(LogFilter.ScriptsAi, String.format("SmartAIMgr: %1$s attempts to set invalid phase, skipped.", e));
@@ -2074,7 +2073,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                     return false;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.summonCreature.type < (uint)TempSummonType.TimedOrDeadDespawn || e.Action.summonCreature.type > (uint)TempSummonType.ManualDespawn)
                 if (e.action.summonCreature.type < (int)TempSummonType.TimedOrDeadDespawn.getValue() || e.action.summonCreature.type > (int)TempSummonType.ManualDespawn.getValue()) {
                     Log.outError(LogFilter.ScriptsAi, String.format("SmartAIMgr: %1$s uses incorrect TempSummonType %2$s, skipped.", e, e.action.summonCreature.type));
@@ -2106,7 +2105,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
 
                 break;
             case SetSheath:
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.setSheath.sheath != 0 && e.Action.setSheath.sheath >= (uint)SheathState.Max)
                 if (e.action.setSheath.sheath != 0 && e.action.setSheath.sheath >= (int)SheathState.Max.getValue()) {
                     Log.outError(LogFilter.ScriptsAi, String.format("SmartAIMgr: %1$s uses incorrect Sheath state %2$s, skipped.", e, e.action.setSheath.sheath));
@@ -2116,7 +2115,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
 
                 break;
             case SetReactState: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.react.state > (uint)ReactStates.Aggressive)
                 if (e.action.react.state > (int)ReactStates.Aggressive.getValue()) {
                     Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: Creature {0} Event {1} Action {2} uses invalid React State {3}, skipped.", e.entryOrGuid, e.eventId, e.getActionType(), e.action.react.state);
@@ -2260,7 +2259,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                 if (e.getScriptType() == SmartScriptType.Creature) {
                     var equipId = (byte)e.action.equip.entry;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (equipId != 0 && Global.ObjectMgr.GetEquipmentInfo((uint)e.EntryOrGuid, equipId) == null)
                     if (equipId != 0 && Global.getObjectMgr().getEquipmentInfo((int)e.entryOrGuid, equipId) == null) {
                         Log.outError(LogFilter.Sql, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id {0} for creature {1}, skipped.", equipId, e.entryOrGuid);
@@ -2574,10 +2573,10 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                     return false;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.activateGameObject.gameObjectAction >= (uint)GameObjectActions.Max)
                 if (e.action.activateGameObject.gameObjectAction >= (int)GameObjectActions.Max.getValue()) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Log.outError(LogFilter.Sql, string.Format("SmartAIMgr: {0} has gameObjectAction parameter out of range (max allowed {1}, current value {2}), skipped.", e, (uint)GameObjectActions.Max - 1, e.Action.activateGameObject.gameObjectAction));
                     Log.outError(LogFilter.Sql, String.format("SmartAIMgr: %1$s has gameObjectAction parameter out of range (max allowed %2$s, current value %3$s), skipped.", e, (int)GameObjectActions.Max.getValue() - 1, e.action.activateGameObject.gameObjectAction));
 
@@ -2635,7 +2634,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
             case DoAction:
                 break;
             case BecomePersonalCloneForPlayer: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.becomePersonalClone.type < (uint)TempSummonType.TimedOrDeadDespawn || e.Action.becomePersonalClone.type > (uint)TempSummonType.ManualDespawn)
                 if (e.action.becomePersonalClone.type < (int)TempSummonType.TimedOrDeadDespawn.getValue() || e.action.becomePersonalClone.type > (int)TempSummonType.ManualDespawn.getValue()) {
                     Log.outError(LogFilter.Sql, String.format("SmartAIMgr: %1$s uses incorrect TempSummonType %2$s, skipped.", e, e.action.becomePersonalClone.type));
@@ -2686,7 +2685,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsAnimKitValid(SmartScriptHolder e, uint entry)
     private static boolean isAnimKitValid(SmartScriptHolder e, int entry) {
         if (!CliDB.animKitStorage.containsKey(entry)) {
@@ -2698,14 +2697,14 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsTextValid(SmartScriptHolder e, uint id)
     private static boolean isTextValid(SmartScriptHolder e, int id) {
         if (e.getScriptType() != SmartScriptType.Creature) {
             return true;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint entry;
         int entry;
 
@@ -2719,7 +2718,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                     return true; // ignore
                 default:
                     if (e.entryOrGuid < 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var guid = (ulong)-e.EntryOrGuid;
                         var guid = (long)-e.entryOrGuid;
                         var data = Global.getObjectMgr().getCreatureData(guid);
@@ -2732,7 +2731,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
                             entry = data.id;
                         }
                     } else {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: entry = (uint)e.EntryOrGuid;
                         entry = (int)e.entryOrGuid;
                     }
@@ -2741,7 +2740,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
             }
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (entry == 0 || !Global.CreatureTextMgr.TextExist(entry, (byte)id))
         if (entry == 0 || !Global.getCreatureTextMgr().textExist(entry, (byte)id)) {
             Log.outError(LogFilter.Sql, String.format("SmartAIMgr: %1$s using non-existent Text id %2$s, skipped.", e, id));
@@ -2752,7 +2751,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsCreatureValid(SmartScriptHolder e, uint entry)
     private static boolean isCreatureValid(SmartScriptHolder e, int entry) {
         if (Global.getObjectMgr().getCreatureTemplate(entry) == null) {
@@ -2764,7 +2763,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsGameObjectValid(SmartScriptHolder e, uint entry)
     private static boolean isGameObjectValid(SmartScriptHolder e, int entry) {
         if (Global.getObjectMgr().getGameObjectTemplate(entry) == null) {
@@ -2776,7 +2775,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsQuestValid(SmartScriptHolder e, uint entry)
     private static boolean isQuestValid(SmartScriptHolder e, int entry) {
         if (Global.getObjectMgr().getQuestTemplate(entry) == null) {
@@ -2788,7 +2787,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsSpellValid(SmartScriptHolder e, uint entry)
     private static boolean isSpellValid(SmartScriptHolder e, int entry) {
         if (!Global.getSpellMgr().hasSpellInfo(entry, Difficulty.None)) {
@@ -2800,7 +2799,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsMinMaxValid(SmartScriptHolder e, uint min, uint max)
     private static boolean isMinMaxValid(SmartScriptHolder e, int min, int max) {
         if (max < min) {
@@ -2812,7 +2811,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool NotNULL(SmartScriptHolder e, uint data)
     private static boolean notNULL(SmartScriptHolder e, int data) {
         if (data == 0) {
@@ -2824,7 +2823,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsEmoteValid(SmartScriptHolder e, uint entry)
     private static boolean isEmoteValid(SmartScriptHolder e, int entry) {
         if (!CliDB.emotesStorage.containsKey(entry)) {
@@ -2836,7 +2835,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsItemValid(SmartScriptHolder e, uint entry)
     private static boolean isItemValid(SmartScriptHolder e, int entry) {
         if (!CliDB.itemSparseStorage.containsKey(entry)) {
@@ -2848,7 +2847,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsTextEmoteValid(SmartScriptHolder e, uint entry)
     private static boolean isTextEmoteValid(SmartScriptHolder e, int entry) {
         if (!CliDB.emotesTextStorage.containsKey(entry)) {
@@ -2860,7 +2859,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsAreaTriggerValid(SmartScriptHolder e, uint entry)
     private static boolean isAreaTriggerValid(SmartScriptHolder e, int entry) {
         if (!CliDB.areaTriggerStorage.containsKey(entry)) {
@@ -2872,7 +2871,7 @@ public class SmartAIManager extends Singleton<SmartAIManager> {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: static bool IsSoundValid(SmartScriptHolder e, uint entry)
     private static boolean isSoundValid(SmartScriptHolder e, int entry) {
         if (!CliDB.soundKitStorage.containsKey(entry)) {

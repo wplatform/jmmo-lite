@@ -43,33 +43,33 @@ public class MapDifficulty implements DbcEntity {
     private LocalizedString message;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("ResetInterval")
-    private Byte resetInterval;
+    private byte resetInterval;
 
     @Column("MaxPlayers")
-    private Byte maxPlayers;
+    private byte maxPlayers;
 
     @Column("LockID")
-    private Short lockID;
+    private short lockID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("ItemContext")
-    private Byte itemContext;
+    private byte itemContext;
 
     @Column("ItemContextPickerID")
-    private Integer itemContextPickerID;
+    private int itemContextPickerID;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     public boolean hasResetSchedule() {

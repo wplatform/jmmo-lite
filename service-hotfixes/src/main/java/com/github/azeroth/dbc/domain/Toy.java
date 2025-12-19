@@ -31,13 +31,13 @@ public class Toy implements DbcEntity {
     private LocalizedString sourceText;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("SourceTypeEnum")
-    private Byte sourceTypeEnum;
+    private byte sourceTypeEnum;
 
     @Id
 
@@ -47,6 +47,6 @@ public class Toy implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

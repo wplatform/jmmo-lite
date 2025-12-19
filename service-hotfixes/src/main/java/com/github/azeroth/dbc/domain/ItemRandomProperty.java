@@ -33,23 +33,23 @@ public class ItemRandomProperty implements DbcEntity {
     private LocalizedString name;
 
     @Column("Enchantment1")
-    private Short enchantment1;
+    private short enchantment1;
 
     @Column("Enchantment2")
-    private Short enchantment2;
+    private short enchantment2;
 
     @Column("Enchantment3")
-    private Short enchantment3;
+    private short enchantment3;
 
     @Column("Enchantment4")
-    private Short enchantment4;
+    private short enchantment4;
 
     @Column("Enchantment5")
-    private Short enchantment5;
+    private short enchantment5;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -33,11 +33,11 @@ public class QuestSort implements DbcEntity {
     private LocalizedString sortName;
 
     @Column("UiOrderIndex")
-    private Byte uiOrderIndex;
+    private byte uiOrderIndex;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -65,68 +65,68 @@ public class GarrBuilding implements DbcEntity {
     private LocalizedString tooltip;
 
     @Column("HordeGameObjectID")
-    private Integer hordeGameObjectID;
+    private int hordeGameObjectID;
 
     @Column("AllianceGameObjectID")
-    private Integer allianceGameObjectID;
+    private int allianceGameObjectID;
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
     @Column("CurrencyTypeID")
-    private Short currencyTypeID;
+    private short currencyTypeID;
 
     @Column("HordeUiTextureKitID")
-    private Short hordeUiTextureKitID;
+    private short hordeUiTextureKitID;
 
     @Column("AllianceUiTextureKitID")
-    private Short allianceUiTextureKitID;
+    private short allianceUiTextureKitID;
 
     @Column("AllianceSceneScriptPackageID")
-    private Short allianceSceneScriptPackageID;
+    private short allianceSceneScriptPackageID;
 
     @Column("HordeSceneScriptPackageID")
-    private Short hordeSceneScriptPackageID;
+    private short hordeSceneScriptPackageID;
 
     @Column("GarrAbilityID")
-    private Short garrAbilityID;
+    private short garrAbilityID;
 
     @Column("BonusGarrAbilityID")
-    private Short bonusGarrAbilityID;
+    private short bonusGarrAbilityID;
 
     @Column("GoldCost")
-    private Short goldCost;
+    private short goldCost;
 
     @Column("GarrSiteID")
-    private Byte garrSiteID;
+    private byte garrSiteID;
 
     @Column("BuildingType")
-    private Byte buildingType;
+    private byte buildingType;
 
     @Column("UpgradeLevel")
-    private Byte upgradeLevel;
+    private byte upgradeLevel;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("ShipmentCapacity")
-    private Byte shipmentCapacity;
+    private byte shipmentCapacity;
 
     @Column("GarrTypeID")
-    private Byte garrTypeID;
+    private byte garrTypeID;
 
     @Column("BuildSeconds")
-    private Integer buildSeconds;
+    private int buildSeconds;
 
     @Column("CurrencyQty")
-    private Integer currencyQty;
+    private int currencyQty;
 
     @Column("MaxAssignments")
-    private Integer maxAssignments;
+    private int maxAssignments;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

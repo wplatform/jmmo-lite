@@ -1,13 +1,12 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
+
 import Framework.Dynamic.*;
-import game.entities.*;
-import game.spells.*;
-import game.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+import game.spells.*;
+
+
+
 
 
 
@@ -23,7 +22,7 @@ public class GameObjectAI {
         events = new EventMap();
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void UpdateAI(uint diff)
     public void updateAI(int diff) {
     }
@@ -41,7 +40,7 @@ public class GameObjectAI {
         doAction(0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public virtual void DoAction(int param = 0)
     public void doAction(int param) {
     }
@@ -50,7 +49,7 @@ public class GameObjectAI {
         setGUID(guid, 0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public virtual void SetGUID(ObjectGuid guid, int id = 0)
     public void setGUID(ObjectGuid guid, int id) {
     }
@@ -60,7 +59,7 @@ public class GameObjectAI {
         return getGUID(0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public virtual ObjectGuid GetGUID(int id = 0)
     public ObjectGuid getGUID(int id) {
         return ObjectGuid.empty;
@@ -83,7 +82,7 @@ public class GameObjectAI {
     /** 
       Called when a player selects a gossip item in the gameobject's gossip menu.
     */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     public boolean onGossipSelect(Player player, int menuId, int gossipListId) {
         return false;
@@ -92,7 +91,7 @@ public class GameObjectAI {
     /** 
       Called when a player selects a gossip with a code in the gameobject's gossip menu.
     */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual bool OnGossipSelectCode(Player player, uint sender, uint action, string code)
     public boolean onGossipSelectCode(Player player, int sender, int action, String code) {
         return false;
@@ -107,7 +106,7 @@ public class GameObjectAI {
     /** 
       Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
     */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     public void onQuestReward(Player player, Quest quest, LootItemType type, int opt) {
     }
@@ -118,48 +117,48 @@ public class GameObjectAI {
         return false;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void Destroyed(WorldObject attacker, uint eventId)
     public void destroyed(WorldObject attacker, int eventId) {
     }
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void Damaged(WorldObject attacker, uint eventId)
     public void damaged(WorldObject attacker, int eventId) {
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void SetData64(uint id, ulong value)
     public void setData64(int id, long value) {
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual ulong GetData64(uint id)
     public long getData64(int id) {
         return 0;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual uint GetData(uint id)
     public int getData(int id) {
         return 0;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public virtual void SetData(uint id, uint value)
+
+
     public void setData(int id, int value) {
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void OnGameEvent(bool start, ushort eventId)
     public void onGameEvent(boolean start, short eventId) {
     }
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void OnLootStateChanged(uint state, Unit unit)
     public void onLootStateChanged(int state, Unit unit) {
     }
     public void onStateChanged(GameObjectState state) {
     }
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void EventInform(uint eventId)
     public void eventInform(int eventId) {
     }

@@ -45,7 +45,7 @@ public class JournalEncounterSection implements DbcEntity {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("Title")
@@ -57,27 +57,27 @@ public class JournalEncounterSection implements DbcEntity {
 
     
     @Column("JournalEncounterID")
-    private Integer journalEncounterID;
+    private int journalEncounterID;
 
     
     @Column("OrderIndex")
-    private Short orderIndex;
+    private short orderIndex;
 
     
     @Column("ParentSectionID")
-    private Integer parentSectionID;
+    private int parentSectionID;
 
     
     @Column("FirstChildSectionID")
-    private Integer firstChildSectionID;
+    private int firstChildSectionID;
 
     
     @Column("NextSiblingSectionID")
-    private Integer nextSiblingSectionID;
+    private int nextSiblingSectionID;
 
     
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     
     @Column("IconCreatureDisplayInfoID")
@@ -85,26 +85,26 @@ public class JournalEncounterSection implements DbcEntity {
 
     
     @Column("UiModelSceneID")
-    private Integer uiModelSceneID;
+    private int uiModelSceneID;
 
     
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
     
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     
     @Column("IconFlags")
-    private Integer iconFlags;
+    private int iconFlags;
 
     
     @Column("DifficultyMask")
-    private Byte difficultyMask;
+    private byte difficultyMask;
 
 }

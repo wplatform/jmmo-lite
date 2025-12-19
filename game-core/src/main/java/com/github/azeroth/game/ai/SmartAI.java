@@ -1,19 +1,18 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.entities.*;
+
+
 import game.maps.grids.*;
 import game.spells.*;
-import game.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
 
 
 
 
 public class SmartAI extends CreatureAI {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint EscortQuestID;
     public int escortQuestID;
     private static final int SMART_ESCORT_MAX_PLAYER_DIST = 60;
@@ -25,16 +24,16 @@ public class SmartAI extends CreatureAI {
     private final boolean hasConditions;
 
     private boolean isCharmed;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _followCreditType;
     private int followCreditType;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _followArrivedTimer;
     private int followArrivedTimer;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _followCredit;
     private int followCredit;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _followArrivedEntry;
     private int followArrivedEntry;
     private ObjectGuid followGuid = new ObjectGuid();
@@ -42,17 +41,17 @@ public class SmartAI extends CreatureAI {
     private float followAngle;
 
     private SmartEscortState escortState = SmartEscortState.values()[0];
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _escortNPCFlags;
     private int escortNPCFlags;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _escortInvokerCheckTimer;
     private int escortInvokerCheckTimer;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _currentWaypointNode;
     private int currentWaypointNode;
     private boolean waypointReached;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _waypointPauseTimer;
     private int waypointPauseTimer;
     private boolean waypointPauseForced;
@@ -63,17 +62,17 @@ public class SmartAI extends CreatureAI {
     private boolean run;
     private boolean evadeDisabled;
     private boolean canCombatMove;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _invincibilityHpLevel;
     private int invincibilityHpLevel;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _despawnTime;
     private int despawnTime;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _despawnState;
     private int despawnState;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _conditionsTimer;
     private int conditionsTimer;
 
@@ -110,9 +109,9 @@ public class SmartAI extends CreatureAI {
         startPath(false, 0, false, null, 1);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void StartPath(bool run = false, uint pathId = 0, bool repeat = false, Unit invoker = null, uint nodeId = 1)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void startPath(boolean run, int pathId, boolean repeat, Unit invoker, int nodeId) {
         if (hasEscortState(SmartEscortState.Escorting)) {
             stopPath();
@@ -139,7 +138,7 @@ public class SmartAI extends CreatureAI {
         escortState = SmartEscortState.Escorting;
 
         if (invoker && invoker.isPlayer()) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: _escortNPCFlags = (uint)Me.NpcFlags;
             escortNPCFlags = (int)me.getNpcFlags().getValue();
             me.replaceAllNpcFlags(NPCFlags.None);
@@ -148,7 +147,7 @@ public class SmartAI extends CreatureAI {
         me.getMotionMaster().movePath(path, repeatWaypointPath);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public void PausePath(uint delay, bool forced)
     public final void pausePath(int delay, boolean forced) {
         if (!hasEscortState(SmartEscortState.Escorting)) {
@@ -205,9 +204,9 @@ public class SmartAI extends CreatureAI {
         stopPath(0, 0, false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void StopPath(uint despawnTime = 0, uint quest = 0, bool fail = false)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void stopPath(int despawnTime, int quest, boolean fail) {
         if (!hasEscortState(SmartEscortState.Escorting)) {
 //C# TO JAVA CONVERTER TODO TASK: Tuple variables are not converted by C# to Java Converter:
@@ -260,7 +259,7 @@ public class SmartAI extends CreatureAI {
         endPath(false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void EndPath(bool fail = false)
     public final void endPath(boolean fail) {
         removeEscortState(SmartEscortState.Escorting.getValue() | SmartEscortState.Paused.getValue() | SmartEscortState.Returning.getValue());
@@ -352,7 +351,7 @@ public class SmartAI extends CreatureAI {
         me.resumeMovement();
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
@@ -385,7 +384,7 @@ public class SmartAI extends CreatureAI {
         doMeleeAttackIfReady();
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void WaypointReached(uint nodeId, uint pathId)
     @Override
     public void waypointReached(int nodeId, int pathId) {
@@ -412,7 +411,7 @@ public class SmartAI extends CreatureAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void WaypointPathEnded(uint nodeId, uint pathId)
     @Override
     public void waypointPathEnded(int nodeId, int pathId) {
@@ -423,7 +422,7 @@ public class SmartAI extends CreatureAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void MovementInform(MovementGeneratorType movementType, uint id)
     @Override
     public void movementInform(MovementGeneratorType movementType, int id) {
@@ -431,7 +430,7 @@ public class SmartAI extends CreatureAI {
             me.clearUnitState(UnitState.Evade);
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.Movementinform, null, (uint)movementType, id);
         getScript().processEventsFor(SmartEvents.Movementinform, null, (int)movementType.getValue(), id);
 
@@ -475,7 +474,7 @@ public class SmartAI extends CreatureAI {
         enterEvadeMode(EvadeReason.Other);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     @Override
     public void enterEvadeMode(EvadeReason why) {
@@ -680,11 +679,11 @@ public class SmartAI extends CreatureAI {
         damageTaken(attacker, damage, damageType, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     @Override
     public void damageTaken(Unit attacker, tangible.RefObject<Double> damage, DamageEffectType damageType, SpellInfo spellInfo) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.Damaged, attacker, (uint)damage);
         getScript().processEventsFor(SmartEvents.Damaged, attacker, damage.refArgValue.intValue());
 
@@ -693,7 +692,7 @@ public class SmartAI extends CreatureAI {
         }
 
         if (invincibilityHpLevel != 0 && (damage.refArgValue >= me.getHealth() - invincibilityHpLevel)) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: damage = (uint)(Me.Health - _invincibilityHpLevel);
             damage.refArgValue = (int)(me.getHealth() - invincibilityHpLevel); // damage should not be nullified, because of player damage req.
         }
@@ -701,14 +700,14 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void healReceived(Unit by, double addhealth) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.ReceiveHeal, by, (uint)addhealth);
         getScript().processEventsFor(SmartEvents.ReceiveHeal, by, (int)addhealth);
     }
 
     @Override
     public void receiveEmote(Player player, TextEmotes emoteId) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.ReceiveEmote, player, (uint)emoteId);
         getScript().processEventsFor(SmartEvents.ReceiveEmote, player, (int)emoteId.getValue());
     }
@@ -720,7 +719,7 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void damageDealt(Unit victim, tangible.RefObject<Double> damage, DamageEffectType damageType) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.DamagedTarget, victim, (uint)damage);
         getScript().processEventsFor(SmartEvents.DamagedTarget, victim, damage.refArgValue.intValue());
     }
@@ -732,7 +731,7 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void corpseRemoved(long respawnDelay) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.CorpseRemoved, null, (uint)respawnDelay);
         getScript().processEventsFor(SmartEvents.CorpseRemoved, null, (int)respawnDelay);
     }
@@ -744,7 +743,7 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void passengerBoarded(Unit passenger, byte seatId, boolean apply) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetScript().ProcessEventsFor(apply ? SmartEvents.PassengerBoarded : SmartEvents.PassengerRemoved, passenger, (uint)seatId, 0, apply);
         getScript().processEventsFor(apply ? SmartEvents.PassengerBoarded : SmartEvents.PassengerRemoved, passenger, (int)seatId, 0, apply);
     }
@@ -798,26 +797,26 @@ public class SmartAI extends CreatureAI {
 
     @Override
     public void doAction(int param) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetScript().ProcessEventsFor(SmartEvents.ActionDone, null, (uint)param);
         getScript().processEventsFor(SmartEvents.ActionDone, null, (int)param);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override uint GetData(uint id)
     @Override
     public int getData(int id) {
         return 0;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void SetData(uint id, uint value)
     @Override
     public void setData(int id, int value) {
         setData(id, value, null);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public void SetData(uint id, uint value, Unit invoker)
     public final void setData(int id, int value, Unit invoker) {
         getScript().processEventsFor(SmartEvents.DataSet, invoker, id, value);
@@ -846,7 +845,7 @@ public class SmartAI extends CreatureAI {
         setDisableGravity(true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetDisableGravity(bool disable = true)
     public final void setDisableGravity(boolean disable) {
         me.setDisableGravity(disable);
@@ -864,7 +863,7 @@ public class SmartAI extends CreatureAI {
         return gossipReturn;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     @Override
     public boolean onGossipSelect(Player player, int menuId, int gossipListId) {
@@ -874,7 +873,7 @@ public class SmartAI extends CreatureAI {
         return gossipReturn;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override bool OnGossipSelectCode(Player player, uint menuId, uint gossipListId, string code)
     @Override
     public boolean onGossipSelectCode(Player player, int menuId, int gossipListId, String code) {
@@ -886,7 +885,7 @@ public class SmartAI extends CreatureAI {
         getScript().processEventsFor(SmartEvents.AcceptedQuest, player, quest.id);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     @Override
     public void onQuestReward(Player player, Quest quest, LootItemType type, int opt) {
@@ -898,7 +897,7 @@ public class SmartAI extends CreatureAI {
         setCombatMove(on, false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetCombatMove(bool on, bool stopMoving = false)
     public final void setCombatMove(boolean on, boolean stopMoving) {
         if (canCombatMove == on) {
@@ -933,7 +932,7 @@ public class SmartAI extends CreatureAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public void SetFollow(Unit target, float dist, float angle, uint credit, uint end, uint creditType)
     public final void setFollow(Unit target, float dist, float angle, int credit, int end, int creditType) {
         if (target == null) {
@@ -989,14 +988,14 @@ public class SmartAI extends CreatureAI {
         setTimedActionList(e, entry, invoker, 0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker, uint startFromEventId = 0)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void setTimedActionList(SmartScriptHolder e, int entry, Unit invoker, int startFromEventId) {
         getScript().setTimedActionList(e, entry, invoker, startFromEventId);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void OnGameEvent(bool start, ushort eventId)
     @Override
     public void onGameEvent(boolean start, short eventId) {
@@ -1041,7 +1040,7 @@ public class SmartAI extends CreatureAI {
         return script;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public void SetInvincibilityHpLevel(uint level)
     public final void setInvincibilityHpLevel(int level) {
         invincibilityHpLevel = level;
@@ -1052,9 +1051,9 @@ public class SmartAI extends CreatureAI {
         setDespawnTime(t, 0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetDespawnTime(uint t, uint r = 0)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void setDespawnTime(int t, int r) {
         despawnTime = t;
         despawnState = t != 0 ? 1 : 0;
@@ -1064,7 +1063,7 @@ public class SmartAI extends CreatureAI {
         despawnState = 2;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public void SetWPPauseTimer(uint time)
     public final void setWPPauseTimer(int time) {
         waypointPauseTimer = time;
@@ -1078,7 +1077,7 @@ public class SmartAI extends CreatureAI {
         return !isCharmed;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: bool LoadPath(uint entry)
     private boolean loadPath(int entry) {
         if (hasEscortState(SmartEscortState.Escorting)) {
@@ -1209,7 +1208,7 @@ public class SmartAI extends CreatureAI {
         return false;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void CheckConditions(uint diff)
     private void checkConditions(int diff) {
         if (!hasConditions) {
@@ -1243,7 +1242,7 @@ public class SmartAI extends CreatureAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void UpdatePath(uint diff)
     private void updatePath(int diff) {
         if (!hasEscortState(SmartEscortState.Escorting)) {
@@ -1295,7 +1294,7 @@ public class SmartAI extends CreatureAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void UpdateFollow(uint diff)
     private void updateFollow(int diff) {
         if (followGuid.isEmpty()) {
@@ -1313,7 +1312,7 @@ public class SmartAI extends CreatureAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void UpdateDespawn(uint diff)
     private void updateDespawn(int diff) {
         if (despawnState <= 1 || despawnState > 3) {

@@ -35,32 +35,32 @@ public class ConversationLine implements DbcEntity {
     private int id;
 
     @Column("BroadcastTextID")
-    private Integer broadcastTextID;
+    private int broadcastTextID;
 
     @Column("SpellVisualKitID")
-    private Integer spellVisualKitID;
+    private int spellVisualKitID;
 
     @Column("AdditionalDuration")
-    private Integer additionalDuration;
+    private int additionalDuration;
 
     @Column("NextConversationLineID")
-    private Short nextConversationLineID;
+    private short nextConversationLineID;
 
     @Column("AnimKitID")
-    private Short animKitID;
+    private short animKitID;
 
     @Column("SpeechType")
-    private Byte speechType;
+    private byte speechType;
 
     @Column("StartAnimation")
-    private Short startAnimation;
+    private short startAnimation;
 
     @Column("EndAnimation")
-    private Short endAnimation;
+    private short endAnimation;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

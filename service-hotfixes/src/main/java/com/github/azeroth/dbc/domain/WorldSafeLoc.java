@@ -35,24 +35,24 @@ public class WorldSafeLoc implements DbcEntity {
     private LocalizedString areaName;
 
     @Column("LocX")
-    private Float locX;
+    private float locX;
 
     @Column("LocY")
-    private Float locY;
+    private float locY;
 
     @Column("LocZ")
-    private Float locZ;
+    private float locZ;
 
     @Column("Facing")
-    private Float facing;
+    private float facing;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
 }

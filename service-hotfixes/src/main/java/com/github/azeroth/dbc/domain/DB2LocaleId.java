@@ -14,7 +14,7 @@ public class DB2LocaleId implements Serializable {
 
     public String locale;
 
-    public Integer verifiedBuild;
+    public int verifiedBuild;
 
 
 }

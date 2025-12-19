@@ -25,10 +25,10 @@ import lombok.ToString;
 })
 public class SpellPowerDifficulty implements DbcEntity {
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Id
 
@@ -38,6 +38,6 @@ public class SpellPowerDifficulty implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

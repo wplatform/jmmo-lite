@@ -41,34 +41,34 @@ public class ArtifactAppearance implements DbcEntity {
     private LocalizedString name;
 
     @Column("UiSwatchColor")
-    private Integer uiSwatchColor;
+    private int uiSwatchColor;
 
     @Column("UiModelSaturation")
-    private Float uiModelSaturation;
+    private float uiModelSaturation;
 
     @Column("UiModelOpacity")
-    private Float uiModelOpacity;
+    private float uiModelOpacity;
 
     @Column("OverrideShapeshiftDisplayID")
-    private Integer overrideShapeshiftDisplayID;
+    private int overrideShapeshiftDisplayID;
 
     @Column("ArtifactAppearanceSetID")
-    private Short artifactAppearanceSetID;
+    private short artifactAppearanceSetID;
 
     @Column("UiCameraID")
-    private Short uiCameraID;
+    private short uiCameraID;
 
     @Column("DisplayIndex")
-    private Byte displayIndex;
+    private byte displayIndex;
 
     @Column("ItemAppearanceModifierID")
-    private Byte itemAppearanceModifierID;
+    private byte itemAppearanceModifierID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("OverrideShapeshiftFormID")
-    private Byte overrideShapeshiftFormID;
+    private byte overrideShapeshiftFormID;
 
     @Id
 
@@ -76,17 +76,17 @@ public class ArtifactAppearance implements DbcEntity {
     private int id;
 
     @Column("UnlockPlayerConditionID")
-    private Integer unlockPlayerConditionID;
+    private int unlockPlayerConditionID;
 
     @Column("UiItemAppearanceID")
-    private Integer uiItemAppearanceID;
+    private int uiItemAppearanceID;
 
     @Column("UiAltItemAppearanceID")
-    private Integer uiAltItemAppearanceID;
+    private int uiAltItemAppearanceID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

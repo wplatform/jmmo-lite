@@ -36,40 +36,40 @@ public class Heirloom implements DbcEntity {
     private LocalizedString sourceText;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Column("LegacyItemID")
-    private Integer legacyItemID;
+    private int legacyItemID;
 
     @Column("LegacyUpgradedItemID")
-    private Integer legacyUpgradedItemID;
+    private int legacyUpgradedItemID;
 
     @Column("StaticUpgradedItemID")
-    private Integer staticUpgradedItemID;
+    private int staticUpgradedItemID;
 
     @Column("UpgradeItemID1")
-    private Integer upgradeItemID1;
+    private int upgradeItemID1;
 
     @Column("UpgradeItemID2")
-    private Integer upgradeItemID2;
+    private int upgradeItemID2;
 
     @Column("UpgradeItemID3")
-    private Integer upgradeItemID3;
+    private int upgradeItemID3;
 
     @Column("UpgradeItemBonusListID1")
-    private Short upgradeItemBonusListID1;
+    private short upgradeItemBonusListID1;
 
     @Column("UpgradeItemBonusListID2")
-    private Short upgradeItemBonusListID2;
+    private short upgradeItemBonusListID2;
 
     @Column("UpgradeItemBonusListID3")
-    private Short upgradeItemBonusListID3;
+    private short upgradeItemBonusListID3;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("SourceTypeEnum")
-    private Byte sourceTypeEnum;
+    private byte sourceTypeEnum;
 
     @Id
 
@@ -79,7 +79,7 @@ public class Heirloom implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     public int[] getUpgradeItemID() {

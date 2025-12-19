@@ -29,14 +29,14 @@ public class Curve implements DbcEntity {
     private int id;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

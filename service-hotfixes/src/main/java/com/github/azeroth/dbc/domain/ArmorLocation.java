@@ -32,23 +32,23 @@ public class ArmorLocation implements DbcEntity {
     private int id;
 
     @Column("Clothmodifier")
-    private Float clothModifier;
+    private float clothModifier;
 
     @Column("Leathermodifier")
-    private Float leatherModifier;
+    private float leatherModifier;
 
     @Column("Chainmodifier")
-    private Float chainModifier;
+    private float chainModifier;
 
     @Column("Platemodifier")
-    private Float plateModifier;
+    private float plateModifier;
 
     @Column("Modifier")
-    private Float Modifier;
+    private float Modifier;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

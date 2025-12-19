@@ -1,12 +1,11 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.entities.*;
+
+
 import game.maps.*;
-import game.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
 
 
 
@@ -14,11 +13,11 @@ import game.*;
 public class BossAI extends ScriptedAI {
     public InstanceScript instance;
     public SummonList summons;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: readonly uint _bossId;
     private final int bossId;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public BossAI(Creature creature, uint bossId)
     public BossAI(Creature creature, int bossId) {
         super(creature);
@@ -101,7 +100,7 @@ public class BossAI extends ScriptedAI {
         summons.despawn(summon);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
@@ -136,7 +135,7 @@ public class BossAI extends ScriptedAI {
         despawnAtEvade(delayToRespawn, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void _DespawnAtEvade(TimeSpan delayToRespawn, Creature who = null)
     public final void despawnAtEvade(TimeSpan delayToRespawn, Creature who) {
         if (delayToRespawn < TimeSpan.FromSeconds(2)) {
@@ -164,7 +163,7 @@ public class BossAI extends ScriptedAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void ExecuteEvent(uint eventId)
     public void executeEvent(int eventId) {
     }
@@ -201,7 +200,7 @@ public class BossAI extends ScriptedAI {
         me.setActive(false);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint GetBossId()
     public final int getBossId() {
         return bossId;
@@ -216,9 +215,9 @@ public class BossAI extends ScriptedAI {
         forceCombatStopForCreatureEntry(entry, 250.0f, true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool reset = true)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     private void forceCombatStopForCreatureEntry(int entry, float maxSearchRange, boolean reset) {
         Log.outDebug(LogFilter.ScriptsAi, String.format("BossAI::ForceStopCombatForCreature: called on %1$s. Debug info: %2$s", me.getGUID().clone(), me.getDebugInfo()));
 

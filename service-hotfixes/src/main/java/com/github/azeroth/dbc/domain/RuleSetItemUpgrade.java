@@ -29,14 +29,14 @@ public class RuleSetItemUpgrade implements DbcEntity {
     private int id;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Column("ItemUpgradeID")
-    private Short itemUpgradeID;
+    private short itemUpgradeID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

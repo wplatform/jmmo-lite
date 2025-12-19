@@ -32,23 +32,23 @@ public class ArtifactPowerRank implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("AuraPointsOverride")
-    private Float auraPointsOverride;
+    private float auraPointsOverride;
 
     @Column("ItemBonusListID")
-    private Short itemBonusListID;
+    private short itemBonusListID;
 
     @Column("RankIndex")
-    private Byte rankIndex;
+    private byte rankIndex;
 
     @Column("ArtifactPowerID")
-    private Short artifactPowerID;
+    private short artifactPowerID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

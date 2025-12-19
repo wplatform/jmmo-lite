@@ -65,65 +65,65 @@ public class AdventureJournal implements DbcEntity {
     private LocalizedString continueDescriptionLang;
 
     @Column("TextureFileDataID")
-    private Integer textureFileDataID;
+    private int textureFileDataID;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Column("LfgDungeonID")
-    private Short lfgDungeonID;
+    private short lfgDungeonID;
 
     @Column("QuestID")
-    private Integer questID;
+    private int questID;
 
     @Column("BattleMasterListID")
-    private Short battleMasterListID;
+    private short battleMasterListID;
 
     @Column("BonusPlayerConditionID1")
-    private Integer bonusPlayerConditionID1;
+    private int bonusPlayerConditionID1;
 
     @Column("BonusPlayerConditionID2")
-    private Integer bonusPlayerConditionID2;
+    private int bonusPlayerConditionID2;
 
     @Column("CurrencyType")
-    private Short currencyType;
+    private short currencyType;
 
     @Column("WorldMapAreaID")
-    private Short worldMapAreaID;
+    private short worldMapAreaID;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("ButtonActionType")
-    private Byte buttonActionType;
+    private byte buttonActionType;
 
     @Column("PriorityMin")
-    private Byte priorityMin;
+    private byte priorityMin;
 
     @Column("PriorityMax")
-    private Byte priorityMax;
+    private byte priorityMax;
 
     @Column("BonusValue1")
-    private Byte bonusValue1;
+    private byte bonusValue1;
 
     @Column("BonusValue2")
-    private Byte bonusValue2;
+    private byte bonusValue2;
 
     @Column("CurrencyQuantity")
-    private Byte currencyQuantity;
+    private byte currencyQuantity;
 
     @Column("PlayerConditionID")
-    private Integer playerConditionID;
+    private int playerConditionID;
 
     @Column("ItemQuantity")
-    private Integer itemQuantity;
+    private int itemQuantity;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

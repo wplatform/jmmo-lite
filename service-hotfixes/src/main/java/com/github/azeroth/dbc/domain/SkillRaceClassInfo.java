@@ -39,27 +39,27 @@ public class SkillRaceClassInfo implements DbcEntity {
     private Long raceMask;
 
     @Column("SkillID")
-    private Short skillID;
+    private short skillID;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("SkillTierID")
-    private Short skillTierID;
+    private short skillTierID;
 
     @Column("Availability")
-    private Byte availability;
+    private byte availability;
 
     @Column("MinLevel")
-    private Byte minLevel;
+    private byte minLevel;
 
     @Column("ClassMask")
-    private Integer classMask;
+    private int classMask;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     public RaceMask raceMask() {
         return RaceMask.of(raceMask);

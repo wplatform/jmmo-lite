@@ -33,98 +33,98 @@ public class SpellItemEnchantmentCondition implements DbcEntity {
     private int id;
 
     @Column("LtOperand1")
-    private Integer ltOperand1;
+    private int ltOperand1;
 
     @Column("LtOperand2")
-    private Integer ltOperand2;
+    private int ltOperand2;
 
     @Column("LtOperand3")
-    private Integer ltOperand3;
+    private int ltOperand3;
 
     @Column("LtOperand4")
-    private Integer ltOperand4;
+    private int ltOperand4;
 
     @Column("LtOperand5")
-    private Integer ltOperand5;
+    private int ltOperand5;
 
     @Column("LtOperandType1")
-    private Byte ltOperandType1;
+    private byte ltOperandType1;
 
     @Column("LtOperandType2")
-    private Byte ltOperandType2;
+    private byte ltOperandType2;
 
     @Column("LtOperandType3")
-    private Byte ltOperandType3;
+    private byte ltOperandType3;
 
     @Column("LtOperandType4")
-    private Byte ltOperandType4;
+    private byte ltOperandType4;
 
     @Column("LtOperandType5")
-    private Byte ltOperandType5;
+    private byte ltOperandType5;
 
     @Column("Operator1")
-    private Byte operator1;
+    private byte operator1;
 
     @Column("Operator2")
-    private Byte operator2;
+    private byte operator2;
 
     @Column("Operator3")
-    private Byte operator3;
+    private byte operator3;
 
     @Column("Operator4")
-    private Byte operator4;
+    private byte operator4;
 
     @Column("Operator5")
-    private Byte operator5;
+    private byte operator5;
 
     @Column("RtOperandType1")
-    private Byte rtOperandType1;
+    private byte rtOperandType1;
 
     @Column("RtOperandType2")
-    private Byte rtOperandType2;
+    private byte rtOperandType2;
 
     @Column("RtOperandType3")
-    private Byte rtOperandType3;
+    private byte rtOperandType3;
 
     @Column("RtOperandType4")
-    private Byte rtOperandType4;
+    private byte rtOperandType4;
 
     @Column("RtOperandType5")
-    private Byte rtOperandType5;
+    private byte rtOperandType5;
 
     @Column("RtOperand1")
-    private Byte rtOperand1;
+    private byte rtOperand1;
 
     @Column("RtOperand2")
-    private Byte rtOperand2;
+    private byte rtOperand2;
 
     @Column("RtOperand3")
-    private Byte rtOperand3;
+    private byte rtOperand3;
 
     @Column("RtOperand4")
-    private Byte rtOperand4;
+    private byte rtOperand4;
 
     @Column("RtOperand5")
-    private Byte rtOperand5;
+    private byte rtOperand5;
 
     @Column("Logic1")
-    private Byte logic1;
+    private byte logic1;
 
     @Column("Logic2")
-    private Byte logic2;
+    private byte logic2;
 
     @Column("Logic3")
-    private Byte logic3;
+    private byte logic3;
 
     @Column("Logic4")
-    private Byte logic4;
+    private byte logic4;
 
     @Column("Logic5")
-    private Byte logic5;
+    private byte logic5;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

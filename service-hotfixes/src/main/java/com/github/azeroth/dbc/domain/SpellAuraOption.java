@@ -35,32 +35,32 @@ public class SpellAuraOption implements DbcEntity {
     private int id;
 
     @Column("ProcCharges")
-    private Integer procCharges;
+    private int procCharges;
 
     @Column("ProcTypeMask")
-    private Integer procTypeMask;
+    private int procTypeMask;
 
     @Column("ProcCategoryRecovery")
-    private Integer procCategoryRecovery;
+    private int procCategoryRecovery;
 
     @Column("CumulativeAura")
-    private Short cumulativeAura;
+    private short cumulativeAura;
 
     @Column("SpellProcsPerMinuteID")
-    private Short spellProcsPerMinuteID;
+    private short spellProcsPerMinuteID;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("ProcChance")
-    private Byte procChance;
+    private byte procChance;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

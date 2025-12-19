@@ -29,32 +29,32 @@ public class ItemDamageAmmo implements DbcEntity {
     private int id;
 
     @Column("Quality1")
-    private Float quality1;
+    private float quality1;
 
     @Column("Quality2")
-    private Float quality2;
+    private float quality2;
 
     @Column("Quality3")
-    private Float quality3;
+    private float quality3;
 
     @Column("Quality4")
-    private Float quality4;
+    private float quality4;
 
     @Column("Quality5")
-    private Float quality5;
+    private float quality5;
 
     @Column("Quality6")
-    private Float quality6;
+    private float quality6;
 
     @Column("Quality7")
-    private Float quality7;
+    private float quality7;
 
     @Column("ItemLevel")
-    private Short itemLevel;
+    private short itemLevel;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

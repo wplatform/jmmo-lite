@@ -33,26 +33,26 @@ public class ItemSpec implements DbcEntity {
     private int id;
 
     @Column("SpecializationID")
-    private Short specializationID;
+    private short specializationID;
 
     @Column("MinLevel")
-    private Byte minLevel;
+    private byte minLevel;
 
     @Column("MaxLevel")
-    private Byte maxLevel;
+    private byte maxLevel;
 
     @Column("ItemType")
-    private Byte itemType;
+    private byte itemType;
 
     @Column("PrimaryStat")
-    private Byte primaryStat;
+    private byte primaryStat;
 
     @Column("SecondaryStat")
-    private Byte secondaryStat;
+    private byte secondaryStat;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

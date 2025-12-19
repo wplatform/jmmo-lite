@@ -40,47 +40,47 @@ public class SpellVisualEffectName implements DbcEntity {
     private int id;
 
     @Column("EffectRadius")
-    private Float effectRadius;
+    private float effectRadius;
 
     @Column("BaseMissileSpeed")
-    private Float baseMissileSpeed;
+    private float baseMissileSpeed;
 
     @Column("Scale")
-    private Float scale;
+    private float scale;
 
     @Column("MinAllowedScale")
-    private Float minAllowedScale;
+    private float minAllowedScale;
 
     @Column("MaxAllowedScale")
-    private Float maxAllowedScale;
+    private float maxAllowedScale;
 
     @Column("Alpha")
-    private Float alpha;
+    private float alpha;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("GenericID")
-    private Integer genericID;
+    private int genericID;
 
     @Column("TextureFileDataID")
-    private Integer textureFileDataID;
+    private int textureFileDataID;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Column("ModelFileDataID")
-    private Integer modelFileDataID;
+    private int modelFileDataID;
 
     @Column("RibbonQualityID")
-    private Integer ribbonQualityID;
+    private int ribbonQualityID;
 
     @Column("DissolveEffectID")
-    private Integer dissolveEffectID;
+    private int dissolveEffectID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

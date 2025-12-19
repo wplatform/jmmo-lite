@@ -32,23 +32,23 @@ public class ItemArmorTotal implements DbcEntity {
     private int id;
 
     @Column("Cloth")
-    private Float cloth;
+    private float cloth;
 
     @Column("Leather")
-    private Float leather;
+    private float leather;
 
     @Column("Mail")
-    private Float mail;
+    private float mail;
 
     @Column("Plate")
-    private Float plate;
+    private float plate;
 
     @Column("ItemLevel")
-    private Short itemLevel;
+    private short itemLevel;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

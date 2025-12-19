@@ -24,10 +24,10 @@ public class HotfixDatum {
 
     
     @Column("Status")
-    private Short status;
+    private short status;
 
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

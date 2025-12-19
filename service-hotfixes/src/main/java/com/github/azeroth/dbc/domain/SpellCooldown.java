@@ -32,23 +32,23 @@ public class SpellCooldown implements DbcEntity {
     private int id;
 
     @Column("CategoryRecoveryTime")
-    private Integer categoryRecoveryTime;
+    private int categoryRecoveryTime;
 
     @Column("RecoveryTime")
-    private Integer recoveryTime;
+    private int recoveryTime;
 
     @Column("StartRecoveryTime")
-    private Integer startRecoveryTime;
+    private int startRecoveryTime;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

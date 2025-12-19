@@ -30,44 +30,44 @@ public class OverrideSpellData implements DbcEntity {
     private int id;
 
     @Column("Spells1")
-    private Integer spells1;
+    private int spells1;
 
     @Column("Spells2")
-    private Integer spells2;
+    private int spells2;
 
     @Column("Spells3")
-    private Integer spells3;
+    private int spells3;
 
     @Column("Spells4")
-    private Integer spells4;
+    private int spells4;
 
     @Column("Spells5")
-    private Integer spells5;
+    private int spells5;
 
     @Column("Spells6")
-    private Integer spells6;
+    private int spells6;
 
     @Column("Spells7")
-    private Integer spells7;
+    private int spells7;
 
     @Column("Spells8")
-    private Integer spells8;
+    private int spells8;
 
     @Column("Spells9")
-    private Integer spells9;
+    private int spells9;
 
     @Column("Spells10")
-    private Integer spells10;
+    private int spells10;
 
     @Column("PlayerActionBarFileDataID")
-    private Integer playerActionBarFileDataID;
+    private int playerActionBarFileDataID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

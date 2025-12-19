@@ -41,37 +41,37 @@ public class WmoAreaTable implements DbcEntity {
     private LocalizedString areaName;
 
     @Column("WmoGroupID")
-    private Integer wmoGroupID;
+    private int wmoGroupID;
 
     @Column("AmbienceID")
-    private Short ambienceID;
+    private short ambienceID;
 
     @Column("ZoneMusic")
-    private Short zoneMusic;
+    private short zoneMusic;
 
     @Column("IntroSound")
-    private Short introSound;
+    private short introSound;
 
     @Column("AreaTableID")
-    private Short areaTableID;
+    private short areaTableID;
 
     @Column("UwIntroSound")
-    private Short uwIntroSound;
+    private short uwIntroSound;
 
     @Column("UwAmbience")
-    private Short uwAmbience;
+    private short uwAmbience;
 
     @Column("NameSetID")
-    private Byte nameSetID;
+    private byte nameSetID;
 
     @Column("SoundProviderPref")
-    private Byte soundProviderPref;
+    private byte soundProviderPref;
 
     @Column("SoundProviderPrefUnderwater")
-    private Byte soundProviderPrefUnderwater;
+    private byte soundProviderPrefUnderwater;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Id
 
@@ -79,14 +79,14 @@ public class WmoAreaTable implements DbcEntity {
     private int id;
 
     @Column("UwZoneMusic")
-    private Integer uwZoneMusic;
+    private int uwZoneMusic;
 
     @Column("WmoID")
-    private Short wmoID;
+    private short wmoID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

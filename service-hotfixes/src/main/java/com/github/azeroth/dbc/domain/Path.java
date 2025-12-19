@@ -36,34 +36,34 @@ public class Path implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("Type")
-    private Short type;
+    private short type;
 
 
     @Column("SplineType")
-    private Short splineType;
+    private short splineType;
 
 
     @Column("Red")
-    private Short red;
+    private short red;
 
 
     @Column("Green")
-    private Short green;
+    private short green;
 
 
     @Column("Blue")
-    private Short blue;
+    private short blue;
 
 
     @Column("Alpha")
-    private Short alpha;
+    private short alpha;
 
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
 }

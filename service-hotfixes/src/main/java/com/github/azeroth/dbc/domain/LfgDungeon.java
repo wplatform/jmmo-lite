@@ -67,101 +67,101 @@ public class LfgDungeon implements DbcEntity {
     private LocalizedString description;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("MinGear")
-    private Float minGear;
+    private float minGear;
 
     @Column("MaxLevel")
-    private Short maxLevel;
+    private short maxLevel;
 
     @Column("TargetLevelMax")
-    private Short targetLevelMax;
+    private short targetLevelMax;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Column("RandomID")
-    private Short randomID;
+    private short randomID;
 
     @Column("ScenarioID")
-    private Short scenarioID;
+    private short scenarioID;
 
     @Column("FinalEncounterID")
-    private Short finalEncounterID;
+    private short finalEncounterID;
 
     @Column("BonusReputationAmount")
-    private Short bonusReputationAmount;
+    private short bonusReputationAmount;
 
     @Column("MentorItemLevel")
-    private Short mentorItemLevel;
+    private short mentorItemLevel;
 
     @Column("RequiredPlayerConditionId")
-    private Integer requiredPlayerConditionId;
+    private int requiredPlayerConditionId;
 
     @Column("MinLevel")
-    private Byte minLevel;
+    private byte minLevel;
 
     @Column("TargetLevel")
-    private Byte targetLevel;
+    private byte targetLevel;
 
     @Column("TargetLevelMin")
-    private Byte targetLevelMin;
+    private byte targetLevelMin;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("TypeID")
-    private Byte typeID;
+    private byte typeID;
 
     @Column("Faction")
-    private Byte faction;
+    private byte faction;
 
     @Column("ExpansionLevel")
-    private Byte expansionLevel;
+    private byte expansionLevel;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Column("GroupID")
-    private Byte groupID;
+    private byte groupID;
 
     @Column("CountTank")
-    private Byte countTank;
+    private byte countTank;
 
     @Column("CountHealer")
-    private Byte countHealer;
+    private byte countHealer;
 
     @Column("CountDamage")
-    private Byte countDamage;
+    private byte countDamage;
 
     @Column("MinCountTank")
-    private Byte minCountTank;
+    private byte minCountTank;
 
     @Column("MinCountHealer")
-    private Byte minCountHealer;
+    private byte minCountHealer;
 
     @Column("MinCountDamage")
-    private Byte minCountDamage;
+    private byte minCountDamage;
 
     @Column("Subtype")
-    private Byte subtype;
+    private byte subtype;
 
     @Column("MentorCharLevel")
-    private Byte mentorCharLevel;
+    private byte mentorCharLevel;
 
     @Column("IconTextureFileID")
-    private Integer iconTextureFileID;
+    private int iconTextureFileID;
 
     @Column("RewardsBgTextureFileID")
-    private Integer rewardsBgTextureFileID;
+    private int rewardsBgTextureFileID;
 
     @Column("PopupBgTextureFileID")
-    private Integer popupBgTextureFileID;
+    private int popupBgTextureFileID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

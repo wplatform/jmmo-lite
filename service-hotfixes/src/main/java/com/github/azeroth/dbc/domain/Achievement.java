@@ -47,31 +47,31 @@ public class Achievement implements DbcEntity {
     private LocalizedString reward;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("InstanceID")
-    private Short instanceID;
+    private short instanceID;
 
     @Column("Supercedes")
-    private Short supercedes;
+    private short supercedes;
 
     @Column("Category")
-    private Short category;
+    private short category;
 
     @Column("UiOrder")
-    private Short uiOrder;
+    private short uiOrder;
 
     @Column("SharesCriteria")
-    private Short sharesCriteria;
+    private short sharesCriteria;
 
     @Column("Faction")
-    private Byte faction;
+    private byte faction;
 
     @Column("Points")
-    private Byte points;
+    private byte points;
 
     @Column("MinimumCriteria")
-    private Byte minimumCriteria;
+    private byte minimumCriteria;
 
     @Id
     
@@ -79,14 +79,14 @@ public class Achievement implements DbcEntity {
     private int id;
 
     @Column("IconFileID")
-    private Integer iconFileID;
+    private int iconFileID;
 
     @Column("CriteriaTree")
-    private Integer criteriaTree;
+    private int criteriaTree;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

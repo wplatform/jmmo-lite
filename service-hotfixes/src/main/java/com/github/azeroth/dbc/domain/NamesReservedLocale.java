@@ -32,11 +32,11 @@ public class NamesReservedLocale implements DbcEntity {
     private String name;
 
     @Column("LocaleMask")
-    private Short localeMask;
+    private short localeMask;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

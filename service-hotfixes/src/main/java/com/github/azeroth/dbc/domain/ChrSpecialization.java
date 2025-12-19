@@ -47,25 +47,25 @@ public class ChrSpecialization implements DbcEntity {
     private LocalizedString description;
 
     @Column("MasterySpellID1")
-    private Integer masterySpellID1;
+    private int masterySpellID1;
 
     @Column("MasterySpellID2")
-    private Integer masterySpellID2;
+    private int masterySpellID2;
 
     @Column("ClassID")
-    private Byte classID;
+    private byte classID;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Column("PetTalentType")
-    private Byte petTalentType;
+    private byte petTalentType;
 
     @Column("Role")
-    private Byte role;
+    private byte role;
 
     @Column("PrimaryStatPriority")
-    private Byte primaryStatPriority;
+    private byte primaryStatPriority;
 
     @Id
 
@@ -73,18 +73,18 @@ public class ChrSpecialization implements DbcEntity {
     private int id;
 
     @Column("SpellIconFileID")
-    private Integer spellIconFileID;
+    private int spellIconFileID;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("AnimReplacements")
-    private Integer animReplacements;
+    private int animReplacements;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     public EnumFlag<ChrSpecializationFlag> flags() {

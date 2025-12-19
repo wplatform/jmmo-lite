@@ -1,41 +1,37 @@
-package game.ai;
-
-import Framework.Constants.*;
-import game.entities.*;
-import game.*;
-
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+package com.github.azeroth.game.ai;
 
 
-
+import com.github.azeroth.game.ai.enums.EvadeReason;
+import com.github.azeroth.game.domain.unit.ReactState;
+import com.github.azeroth.game.domain.unit.UnitState;
+import com.github.azeroth.game.entity.creature.Creature;
+import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 
 public class CritterAI extends PassiveAI {
     public CritterAI(Creature c) {
         super(c);
-        me.reactState = ReactStates.Passive;
+        me.setReactState(ReactState.PASSIVE);
     }
 
     @Override
     public void justEngagedWith(Unit who) {
-        if (!me.hasUnitState(UnitState.Fleeing)) {
-            me.setControlled(true, UnitState.Fleeing);
+        if (!me.hasUnitState(UnitState.FLEEING)) {
+            me.setControlled(true, UnitState.FLEEING);
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public override void MovementInform(MovementGeneratorType type, uint id)
     @Override
     public void movementInform(MovementGeneratorType type, int id) {
-        if (type == MovementGeneratorType.TimedFleeing) {
+        if (type == MovementGeneratorType.TIMED_FLEEING) {
             enterEvadeMode(EvadeReason.Other);
         }
     }
 
     @Override
     public void enterEvadeMode(EvadeReason why) {
-        if (me.hasUnitState(UnitState.Fleeing)) {
-            me.setControlled(false, UnitState.Fleeing);
+        if (me.hasUnitState(UnitState.FLEEING)) {
+            me.setControlled(false, UnitState.FLEEING);
         }
 
         super.enterEvadeMode(why);

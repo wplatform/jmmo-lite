@@ -30,17 +30,17 @@ public class BattlePetBreedState implements DbcEntity {
     private int id;
 
     @Column("Value")
-    private Short value;
+    private short value;
 
     @Column("BattlePetStateID")
-    private Byte battlePetStateID;
+    private byte battlePetStateID;
 
     @Column("BattlePetBreedID")
-    private Byte battlePetBreedID;
+    private byte battlePetBreedID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

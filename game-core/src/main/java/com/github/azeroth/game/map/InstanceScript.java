@@ -2,7 +2,7 @@ package com.github.azeroth.game.map;
 
 
 import com.github.azeroth.dbc.domain.DungeonEncounter;
-import com.github.azeroth.game.domain.instance.EncounterState;
+import com.github.azeroth.game.domain.instance.*;
 import com.github.azeroth.game.domain.map.MapDefine;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.entity.creature.Creature;
@@ -53,7 +53,7 @@ public class InstanceScript extends ZoneScript {
 
     public boolean isEncounterInProgress() {
         for (var boss : bosses.values()) {
-            if (boss.state == EncounterState.inProgress) {
+            if (boss.state == EncounterState.IN_PROGRESS) {
                 return true;
             }
         }

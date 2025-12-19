@@ -34,14 +34,14 @@ public class SpellKeyboundOverride implements DbcEntity {
     private LocalizedString function;
 
     @Column("Data")
-    private Integer data;
+    private int data;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

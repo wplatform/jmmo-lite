@@ -3956,16 +3956,35 @@ public abstract class Unit extends WorldObject {
         }
     }
 
-    public final UnitPVPStateFlag getPvpFlags() {
-        return UnitPVPStateFlag.forValue((byte) getUnitData().pvpFlags);
-    }
 
     public final boolean isInSanctuary() {
-        return hasPvpFlag(UnitPVPStateFlag.Sanctuary);
+        return hasPvpFlag(UnitPVPStateFlag.SANCTUARY);
     }
 
+    public final EnumFlag<UnitPVPStateFlag> getPvpFlags() {
+        return EnumFlag.of(UnitPVPStateFlag.class, getByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG));
+    }
+
+    public final boolean hasPvpFlag(UnitPVPStateFlag flag) {
+        return hasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, flag);
+    }
+
+    public final void setPvpFlag(UnitPVPStateFlag flag) {
+        setByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, flag);
+    }
+
+    public final void removePvpFlag(UnitPVPStateFlag flag) {
+        removeByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, flag);
+    }
+
+    public final void replaceAllPvpFlags(UnitPVPStateFlag flag) {
+        toggleByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, flag);
+    }
+
+
+
     public final boolean isPvP() {
-        return hasPvpFlag(UnitPVPStateFlag.pvP);
+        return hasPvpFlag(UnitPVPStateFlag.PVP);
     }
 
     public void setPvP(boolean state) {
@@ -5923,12 +5942,16 @@ public abstract class Unit extends WorldObject {
         setDisplayId(getNativeDisplayId());
     }
 
+    public final boolean hasUnitTypeMask(UnitTypeMask... mask) {
+        return unitTypeMask.hasAnyFlag(mask);
+    }
+
     public final boolean hasUnitTypeMask(UnitTypeMask mask) {
-        return (boolean) (mask.getValue() & getUnitTypeMask().getValue());
+        return unitTypeMask.hasFlag(mask);
     }
 
     public final void addUnitTypeMask(UnitTypeMask mask) {
-        setUnitTypeMask(UnitTypeMask.forValue(getUnitTypeMask().getValue() | mask.getValue()));
+        unitTypeMask.addFlag(mask);
     }
 
     public final void addUnitState(UnitState f) {
@@ -8772,7 +8795,7 @@ public abstract class Unit extends WorldObject {
     }
 
     public final boolean isWithinCombatRange(Unit obj, float dist2compare) {
-        if (!obj || !isInMap(obj) || !inSamePhase(obj)) {
+        if (obj == null || !isInMap(obj) || !inSamePhase(obj)) {
             return false;
         }
 

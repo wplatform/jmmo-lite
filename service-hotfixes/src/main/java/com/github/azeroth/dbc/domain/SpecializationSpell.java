@@ -32,16 +32,16 @@ public class SpecializationSpell implements DbcEntity {
     private LocalizedString description;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("OverridesSpellID")
-    private Integer overridesSpellID;
+    private int overridesSpellID;
 
     @Column("SpecID")
-    private Short specID;
+    private short specID;
 
     @Column("DisplayOrder")
-    private Byte displayOrder;
+    private byte displayOrder;
 
     @Id
 
@@ -51,6 +51,6 @@ public class SpecializationSpell implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -40,35 +40,35 @@ public class Talent implements DbcEntity {
     private LocalizedString description;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("OverridesSpellID")
-    private Integer overridesSpellID;
+    private int overridesSpellID;
 
     @Column("SpecID")
-    private Short specID;
+    private short specID;
 
     @Column("TierID")
-    private Byte tierID;
+    private byte tierID;
 
     @Column("ColumnIndex")
-    private Byte columnIndex;
+    private byte columnIndex;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("CategoryMask1")
-    private Byte categoryMask1;
+    private byte categoryMask1;
 
     @Column("CategoryMask2")
-    private Byte categoryMask2;
+    private byte categoryMask2;
 
     @Column("ClassID")
-    private Byte classID;
+    private byte classID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

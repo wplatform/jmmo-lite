@@ -34,14 +34,14 @@ public class ItemLimitCategory implements DbcEntity {
     private LocalizedString name;
 
     @Column("Quantity")
-    private Byte quantity;
+    private byte quantity;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

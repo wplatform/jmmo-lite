@@ -28,38 +28,38 @@ public class ArtifactQuestXp implements DbcEntity {
     private int id;
 
     @Column("Difficulty1")
-    private Integer difficulty1;
+    private int difficulty1;
 
     @Column("Difficulty2")
-    private Integer difficulty2;
+    private int difficulty2;
 
     @Column("Difficulty3")
-    private Integer difficulty3;
+    private int difficulty3;
 
     @Column("Difficulty4")
-    private Integer difficulty4;
+    private int difficulty4;
 
     @Column("Difficulty5")
-    private Integer difficulty5;
+    private int difficulty5;
 
     @Column("Difficulty6")
-    private Integer difficulty6;
+    private int difficulty6;
 
     @Column("Difficulty7")
-    private Integer difficulty7;
+    private int difficulty7;
 
     @Column("Difficulty8")
-    private Integer difficulty8;
+    private int difficulty8;
 
     @Column("Difficulty9")
-    private Integer difficulty9;
+    private int difficulty9;
 
     @Column("Difficulty10")
-    private Integer difficulty10;
+    private int difficulty10;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

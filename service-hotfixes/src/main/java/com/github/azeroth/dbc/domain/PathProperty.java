@@ -34,18 +34,18 @@ public class PathProperty implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("PathID")
-    private Integer pathID;
+    private int pathID;
 
 
     @Column("PropertyIndex")
-    private Short propertyIndex;
+    private short propertyIndex;
 
 
     @Column("Value")
-    private Integer value;
+    private int value;
 
 }

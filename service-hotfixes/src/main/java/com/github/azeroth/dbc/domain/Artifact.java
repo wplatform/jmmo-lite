@@ -40,35 +40,35 @@ public class Artifact implements DbcEntity {
     private LocalizedString name;
 
     @Column("UiBarOverlayColor")
-    private Integer uiBarOverlayColor;
+    private int uiBarOverlayColor;
 
     @Column("UiBarBackgroundColor")
-    private Integer uiBarBackgroundColor;
+    private int uiBarBackgroundColor;
 
     @Column("UiNameColor")
-    private Integer uiNameColor;
+    private int uiNameColor;
 
     @Column("UiTextureKitID")
-    private Short uiTextureKitID;
+    private short uiTextureKitID;
 
     @Column("ChrSpecializationID")
-    private Short chrSpecializationID;
+    private short chrSpecializationID;
 
     @Column("ArtifactCategoryID")
-    private Byte artifactCategoryID;
+    private byte artifactCategoryID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("UiModelSceneID")
-    private Integer uiModelSceneID;
+    private int uiModelSceneID;
 
     @Column("SpellVisualKitID")
-    private Integer spellVisualKitID;
+    private int spellVisualKitID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

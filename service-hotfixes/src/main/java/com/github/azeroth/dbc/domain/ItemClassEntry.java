@@ -35,17 +35,17 @@ public class ItemClassEntry implements DbcEntity {
     private LocalizedString className;
 
     @Column("PriceModifier")
-    private Float priceModifier;
+    private float priceModifier;
 
     @Column("ClassID")
-    private Byte classID;
+    private byte classID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

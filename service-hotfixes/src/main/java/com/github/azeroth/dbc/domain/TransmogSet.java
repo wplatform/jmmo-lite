@@ -36,13 +36,13 @@ public class TransmogSet implements DbcEntity {
     private LocalizedString name;
 
     @Column("ParentTransmogSetID")
-    private Short parentTransmogSetID;
+    private short parentTransmogSetID;
 
     @Column("UiOrder")
-    private Short uiOrder;
+    private short uiOrder;
 
     @Column("ExpansionID")
-    private Byte expansionID;
+    private byte expansionID;
 
     @Id
 
@@ -50,23 +50,23 @@ public class TransmogSet implements DbcEntity {
     private int id;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("TrackingQuestID")
-    private Integer trackingQuestID;
+    private int trackingQuestID;
 
     @Column("ClassMask")
-    private Integer classMask;
+    private int classMask;
 
     @Column("ItemNameDescriptionID")
-    private Integer itemNameDescriptionID;
+    private int itemNameDescriptionID;
 
     @Column("TransmogSetGroupID")
-    private Integer transmogSetGroupID;
+    private int transmogSetGroupID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

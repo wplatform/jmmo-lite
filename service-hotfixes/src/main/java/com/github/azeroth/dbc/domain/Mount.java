@@ -43,19 +43,19 @@ public class Mount implements DbcEntity {
     private LocalizedString sourceText;
 
     @Column("SourceSpellID")
-    private Integer sourceSpellID;
+    private int sourceSpellID;
 
     @Column("MountFlyRideHeight")
-    private Float mountFlyRideHeight;
+    private float mountFlyRideHeight;
 
     @Column("MountTypeID")
-    private Short mountTypeID;
+    private short mountTypeID;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("SourceTypeEnum")
-    private Byte sourceTypeEnum;
+    private byte sourceTypeEnum;
 
     @Id
 
@@ -63,14 +63,14 @@ public class Mount implements DbcEntity {
     private int id;
 
     @Column("PlayerConditionID")
-    private Integer playerConditionID;
+    private int playerConditionID;
 
     @Column("UiModelSceneID")
-    private Integer uiModelSceneID;
+    private int uiModelSceneID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

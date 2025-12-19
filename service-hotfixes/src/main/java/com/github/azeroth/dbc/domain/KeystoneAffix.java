@@ -33,7 +33,7 @@ public class KeystoneAffix implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Name")
@@ -45,6 +45,6 @@ public class KeystoneAffix implements DbcEntity {
 
 
     @Column("FileDataID")
-    private Integer fileDataId;
+    private int fileDataId;
 
 }

@@ -23,7 +23,7 @@ public class GarrMission {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("Name")
@@ -39,35 +39,35 @@ public class GarrMission {
 
 
     @Column("MapPosX")
-    private Float mapPosX;
+    private float mapPosX;
 
 
     @Column("MapPosY")
-    private Float mapPosY;
+    private float mapPosY;
 
 
     @Column("WorldPosX")
-    private Float worldPosX;
+    private float worldPosX;
 
 
     @Column("WorldPosY")
-    private Float worldPosY;
+    private float worldPosY;
 
 
     @Column("GarrTypeID")
-    private Short garrTypeID;
+    private short garrTypeID;
 
 
     @Column("GarrMissionTypeID")
-    private Short garrMissionTypeID;
+    private short garrMissionTypeID;
 
 
     @Column("GarrFollowerTypeID")
-    private Short garrFollowerTypeID;
+    private short garrFollowerTypeID;
 
 
     @Column("MaxFollowers")
-    private Short maxFollowers;
+    private short maxFollowers;
 
 
     @Column("MissionCost")
@@ -75,15 +75,15 @@ public class GarrMission {
 
 
     @Column("MissionCostCurrencyTypesID")
-    private Integer missionCostCurrencyTypesID;
+    private int missionCostCurrencyTypesID;
 
 
     @Column("OfferedGarrMissionTextureID")
-    private Short offeredGarrMissionTextureID;
+    private short offeredGarrMissionTextureID;
 
 
     @Column("UiTextureKitID")
-    private Integer uiTextureKitID;
+    private int uiTextureKitID;
 
 
     @Column("EnvGarrMechanicID")
@@ -91,7 +91,7 @@ public class GarrMission {
 
 
     @Column("EnvGarrMechanicTypeID")
-    private Short envGarrMechanicTypeID;
+    private short envGarrMechanicTypeID;
 
 
     @Column("PlayerConditionID")
@@ -99,19 +99,19 @@ public class GarrMission {
 
 
     @Column("TargetLevel")
-    private Byte targetLevel;
+    private byte targetLevel;
 
 
     @Column("TargetItemLevel")
-    private Integer targetItemLevel;
+    private int targetItemLevel;
 
 
     @Column("MissionDuration")
-    private Integer missionDuration;
+    private int missionDuration;
 
 
     @Column("TravelDuration")
-    private Integer travelDuration;
+    private int travelDuration;
 
 
     @Column("OfferDuration")
@@ -119,7 +119,7 @@ public class GarrMission {
 
 
     @Column("BaseCompletionChance")
-    private Short baseCompletionChance;
+    private short baseCompletionChance;
 
 
     @Column("BaseFollowerXP")
@@ -131,7 +131,7 @@ public class GarrMission {
 
 
     @Column("FollowerDeathChance")
-    private Short followerDeathChance;
+    private short followerDeathChance;
 
 
     @Column("AreaID")

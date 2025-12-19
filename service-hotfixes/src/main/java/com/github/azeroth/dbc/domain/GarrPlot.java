@@ -38,29 +38,29 @@ public class GarrPlot implements DbcEntity {
     private LocalizedString name;
 
     @Column("AllianceConstructObjID")
-    private Integer allianceConstructObjID;
+    private int allianceConstructObjID;
 
     @Column("HordeConstructObjID")
-    private Integer hordeConstructObjID;
+    private int hordeConstructObjID;
 
     @Column("UiCategoryID")
-    private Byte uiCategoryID;
+    private byte uiCategoryID;
 
     @Column("PlotType")
-    private Byte plotType;
+    private byte plotType;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("UpgradeRequirement1")
-    private Integer upgradeRequirement1;
+    private int upgradeRequirement1;
 
     @Column("UpgradeRequirement2")
-    private Integer upgradeRequirement2;
+    private int upgradeRequirement2;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

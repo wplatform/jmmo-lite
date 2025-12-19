@@ -35,29 +35,29 @@ public class ModifierTree implements DbcEntity {
     private int id;
 
     @Column("Asset")
-    private Integer asset;
+    private int asset;
 
     @Column("SecondaryAsset")
-    private Integer secondaryAsset;
+    private int secondaryAsset;
 
     @Column("Parent")
-    private Integer parent;
+    private int parent;
 
     @Column("Type")
-    private Short type;
+    private short type;
 
     @Column("TertiaryAsset")
-    private Byte tertiaryAsset;
+    private byte tertiaryAsset;
 
     @Column("Operator")
-    private Byte operator;
+    private byte operator;
 
     @Column("Amount")
-    private Byte amount;
+    private byte amount;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

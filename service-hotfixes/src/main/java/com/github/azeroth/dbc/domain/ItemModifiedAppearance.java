@@ -28,7 +28,7 @@ import lombok.ToString;
 })
 public class ItemModifiedAppearance implements DbcEntity {
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Id
 
@@ -36,20 +36,20 @@ public class ItemModifiedAppearance implements DbcEntity {
     private int id;
 
     @Column("ItemAppearanceModifierID")
-    private Byte itemAppearanceModifierID;
+    private byte itemAppearanceModifierID;
 
     @Column("ItemAppearanceID")
-    private Integer itemAppearanceID;
+    private int itemAppearanceID;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Column("TransmogSourceTypeEnum")
-    private Byte transmogSourceTypeEnum;
+    private byte transmogSourceTypeEnum;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

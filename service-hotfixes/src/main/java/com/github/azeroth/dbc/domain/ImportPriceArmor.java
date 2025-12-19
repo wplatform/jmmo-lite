@@ -31,20 +31,20 @@ public class ImportPriceArmor implements DbcEntity {
     private int id;
 
     @Column("ClothModifier")
-    private Float clothModifier;
+    private float clothModifier;
 
     @Column("LeatherModifier")
-    private Float leatherModifier;
+    private float leatherModifier;
 
     @Column("ChainModifier")
-    private Float chainModifier;
+    private float chainModifier;
 
     @Column("PlateModifier")
-    private Float plateModifier;
+    private float plateModifier;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

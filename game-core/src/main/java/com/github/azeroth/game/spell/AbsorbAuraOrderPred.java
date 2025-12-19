@@ -16,11 +16,11 @@ class AbsorbAuraOrderPred extends Comparer<AuraEffect> {
         }
 
         // Ice Barrier
-        if (spellProtoA.getCategory() == 471) {
+        if (spellProtoA.getCategoryId() == 471) {
             return 1;
         }
 
-        if (spellProtoB.getCategory() == 471) {
+        if (spellProtoB.getCategoryId() == 471) {
             return 0;
         }
 

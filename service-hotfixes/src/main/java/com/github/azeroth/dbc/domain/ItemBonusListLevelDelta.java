@@ -24,7 +24,7 @@ import lombok.ToString;
 })
 public class ItemBonusListLevelDelta implements DbcEntity {
     @Column("ItemLevelDelta")
-    private Short itemLevelDelta;
+    private short itemLevelDelta;
 
     @Id
 
@@ -34,6 +34,6 @@ public class ItemBonusListLevelDelta implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

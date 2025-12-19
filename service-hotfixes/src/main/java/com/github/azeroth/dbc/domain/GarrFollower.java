@@ -65,88 +65,88 @@ public class GarrFollower implements DbcEntity {
     private LocalizedString titleName;
 
     @Column("HordeCreatureID")
-    private Integer hordeCreatureID;
+    private int hordeCreatureID;
 
     @Column("AllianceCreatureID")
-    private Integer allianceCreatureID;
+    private int allianceCreatureID;
 
     @Column("HordeIconFileDataID")
-    private Integer hordeIconFileDataID;
+    private int hordeIconFileDataID;
 
     @Column("AllianceIconFileDataID")
-    private Integer allianceIconFileDataID;
+    private int allianceIconFileDataID;
 
     @Column("HordeSlottingBroadcastTextID")
-    private Integer hordeSlottingBroadcastTextID;
+    private int hordeSlottingBroadcastTextID;
 
     @Column("AllySlottingBroadcastTextID")
-    private Integer allySlottingBroadcastTextID;
+    private int allySlottingBroadcastTextID;
 
     @Column("HordeGarrFollItemSetID")
-    private Short hordeGarrFollItemSetID;
+    private short hordeGarrFollItemSetID;
 
     @Column("AllianceGarrFollItemSetID")
-    private Short allianceGarrFollItemSetID;
+    private short allianceGarrFollItemSetID;
 
     @Column("ItemLevelWeapon")
-    private Short itemLevelWeapon;
+    private short itemLevelWeapon;
 
     @Column("ItemLevelArmor")
-    private Short itemLevelArmor;
+    private short itemLevelArmor;
 
     @Column("HordeUITextureKitID")
-    private Short hordeUITextureKitID;
+    private short hordeUITextureKitID;
 
     @Column("AllianceUITextureKitID")
-    private Short allianceUITextureKitID;
+    private short allianceUITextureKitID;
 
     @Column("GarrFollowerTypeID")
-    private Byte garrFollowerTypeID;
+    private byte garrFollowerTypeID;
 
     @Column("HordeGarrFollRaceID")
-    private Byte hordeGarrFollRaceID;
+    private byte hordeGarrFollRaceID;
 
     @Column("AllianceGarrFollRaceID")
-    private Byte allianceGarrFollRaceID;
+    private byte allianceGarrFollRaceID;
 
     @Column("Quality")
-    private Byte quality;
+    private byte quality;
 
     @Column("HordeGarrClassSpecID")
-    private Short hordeGarrClassSpecID;
+    private short hordeGarrClassSpecID;
 
     @Column("AllianceGarrClassSpecID")
-    private Short allianceGarrClassSpecID;
+    private short allianceGarrClassSpecID;
 
     @Column("FollowerLevel")
-    private Byte followerLevel;
+    private byte followerLevel;
 
     @Column("Gender")
-    private Byte gender;
+    private byte gender;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("HordeSourceTypeEnum")
-    private Byte hordeSourceTypeEnum;
+    private byte hordeSourceTypeEnum;
 
     @Column("AllianceSourceTypeEnum")
-    private Byte allianceSourceTypeEnum;
+    private byte allianceSourceTypeEnum;
 
     @Column("GarrTypeID")
-    private Byte garrTypeID;
+    private byte garrTypeID;
 
     @Column("Vitality")
-    private Byte vitality;
+    private byte vitality;
 
     @Column("ChrClassID")
-    private Byte chrClassID;
+    private byte chrClassID;
 
     @Column("HordeFlavorGarrStringID")
-    private Byte hordeFlavorGarrStringID;
+    private byte hordeFlavorGarrStringID;
 
     @Column("AllianceFlavorGarrStringID")
-    private Byte allianceFlavorGarrStringID;
+    private byte allianceFlavorGarrStringID;
 
     @Id
 
@@ -156,6 +156,6 @@ public class GarrFollower implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

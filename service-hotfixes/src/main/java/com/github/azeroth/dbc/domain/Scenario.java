@@ -35,17 +35,17 @@ public class Scenario implements DbcEntity {
     private LocalizedString name;
 
     @Column("AreaTableID")
-    private Short areaTableID;
+    private short areaTableID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

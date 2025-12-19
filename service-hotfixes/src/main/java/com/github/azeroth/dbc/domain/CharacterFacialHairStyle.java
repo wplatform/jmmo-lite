@@ -31,32 +31,32 @@ public class CharacterFacialHairStyle implements DbcEntity {
     private int id;
 
     @Column("Geoset1")
-    private Integer geoset1;
+    private int geoset1;
 
     @Column("Geoset2")
-    private Integer geoset2;
+    private int geoset2;
 
     @Column("Geoset3")
-    private Integer geoset3;
+    private int geoset3;
 
     @Column("Geoset4")
-    private Integer geoset4;
+    private int geoset4;
 
     @Column("Geoset5")
-    private Integer geoset5;
+    private int geoset5;
 
     @Column("RaceID")
-    private Byte raceID;
+    private byte raceID;
 
     @Column("SexID")
-    private Byte sexID;
+    private byte sexID;
 
     @Column("VariationID")
-    private Byte variationID;
+    private byte variationID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

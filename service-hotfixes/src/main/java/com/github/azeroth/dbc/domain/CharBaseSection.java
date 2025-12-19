@@ -30,17 +30,17 @@ public class CharBaseSection implements DbcEntity {
     private int id;
 
     @Column("VariationEnum")
-    private Byte variationEnum;
+    private byte variationEnum;
 
     @Column("ResolutionVariationEnum")
-    private Byte resolutionVariationEnum;
+    private byte resolutionVariationEnum;
 
     @Column("LayoutResType")
-    private Byte layoutResType;
+    private byte layoutResType;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

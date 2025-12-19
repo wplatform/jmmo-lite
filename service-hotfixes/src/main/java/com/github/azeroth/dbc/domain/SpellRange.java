@@ -39,23 +39,23 @@ public class SpellRange implements DbcEntity {
     private LocalizedString displayNameShort;
 
     @Column("RangeMin1")
-    private Float rangeMin1;
+    private float rangeMin1;
 
     @Column("RangeMin2")
-    private Float rangeMin2;
+    private float rangeMin2;
 
     @Column("RangeMax1")
-    private Float rangeMax1;
+    private float rangeMax1;
 
     @Column("RangeMax2")
-    private Float rangeMax2;
+    private float rangeMax2;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     public float[] getRangeMin() {
         return new float[]{rangeMin1, rangeMin2};

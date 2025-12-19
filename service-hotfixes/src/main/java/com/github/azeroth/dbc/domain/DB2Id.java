@@ -11,6 +11,6 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class DB2Id implements Serializable {
     public Long id;
-    public Integer verifiedBuild;
+    public int verifiedBuild;
 
 }

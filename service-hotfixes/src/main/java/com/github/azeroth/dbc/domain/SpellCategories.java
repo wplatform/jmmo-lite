@@ -36,35 +36,35 @@ public class SpellCategories implements DbcEntity {
     private int id;
 
     @Column("Category")
-    private Short category;
+    private short category;
 
     @Column("StartRecoveryCategory")
-    private Short startRecoveryCategory;
+    private short startRecoveryCategory;
 
     @Column("ChargeCategory")
-    private Short chargeCategory;
+    private short chargeCategory;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("DefenseType")
-    private Byte defenseType;
+    private byte defenseType;
 
     @Column("DispelType")
-    private Byte dispelType;
+    private byte dispelType;
 
     @Column("Mechanic")
-    private Byte mechanic;
+    private byte mechanic;
 
     @Column("PreventionType")
-    private Byte preventionType;
+    private byte preventionType;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

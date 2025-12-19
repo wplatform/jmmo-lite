@@ -27,7 +27,7 @@ public class PlayerConditionLocale {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("FailureDescription_lang")

@@ -1,6 +1,6 @@
 package com.github.azeroth.game.entity.conversation;
 
-import Framework.Constants.*;
+
 import game.datastorage.*;
 import game.maps.*;
 

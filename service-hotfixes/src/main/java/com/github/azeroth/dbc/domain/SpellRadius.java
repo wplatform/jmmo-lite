@@ -31,20 +31,20 @@ public class SpellRadius implements DbcEntity {
     private int id;
 
     @Column("Radius")
-    private Float radius;
+    private float radius;
 
     @Column("RadiusPerLevel")
-    private Float radiusPerLevel;
+    private float radiusPerLevel;
 
     @Column("RadiusMin")
-    private Float radiusMin;
+    private float radiusMin;
 
     @Column("RadiusMax")
-    private Float radiusMax;
+    private float radiusMax;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

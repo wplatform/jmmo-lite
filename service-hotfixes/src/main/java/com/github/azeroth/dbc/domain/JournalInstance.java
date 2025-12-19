@@ -40,28 +40,28 @@ public class JournalInstance implements DbcEntity {
     private LocalizedString description;
 
     @Column("ButtonFileDataID")
-    private Integer buttonFileDataID;
+    private int buttonFileDataID;
 
     @Column("ButtonSmallFileDataID")
-    private Integer buttonSmallFileDataID;
+    private int buttonSmallFileDataID;
 
     @Column("BackgroundFileDataID")
-    private Integer backgroundFileDataID;
+    private int backgroundFileDataID;
 
     @Column("LoreFileDataID")
-    private Integer loreFileDataID;
+    private int loreFileDataID;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Column("AreaID")
-    private Short areaID;
+    private short areaID;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
@@ -71,6 +71,6 @@ public class JournalInstance implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

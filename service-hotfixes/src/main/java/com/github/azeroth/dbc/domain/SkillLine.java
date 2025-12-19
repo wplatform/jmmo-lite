@@ -45,23 +45,23 @@ public class SkillLine implements DbcEntity {
     private LocalizedString alternateVerb;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("CategoryID")
-    private Byte categoryID;
+    private byte categoryID;
 
     @Column("CanLink")
-    private Byte canLink;
+    private byte canLink;
 
     @Column("SpellIconFileID")
-    private Integer spellIconFileID;
+    private int spellIconFileID;
 
     @Column("ParentSkillLineID")
-    private Integer parentSkillLineID;
+    private int parentSkillLineID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

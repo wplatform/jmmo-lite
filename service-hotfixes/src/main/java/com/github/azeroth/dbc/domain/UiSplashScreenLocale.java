@@ -27,7 +27,7 @@ public class UiSplashScreenLocale {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Header_lang")

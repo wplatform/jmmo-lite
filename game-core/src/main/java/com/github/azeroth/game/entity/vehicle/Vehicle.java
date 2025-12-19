@@ -22,17 +22,17 @@ public class Vehicle implements TransportObject {
     public static implicit operator
     private final Unit me;
     private final VehicleEntry vehicleInfo; //< DBC data for vehicle
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: readonly uint _creatureEntry;
     private final int creatureEntry; //< Can be different than the entry of _me in case of players
     private final ArrayList<VehicleJoinEvent> pendingJoinEvents = new ArrayList<VehicleJoinEvent>();
     public HashMap<Byte, VehicleSeat> seats = new HashMap<Byte, VehicleSeat>();
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public uint UsableSeatNum;
     public int usableSeatNum; //< Number of seats that match VehicleSeatEntry.UsableByPlayer, used for proper display flags
     private Status status = Status.values()[0]; //< Internal variable for sanity checks
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public Vehicle(Unit unit, VehicleRecord vehInfo, uint creatureEntry)
     public Vehicle(Unit unit, VehicleEntry vehInfo, int creatureEntry) {
         me = unit;
@@ -40,10 +40,10 @@ public class Vehicle implements TransportObject {
         this.creatureEntry = creatureEntry;
         status = Status.None;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (uint i = 0; i < SharedConst.MaxVehicleSeats; ++i)
         for (int i = 0; i < SharedConst.MaxVehicleSeats; ++i) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint seatId = _vehicleInfo.SeatID[i];
             int seatId = vehicleInfo.seatID[i];
 
@@ -203,7 +203,7 @@ public class Vehicle implements TransportObject {
         reset(false);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public void Reset(bool evading = false)
     public final void reset(boolean evading) {
         if (!getBase().isTypeId(TypeId.Unit)) {
@@ -420,10 +420,10 @@ public class Vehicle implements TransportObject {
         return null;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public byte GetAvailableSeatCount()
     public final byte getAvailableSeatCount() {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: byte ret = 0;
         byte ret = 0;
 
@@ -511,7 +511,7 @@ public class Vehicle implements TransportObject {
         return vehicleInfo;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public uint GetCreatureEntry()
     public final int getCreatureEntry() {
         return creatureEntry;
@@ -536,13 +536,13 @@ public class Vehicle implements TransportObject {
             me.ApplySpellImmune(0, SpellImmunity.State, AuraType.SchoolImmunity, true);
             me.ApplySpellImmune(0, SpellImmunity.State, AuraType.ModUnattackable, true);
             me.ApplySpellImmune(0, SpellImmunity.State, AuraType.SchoolAbsorb, true);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: _me.ApplySpellImmune(0, SpellImmunity.Mechanic, (uint)Mechanics.Banish, true);
             me.ApplySpellImmune(0, SpellImmunity.Mechanic, (int) Mechanics.Banish.getValue(), true);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: _me.ApplySpellImmune(0, SpellImmunity.Mechanic, (uint)Mechanics.Shield, true);
             me.ApplySpellImmune(0, SpellImmunity.Mechanic, (int) Mechanics.Shield.getValue(), true);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: _me.ApplySpellImmune(0, SpellImmunity.Mechanic, (uint)Mechanics.ImmuneShield, true);
             me.ApplySpellImmune(0, SpellImmunity.Mechanic, (int) Mechanics.ImmuneShield.getValue(), true);
 
@@ -578,7 +578,7 @@ public class Vehicle implements TransportObject {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: void InstallAccessory(uint entry, sbyte seatId, bool minion, byte type, uint summonTime)
     private void installAccessory(int entry, byte seatId, boolean minion, byte type, int summonTime) {
         // @Prevent adding accessories when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)

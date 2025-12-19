@@ -198,7 +198,7 @@ import org.springframework.data.relational.core.mapping.Table;
                         @Id
                         
                         @Column("VerifiedBuild")
-                        private Integer verifiedBuild;
+                        private int verifiedBuild;
                     
                     """
             );

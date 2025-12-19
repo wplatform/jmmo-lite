@@ -31,26 +31,26 @@ public class CinematicCamera implements DbcEntity {
     private int id;
 
     @Column("SoundID")
-    private Integer soundID;
+    private int soundID;
 
     @Column("OriginX")
-    private Float originX;
+    private float originX;
 
     @Column("OriginY")
-    private Float originY;
+    private float originY;
 
     @Column("OriginZ")
-    private Float originZ;
+    private float originZ;
 
     @Column("OriginFacing")
-    private Float originFacing;
+    private float originFacing;
 
     @Column("FileDataID")
-    private Integer fileDataID;
+    private int fileDataID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

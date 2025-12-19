@@ -30,17 +30,17 @@ public class ParagonReputation implements DbcEntity {
     private int id;
 
     @Column("FactionID")
-    private Integer factionID;
+    private int factionID;
 
     @Column("LevelThreshold")
-    private Integer levelThreshold;
+    private int levelThreshold;
 
     @Column("QuestID")
-    private Integer questID;
+    private int questID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

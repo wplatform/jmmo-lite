@@ -30,23 +30,23 @@ public class SpellTotem implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("Totem1")
-    private Integer totem1;
+    private int totem1;
 
     @Column("Totem2")
-    private Integer totem2;
+    private int totem2;
 
     @Column("RequiredTotemCategoryID1")
-    private Short requiredTotemCategoryID1;
+    private short requiredTotemCategoryID1;
 
     @Column("RequiredTotemCategoryID2")
-    private Short requiredTotemCategoryID2;
+    private short requiredTotemCategoryID2;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

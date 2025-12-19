@@ -30,17 +30,17 @@ public class ItemPriceBase implements DbcEntity {
     private int id;
 
     @Column("Armor")
-    private Float armor;
+    private float armor;
 
     @Column("Weapon")
-    private Float weapon;
+    private float weapon;
 
     @Column("ItemLevel")
-    private Short itemLevel;
+    private short itemLevel;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

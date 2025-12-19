@@ -29,35 +29,35 @@ public class CinematicSequence implements DbcEntity {
     private int id;
 
     @Column("SoundID")
-    private Integer soundID;
+    private int soundID;
 
     @Column("Camera1")
-    private Short camera1;
+    private short camera1;
 
     @Column("Camera2")
-    private Short camera2;
+    private short camera2;
 
     @Column("Camera3")
-    private Short camera3;
+    private short camera3;
 
     @Column("Camera4")
-    private Short camera4;
+    private short camera4;
 
     @Column("Camera5")
-    private Short camera5;
+    private short camera5;
 
     @Column("Camera6")
-    private Short camera6;
+    private short camera6;
 
     @Column("Camera7")
-    private Short camera7;
+    private short camera7;
 
     @Column("Camera8")
-    private Short camera8;
+    private short camera8;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

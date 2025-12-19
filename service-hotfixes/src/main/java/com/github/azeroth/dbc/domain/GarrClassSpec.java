@@ -40,16 +40,16 @@ public class GarrClassSpec implements DbcEntity {
     private LocalizedString classSpecFemale;
 
     @Column("UiTextureAtlasMemberID")
-    private Short uiTextureAtlasMemberID;
+    private short uiTextureAtlasMemberID;
 
     @Column("GarrFollItemSetID")
-    private Short garrFollItemSetID;
+    private short garrFollItemSetID;
 
     @Column("FollowerClassLimit")
-    private Byte followerClassLimit;
+    private byte followerClassLimit;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
@@ -59,6 +59,6 @@ public class GarrClassSpec implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

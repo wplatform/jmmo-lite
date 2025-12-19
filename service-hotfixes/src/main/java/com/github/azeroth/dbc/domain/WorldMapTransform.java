@@ -37,56 +37,56 @@ public class WorldMapTransform implements DbcEntity {
     private int id;
 
     @Column("RegionMinX")
-    private Float regionMinX;
+    private float regionMinX;
 
     @Column("RegionMinY")
-    private Float regionMinY;
+    private float regionMinY;
 
     @Column("RegionMinZ")
-    private Float regionMinZ;
+    private float regionMinZ;
 
     @Column("RegionMaxX")
-    private Float regionMaxX;
+    private float regionMaxX;
 
     @Column("RegionMaxY")
-    private Float regionMaxY;
+    private float regionMaxY;
 
     @Column("RegionMaxZ")
-    private Float regionMaxZ;
+    private float regionMaxZ;
 
     @Column("RegionOffsetX")
-    private Float regionOffsetX;
+    private float regionOffsetX;
 
     @Column("RegionOffsetY")
-    private Float regionOffsetY;
+    private float regionOffsetY;
 
     @Column("RegionScale")
-    private Float regionScale;
+    private float regionScale;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Column("AreaID")
-    private Short areaID;
+    private short areaID;
 
     @Column("NewMapID")
-    private Short newMapID;
+    private short newMapID;
 
     @Column("NewDungeonMapID")
-    private Short newDungeonMapID;
+    private short newDungeonMapID;
 
     @Column("NewAreaID")
-    private Short newAreaID;
+    private short newAreaID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("Priority")
-    private Integer priority;
+    private int priority;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

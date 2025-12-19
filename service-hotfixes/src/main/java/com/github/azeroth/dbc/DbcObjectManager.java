@@ -1881,11 +1881,11 @@ public interface DbcObjectManager {
         return spellLevel().get(id);
     }
 
-    default DbcEntityStore<SpellMisc> spellMisc() {
+    default DbcEntityStore<SpellMiscEntry> spellMisc() {
         return getEntityStore(DbcObjects.SpellMisc);
     }
 
-    default SpellMisc spellMisc(int id) {
+    default SpellMiscEntry spellMisc(int id) {
         return spellMisc().get(id);
     }
 

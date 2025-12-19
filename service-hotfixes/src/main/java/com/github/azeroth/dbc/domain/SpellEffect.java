@@ -57,113 +57,113 @@ public class SpellEffect implements DbcEntity {
     private int id;
 
     @Column("Effect")
-    private Integer effect;
+    private int effect;
 
     @Column("EffectBasePoints")
-    private Integer effectBasePoints;
+    private int effectBasePoints;
 
     @Column("EffectIndex")
-    private Integer effectIndex;
+    private int effectIndex;
 
     @Column("EffectAura")
-    private Integer effectAura;
+    private int effectAura;
 
     @Column("DifficultyID")
-    private Integer difficultyID;
+    private int difficultyID;
 
     @Column("EffectAmplitude")
-    private Float effectAmplitude;
+    private float effectAmplitude;
 
     @Column("EffectAuraPeriod")
-    private Integer effectAuraPeriod;
+    private int effectAuraPeriod;
 
     @Column("EffectBonusCoefficient")
-    private Float effectBonusCoefficient;
+    private float effectBonusCoefficient;
 
     @Column("EffectChainAmplitude")
-    private Float effectChainAmplitude;
+    private float effectChainAmplitude;
 
     @Column("EffectChainTargets")
-    private Integer effectChainTargets;
+    private int effectChainTargets;
 
     @Column("EffectDieSides")
-    private Integer effectDieSides;
+    private int effectDieSides;
 
     @Column("EffectItemType")
-    private Integer effectItemType;
+    private int effectItemType;
 
     @Column("EffectMechanic")
-    private Integer effectMechanic;
+    private int effectMechanic;
 
     @Column("EffectPointsPerResource")
-    private Float effectPointsPerResource;
+    private float effectPointsPerResource;
 
     @Column("EffectRealPointsPerLevel")
-    private Float effectRealPointsPerLevel;
+    private float effectRealPointsPerLevel;
 
     @Column("EffectTriggerSpell")
-    private Integer effectTriggerSpell;
+    private int effectTriggerSpell;
 
     @Column("EffectPosFacing")
-    private Float effectPosFacing;
+    private float effectPosFacing;
 
     @Column("EffectAttributes")
-    private Integer effectAttributes;
+    private int effectAttributes;
 
     @Column("BonusCoefficientFromAP")
-    private Float bonusCoefficientFromAP;
+    private float bonusCoefficientFromAP;
 
     @Column("PvpMultiplier")
-    private Float pvpMultiplier;
+    private float pvpMultiplier;
 
     @Column("Coefficient")
-    private Float coefficient;
+    private float coefficient;
 
     @Column("Variance")
-    private Float variance;
+    private float variance;
 
     @Column("ResourceCoefficient")
-    private Float resourceCoefficient;
+    private float resourceCoefficient;
 
     @Column("GroupSizeBasePointsCoefficient")
-    private Float groupSizeBasePointsCoefficient;
+    private float groupSizeBasePointsCoefficient;
 
     @Column("EffectSpellClassMask1")
-    private Integer effectSpellClassMask1;
+    private int effectSpellClassMask1;
 
     @Column("EffectSpellClassMask2")
-    private Integer effectSpellClassMask2;
+    private int effectSpellClassMask2;
 
     @Column("EffectSpellClassMask3")
-    private Integer effectSpellClassMask3;
+    private int effectSpellClassMask3;
 
     @Column("EffectSpellClassMask4")
-    private Integer effectSpellClassMask4;
+    private int effectSpellClassMask4;
 
     @Column("EffectMiscValue1")
-    private Integer effectMiscValue1;
+    private int effectMiscValue1;
 
     @Column("EffectMiscValue2")
-    private Integer effectMiscValue2;
+    private int effectMiscValue2;
 
     @Column("EffectRadiusIndex1")
-    private Integer effectRadiusIndex1;
+    private int effectRadiusIndex1;
 
     @Column("EffectRadiusIndex2")
-    private Integer effectRadiusIndex2;
+    private int effectRadiusIndex2;
 
     @Column("ImplicitTarget1")
-    private Integer implicitTarget1;
+    private int implicitTarget1;
 
     @Column("ImplicitTarget2")
-    private Integer implicitTarget2;
+    private int implicitTarget2;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

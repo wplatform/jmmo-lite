@@ -37,19 +37,19 @@ public class BarberShopStyle implements DbcEntity {
     private LocalizedString description;
 
     @Column("CostModifier")
-    private Float costModifier;
+    private float costModifier;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Column("Race")
-    private Byte race;
+    private byte race;
 
     @Column("Sex")
-    private Byte sex;
+    private byte sex;
 
     @Column("Data")
-    private Byte data;
+    private byte data;
 
     @Id
 
@@ -59,6 +59,6 @@ public class BarberShopStyle implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

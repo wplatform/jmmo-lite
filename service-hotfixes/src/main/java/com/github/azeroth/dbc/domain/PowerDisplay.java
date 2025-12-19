@@ -36,20 +36,20 @@ public class PowerDisplay implements DbcEntity {
     private String globalStringBaseTag;
 
     @Column("ActualType")
-    private Byte actualType;
+    private byte actualType;
 
     @Column("Red")
-    private Short red;
+    private short red;
 
     @Column("Green")
-    private Short green;
+    private short green;
 
     @Column("Blue")
-    private Short blue;
+    private short blue;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

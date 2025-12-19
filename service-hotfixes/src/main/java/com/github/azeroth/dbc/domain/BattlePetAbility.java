@@ -37,7 +37,7 @@ public class BattlePetAbility implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Name")
@@ -49,11 +49,11 @@ public class BattlePetAbility implements DbcEntity {
 
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
 
     @Column("PetTypeEnum")
-    private Byte petTypeEnum;
+    private byte petTypeEnum;
 
 
     @Column("Cooldown")
@@ -61,10 +61,10 @@ public class BattlePetAbility implements DbcEntity {
 
 
     @Column("BattlePetVisualID")
-    private Integer battlePetVisualID;
+    private int battlePetVisualID;
 
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
 }

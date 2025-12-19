@@ -110,305 +110,305 @@ public class ItemSparse implements DbcEntity {
     private LocalizedString description;
 
     @Column("Flags1")
-    private Integer flags1;
+    private int flags1;
 
     @Column("Flags2")
-    private Integer flags2;
+    private int flags2;
 
     @Column("Flags3")
-    private Integer flags3;
+    private int flags3;
 
     @Column("Flags4")
-    private Integer flags4;
+    private int flags4;
 
     @Column("PriceRandomValue")
-    private Float priceRandomValue;
+    private float priceRandomValue;
 
     @Column("PriceVariance")
-    private Float priceVariance;
+    private float priceVariance;
 
     @Column("VendorStackCount")
-    private Integer vendorStackCount;
+    private int vendorStackCount;
 
     @Column("BuyPrice")
-    private Integer buyPrice;
+    private int buyPrice;
 
     @Column("SellPrice")
-    private Integer sellPrice;
+    private int sellPrice;
 
     @Column("RequiredAbility")
-    private Integer requiredAbility;
+    private int requiredAbility;
 
     @Column("MaxCount")
-    private Integer maxCount;
+    private int maxCount;
 
     @Column("Stackable")
-    private Integer stackable;
+    private int stackable;
 
     @Column("StatPercentEditor1")
-    private Integer statPercentEditor1;
+    private int statPercentEditor1;
 
     @Column("StatPercentEditor2")
-    private Integer statPercentEditor2;
+    private int statPercentEditor2;
 
     @Column("StatPercentEditor3")
-    private Integer statPercentEditor3;
+    private int statPercentEditor3;
 
     @Column("StatPercentEditor4")
-    private Integer statPercentEditor4;
+    private int statPercentEditor4;
 
     @Column("StatPercentEditor5")
-    private Integer statPercentEditor5;
+    private int statPercentEditor5;
 
     @Column("StatPercentEditor6")
-    private Integer statPercentEditor6;
+    private int statPercentEditor6;
 
     @Column("StatPercentEditor7")
-    private Integer statPercentEditor7;
+    private int statPercentEditor7;
 
     @Column("StatPercentEditor8")
-    private Integer statPercentEditor8;
+    private int statPercentEditor8;
 
     @Column("StatPercentEditor9")
-    private Integer statPercentEditor9;
+    private int statPercentEditor9;
 
     @Column("StatPercentEditor10")
-    private Integer statPercentEditor10;
+    private int statPercentEditor10;
 
     @Column("StatPercentageOfSocket1")
-    private Float statPercentageOfSocket1;
+    private float statPercentageOfSocket1;
 
     @Column("StatPercentageOfSocket2")
-    private Float statPercentageOfSocket2;
+    private float statPercentageOfSocket2;
 
     @Column("StatPercentageOfSocket3")
-    private Float statPercentageOfSocket3;
+    private float statPercentageOfSocket3;
 
     @Column("StatPercentageOfSocket4")
-    private Float statPercentageOfSocket4;
+    private float statPercentageOfSocket4;
 
     @Column("StatPercentageOfSocket5")
-    private Float statPercentageOfSocket5;
+    private float statPercentageOfSocket5;
 
     @Column("StatPercentageOfSocket6")
-    private Float statPercentageOfSocket6;
+    private float statPercentageOfSocket6;
 
     @Column("StatPercentageOfSocket7")
-    private Float statPercentageOfSocket7;
+    private float statPercentageOfSocket7;
 
     @Column("StatPercentageOfSocket8")
-    private Float statPercentageOfSocket8;
+    private float statPercentageOfSocket8;
 
     @Column("StatPercentageOfSocket9")
-    private Float statPercentageOfSocket9;
+    private float statPercentageOfSocket9;
 
     @Column("StatPercentageOfSocket10")
-    private Float statPercentageOfSocket10;
+    private float statPercentageOfSocket10;
 
     @Column("ItemRange")
-    private Float itemRange;
+    private float itemRange;
 
     @Column("BagFamily")
-    private Integer bagFamily;
+    private int bagFamily;
 
     @Column("QualityModifier")
-    private Float qualityModifier;
+    private float qualityModifier;
 
     @Column("DurationInInventory")
-    private Integer durationInInventory;
+    private int durationInInventory;
 
     @Column("DmgVariance")
-    private Float dmgVariance;
+    private float dmgVariance;
 
     @Column("AllowableClass")
-    private Short allowableClass;
+    private short allowableClass;
 
     @Column("ItemLevel")
-    private Short itemLevel;
+    private short itemLevel;
 
     @Column("RequiredSkill")
-    private Short requiredSkill;
+    private short requiredSkill;
 
     @Column("RequiredSkillRank")
-    private Short requiredSkillRank;
+    private short requiredSkillRank;
 
     @Column("MinFactionID")
-    private Short minFactionID;
+    private short minFactionID;
 
     @Column("ItemStatValue1")
-    private Short itemStatValue1;
+    private short itemStatValue1;
 
     @Column("ItemStatValue2")
-    private Short itemStatValue2;
+    private short itemStatValue2;
 
     @Column("ItemStatValue3")
-    private Short itemStatValue3;
+    private short itemStatValue3;
 
     @Column("ItemStatValue4")
-    private Short itemStatValue4;
+    private short itemStatValue4;
 
     @Column("ItemStatValue5")
-    private Short itemStatValue5;
+    private short itemStatValue5;
 
     @Column("ItemStatValue6")
-    private Short itemStatValue6;
+    private short itemStatValue6;
 
     @Column("ItemStatValue7")
-    private Short itemStatValue7;
+    private short itemStatValue7;
 
     @Column("ItemStatValue8")
-    private Short itemStatValue8;
+    private short itemStatValue8;
 
     @Column("ItemStatValue9")
-    private Short itemStatValue9;
+    private short itemStatValue9;
 
     @Column("ItemStatValue10")
-    private Short itemStatValue10;
+    private short itemStatValue10;
 
     @Column("ScalingStatDistributionID")
-    private Short scalingStatDistributionID;
+    private short scalingStatDistributionID;
 
     @Column("ItemDelay")
-    private Short itemDelay;
+    private short itemDelay;
 
     @Column("PageID")
-    private Short pageID;
+    private short pageID;
 
     @Column("StartQuestID")
-    private Integer startQuestID;
+    private int startQuestID;
 
     @Column("LockID")
-    private Short lockID;
+    private short lockID;
 
     @Column("RandomSelect")
-    private Short randomSelect;
+    private short randomSelect;
 
     @Column("ItemRandomSuffixGroupID")
-    private Short itemRandomSuffixGroupID;
+    private short itemRandomSuffixGroupID;
 
     @Column("ItemSet")
-    private Short itemSet;
+    private short itemSet;
 
     @Column("ZoneBound")
-    private Short zoneBound;
+    private short zoneBound;
 
     @Column("InstanceBound")
-    private Short instanceBound;
+    private short instanceBound;
 
     @Column("TotemCategoryID")
-    private Short totemCategoryID;
+    private short totemCategoryID;
 
     @Column("SocketMatchEnchantmentId")
-    private Short socketMatchEnchantmentId;
+    private short socketMatchEnchantmentId;
 
     @Column("GemProperties")
-    private Short gemProperties;
+    private short gemProperties;
 
     @Column("LimitCategory")
-    private Short limitCategory;
+    private short limitCategory;
 
     @Column("RequiredHoliday")
-    private Short requiredHoliday;
+    private short requiredHoliday;
 
     @Column("RequiredTransmogHoliday")
-    private Short requiredTransmogHoliday;
+    private short requiredTransmogHoliday;
 
     @Column("ItemNameDescriptionID")
-    private Short itemNameDescriptionID;
+    private short itemNameDescriptionID;
 
     @Column("OverallQualityID")
-    private Byte overallQualityID;
+    private byte overallQualityID;
 
     @Column("InventoryType")
-    private Byte inventoryType;
+    private byte inventoryType;
 
     @Column("RequiredLevel")
-    private Byte requiredLevel;
+    private byte requiredLevel;
 
     @Column("RequiredPVPRank")
-    private Byte requiredPVPRank;
+    private byte requiredPVPRank;
 
     @Column("RequiredPVPMedal")
-    private Byte requiredPVPMedal;
+    private byte requiredPVPMedal;
 
     @Column("MinReputation")
-    private Byte minReputation;
+    private byte minReputation;
 
     @Column("ContainerSlots")
-    private Byte containerSlots;
+    private byte containerSlots;
 
     @Column("StatModifierBonusStat1")
-    private Byte statModifierBonusStat1;
+    private byte statModifierBonusStat1;
 
     @Column("StatModifierBonusStat2")
-    private Byte statModifierBonusStat2;
+    private byte statModifierBonusStat2;
 
     @Column("StatModifierBonusStat3")
-    private Byte statModifierBonusStat3;
+    private byte statModifierBonusStat3;
 
     @Column("StatModifierBonusStat4")
-    private Byte statModifierBonusStat4;
+    private byte statModifierBonusStat4;
 
     @Column("StatModifierBonusStat5")
-    private Byte statModifierBonusStat5;
+    private byte statModifierBonusStat5;
 
     @Column("StatModifierBonusStat6")
-    private Byte statModifierBonusStat6;
+    private byte statModifierBonusStat6;
 
     @Column("StatModifierBonusStat7")
-    private Byte statModifierBonusStat7;
+    private byte statModifierBonusStat7;
 
     @Column("StatModifierBonusStat8")
-    private Byte statModifierBonusStat8;
+    private byte statModifierBonusStat8;
 
     @Column("StatModifierBonusStat9")
-    private Byte statModifierBonusStat9;
+    private byte statModifierBonusStat9;
 
     @Column("StatModifierBonusStat10")
-    private Byte statModifierBonusStat10;
+    private byte statModifierBonusStat10;
 
     @Column("DamageDamageType")
-    private Byte damageDamageType;
+    private byte damageDamageType;
 
     @Column("Bonding")
-    private Byte bonding;
+    private byte bonding;
 
     @Column("LanguageID")
-    private Byte languageID;
+    private byte languageID;
 
     @Column("PageMaterialID")
-    private Byte pageMaterialID;
+    private byte pageMaterialID;
 
     @Column("Material")
-    private Byte material;
+    private byte material;
 
     @Column("SheatheType")
-    private Byte sheatheType;
+    private byte sheatheType;
 
     @Column("SocketType1")
-    private Byte socketType1;
+    private byte socketType1;
 
     @Column("SocketType2")
-    private Byte socketType2;
+    private byte socketType2;
 
     @Column("SocketType3")
-    private Byte socketType3;
+    private byte socketType3;
 
     @Column("SpellWeightCategory")
-    private Byte spellWeightCategory;
+    private byte spellWeightCategory;
 
     @Column("SpellWeight")
-    private Byte spellWeight;
+    private byte spellWeight;
 
     @Column("ArtifactID")
-    private Byte artifactID;
+    private byte artifactID;
 
     @Column("ExpansionID")
-    private Byte expansionID;
+    private byte expansionID;
 
     @Id
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     public byte getStatModifierBonusStat(int index) {
         return switch (index) {

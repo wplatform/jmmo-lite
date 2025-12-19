@@ -40,35 +40,35 @@ public class CreatureFamilyEntry implements DbcEntity {
     private LocalizedString name;
 
     @Column("MinScale")
-    private Float minScale;
+    private float minScale;
 
     @Column("MaxScale")
-    private Float maxScale;
+    private float maxScale;
 
     @Column("IconFileID")
-    private Integer iconFileID;
+    private int iconFileID;
 
     @Column("SkillLine1")
-    private Short skillLine1;
+    private short skillLine1;
 
     @Column("SkillLine2")
-    private Short skillLine2;
+    private short skillLine2;
 
     @Column("PetFoodMask")
-    private Short petFoodMask;
+    private short petFoodMask;
 
     @Column("MinScaleLevel")
-    private Byte minScaleLevel;
+    private byte minScaleLevel;
 
     @Column("MaxScaleLevel")
-    private Byte maxScaleLevel;
+    private byte maxScaleLevel;
 
     @Column("PetTalentType")
-    private Byte petTalentType;
+    private byte petTalentType;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

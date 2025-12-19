@@ -32,23 +32,23 @@ public class SpellVisualKit implements DbcEntity {
     private int id;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("FallbackPriority")
-    private Byte fallbackPriority;
+    private byte fallbackPriority;
 
     @Column("FallbackSpellVisualKitId")
-    private Integer fallbackSpellVisualKitId;
+    private int fallbackSpellVisualKitId;
 
     @Column("DelayMin")
-    private Short delayMin;
+    private short delayMin;
 
     @Column("DelayMax")
-    private Short delayMax;
+    private short delayMax;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

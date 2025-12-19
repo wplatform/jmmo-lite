@@ -30,17 +30,17 @@ public class SandboxScaling implements DbcEntity {
     private int id;
 
     @Column("MinLevel")
-    private Integer minLevel;
+    private int minLevel;
 
     @Column("MaxLevel")
-    private Integer maxLevel;
+    private int maxLevel;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

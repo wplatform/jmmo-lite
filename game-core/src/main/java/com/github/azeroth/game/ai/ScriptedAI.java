@@ -1,21 +1,19 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.datastorage.*;
-import game.entities.*;
-import game.maps.*;
-import game.spells.*;
-import game.*;
-import java.util.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+import com.github.azeroth.dbc.defines.Difficulty;
+import com.github.azeroth.game.entity.creature.Creature;
+import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.spell.SpellInfo;
+
+
+
 
 
 
 
 public class ScriptedAI extends CreatureAI {
-    private final Difficulty difficulty = Difficulty.values()[0];
+    private final Difficulty difficulty;
     private final boolean isHeroic;
     private boolean isCombatMovementAllowed;
 
@@ -46,7 +44,7 @@ public class ScriptedAI extends CreatureAI {
         }
     }
     //Called at World update tick
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
@@ -68,7 +66,7 @@ public class ScriptedAI extends CreatureAI {
         doStartMovement(target, 0.0f, 0.0f);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void DoStartMovement(Unit target, float distance = 0.0f, float angle = 0.0f)
     public final void doStartMovement(Unit target, float distance, float angle) {
         if (target != null) {
@@ -98,7 +96,7 @@ public class ScriptedAI extends CreatureAI {
         doCastSpell(target, spellInfo, false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void DoCastSpell(Unit target, SpellInfo spellInfo, bool triggered = false)
     public final void doCastSpell(Unit target, SpellInfo spellInfo, boolean triggered) {
         if (target == null || me.isNonMeleeSpellCast(false)) {
@@ -110,7 +108,7 @@ public class ScriptedAI extends CreatureAI {
     }
 
     //Plays a sound to all nearby players
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public static void DoPlaySoundToSet(WorldObject source, uint soundId)
     public static void doPlaySoundToSet(WorldObject source, int soundId) {
         if (source == null) {
@@ -138,7 +136,7 @@ public class ScriptedAI extends CreatureAI {
         addThreat(victim, amount, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void AddThreat(Unit victim, double amount, Unit who = null)
     public final void addThreat(Unit victim, double amount, Unit who) {
         if (!victim) {
@@ -164,7 +162,7 @@ public class ScriptedAI extends CreatureAI {
         modifyThreatByPercent(victim, pct, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void ModifyThreatByPercent(Unit victim, int pct, Unit who = null)
     public final void modifyThreatByPercent(Unit victim, int pct, Unit who) {
         if (!victim) {
@@ -206,7 +204,7 @@ public class ScriptedAI extends CreatureAI {
         resetThreatList(null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void ResetThreatList(Unit who = null)
     public final void resetThreatList(Unit who) {
         if (!who) {
@@ -228,7 +226,7 @@ public class ScriptedAI extends CreatureAI {
         return getThreat(victim, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public double GetThreat(Unit victim, Unit who = null)
     public final double getThreat(Unit victim, Unit who) {
         if (!victim) {
@@ -243,7 +241,7 @@ public class ScriptedAI extends CreatureAI {
     }
 
     //Spawns a creature relative to me
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public Creature DoSpawnCreature(uint entry, float offsetX, float offsetY, float offsetZ, float angle, TempSummonType type, TimeSpan despawntime)
     public final Creature doSpawnCreature(int entry, float offsetX, float offsetY, float offsetZ, float angle, TempSummonType type, TimeSpan despawntime) {
         return me.summonCreature(entry, new Position(me.location.x + offsetX, me.location.y + offsetY, me.location.z + offsetZ, angle), type, despawntime);
@@ -264,12 +262,12 @@ public class ScriptedAI extends CreatureAI {
         //Using the extended script system we first create a list of viable spells
         var apSpell = new SpellInfo[SharedConst.MaxCreatureSpells];
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint spellCount = 0;
         int spellCount = 0;
 
         //Check if each spell is viable(set it to null if not)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (uint i = 0; i < SharedConst.MaxCreatureSpells; i++)
         for (int i = 0; i < SharedConst.MaxCreatureSpells; i++) {
             var tempSpell = Global.getSpellMgr().getSpellInfo(me.spells[i], me.getMap().getDifficultyID());
@@ -348,9 +346,9 @@ public class ScriptedAI extends CreatureAI {
         doTeleportTo(x, y, z, 0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void DoTeleportTo(float x, float y, float z, uint time = 0)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void doTeleportTo(float x, float y, float z, int time) {
         me.location.relocate(x, y, z);
         var speed = me.getDistance(x, y, z) / (time * 0.001f);
@@ -398,9 +396,9 @@ public class ScriptedAI extends CreatureAI {
         return doSelectLowestHpFriendly(range, 1);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public Unit DoSelectLowestHpFriendly(float range, uint minHPDiff = 1)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final Unit doSelectLowestHpFriendly(float range, int minHPDiff) {
         var uCheck = new MostHPMissingInRange<Unit>(me, range, minHPDiff);
         var searcher = new UnitLastSearcher(me, uCheck, GridType.All);
@@ -420,7 +418,7 @@ public class ScriptedAI extends CreatureAI {
     }
 
     //Returns a list of all friendly units missing a specific buff within range
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public List<Creature> DoFindFriendlyMissingBuff(float range, uint spellId)
     public final ArrayList<Creature> doFindFriendlyMissingBuff(float range, int spellId) {
         ArrayList<Creature> list = new ArrayList<Creature>();
@@ -453,7 +451,7 @@ public class ScriptedAI extends CreatureAI {
         setEquipmentSlots(loadDefault, -1, -1, -1);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetEquipmentSlots(bool loadDefault, int mainHand = -1, int offHand = -1, int ranged = -1)
     public final void setEquipmentSlots(boolean loadDefault, int mainHand, int offHand, int ranged) {
         if (loadDefault) {
@@ -463,19 +461,19 @@ public class ScriptedAI extends CreatureAI {
         }
 
         if (mainHand >= 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Me.SetVirtualItem(0, (uint)mainHand);
             me.setVirtualItem(0, (int)mainHand);
         }
 
         if (offHand >= 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Me.SetVirtualItem(1, (uint)offHand);
             me.setVirtualItem(1, (int)offHand);
         }
 
         if (ranged >= 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Me.SetVirtualItem(2, (uint)ranged);
             me.setVirtualItem(2, (int)ranged);
         }
@@ -495,9 +493,9 @@ public class ScriptedAI extends CreatureAI {
         return getClosestCreatureWithEntry(source, entry, maxSearchRange, true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public static Creature GetClosestCreatureWithEntry(WorldObject source, uint entry, float maxSearchRange, bool alive = true)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public static Creature getClosestCreatureWithEntry(WorldObject source, int entry, float maxSearchRange, boolean alive) {
         return source.findNearestCreature(entry, maxSearchRange, alive);
     }
@@ -511,9 +509,9 @@ public class ScriptedAI extends CreatureAI {
         return getClosestGameObjectWithEntry(source, entry, maxSearchRange, true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public static GameObject GetClosestGameObjectWithEntry(WorldObject source, uint entry, float maxSearchRange, bool spawnedOnly = true)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public static GameObject getClosestGameObjectWithEntry(WorldObject source, int entry, float maxSearchRange, boolean spawnedOnly) {
         return source.findNearestGameObject(entry, maxSearchRange, spawnedOnly);
     }
@@ -583,7 +581,7 @@ public class ScriptedAI extends CreatureAI {
         forceCombatStop(who, true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: void ForceCombatStop(Creature who, bool reset = true)
     private void forceCombatStop(Creature who, boolean reset) {
         if (who == null || !who.isInCombat()) {
@@ -624,9 +622,9 @@ public class ScriptedAI extends CreatureAI {
         forceCombatStopForCreatureEntry(entry, 250.0f, true, true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     private void forceCombatStopForCreatureEntry(int entry, float maxSearchRange, boolean samePhase, boolean reset) {
         Log.outDebug(LogFilter.ScriptsAi, String.format("BossAI::ForceStopCombatForCreature: called on %1$s. Debug info: %2$s", me.getGUID().clone(), me.getDebugInfo()));
 
@@ -670,9 +668,9 @@ public class ScriptedAI extends CreatureAI {
         forceCombatStopForCreatureEntry(creatureEntries, 250.0f, true, true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: void ForceCombatStopForCreatureEntry(List<uint> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     private void forceCombatStopForCreatureEntry(ArrayList<Integer> creatureEntries, float maxSearchRange, boolean samePhase, boolean reset) {
         for (var entry : creatureEntries) {
             forceCombatStopForCreatureEntry(entry, maxSearchRange, samePhase, reset);

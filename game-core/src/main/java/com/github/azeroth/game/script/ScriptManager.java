@@ -1,6 +1,6 @@
 package com.github.azeroth.game.script;
 
-public interface ScriptFactory {
+public interface ScriptManager {
 
     AuraScript getAuraScript(int spellId);
 

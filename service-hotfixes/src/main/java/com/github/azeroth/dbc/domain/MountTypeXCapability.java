@@ -31,18 +31,18 @@ public class MountTypeXCapability implements DbcEntity, Comparable<MountTypeXCap
     private int id;
 
     @Column("MountTypeID")
-    private Short mountTypeID;
+    private short mountTypeID;
 
     @Column("MountCapabilityID")
-    private Short mountCapabilityID;
+    private short mountCapabilityID;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Override

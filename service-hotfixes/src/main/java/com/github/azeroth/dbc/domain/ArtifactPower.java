@@ -29,22 +29,22 @@ import lombok.ToString;
 })
 public class ArtifactPower implements DbcEntity {
     @Column("PosX")
-    private Float posX;
+    private float posX;
 
     @Column("PosY")
-    private Float posY;
+    private float posY;
 
     @Column("ArtifactID")
-    private Short artifactID;
+    private short artifactID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("MaxPurchasableRank")
-    private Byte maxPurchasableRank;
+    private byte maxPurchasableRank;
 
     @Column("Tier")
-    private Byte tier;
+    private byte tier;
 
     @Id
 
@@ -52,11 +52,11 @@ public class ArtifactPower implements DbcEntity {
     private int id;
 
     @Column("Label")
-    private Integer label;
+    private int label;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

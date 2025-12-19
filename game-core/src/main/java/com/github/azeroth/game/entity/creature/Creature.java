@@ -17,6 +17,7 @@ import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.WorldLocation;
 import com.github.azeroth.game.domain.spawn.RespawnInfo;
+import com.github.azeroth.game.domain.spawn.SpawnObjectType;
 import com.github.azeroth.game.domain.unit.*;
 import com.github.azeroth.game.entity.object.*;
 import com.github.azeroth.game.domain.object.enums.CellMoveState;
@@ -98,7 +99,7 @@ public class Creature extends Unit implements GirdObject {
     private HashSet<ObjectGuid> tapList = new HashSet<ObjectGuid>();
 
     private int corpseDelay;
-    private ReactState reactState = ReactState.values()[0];
+    private ReactState reactState;
     private byte originalEquipmentId;
 
     private byte currentEquipmentId;
@@ -1163,7 +1164,7 @@ public class Creature extends Unit implements GirdObject {
             return null;
         }
 
-        if (target && _IsTargetAcceptable(target) && canCreatureAttack(target)) {
+        if (target && isTargetAcceptable(target) && canCreatureAttack(target)) {
             if (!hasSpellFocus()) {
                 setInFront(target);
             }
@@ -1869,7 +1870,7 @@ public class Creature extends Unit implements GirdObject {
         }
 
         if (!force) {
-            if (!_IsTargetAcceptable(who)) {
+            if (!isTargetAcceptable(who)) {
                 return false;
             }
 
@@ -2409,15 +2410,15 @@ public class Creature extends Unit implements GirdObject {
         return isHostileTo(enemy);
     }
 
-    public final boolean _IsTargetAcceptable(Unit target) {
+    public final boolean isTargetAcceptable(Unit target) {
         // if the target cannot be attacked, the target is not acceptable
         if (isFriendlyTo(target) || !target.isTargetableForAttack(false) || (getVehicle() != null && (isOnVehicle(target) || getVehicle().GetBase().isOnVehicle(target)))) {
             return false;
         }
 
-        if (target.hasUnitState(UnitState.Died)) {
+        if (target.hasUnitState(UnitState.DIED)) {
             // some creatures can detect fake death
-            return getCanIgnoreFeignDeath() && target.hasUnitFlag2(UnitFlag2.FeignDeath);
+            return getCanIgnoreFeignDeath() && target.hasUnitFlag2(UnitFlag2.FEIGN_DEATH);
         }
 
         // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable

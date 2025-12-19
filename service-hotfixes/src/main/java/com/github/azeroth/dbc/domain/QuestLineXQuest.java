@@ -32,19 +32,19 @@ public class QuestLineXQuest implements DbcEntity, Comparable<QuestLineXQuest> {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("QuestLineID")
-    private Integer questLineID;
+    private int questLineID;
 
 
     @Column("QuestID")
-    private Integer questID;
+    private int questID;
 
 
     @Column("OrderIndex")
-    private Integer orderIndex;
+    private int orderIndex;
 
     @Override
     public int compareTo(QuestLineXQuest o) {

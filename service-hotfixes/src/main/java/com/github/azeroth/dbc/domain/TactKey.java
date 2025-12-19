@@ -28,56 +28,56 @@ public class TactKey implements DbcEntity {
     private int id;
 
     @Column("Key1")
-    private Short key1;
+    private short key1;
 
     @Column("Key2")
-    private Short key2;
+    private short key2;
 
     @Column("Key3")
-    private Short key3;
+    private short key3;
 
     @Column("Key4")
-    private Short key4;
+    private short key4;
 
     @Column("Key5")
-    private Short key5;
+    private short key5;
 
     @Column("Key6")
-    private Short key6;
+    private short key6;
 
     @Column("Key7")
-    private Short key7;
+    private short key7;
 
     @Column("Key8")
-    private Short key8;
+    private short key8;
 
     @Column("Key9")
-    private Short key9;
+    private short key9;
 
     @Column("Key10")
-    private Short key10;
+    private short key10;
 
     @Column("Key11")
-    private Short key11;
+    private short key11;
 
     @Column("Key12")
-    private Short key12;
+    private short key12;
 
     @Column("Key13")
-    private Short key13;
+    private short key13;
 
     @Column("Key14")
-    private Short key14;
+    private short key14;
 
     @Column("Key15")
-    private Short key15;
+    private short key15;
 
     @Column("Key16")
-    private Short key16;
+    private short key16;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -31,20 +31,20 @@ public class GlyphProperty implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("SpellIconID")
-    private Short spellIconID;
+    private short spellIconID;
 
     @Column("GlyphType")
-    private Byte glyphType;
+    private byte glyphType;
 
     @Column("GlyphExclusiveCategoryID")
-    private Byte glyphExclusiveCategoryID;
+    private byte glyphExclusiveCategoryID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

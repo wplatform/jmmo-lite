@@ -35,7 +35,7 @@ public class CfgCategory implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Name")
@@ -43,22 +43,22 @@ public class CfgCategory implements DbcEntity {
 
 
     @Column("LocaleMask")
-    private Integer localeMask;
+    private int localeMask;
 
 
     @Column("CreateCharsetMask")
-    private Short createCharsetMask;
+    private short createCharsetMask;
 
 
     @Column("ExistingCharsetMask")
-    private Short existingCharsetMask;
+    private short existingCharsetMask;
 
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
 
     @Column("`Order`")
-    private Byte order;
+    private byte order;
 
 }

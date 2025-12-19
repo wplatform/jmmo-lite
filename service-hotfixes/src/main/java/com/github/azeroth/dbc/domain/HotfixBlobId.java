@@ -20,7 +20,7 @@ public class HotfixBlobId implements Serializable {
     private Long tableHash;
 
     @Column("RecordId")
-    private Integer recordId;
+    private int recordId;
 
     @Column("locale")
     private String locale;

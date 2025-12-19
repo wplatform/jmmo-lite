@@ -29,11 +29,11 @@ public class TransmogHoliday implements DbcEntity {
     private int id;
 
     @Column("RequiredTransmogHoliday")
-    private Integer requiredTransmogHoliday;
+    private int requiredTransmogHoliday;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

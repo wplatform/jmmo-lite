@@ -1,6 +1,7 @@
 package com.github.azeroth.game.spell;
 
 
+import com.github.azeroth.common.EnumFlag;
 import com.github.azeroth.dbc.defines.Difficulty;
 import com.github.azeroth.defines.*;
 import com.github.azeroth.game.domain.condition.DisableFlags;
@@ -9,17 +10,14 @@ import com.github.azeroth.game.battlepet.BattlePetMgr;
 import com.github.azeroth.game.condition.ConditionSourceInfo;
 import com.github.azeroth.game.domain.map.MapDb2Entries;
 import com.github.azeroth.game.domain.map.MapDefine;
-import com.github.azeroth.game.entity.TraitConfig;
 import com.github.azeroth.game.entity.corpse.Corpse;
 import com.github.azeroth.game.entity.creature.TempSummon;
-import com.github.azeroth.game.entity.creature.minion;
 import com.github.azeroth.game.entity.dynamic.DynamicObject;
 import com.github.azeroth.game.entity.dynamic.DynamicObjectType;
 import com.github.azeroth.game.entity.gobject.GameObject;
 import com.github.azeroth.game.entity.item.Item;
 import com.github.azeroth.game.entity.item.ItemEnchantmentManager;
 import com.github.azeroth.game.entity.item.ItemPosCount;
-import com.github.azeroth.game.entity.item.bonusData;
 import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.object.WorldLocation;
 import com.github.azeroth.game.entity.object.WorldObject;
@@ -32,31 +30,19 @@ import com.github.azeroth.game.loot.Loot;
 import com.github.azeroth.game.loot.LootStorage;
 import com.github.azeroth.game.map.*;
 import com.github.azeroth.game.map.grid.Cell;
-import com.github.azeroth.game.map.interfaces.IGridNotifier;
 import com.github.azeroth.game.movement.*;
 import com.github.azeroth.game.movement.enums.PathType;
 import com.github.azeroth.game.movement.model.SpellEffectExtraData;
 import com.github.azeroth.game.networking.packet.spell.SpellCastVisual;
-import com.github.azeroth.game.listener.SpellScript;
-import com.github.azeroth.game.listener.interfaces.IHasSpellEffects;
-import com.github.azeroth.game.listener.interfaces.ISpellScript;
-import com.github.azeroth.game.listener.interfaces.iplayer.IPlayerOnDuelRequest;
-import com.github.azeroth.game.listener.interfaces.iplayer.IPlayerOnQuestStatusChange;
-import com.github.azeroth.game.listener.interfaces.iplayer.IPlayerOnSpellCast;
-import com.github.azeroth.game.listener.interfaces.iquest.IQuestOnQuestStatusChange;
-import com.github.azeroth.game.listener.interfaces.ispell.*;
-import com.github.azeroth.game.spell.enums.SpellCastFlagsEx;
-import com.github.azeroth.game.spell.enums.SpellState;
-import com.github.azeroth.game.spell.enums.SpellValueMod;
-import com.github.azeroth.game.spell.enums.TriggerCastFlag;
+import com.github.azeroth.game.script.SpellScript;
+import com.github.azeroth.game.spell.enums.*;
 
 import java.io.IOException;
 import java.util.*;
 
 
 public class Spell {
-    private static final ArrayList<ISpellScript> DUMMY = new ArrayList<>();
-    private final HashMap<Byte, SpellEmpowerStageRecord> empowerStages = new HashMap<Byte, SpellEmpowerStageRecord>();
+    private static final ArrayList<SpellScript> DUMMY = new ArrayList<>();
     private final HashMap<SpellEffectName, SpellLogEffect> executeLogEffects = new HashMap<SpellEffectName, SpellLogEffect>();
     private final WorldObject caster;
     private final boolean canReflect; // can reflect this spell?
@@ -89,7 +75,6 @@ public class Spell {
     public Spell selfContainer;
     // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
     public Unit unitTarget;
-	private static final ArrayList<(ISpellScript,ISpellEffect)>DUMMYSPELLEFFECTS =new ArrayList<(ISpellScript,ISpellEffect)>();
     public Item itemTarget;
     public GameObject gameObjTarget;
     public Corpse corpseTarget;
@@ -98,8 +83,6 @@ public class Spell {
     public SpellMissInfo targetMissInfo = SpellMissInfo.values()[0];
     public double variance;
     public SpellEffectInfo effectInfo;
-    private final HashMap<class,ArrayList<ISpellScript>>spellScriptsByType =new HashMap<class,ArrayList<ISpellScript>>();
-	private final Dictionary<Integer, Dictionary<SpellScriptHookType, ArrayList<(ISpellScript,ISpellEffect)>>>effectHandlers =new();
     // Damage and healing in effects need just calculate
     public double damageInEffects; // Damge   in effects count here
     public double healingInEffects; // Healing in effects count here
@@ -155,8 +138,6 @@ public class Spell {
     private SpellState spellState = SpellState.values()[0];
     private int timer;
 
-    // Empower spell meta
-    private EmpowerState empowerState = EmpowerState.NONE;
     private byte empoweredSpellStage;
     private int empoweredSpellDelta;
 
@@ -186,7 +167,7 @@ public class Spell {
 
         caster = (info.hasAttribute(SpellAttr6.OriginateFromController) && caster.getCharmerOrOwner() != null ? caster.getCharmerOrOwner() : caster);
         spellValue = new spellValue(spellInfo, caster);
-        needComboPoints = spellInfo.getNeedsComboPoints();
+        needComboPoints = spellInfo.isNeedsComboPoints();
 
         // Get data for type of attack
         attackType = info.getAttackType();

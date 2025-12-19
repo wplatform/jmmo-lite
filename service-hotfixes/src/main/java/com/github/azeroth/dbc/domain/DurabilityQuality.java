@@ -28,11 +28,11 @@ public class DurabilityQuality implements DbcEntity {
     private int id;
 
     @Column("Data")
-    private Float data;
+    private float data;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

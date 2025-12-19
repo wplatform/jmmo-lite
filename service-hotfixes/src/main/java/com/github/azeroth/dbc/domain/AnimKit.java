@@ -30,17 +30,17 @@ public class AnimKit implements DbcEntity {
     private int id;
 
     @Column("OneShotDuration")
-    private Integer oneShotDuration;
+    private int oneShotDuration;
 
     @Column("OneShotStopAnimKitID")
-    private Short oneShotStopAnimKitID;
+    private short oneShotStopAnimKitID;
 
     @Column("LowDefAnimKitID")
-    private Short lowDefAnimKitID;
+    private short lowDefAnimKitID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

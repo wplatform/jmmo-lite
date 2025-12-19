@@ -33,11 +33,11 @@ public class LanguageWord implements DbcEntity {
     private String word;
 
     @Column("LanguageID")
-    private Short languageID;
+    private short languageID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -29,14 +29,14 @@ public class ArtifactPowerLink implements DbcEntity {
     private int id;
 
     @Column("PowerA")
-    private Short powerA;
+    private short powerA;
 
     @Column("PowerB")
-    private Short powerB;
+    private short powerB;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

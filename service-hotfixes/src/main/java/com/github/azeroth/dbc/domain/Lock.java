@@ -31,104 +31,104 @@ public class Lock implements DbcEntity {
     private int id;
 
     @Column("Index1")
-    private Integer index1;
+    private int index1;
 
     @Column("Index2")
-    private Integer index2;
+    private int index2;
 
     @Column("Index3")
-    private Integer index3;
+    private int index3;
 
     @Column("Index4")
-    private Integer index4;
+    private int index4;
 
     @Column("Index5")
-    private Integer index5;
+    private int index5;
 
     @Column("Index6")
-    private Integer index6;
+    private int index6;
 
     @Column("Index7")
-    private Integer index7;
+    private int index7;
 
     @Column("Index8")
-    private Integer index8;
+    private int index8;
 
     @Column("Skill1")
-    private Short skill1;
+    private short skill1;
 
     @Column("Skill2")
-    private Short skill2;
+    private short skill2;
 
     @Column("Skill3")
-    private Short skill3;
+    private short skill3;
 
     @Column("Skill4")
-    private Short skill4;
+    private short skill4;
 
     @Column("Skill5")
-    private Short skill5;
+    private short skill5;
 
     @Column("Skill6")
-    private Short skill6;
+    private short skill6;
 
     @Column("Skill7")
-    private Short skill7;
+    private short skill7;
 
     @Column("Skill8")
-    private Short skill8;
+    private short skill8;
 
     @Column("Type1")
-    private Byte type1;
+    private byte type1;
 
     @Column("Type2")
-    private Byte type2;
+    private byte type2;
 
     @Column("Type3")
-    private Byte type3;
+    private byte type3;
 
     @Column("Type4")
-    private Byte type4;
+    private byte type4;
 
     @Column("Type5")
-    private Byte type5;
+    private byte type5;
 
     @Column("Type6")
-    private Byte type6;
+    private byte type6;
 
     @Column("Type7")
-    private Byte type7;
+    private byte type7;
 
     @Column("Type8")
-    private Byte type8;
+    private byte type8;
 
     @Column("Action1")
-    private Byte action1;
+    private byte action1;
 
     @Column("Action2")
-    private Byte action2;
+    private byte action2;
 
     @Column("Action3")
-    private Byte action3;
+    private byte action3;
 
     @Column("Action4")
-    private Byte action4;
+    private byte action4;
 
     @Column("Action5")
-    private Byte action5;
+    private byte action5;
 
     @Column("Action6")
-    private Byte action6;
+    private byte action6;
 
     @Column("Action7")
-    private Byte action7;
+    private byte action7;
 
     @Column("Action8")
-    private Byte action8;
+    private byte action8;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

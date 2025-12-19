@@ -27,7 +27,7 @@ public class GarrClassSpecLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("ClassSpec_lang")

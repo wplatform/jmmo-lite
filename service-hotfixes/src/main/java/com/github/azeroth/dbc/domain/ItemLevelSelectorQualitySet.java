@@ -29,14 +29,14 @@ public class ItemLevelSelectorQualitySet implements DbcEntity {
     private int id;
 
     @Column("IlvlRare")
-    private Short ilvlRare;
+    private short ilvlRare;
 
     @Column("IlvlEpic")
-    private Short ilvlEpic;
+    private short ilvlEpic;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

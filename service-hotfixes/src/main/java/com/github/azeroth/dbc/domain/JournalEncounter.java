@@ -45,38 +45,38 @@ public class JournalEncounter implements DbcEntity {
     private LocalizedString description;
 
     @Column("Map_1")
-    private Float map_1;
+    private float map_1;
 
     @Column("Map_2")
-    private Float map_2;
+    private float map_2;
 
     @Column("DungeonMapID")
-    private Short dungeonMapID;
+    private short dungeonMapID;
 
     @Column("WorldMapAreaID")
-    private Short worldMapAreaID;
+    private short worldMapAreaID;
 
     @Column("FirstSectionID")
-    private Short firstSectionID;
+    private short firstSectionID;
 
     @Column("JournalInstanceID")
-    private Short journalInstanceID;
+    private short journalInstanceID;
 
     @Column("DifficultyMask")
-    private Byte difficultyMask;
+    private byte difficultyMask;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("OrderIndex")
-    private Integer orderIndex;
+    private int orderIndex;
 
     @Column("MapDisplayConditionID")
-    private Integer mapDisplayConditionID;
+    private int mapDisplayConditionID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

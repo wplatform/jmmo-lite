@@ -29,15 +29,15 @@ public class ChrClassesXPowerType implements DbcEntity, Comparable<ChrClassesXPo
     private int id;
 
     @Column("PowerType")
-    private Byte powerType;
+    private byte powerType;
 
     @Column("ClassID")
-    private Byte classID;
+    private byte classID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     @Override
     public int compareTo(ChrClassesXPowerType o) {

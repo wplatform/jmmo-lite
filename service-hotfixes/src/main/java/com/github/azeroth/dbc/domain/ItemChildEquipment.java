@@ -30,17 +30,17 @@ public class ItemChildEquipment implements DbcEntity {
     private int id;
 
     @Column("ChildItemID")
-    private Integer childItemID;
+    private int childItemID;
 
     @Column("ChildItemEquipSlot")
-    private Byte childItemEquipSlot;
+    private byte childItemEquipSlot;
 
     @Column("ParentItemID")
-    private Integer parentItemID;
+    private int parentItemID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

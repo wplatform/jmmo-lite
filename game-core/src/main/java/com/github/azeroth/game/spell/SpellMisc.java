@@ -38,22 +38,7 @@ public final class SpellMisc {
 
 
     public int[] getRawData() {
-        return new int[]{Data0, Data1};
+        return new int[]{data0, data1};
     }
 
-    public SpellMisc clone() {
-        SpellMisc varCopy = new spellMisc();
-
-        varCopy.talentId = this.talentId;
-        varCopy.spellId = this.spellId;
-        varCopy.specializationId = this.specializationId;
-        varCopy.followerId = this.followerId;
-        varCopy.followerAbilityId = this.followerAbilityId;
-        varCopy.garrMissionId = this.garrMissionId;
-        varCopy.itemId = this.itemId;
-        varCopy.data0 = this.data0;
-        varCopy.data1 = this.data1;
-
-        return varCopy;
-    }
 }

@@ -31,26 +31,26 @@ public class ItemBonus implements DbcEntity {
     private int id;
 
     @Column("Value1")
-    private Integer value1;
+    private int value1;
 
     @Column("Value2")
-    private Integer value2;
+    private int value2;
 
     @Column("Value3")
-    private Integer value3;
+    private int value3;
 
     @Column("ParentItemBonusListID")
-    private Short parentItemBonusListID;
+    private short parentItemBonusListID;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

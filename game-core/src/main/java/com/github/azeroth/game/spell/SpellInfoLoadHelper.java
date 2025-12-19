@@ -1,5 +1,6 @@
 package com.github.azeroth.game.spell;
 
+import com.github.azeroth.dbc.defines.DbcDefine;
 import com.github.azeroth.dbc.domain.*;
 
 import java.util.ArrayList;
@@ -9,20 +10,20 @@ public class SpellInfoLoadHelper {
     public SpellAuraOption auraOptions;
     public SpellAuraRestriction auraRestrictions;
     public SpellCastingRequirement castingRequirements;
-    public Spellcategories categories;
+    public SpellCategories categories;
     public SpellClassOption classOptions;
     public SpellCooldown cooldowns;
-    public HashMap<Integer, SpellEffect> effects = new HashMap<>();
+    public SpellEffect[] effects = new SpellEffect[DbcDefine.MAX_SPELL_EFFECTS];
     public SpellEquippedItem equippedItems;
     public SpellInterrupt interrupts;
     public ArrayList<SpellLabel> labels = new ArrayList<>();
     public SpellLevel levels;
-    public Spellmisc misc;
-    public SpellPower[] powers = new SpellPower[SpellConst.MaxPowersPerSpell];
+    public SpellMiscEntry misc;
+    public SpellPower[] powers = new SpellPower[DbcDefine.MAX_POWERS_PER_SPELL];
     public SpellReagent reagents;
-    public ArrayList<SpellreagentsCurrency> reagentsCurrency = new ArrayList<>();
-    public Spellscaling scaling;
-    public Spellshapeshift shapeshift;
+    public ArrayList<SpellReagentsCurrency> reagentsCurrency = new ArrayList<>();
+    public SpellScaling scaling;
+    public SpellShapeshift shapeshift;
     public SpellTargetRestriction targetRestrictions;
     public SpellTotem totems;
     // only to group visuals when parsing sSpellXSpellVisualStore, not for loading

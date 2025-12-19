@@ -163,7 +163,7 @@ public abstract class SpellScript extends SpellValidator {
                     && !entry.hasEffect(SpellEffectName.POWER_DRAIN)
                     && !entry.hasEffect(SpellEffectName.HEALTH_LEECH)
                     && !entry.hasEffect(SpellEffectName.WEAPON_DAMAGE)
-                    && !entry.hasEffect(SpellEffectName.WEAPON_DAMAGE_NOSCHOOL)
+                    && !entry.hasEffect(SpellEffectName.WEAPON_DAMAGE_NO_SCHOOL)
                     && !entry.hasEffect(SpellEffectName.NORMALIZED_WEAPON_DMG)
                     && !entry.hasEffect(SpellEffectName.WEAPON_PERCENT_DAMAGE))
                 Logs.SCRIPTS.error("Spell `{}` script `{}` does not have a damage effect - handler bound to hook `CalcDamage` of SpellScript won't be executed", entry.getId(), scriptName);

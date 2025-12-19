@@ -44,7 +44,7 @@ public class Conversation extends WorldObject {
         return getCreatorGuid();
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override uint getFaction()
     @Override
     public int getFaction() {
@@ -93,7 +93,7 @@ public class Conversation extends WorldObject {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override void Update(uint diff)
     @Override
     public void update(int diff) {

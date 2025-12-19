@@ -55,107 +55,107 @@ public class CreatureModelData implements DbcEntity {
     private int id;
 
     @Column("ModelScale")
-    private Float modelScale;
+    private float modelScale;
 
     @Column("FootprintTextureLength")
-    private Float footprintTextureLength;
+    private float footprintTextureLength;
 
     @Column("FootprintTextureWidth")
-    private Float footprintTextureWidth;
+    private float footprintTextureWidth;
 
     @Column("FootprintParticleScale")
-    private Float footprintParticleScale;
+    private float footprintParticleScale;
 
     @Column("CollisionWidth")
-    private Float collisionWidth;
+    private float collisionWidth;
 
     @Column("CollisionHeight")
-    private Float collisionHeight;
+    private float collisionHeight;
 
     @Column("MountHeight")
-    private Float mountHeight;
+    private float mountHeight;
 
     @Column("GeoBox1")
-    private Float geoBox1;
+    private float geoBox1;
 
     @Column("GeoBox2")
-    private Float geoBox2;
+    private float geoBox2;
 
     @Column("GeoBox3")
-    private Float geoBox3;
+    private float geoBox3;
 
     @Column("GeoBox4")
-    private Float geoBox4;
+    private float geoBox4;
 
     @Column("GeoBox5")
-    private Float geoBox5;
+    private float geoBox5;
 
     @Column("GeoBox6")
-    private Float geoBox6;
+    private float geoBox6;
 
     @Column("WorldEffectScale")
-    private Float worldEffectScale;
+    private float worldEffectScale;
 
     @Column("AttachedEffectScale")
-    private Float attachedEffectScale;
+    private float attachedEffectScale;
 
     @Column("MissileCollisionRadius")
-    private Float missileCollisionRadius;
+    private float missileCollisionRadius;
 
     @Column("MissileCollisionPush")
-    private Float missileCollisionPush;
+    private float missileCollisionPush;
 
     @Column("MissileCollisionRaise")
-    private Float missileCollisionRaise;
+    private float missileCollisionRaise;
 
     @Column("OverrideLootEffectScale")
-    private Float overrideLootEffectScale;
+    private float overrideLootEffectScale;
 
     @Column("OverrideNameScale")
-    private Float overrideNameScale;
+    private float overrideNameScale;
 
     @Column("OverrideSelectionRadius")
-    private Float overrideSelectionRadius;
+    private float overrideSelectionRadius;
 
     @Column("TamedPetBaseScale")
-    private Float tamedPetBaseScale;
+    private float tamedPetBaseScale;
 
     @Column("HoverHeight")
-    private Float hoverHeight;
+    private float hoverHeight;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("FileDataID")
-    private Integer fileDataID;
+    private int fileDataID;
 
     @Column("SizeClass")
-    private Integer sizeClass;
+    private int sizeClass;
 
     @Column("BloodID")
-    private Integer bloodID;
+    private int bloodID;
 
     @Column("FootprintTextureID")
-    private Integer footprintTextureID;
+    private int footprintTextureID;
 
     @Column("FoleyMaterialID")
-    private Integer foleyMaterialID;
+    private int foleyMaterialID;
 
     @Column("FootstepCameraEffectID")
-    private Integer footstepCameraEffectID;
+    private int footstepCameraEffectID;
 
     @Column("DeathThudCameraEffectID")
-    private Integer deathThudCameraEffectID;
+    private int deathThudCameraEffectID;
 
     @Column("SoundID")
-    private Integer soundID;
+    private int soundID;
 
     @Column("CreatureGeosetDataID")
-    private Integer creatureGeosetDataID;
+    private int creatureGeosetDataID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

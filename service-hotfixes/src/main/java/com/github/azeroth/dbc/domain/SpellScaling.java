@@ -33,23 +33,23 @@ public class SpellScaling implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("ScalesFromItemLevel")
-    private Short scalesFromItemLevel;
+    private short scalesFromItemLevel;
 
     @Column("Class")
-    private Integer klass;
+    private int klass;
 
     @Column("MinScalingLevel")
-    private Integer minScalingLevel;
+    private int minScalingLevel;
 
     @Column("MaxScalingLevel")
-    private Integer maxScalingLevel;
+    private int maxScalingLevel;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

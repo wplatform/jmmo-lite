@@ -31,20 +31,20 @@ public class SpellProcsPerMinuteMod implements DbcEntity {
     private int id;
 
     @Column("Coeff")
-    private Float coeff;
+    private float coeff;
 
     @Column("Param")
-    private Short param;
+    private short param;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Column("SpellProcsPerMinuteID")
-    private Short spellProcsPerMinuteID;
+    private short spellProcsPerMinuteID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

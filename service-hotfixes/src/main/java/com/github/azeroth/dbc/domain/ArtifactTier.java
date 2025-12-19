@@ -32,23 +32,23 @@ public class ArtifactTier implements DbcEntity {
     private int id;
 
     @Column("ArtifactTier")
-    private Integer artifactTier;
+    private int artifactTier;
 
     @Column("MaxNumTraits")
-    private Integer maxNumTraits;
+    private int maxNumTraits;
 
     @Column("MaxArtifactKnowledge")
-    private Integer maxArtifactKnowledge;
+    private int maxArtifactKnowledge;
 
     @Column("KnowledgePlayerCondition")
-    private Integer knowledgePlayerCondition;
+    private int knowledgePlayerCondition;
 
     @Column("MinimumEmpowerKnowledge")
-    private Integer minimumEmpowerKnowledge;
+    private int minimumEmpowerKnowledge;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

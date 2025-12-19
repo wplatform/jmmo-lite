@@ -67,137 +67,137 @@ public class LiquidType implements DbcEntity {
     private String texture6;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("MaxDarkenDepth")
-    private Float maxDarkenDepth;
+    private float maxDarkenDepth;
 
     @Column("FogDarkenIntensity")
-    private Float fogDarkenIntensity;
+    private float fogDarkenIntensity;
 
     @Column("AmbDarkenIntensity")
-    private Float ambDarkenIntensity;
+    private float ambDarkenIntensity;
 
     @Column("DirDarkenIntensity")
-    private Float dirDarkenIntensity;
+    private float dirDarkenIntensity;
 
     @Column("ParticleScale")
-    private Float particleScale;
+    private float particleScale;
 
     @Column("Color1")
-    private Integer color1;
+    private int color1;
 
     @Column("Color2")
-    private Integer color2;
+    private int color2;
 
     @Column("Float1")
-    private Float float1;
+    private float float1;
 
     @Column("Float2")
-    private Float float2;
+    private float float2;
 
     @Column("Float3")
-    private Float float3;
+    private float float3;
 
     @Column("Float4")
-    private Float float4;
+    private float float4;
 
     @Column("Float5")
-    private Float float5;
+    private float float5;
 
     @Column("Float6")
-    private Float float6;
+    private float float6;
 
     @Column("Float7")
-    private Float float7;
+    private float float7;
 
     @Column("Float8")
-    private Float float8;
+    private float float8;
 
     @Column("Float9")
-    private Float float9;
+    private float float9;
 
     @Column("Float10")
-    private Float float10;
+    private float float10;
 
     @Column("Float11")
-    private Float float11;
+    private float float11;
 
     @Column("Float12")
-    private Float float12;
+    private float float12;
 
     @Column("Float13")
-    private Float float13;
+    private float float13;
 
     @Column("Float14")
-    private Float float14;
+    private float float14;
 
     @Column("Float15")
-    private Float float15;
+    private float float15;
 
     @Column("Float16")
-    private Float float16;
+    private float float16;
 
     @Column("Float17")
-    private Float float17;
+    private float float17;
 
     @Column("Float18")
-    private Float float18;
+    private float float18;
 
     @Column("Int1")
-    private Integer int1;
+    private int int1;
 
     @Column("Int2")
-    private Integer int2;
+    private int int2;
 
     @Column("Int3")
-    private Integer int3;
+    private int int3;
 
     @Column("Int4")
-    private Integer int4;
+    private int int4;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("LightID")
-    private Short lightID;
+    private short lightID;
 
     @Column("SoundBank")
-    private Byte soundBank;
+    private byte soundBank;
 
     @Column("ParticleMovement")
-    private Byte particleMovement;
+    private byte particleMovement;
 
     @Column("ParticleTexSlots")
-    private Byte particleTexSlots;
+    private byte particleTexSlots;
 
     @Column("MaterialID")
-    private Byte materialID;
+    private byte materialID;
 
     @Column("FrameCountTexture1")
-    private Byte frameCountTexture1;
+    private byte frameCountTexture1;
 
     @Column("FrameCountTexture2")
-    private Byte frameCountTexture2;
+    private byte frameCountTexture2;
 
     @Column("FrameCountTexture3")
-    private Byte frameCountTexture3;
+    private byte frameCountTexture3;
 
     @Column("FrameCountTexture4")
-    private Byte frameCountTexture4;
+    private byte frameCountTexture4;
 
     @Column("FrameCountTexture5")
-    private Byte frameCountTexture5;
+    private byte frameCountTexture5;
 
     @Column("FrameCountTexture6")
-    private Byte frameCountTexture6;
+    private byte frameCountTexture6;
 
     @Column("SoundID")
-    private Integer soundID;
+    private int soundID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

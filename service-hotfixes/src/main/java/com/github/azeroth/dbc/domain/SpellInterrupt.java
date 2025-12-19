@@ -32,29 +32,29 @@ public class SpellInterrupt implements DbcEntity {
     private int id;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("InterruptFlags")
-    private Short interruptFlags;
+    private short interruptFlags;
 
     @Column("AuraInterruptFlags1")
-    private Integer auraInterruptFlags1;
+    private int auraInterruptFlags1;
 
     @Column("AuraInterruptFlags2")
-    private Integer auraInterruptFlags2;
+    private int auraInterruptFlags2;
 
     @Column("ChannelInterruptFlags1")
-    private Integer channelInterruptFlags1;
+    private int channelInterruptFlags1;
 
     @Column("ChannelInterruptFlags2")
-    private Integer channelInterruptFlags2;
+    private int channelInterruptFlags2;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

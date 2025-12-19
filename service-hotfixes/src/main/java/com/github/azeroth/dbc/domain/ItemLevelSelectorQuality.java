@@ -30,18 +30,18 @@ public class ItemLevelSelectorQuality implements DbcEntity, Comparable<ItemLevel
     private int id;
 
     @Column("QualityItemBonusListID")
-    private Integer qualityItemBonusListID;
+    private int qualityItemBonusListID;
 
     @Column("Quality")
-    private Byte quality;
+    private byte quality;
 
     @Column("ParentILSQualitySetID")
-    private Short parentILSQualitySetID;
+    private short parentILSQualitySetID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     @Override
     public int compareTo(ItemLevelSelectorQuality o) {

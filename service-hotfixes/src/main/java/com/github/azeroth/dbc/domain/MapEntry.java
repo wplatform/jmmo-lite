@@ -71,59 +71,59 @@ public class MapEntry implements DbcEntity {
     private LocalizedString pvpLongDescription;
 
     @Column("Flags1")
-    private Integer flags1;
+    private int flags1;
 
     @Column("Flags2")
-    private Integer flags2;
+    private int flags2;
 
     @Column("MinimapIconScale")
-    private Float minimapIconScale;
+    private float minimapIconScale;
 
     @Column("CorpseX")
-    private Float corpseX;
+    private float corpseX;
 
     @Column("CorpseY")
-    private Float corpseY;
+    private float corpseY;
 
     @Column("AreaTableID")
-    private Short areaTableID;
+    private short areaTableID;
 
     @Column("LoadingScreenID")
-    private Short loadingScreenID;
+    private short loadingScreenID;
 
     @Column("CorpseMapID")
-    private Short corpseMapID;
+    private short corpseMapID;
 
     @Column("TimeOfDayOverride")
-    private Short timeOfDayOverride;
+    private short timeOfDayOverride;
 
     @Column("ParentMapID")
-    private Short parentMapID;
+    private short parentMapID;
 
     @Column("CosmeticParentMapID")
-    private Short cosmeticParentMapID;
+    private short cosmeticParentMapID;
 
     @Column("WindSettingsID")
-    private Short windSettingsID;
+    private short windSettingsID;
 
     @Column("instanceType")
-    private Byte instanceType;
+    private byte instanceType;
 
     @Column("MapType")
-    private Byte mapType;
+    private byte mapType;
 
     @Column("ExpansionID")
-    private Byte expansionID;
+    private byte expansionID;
 
     @Column("MaxPlayers")
-    private Byte maxPlayers;
+    private byte maxPlayers;
 
     @Column("TimeOffset")
-    private Byte timeOffset;
+    private byte timeOffset;
 
     @Id
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     public byte expansion() { return expansionID; }
 

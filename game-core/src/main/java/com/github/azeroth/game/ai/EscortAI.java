@@ -1,12 +1,11 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.entities.*;
+
+
 import game.maps.grids.*;
-import game.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
 
 
 
@@ -16,7 +15,7 @@ public class EscortAI extends ScriptedAI {
 
     private ObjectGuid playerGUID = new ObjectGuid();
     private TimeSpan pauseTimer = new TimeSpan();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _playerCheckTimer;
     private int playerCheckTimer;
     private EscortState escortState = EscortState.values()[0];
@@ -115,7 +114,7 @@ public class EscortAI extends ScriptedAI {
         enterEvadeMode(EvadeReason.Other);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     @Override
     public void enterEvadeMode(EvadeReason why) {
@@ -140,7 +139,7 @@ public class EscortAI extends ScriptedAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
@@ -227,7 +226,7 @@ public class EscortAI extends ScriptedAI {
         updateEscortAI(diff);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void UpdateEscortAI(uint diff)
     public void updateEscortAI(int diff) {
         if (!updateVictim()) {
@@ -237,7 +236,7 @@ public class EscortAI extends ScriptedAI {
         doMeleeAttackIfReady();
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void MovementInform(MovementGeneratorType moveType, uint Id)
     @Override
     public void movementInform(MovementGeneratorType moveType, int id) {
@@ -275,7 +274,7 @@ public class EscortAI extends ScriptedAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public void AddWaypoint(uint id, float x, float y, float z, float orientation, TimeSpan waitTime)
     public final void addWaypoint(int id, float x, float y, float z, float orientation, TimeSpan waitTime) {
         x = GridDefines.normalizeMapCoord(x);
@@ -288,7 +287,7 @@ public class EscortAI extends ScriptedAI {
         waypoint.z = z;
         waypoint.orientation = orientation;
         waypoint.moveType = running ? WaypointMoveType.Run : WaypointMoveType.Walk;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: waypoint.delay = (uint)waitTime.TotalMilliseconds;
         waypoint.delay = (int)waitTime.getTotalMilliseconds();
         waypoint.eventId = 0;
@@ -303,7 +302,7 @@ public class EscortAI extends ScriptedAI {
         setRun(true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetRun(bool on = true)
     public final void setRun(boolean on) {
         if (on == running) {
@@ -350,7 +349,7 @@ public class EscortAI extends ScriptedAI {
         start(true, false, null, null, false, false, true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = default, Quest quest = null, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true)
     public final void start(boolean isActiveAttacker, boolean run, ObjectGuid playerGUID, Quest quest, boolean instantRespawn, boolean canLoopPath, boolean resetWaypoints) {
         // Queue respawn from the point it starts

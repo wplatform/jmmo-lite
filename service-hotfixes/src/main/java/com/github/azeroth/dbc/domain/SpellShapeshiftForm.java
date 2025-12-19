@@ -41,65 +41,65 @@ public class SpellShapeshiftForm implements DbcEntity {
     private LocalizedString name;
 
     @Column("DamageVariance")
-    private Float damageVariance;
+    private float damageVariance;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("CombatRoundTime")
-    private Short combatRoundTime;
+    private short combatRoundTime;
 
     @Column("MountTypeID")
-    private Short mountTypeID;
+    private short mountTypeID;
 
     @Column("CreatureType")
-    private Byte creatureType;
+    private byte creatureType;
 
     @Column("BonusActionBar")
-    private Byte bonusActionBar;
+    private byte bonusActionBar;
 
     @Column("AttackIconFileID")
-    private Integer attackIconFileID;
+    private int attackIconFileID;
 
     @Column("CreatureDisplayID1")
-    private Integer creatureDisplayID1;
+    private int creatureDisplayID1;
 
     @Column("CreatureDisplayID2")
-    private Integer creatureDisplayID2;
+    private int creatureDisplayID2;
 
     @Column("CreatureDisplayID3")
-    private Integer creatureDisplayID3;
+    private int creatureDisplayID3;
 
     @Column("CreatureDisplayID4")
-    private Integer creatureDisplayID4;
+    private int creatureDisplayID4;
 
     @Column("PresetSpellID1")
-    private Integer presetSpellID1;
+    private int presetSpellID1;
 
     @Column("PresetSpellID2")
-    private Integer presetSpellID2;
+    private int presetSpellID2;
 
     @Column("PresetSpellID3")
-    private Integer presetSpellID3;
+    private int presetSpellID3;
 
     @Column("PresetSpellID4")
-    private Integer presetSpellID4;
+    private int presetSpellID4;
 
     @Column("PresetSpellID5")
-    private Integer presetSpellID5;
+    private int presetSpellID5;
 
     @Column("PresetSpellID6")
-    private Integer presetSpellID6;
+    private int presetSpellID6;
 
     @Column("PresetSpellID7")
-    private Integer presetSpellID7;
+    private int presetSpellID7;
 
     @Column("PresetSpellID8")
-    private Integer presetSpellID8;
+    private int presetSpellID8;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

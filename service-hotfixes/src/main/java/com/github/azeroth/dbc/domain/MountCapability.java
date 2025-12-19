@@ -30,22 +30,22 @@ import lombok.ToString;
 })
 public class MountCapability implements DbcEntity {
     @Column("ReqSpellKnownID")
-    private Integer reqSpellKnownID;
+    private int reqSpellKnownID;
 
     @Column("ModSpellAuraID")
-    private Integer modSpellAuraID;
+    private int modSpellAuraID;
 
     @Column("ReqRidingSkill")
-    private Short reqRidingSkill;
+    private short reqRidingSkill;
 
     @Column("ReqAreaID")
-    private Short reqAreaID;
+    private short reqAreaID;
 
     @Column("ReqMapID")
-    private Short reqMapID;
+    private short reqMapID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
@@ -53,11 +53,11 @@ public class MountCapability implements DbcEntity {
     private int id;
 
     @Column("ReqSpellAuraID")
-    private Integer reqSpellAuraID;
+    private int reqSpellAuraID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

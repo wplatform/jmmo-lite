@@ -1,7 +1,7 @@
 package com.github.azeroth.game.chat;
 
 
-import game.*;
+
 
 class AccountIdentifier {
     private int id;

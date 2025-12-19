@@ -31,26 +31,26 @@ public class TransportAnimation implements DbcEntity {
     private int id;
 
     @Column("TimeIndex")
-    private Integer timeIndex;
+    private int timeIndex;
 
     @Column("PosX")
-    private Float posX;
+    private float posX;
 
     @Column("PosY")
-    private Float posY;
+    private float posY;
 
     @Column("PosZ")
-    private Float posZ;
+    private float posZ;
 
     @Column("SequenceID")
-    private Short sequenceID;
+    private short sequenceID;
 
     @Column("TransportID")
-    private Integer transportID;
+    private int transportID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

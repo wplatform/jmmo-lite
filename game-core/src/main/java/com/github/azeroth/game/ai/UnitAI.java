@@ -1,6 +1,11 @@
 package com.github.azeroth.game.ai;
 
 
+import com.github.azeroth.dbc.defines.Difficulty;
+import com.github.azeroth.defines.SpellCastResult;
+import com.github.azeroth.game.ai.enums.DefaultTargetSelector;
+import com.github.azeroth.game.ai.enums.SelectTargetMethod;
+import com.github.azeroth.game.domain.object.ObjectGuid;
 import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.unit.Unit;
 import com.github.azeroth.game.world.WorldContext;
@@ -38,49 +43,18 @@ public abstract class UnitAI {
         }
     }
 
-    public final void doMeleeAttackIfReady() {
-        Creature creature;
-        tangible.OutObject<Creature> tempOutCreature = new tangible.OutObject<Creature>();
-        if (getMe().hasUnitState(UnitState.Casting) || (getMe().tryGetAsCreature(tempOutCreature) && !creature.getCanMelee())) {
-        creature = tempOutCreature.outArgValue;
-            return;
-        } else {
-        creature = tempOutCreature.outArgValue;
-    }
 
-        var victim = getMe().getVictim();
-
-        if (!getMe().isWithinMeleeRange(victim)) {
-            return;
-        }
-
-        //Make sure our attack is ready and we aren't currently casting before checking distance
-        if (getMe().isAttackReady()) {
-            getMe().attackerStateUpdate(victim);
-            getMe().resetAttackTimer();
-        }
-
-        if (getMe().haveOffhandWeapon() && getMe().isAttackReady(WeaponAttackType.OffAttack)) {
-            getMe().attackerStateUpdate(victim, WeaponAttackType.OffAttack);
-            getMe().resetAttackTimer(WeaponAttackType.OffAttack);
-        }
-    }
-    public void onMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, boolean extra) {
-    }
-
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public bool DoSpellAttackIfReady(uint spellId)
-    public final boolean doSpellAttackIfReady(int spellId) {
-        if (getMe().hasUnitState(UnitState.Casting) || !getMe().isAttackReady()) {
+    public boolean doSpellAttackIfReady(int spellId) {
+        if (me.hasUnitState(UnitState.CASTING) || !me.isAttackReady()) {
             return true;
         }
 
-        var spellInfo = Global.getSpellMgr().getSpellInfo(spellId, getMe().getMap().getDifficultyID());
+        var spellInfo = worldContext.getSpellManager().getSpellInfo(spellId, me.getMap().getDifficultyID());
 
         if (spellInfo != null) {
-            if (getMe().isWithinCombatRange(getMe().getVictim(), spellInfo.getMaxRange(false))) {
-                getMe().castSpell(getMe().getVictim(), spellId, new CastSpellExtraArgs(getMe().getMap().getDifficultyID()));
-                getMe().resetAttackTimer();
+            if (me.isWithinCombatRange(me.getVictim(), spellInfo.getMaxRange(false))) {
+                me.castSpell(me.getVictim(), spellId, me.getMap().getDifficultyID());
+                me.resetAttackTimer();
 
                 return true;
             }
@@ -89,31 +63,6 @@ public abstract class UnitAI {
         return false;
     }
 
-    /** 
-      Select the best target (in
-      <targetType>
-       order) from the threat list that fulfill the following:
-       - Not among the first
-       <offset>
-        entries in
-        <targetType>
-         order (or MAXTHREAT order, if
-         <targetType>
-          is RANDOM).
-          - Within at most
-          <dist>
-           yards (if dist > 0.0f)
-           - At least -
-           <dist>
-            yards away (if dist
-            < 0.0f)
-             - Is a player ( if playerOnly= true)
-               - Not the current tank ( if withTank= false)
-               - Has aura with ID
-            <aura>
-             (if aura > 0)
-             - Does not have aura with ID -<aura> (if aura < 0)
-    */
 
     public final Unit selectTarget(SelectTargetMethod targetType, int offset, float dist, boolean playerOnly, boolean withTank) {
         return selectTarget(targetType, offset, dist, playerOnly, withTank, 0);
@@ -135,15 +84,20 @@ public abstract class UnitAI {
         return selectTarget(targetType, 0, 0.0f, false, true, 0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-//ORIGINAL LINE: public Unit SelectTarget(SelectTargetMethod targetType, uint offset = 0, float dist = 0.0f, bool playerOnly = false, bool withTank = true, int aura = 0)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    // Select the best target (in <targetType> order) from the threat list that fulfill the following:
+    // - Not among the first <offset> entries in <targetType> order (or SelectTargetMethod::MaxThreat order,
+    //   if <targetType> is SelectTargetMethod::Random).
+    // - Within at most <dist> yards (if dist > 0.0f)
+    // - At least -<dist> yards away (if dist < 0.0f)
+    // - Is a player (if playerOnly = true)
+    // - Not the current tank (if withTank = false)
+    // - Has aura with ID <aura> (if aura > 0)
+    // - Does not have aura with ID -<aura> (if aura < 0)
     public final Unit selectTarget(SelectTargetMethod targetType, int offset, float dist, boolean playerOnly, boolean withTank, int aura) {
-        return SelectTarget(targetType, offset, new DefaultTargetSelector(getMe(), dist, playerOnly, withTank, aura));
+        return selectTarget(targetType, offset, new DefaultTargetSelector(me, dist, playerOnly, withTank, aura));
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public Unit SelectTarget(SelectTargetMethod targetType, uint offset, ICheck<Unit> selector)
+
     public final Unit selectTarget(SelectTargetMethod targetType, int offset, ICheck<Unit> selector) {
         return SelectTarget(targetType, offset, selector.Invoke);
     }
@@ -156,8 +110,7 @@ public abstract class UnitAI {
         from the threat list.
         If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
     */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public Unit SelectTarget(SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
+
     public final Unit selectTarget(SelectTargetMethod targetType, int offset, tangible.Func1Param<Unit, Boolean> selector) {
         var mgr = getThreatManager();
 
@@ -166,8 +119,7 @@ public abstract class UnitAI {
             return null;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: var targetList = SelectTargetList((uint)mgr.ThreatListSize, targetType, offset, selector);
+
         var targetList = selectTargetList((int)mgr.getThreatListSize(), targetType, offset, selector);
 
         // maybe nothing fulfills the predicate
@@ -235,9 +187,9 @@ public abstract class UnitAI {
         return selectTargetList(num, targetType, 0, 0f, false, true, 0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset = 0, float dist = 0f, bool playerOnly = false, bool withTank = true, int aura = 0)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, float dist, boolean playerOnly, boolean withTank, int aura) {
         return selectTargetList(num, targetType, offset, (new DefaultTargetSelector(getMe(), dist, playerOnly, withTank, aura)).Invoke);
     }
@@ -254,7 +206,7 @@ public abstract class UnitAI {
           (which is cleared first).
           If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
     */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
     public final ArrayList<Unit> selectTargetList(int num, SelectTargetMethod targetType, int offset, tangible.Func1Param<Unit, Boolean> selector) {
         var targetList = new ArrayList<Unit>();
@@ -333,13 +285,12 @@ public abstract class UnitAI {
         return targetList;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public SpellCastResult DoCast(uint spellId)
+
     public final SpellCastResult doCast(int spellId) {
         Unit target = null;
-        var aiTargetType = AITarget.Self;
+        var aiTargetType = AITarget.SELF;
 
-        var info = getAISpellInfo(spellId, getMe().getMap().getDifficultyID());
+        var info = getAISpellInfo(spellId, me.getMap().getDifficultyID());
 
         if (info != null) {
             aiTargetType = info.target;
@@ -347,7 +298,7 @@ public abstract class UnitAI {
 
         switch (aiTargetType) {
             default:
-            case Self:
+            case SELF:
                 target = getMe();
 
                 break;
@@ -443,9 +394,9 @@ public abstract class UnitAI {
         return doCast(victim, spellId, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public SpellCastResult DoCast(Unit victim, uint spellId, CastSpellExtraArgs args = null)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final SpellCastResult doCast(Unit victim, int spellId, CastSpellExtraArgs args) {
         args = args != null ? args : new CastSpellExtraArgs();
 
@@ -461,9 +412,9 @@ public abstract class UnitAI {
         return doCastSelf(spellId, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public SpellCastResult DoCastSelf(uint spellId, CastSpellExtraArgs args = null)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final SpellCastResult doCastSelf(int spellId, CastSpellExtraArgs args) {
         return doCast(getMe(), spellId, args);
     }
@@ -473,9 +424,9 @@ public abstract class UnitAI {
         return doCastVictim(spellId, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public SpellCastResult DoCastVictim(uint spellId, CastSpellExtraArgs args = null)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final SpellCastResult doCastVictim(int spellId, CastSpellExtraArgs args) {
         var victim = getMe().getVictim();
 
@@ -491,9 +442,9 @@ public abstract class UnitAI {
         return doCastAOE(spellId, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public SpellCastResult DoCastAOE(uint spellId, CastSpellExtraArgs args = null)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final SpellCastResult doCastAOE(int spellId, CastSpellExtraArgs args) {
         return doCast(null, spellId, args);
     }
@@ -502,7 +453,7 @@ public abstract class UnitAI {
         return true;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void UpdateAI(uint diff)
     public void updateAI(int diff) {
     }
@@ -516,15 +467,11 @@ public abstract class UnitAI {
     public void reset() {
     }
 
-    /** 
-    */
+
     // Called when unit's charm state changes with isNew = false
     // Implementation should call me->ScheduleAIChange() if AI replacement is desired
     // If this call is made, AI will be replaced on the next tick
     // When replacement is made, OnCharmed is called with isNew = true
-    /** 
-     @param apply 
-    */
     public void onCharmed(boolean isNew) {
         if (!isNew) {
             getMe().scheduleAIChange();
@@ -543,15 +490,15 @@ public abstract class UnitAI {
         return getData(0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
-//ORIGINAL LINE: public virtual uint GetData(uint id = 0)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
+
+
     public int getData(int id) {
         return 0;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public virtual void SetData(uint id, uint value)
+
+
     public void setData(int id, int value) {
     }
 
@@ -559,7 +506,7 @@ public abstract class UnitAI {
         setGUID(guid, 0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public virtual void SetGUID(ObjectGuid guid, int id = 0)
     public void setGUID(ObjectGuid guid, int id) {
     }
@@ -569,7 +516,7 @@ public abstract class UnitAI {
         return getGUID(0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public virtual ObjectGuid GetGUID(int id = 0)
     public ObjectGuid getGUID(int id) {
         return ObjectGuid.empty;
@@ -596,7 +543,7 @@ public abstract class UnitAI {
         damageTaken(attacker, damage, damageType, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public virtual void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     public void damageTaken(Unit attacker, tangible.RefObject<Double> damage, DamageEffectType damageType, SpellInfo spellInfo) {
     }
@@ -604,7 +551,7 @@ public abstract class UnitAI {
     }
     public void healDone(Unit to, double addhealth) {
     }
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void SpellInterrupted(uint spellId, uint unTimeMs)
     public void spellInterrupted(int spellId, int unTimeMs) {
     }
@@ -612,7 +559,7 @@ public abstract class UnitAI {
     /** 
       Called when a game event starts or ends
     */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void OnGameEvent(bool start, ushort eventId)
     public void onGameEvent(boolean start, short eventId) {
     }
@@ -626,11 +573,11 @@ public abstract class UnitAI {
                 AISpellInfoType aIInfo = new AISpellInfoType();
 
                 if (spellInfo.HasAttribute(SpellAttr0.AllowCastWhileDead)) {
-                    aIInfo.condition = AICondition.Die;
+                    aIInfo.condition = AICondition.DIE;
                 } else if (spellInfo.IsPassive || spellInfo.Duration == -1) {
-                    aIInfo.condition = AICondition.Aggro;
+                    aIInfo.condition = AICondition.AGGRO;
                 } else {
-                    aIInfo.condition = AICondition.Combat;
+                    aIInfo.condition = AICondition.COMBAT;
                 }
 
                 if (aIInfo.cooldown.getTotalMilliseconds() < spellInfo.RecoveryTime) {
@@ -727,8 +674,7 @@ public abstract class UnitAI {
         });
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
-//ORIGINAL LINE: public static AISpellInfoType GetAISpellInfo(uint spellId, Difficulty difficulty)
+
     public static AISpellInfoType getAISpellInfo(int spellId, Difficulty difficulty) {
         return aiSpellInfo.LookupByKey((spellId, difficulty));
     }

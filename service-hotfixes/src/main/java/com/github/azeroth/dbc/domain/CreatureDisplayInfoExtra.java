@@ -39,50 +39,50 @@ public class CreatureDisplayInfoExtra implements DbcEntity {
     private int id;
 
     @Column("BakeMaterialResourcesID")
-    private Integer bakeMaterialResourcesID;
+    private int bakeMaterialResourcesID;
 
     @Column("HDBakeMaterialResourcesID")
-    private Integer hDBakeMaterialResourcesID;
+    private int hDBakeMaterialResourcesID;
 
     @Column("DisplayRaceID")
-    private Byte displayRaceID;
+    private byte displayRaceID;
 
     @Column("DisplaySexID")
-    private Byte displaySexID;
+    private byte displaySexID;
 
     @Column("DisplayClassID")
-    private Byte displayClassID;
+    private byte displayClassID;
 
     @Column("SkinID")
-    private Byte skinID;
+    private byte skinID;
 
     @Column("FaceID")
-    private Byte faceID;
+    private byte faceID;
 
     @Column("HairStyleID")
-    private Byte hairStyleID;
+    private byte hairStyleID;
 
     @Column("HairColorID")
-    private Byte hairColorID;
+    private byte hairColorID;
 
     @Column("FacialHairID")
-    private Byte facialHairID;
+    private byte facialHairID;
 
     @Column("CustomDisplayOption1")
-    private Byte customDisplayOption1;
+    private byte customDisplayOption1;
 
     @Column("CustomDisplayOption2")
-    private Byte customDisplayOption2;
+    private byte customDisplayOption2;
 
     @Column("CustomDisplayOption3")
-    private Byte customDisplayOption3;
+    private byte customDisplayOption3;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

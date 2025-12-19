@@ -36,35 +36,35 @@ public class ItemEffect implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("CoolDownMSec")
-    private Integer coolDownMSec;
+    private int coolDownMSec;
 
     @Column("CategoryCoolDownMSec")
-    private Integer categoryCoolDownMSec;
+    private int categoryCoolDownMSec;
 
     @Column("Charges")
-    private Short charges;
+    private short charges;
 
     @Column("SpellCategoryID")
-    private Short spellCategoryID;
+    private short spellCategoryID;
 
     @Column("ChrSpecializationID")
-    private Short chrSpecializationID;
+    private short chrSpecializationID;
 
     @Column("LegacySlotIndex")
-    private Byte legacySlotIndex;
+    private byte legacySlotIndex;
 
     @Column("TriggerType")
-    private Byte triggerType;
+    private byte triggerType;
 
     @Column("ParentItemID")
-    private Integer parentItemID;
+    private int parentItemID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

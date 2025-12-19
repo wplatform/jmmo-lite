@@ -46,45 +46,45 @@ public class DifficultyEntry implements DbcEntity {
     private LocalizedString name;
 
     @Column("GroupSizeHealthCurveID")
-    private Short groupSizeHealthCurveID;
+    private short groupSizeHealthCurveID;
 
     @Column("GroupSizeDmgCurveID")
-    private Short groupSizeDmgCurveID;
+    private short groupSizeDmgCurveID;
 
     @Column("GroupSizeSpellPointsCurveID")
-    private Short groupSizeSpellPointsCurveID;
+    private short groupSizeSpellPointsCurveID;
 
     @Column("FallbackDifficultyID")
-    private Byte fallbackDifficultyID;
+    private byte fallbackDifficultyID;
 
     @Column("InstanceType")
-    private Byte instanceType;
+    private byte instanceType;
 
     @Column("MinPlayers")
-    private Byte minPlayers;
+    private byte minPlayers;
 
     @Column("MaxPlayers")
-    private Byte maxPlayers;
+    private byte maxPlayers;
 
     @Column("OldEnumValue")
-    private Byte oldEnumValue;
+    private byte oldEnumValue;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("ToggleDifficultyID")
-    private Byte toggleDifficultyID;
+    private byte toggleDifficultyID;
 
     @Column("ItemContext")
-    private Byte itemContext;
+    private byte itemContext;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     public EnumFlag<DifficultyFlag> flags() {

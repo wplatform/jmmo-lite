@@ -116,440 +116,440 @@ public class PlayerCondition implements DbcEntity {
     private int id;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("MinLevel")
-    private Short minLevel;
+    private short minLevel;
 
     @Column("MaxLevel")
-    private Short maxLevel;
+    private short maxLevel;
 
     @Column("ClassMask")
-    private Integer classMask;
+    private int classMask;
 
     @Column("Gender")
-    private Byte gender;
+    private byte gender;
 
     @Column("NativeGender")
-    private Byte nativeGender;
+    private byte nativeGender;
 
     @Column("SkillLogic")
-    private Integer skillLogic;
+    private int skillLogic;
 
     @Column("LanguageID")
-    private Short languageID;
+    private short languageID;
 
     @Column("MinLanguage")
-    private Byte minLanguage;
+    private byte minLanguage;
 
     @Column("MaxLanguage")
-    private Integer maxLanguage;
+    private int maxLanguage;
 
     @Column("MaxFactionID")
-    private Short maxFactionID;
+    private short maxFactionID;
 
     @Column("MaxReputation")
-    private Byte maxReputation;
+    private byte maxReputation;
 
     @Column("ReputationLogic")
-    private Integer reputationLogic;
+    private int reputationLogic;
 
     @Column("CurrentPvpFaction")
-    private Byte currentPvpFaction;
+    private byte currentPvpFaction;
 
     @Column("MinPVPRank")
-    private Byte minPVPRank;
+    private byte minPVPRank;
 
     @Column("MaxPVPRank")
-    private Byte maxPVPRank;
+    private byte maxPVPRank;
 
     @Column("PvpMedal")
-    private Byte pvpMedal;
+    private byte pvpMedal;
 
     @Column("PrevQuestLogic")
-    private Integer prevQuestLogic;
+    private int prevQuestLogic;
 
     @Column("CurrQuestLogic")
-    private Integer currQuestLogic;
+    private int currQuestLogic;
 
     @Column("CurrentCompletedQuestLogic")
-    private Integer currentCompletedQuestLogic;
+    private int currentCompletedQuestLogic;
 
     @Column("SpellLogic")
-    private Integer spellLogic;
+    private int spellLogic;
 
     @Column("ItemLogic")
-    private Integer itemLogic;
+    private int itemLogic;
 
     @Column("ItemFlags")
-    private Byte itemFlags;
+    private byte itemFlags;
 
     @Column("AuraSpellLogic")
-    private Integer auraSpellLogic;
+    private int auraSpellLogic;
 
     @Column("WorldStateExpressionID")
-    private Short worldStateExpressionID;
+    private short worldStateExpressionID;
 
     @Column("WeatherID")
-    private Byte weatherID;
+    private byte weatherID;
 
     @Column("PartyStatus")
-    private Byte partyStatus;
+    private byte partyStatus;
 
     @Column("LifetimeMaxPVPRank")
-    private Byte lifetimeMaxPVPRank;
+    private byte lifetimeMaxPVPRank;
 
     @Column("AchievementLogic")
-    private Integer achievementLogic;
+    private int achievementLogic;
 
     @Column("LfgLogic")
-    private Integer lfgLogic;
+    private int lfgLogic;
 
     @Column("AreaLogic")
-    private Integer areaLogic;
+    private int areaLogic;
 
     @Column("CurrencyLogic")
-    private Integer currencyLogic;
+    private int currencyLogic;
 
     @Column("QuestKillID")
-    private Integer questKillID;
+    private int questKillID;
 
     @Column("QuestKillLogic")
-    private Integer questKillLogic;
+    private int questKillLogic;
 
     @Column("MinExpansionLevel")
-    private Byte minExpansionLevel;
+    private byte minExpansionLevel;
 
     @Column("MaxExpansionLevel")
-    private Byte maxExpansionLevel;
+    private byte maxExpansionLevel;
 
     @Column("MinExpansionTier")
-    private Byte minExpansionTier;
+    private byte minExpansionTier;
 
     @Column("MaxExpansionTier")
-    private Byte maxExpansionTier;
+    private byte maxExpansionTier;
 
     @Column("MinGuildLevel")
-    private Byte minGuildLevel;
+    private byte minGuildLevel;
 
     @Column("MaxGuildLevel")
-    private Byte maxGuildLevel;
+    private byte maxGuildLevel;
 
     @Column("PhaseUseFlags")
-    private Byte phaseUseFlags;
+    private byte phaseUseFlags;
 
     @Column("PhaseID")
-    private Short phaseID;
+    private short phaseID;
 
     @Column("PhaseGroupID")
-    private Integer phaseGroupID;
+    private int phaseGroupID;
 
     @Column("MinAvgItemLevel")
-    private Integer minAvgItemLevel;
+    private int minAvgItemLevel;
 
     @Column("MaxAvgItemLevel")
-    private Integer maxAvgItemLevel;
+    private int maxAvgItemLevel;
 
     @Column("MinAvgEquippedItemLevel")
-    private Short minAvgEquippedItemLevel;
+    private short minAvgEquippedItemLevel;
 
     @Column("MaxAvgEquippedItemLevel")
-    private Short maxAvgEquippedItemLevel;
+    private short maxAvgEquippedItemLevel;
 
     @Column("ChrSpecializationIndex")
-    private Byte chrSpecializationIndex;
+    private byte chrSpecializationIndex;
 
     @Column("ChrSpecializationRole")
-    private Byte chrSpecializationRole;
+    private byte chrSpecializationRole;
 
     @Column("PowerType")
-    private Byte powerType;
+    private byte powerType;
 
     @Column("PowerTypeComp")
-    private Byte powerTypeComp;
+    private byte powerTypeComp;
 
     @Column("PowerTypeValue")
-    private Byte powerTypeValue;
+    private byte powerTypeValue;
 
     @Column("ModifierTreeID")
-    private Integer ModifierTreeID;
+    private int ModifierTreeID;
 
     @Column("WeaponSubclassMask")
-    private Integer weaponSubclassMask;
+    private int weaponSubclassMask;
 
     @Column("SkillID1")
-    private Short skillID1;
+    private short skillID1;
 
     @Column("SkillID2")
-    private Short skillID2;
+    private short skillID2;
 
     @Column("SkillID3")
-    private Short skillID3;
+    private short skillID3;
 
     @Column("SkillID4")
-    private Short skillID4;
+    private short skillID4;
 
     @Column("MinSkill1")
-    private Short minSkill1;
+    private short minSkill1;
 
     @Column("MinSkill2")
-    private Short minSkill2;
+    private short minSkill2;
 
     @Column("MinSkill3")
-    private Short minSkill3;
+    private short minSkill3;
 
     @Column("MinSkill4")
-    private Short minSkill4;
+    private short minSkill4;
 
     @Column("MaxSkill1")
-    private Short maxSkill1;
+    private short maxSkill1;
 
     @Column("MaxSkill2")
-    private Short maxSkill2;
+    private short maxSkill2;
 
     @Column("MaxSkill3")
-    private Short maxSkill3;
+    private short maxSkill3;
 
     @Column("MaxSkill4")
-    private Short maxSkill4;
+    private short maxSkill4;
 
     @Column("MinFactionID1")
-    private Integer minFactionID1;
+    private int minFactionID1;
 
     @Column("MinFactionID2")
-    private Integer minFactionID2;
+    private int minFactionID2;
 
     @Column("MinFactionID3")
-    private Integer minFactionID3;
+    private int minFactionID3;
 
     @Column("MinReputation1")
-    private Byte minReputation1;
+    private byte minReputation1;
 
     @Column("MinReputation2")
-    private Byte minReputation2;
+    private byte minReputation2;
 
     @Column("MinReputation3")
-    private Byte minReputation3;
+    private byte minReputation3;
 
     @Column("PrevQuestID1")
-    private Integer prevQuestID1;
+    private int prevQuestID1;
 
     @Column("PrevQuestID2")
-    private Integer prevQuestID2;
+    private int prevQuestID2;
 
     @Column("PrevQuestID3")
-    private Integer prevQuestID3;
+    private int prevQuestID3;
 
     @Column("PrevQuestID4")
-    private Integer prevQuestID4;
+    private int prevQuestID4;
 
     @Column("CurrQuestID1")
-    private Integer currQuestID1;
+    private int currQuestID1;
 
     @Column("CurrQuestID2")
-    private Integer currQuestID2;
+    private int currQuestID2;
 
     @Column("CurrQuestID3")
-    private Integer currQuestID3;
+    private int currQuestID3;
 
     @Column("CurrQuestID4")
-    private Integer currQuestID4;
+    private int currQuestID4;
 
     @Column("CurrentCompletedQuestID1")
-    private Integer currentCompletedQuestID1;
+    private int currentCompletedQuestID1;
 
     @Column("CurrentCompletedQuestID2")
-    private Integer currentCompletedQuestID2;
+    private int currentCompletedQuestID2;
 
     @Column("CurrentCompletedQuestID3")
-    private Integer currentCompletedQuestID3;
+    private int currentCompletedQuestID3;
 
     @Column("CurrentCompletedQuestID4")
-    private Integer currentCompletedQuestID4;
+    private int currentCompletedQuestID4;
 
     @Column("SpellID1")
-    private Integer spellID1;
+    private int spellID1;
 
     @Column("SpellID2")
-    private Integer spellID2;
+    private int spellID2;
 
     @Column("SpellID3")
-    private Integer spellID3;
+    private int spellID3;
 
     @Column("SpellID4")
-    private Integer spellID4;
+    private int spellID4;
 
     @Column("ItemID1")
-    private Integer itemID1;
+    private int itemID1;
 
     @Column("ItemID2")
-    private Integer itemID2;
+    private int itemID2;
 
     @Column("ItemID3")
-    private Integer itemID3;
+    private int itemID3;
 
     @Column("ItemID4")
-    private Integer itemID4;
+    private int itemID4;
 
     @Column("ItemCount1")
-    private Integer itemCount1;
+    private int itemCount1;
 
     @Column("ItemCount2")
-    private Integer itemCount2;
+    private int itemCount2;
 
     @Column("ItemCount3")
-    private Integer itemCount3;
+    private int itemCount3;
 
     @Column("ItemCount4")
-    private Integer itemCount4;
+    private int itemCount4;
 
     @Column("Explored1")
-    private Short explored1;
+    private short explored1;
 
     @Column("Explored2")
-    private Short explored2;
+    private short explored2;
 
     @Column("Time1")
-    private Integer time1;
+    private int time1;
 
     @Column("Time2")
-    private Integer time2;
+    private int time2;
 
     @Column("AuraSpellID1")
-    private Integer auraSpellID1;
+    private int auraSpellID1;
 
     @Column("AuraSpellID2")
-    private Integer auraSpellID2;
+    private int auraSpellID2;
 
     @Column("AuraSpellID3")
-    private Integer auraSpellID3;
+    private int auraSpellID3;
 
     @Column("AuraSpellID4")
-    private Integer auraSpellID4;
+    private int auraSpellID4;
 
     @Column("AuraStacks1")
-    private Short auraStacks1;
+    private short auraStacks1;
 
     @Column("AuraStacks2")
-    private Short auraStacks2;
+    private short auraStacks2;
 
     @Column("AuraStacks3")
-    private Short auraStacks3;
+    private short auraStacks3;
 
     @Column("AuraStacks4")
-    private Short auraStacks4;
+    private short auraStacks4;
 
     @Column("Achievement1")
-    private Short achievement1;
+    private short achievement1;
 
     @Column("Achievement2")
-    private Short achievement2;
+    private short achievement2;
 
     @Column("Achievement3")
-    private Short achievement3;
+    private short achievement3;
 
     @Column("Achievement4")
-    private Short achievement4;
+    private short achievement4;
 
     @Column("LfgStatus1")
-    private Byte lfgStatus1;
+    private byte lfgStatus1;
 
     @Column("LfgStatus2")
-    private Byte lfgStatus2;
+    private byte lfgStatus2;
 
     @Column("LfgStatus3")
-    private Byte lfgStatus3;
+    private byte lfgStatus3;
 
     @Column("LfgStatus4")
-    private Byte lfgStatus4;
+    private byte lfgStatus4;
 
     @Column("LfgCompare1")
-    private Byte lfgCompare1;
+    private byte lfgCompare1;
 
     @Column("LfgCompare2")
-    private Byte lfgCompare2;
+    private byte lfgCompare2;
 
     @Column("LfgCompare3")
-    private Byte lfgCompare3;
+    private byte lfgCompare3;
 
     @Column("LfgCompare4")
-    private Byte lfgCompare4;
+    private byte lfgCompare4;
 
     @Column("LfgValue1")
-    private Integer lfgValue1;
+    private int lfgValue1;
 
     @Column("LfgValue2")
-    private Integer lfgValue2;
+    private int lfgValue2;
 
     @Column("LfgValue3")
-    private Integer lfgValue3;
+    private int lfgValue3;
 
     @Column("LfgValue4")
-    private Integer lfgValue4;
+    private int lfgValue4;
 
     @Column("AreaID1")
-    private Short areaID1;
+    private short areaID1;
 
     @Column("AreaID2")
-    private Short areaID2;
+    private short areaID2;
 
     @Column("AreaID3")
-    private Short areaID3;
+    private short areaID3;
 
     @Column("AreaID4")
-    private Short areaID4;
+    private short areaID4;
 
     @Column("CurrencyID1")
-    private Integer currencyID1;
+    private int currencyID1;
 
     @Column("CurrencyID2")
-    private Integer currencyID2;
+    private int currencyID2;
 
     @Column("CurrencyID3")
-    private Integer currencyID3;
+    private int currencyID3;
 
     @Column("CurrencyID4")
-    private Integer currencyID4;
+    private int currencyID4;
 
     @Column("CurrencyCount1")
-    private Integer currencyCount1;
+    private int currencyCount1;
 
     @Column("CurrencyCount2")
-    private Integer currencyCount2;
+    private int currencyCount2;
 
     @Column("CurrencyCount3")
-    private Integer currencyCount3;
+    private int currencyCount3;
 
     @Column("CurrencyCount4")
-    private Integer currencyCount4;
+    private int currencyCount4;
 
     @Column("QuestKillMonster1")
-    private Integer questKillMonster1;
+    private int questKillMonster1;
 
     @Column("QuestKillMonster2")
-    private Integer questKillMonster2;
+    private int questKillMonster2;
 
     @Column("QuestKillMonster3")
-    private Integer questKillMonster3;
+    private int questKillMonster3;
 
     @Column("QuestKillMonster4")
-    private Integer questKillMonster4;
+    private int questKillMonster4;
 
     @Column("QuestKillMonster5")
-    private Integer questKillMonster5;
+    private int questKillMonster5;
 
     @Column("QuestKillMonster6")
-    private Integer questKillMonster6;
+    private int questKillMonster6;
 
     @Column("MovementFlags1")
-    private Integer movementFlags1;
+    private int movementFlags1;
 
     @Column("MovementFlags2")
-    private Integer movementFlags2;
+    private int movementFlags2;
 
     @Id
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     public RaceMask getRaceMask() {

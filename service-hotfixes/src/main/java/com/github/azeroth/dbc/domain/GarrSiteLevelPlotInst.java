@@ -31,23 +31,23 @@ public class GarrSiteLevelPlotInst implements DbcEntity {
     private int id;
 
     @Column("UiMarkerPosX")
-    private Float uiMarkerPosX;
+    private float uiMarkerPosX;
 
     @Column("UiMarkerPosY")
-    private Float uiMarkerPosY;
+    private float uiMarkerPosY;
 
     @Column("GarrSiteLevelID")
-    private Short garrSiteLevelID;
+    private short garrSiteLevelID;
 
     @Column("GarrPlotInstanceID")
-    private Byte garrPlotInstanceID;
+    private byte garrPlotInstanceID;
 
     @Column("UiMarkerSize")
-    private Byte uiMarkerSize;
+    private byte uiMarkerSize;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

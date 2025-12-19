@@ -49,74 +49,74 @@ public class DestructibleModelData implements DbcEntity {
     private int id;
 
     @Column("State0Wmo")
-    private Integer state0Wmo;
+    private int state0Wmo;
 
     @Column("State1Wmo")
-    private Integer state1Wmo;
+    private int state1Wmo;
 
     @Column("State2Wmo")
-    private Integer state2Wmo;
+    private int state2Wmo;
 
     @Column("State3Wmo")
-    private Integer state3Wmo;
+    private int state3Wmo;
 
     @Column("HealEffectSpeed")
-    private Short healEffectSpeed;
+    private short healEffectSpeed;
 
     @Column("State0ImpactEffectDoodadSet")
-    private Byte state0ImpactEffectDoodadSet;
+    private byte state0ImpactEffectDoodadSet;
 
     @Column("State0AmbientDoodadSet")
-    private Byte state0AmbientDoodadSet;
+    private byte state0AmbientDoodadSet;
 
     @Column("State0NameSet")
-    private Byte state0NameSet;
+    private byte state0NameSet;
 
     @Column("State1DestructionDoodadSet")
-    private Byte state1DestructionDoodadSet;
+    private byte state1DestructionDoodadSet;
 
     @Column("State1ImpactEffectDoodadSet")
-    private Byte state1ImpactEffectDoodadSet;
+    private byte state1ImpactEffectDoodadSet;
 
     @Column("State1AmbientDoodadSet")
-    private Byte state1AmbientDoodadSet;
+    private byte state1AmbientDoodadSet;
 
     @Column("State1NameSet")
-    private Byte state1NameSet;
+    private byte state1NameSet;
 
     @Column("State2DestructionDoodadSet")
-    private Byte state2DestructionDoodadSet;
+    private byte state2DestructionDoodadSet;
 
     @Column("State2ImpactEffectDoodadSet")
-    private Byte state2ImpactEffectDoodadSet;
+    private byte state2ImpactEffectDoodadSet;
 
     @Column("State2AmbientDoodadSet")
-    private Byte state2AmbientDoodadSet;
+    private byte state2AmbientDoodadSet;
 
     @Column("State2NameSet")
-    private Byte state2NameSet;
+    private byte state2NameSet;
 
     @Column("State3InitDoodadSet")
-    private Byte state3InitDoodadSet;
+    private byte state3InitDoodadSet;
 
     @Column("State3AmbientDoodadSet")
-    private Byte state3AmbientDoodadSet;
+    private byte state3AmbientDoodadSet;
 
     @Column("State3NameSet")
-    private Byte state3NameSet;
+    private byte state3NameSet;
 
     @Column("EjectDirection")
-    private Byte ejectDirection;
+    private byte ejectDirection;
 
     @Column("DoNotHighlight")
-    private Byte doNotHighlight;
+    private byte doNotHighlight;
 
     @Column("HealEffect")
-    private Byte healEffect;
+    private byte healEffect;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

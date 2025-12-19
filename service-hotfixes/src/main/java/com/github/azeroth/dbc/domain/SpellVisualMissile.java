@@ -38,52 +38,52 @@ import lombok.ToString;
 })
 public class SpellVisualMissile implements DbcEntity {
     @Column("FollowGroundHeight")
-    private Integer followGroundHeight;
+    private int followGroundHeight;
 
     @Column("FollowGroundDropSpeed")
-    private Integer followGroundDropSpeed;
+    private int followGroundDropSpeed;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("CastOffset1")
-    private Float castOffset1;
+    private float castOffset1;
 
     @Column("CastOffset2")
-    private Float castOffset2;
+    private float castOffset2;
 
     @Column("CastOffset3")
-    private Float castOffset3;
+    private float castOffset3;
 
     @Column("ImpactOffset1")
-    private Float impactOffset1;
+    private float impactOffset1;
 
     @Column("ImpactOffset2")
-    private Float impactOffset2;
+    private float impactOffset2;
 
     @Column("ImpactOffset3")
-    private Float impactOffset3;
+    private float impactOffset3;
 
     @Column("SpellVisualEffectNameID")
-    private Short spellVisualEffectNameID;
+    private short spellVisualEffectNameID;
 
     @Column("CastPositionerID")
-    private Short castPositionerID;
+    private short castPositionerID;
 
     @Column("ImpactPositionerID")
-    private Short impactPositionerID;
+    private short impactPositionerID;
 
     @Column("FollowGroundApproach")
-    private Integer followGroundApproach;
+    private int followGroundApproach;
 
     @Column("SpellMissileMotionID")
-    private Short spellMissileMotionID;
+    private short spellMissileMotionID;
 
     @Column("Attachment")
-    private Byte attachment;
+    private byte attachment;
 
     @Column("DestinationAttachment")
-    private Byte destinationAttachment;
+    private byte destinationAttachment;
 
     @Id
     
@@ -91,17 +91,17 @@ public class SpellVisualMissile implements DbcEntity {
     private int id;
 
     @Column("SoundEntriesID")
-    private Integer soundEntriesID;
+    private int soundEntriesID;
 
     @Column("AnimKitID")
-    private Integer animKitID;
+    private int animKitID;
 
     @Column("SpellVisualMissileSetID")
-    private Short spellVisualMissileSetID;
+    private short spellVisualMissileSetID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -31,30 +31,30 @@ public class Location implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("PosX")
-    private Float posX;
+    private float posX;
 
 
     @Column("PosY")
-    private Float posY;
+    private float posY;
 
 
     @Column("PosZ")
-    private Float posZ;
+    private float posZ;
 
 
     @Column("Rot1")
-    private Float rot1;
+    private float rot1;
 
 
     @Column("Rot2")
-    private Float rot2;
+    private float rot2;
 
 
     @Column("Rot3")
-    private Float rot3;
+    private float rot3;
 
 }

@@ -32,50 +32,50 @@ public class Light implements DbcEntity {
     private int id;
 
     @Column("GameCoordsX")
-    private Float gameCoordsX;
+    private float gameCoordsX;
 
     @Column("GameCoordsY")
-    private Float gameCoordsY;
+    private float gameCoordsY;
 
     @Column("GameCoordsZ")
-    private Float gameCoordsZ;
+    private float gameCoordsZ;
 
     @Column("GameFalloffStart")
-    private Float gameFalloffStart;
+    private float gameFalloffStart;
 
     @Column("GameFalloffEnd")
-    private Float gameFalloffEnd;
+    private float gameFalloffEnd;
 
     @Column("ContinentID")
-    private Short continentID;
+    private short continentID;
 
     @Column("LightParamsID1")
-    private Short lightParamsID1;
+    private short lightParamsID1;
 
     @Column("LightParamsID2")
-    private Short lightParamsID2;
+    private short lightParamsID2;
 
     @Column("LightParamsID3")
-    private Short lightParamsID3;
+    private short lightParamsID3;
 
     @Column("LightParamsID4")
-    private Short lightParamsID4;
+    private short lightParamsID4;
 
     @Column("LightParamsID5")
-    private Short lightParamsID5;
+    private short lightParamsID5;
 
     @Column("LightParamsID6")
-    private Short lightParamsID6;
+    private short lightParamsID6;
 
     @Column("LightParamsID7")
-    private Short lightParamsID7;
+    private short lightParamsID7;
 
     @Column("LightParamsID8")
-    private Short lightParamsID8;
+    private short lightParamsID8;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

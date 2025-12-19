@@ -34,99 +34,99 @@ public class CharStartOutfit implements DbcEntity {
     private int id;
 
     @Column("ItemID1")
-    private Integer itemID1;
+    private int itemID1;
 
     @Column("ItemID2")
-    private Integer itemID2;
+    private int itemID2;
 
     @Column("ItemID3")
-    private Integer itemID3;
+    private int itemID3;
 
     @Column("ItemID4")
-    private Integer itemID4;
+    private int itemID4;
 
     @Column("ItemID5")
-    private Integer itemID5;
+    private int itemID5;
 
     @Column("ItemID6")
-    private Integer itemID6;
+    private int itemID6;
 
     @Column("ItemID7")
-    private Integer itemID7;
+    private int itemID7;
 
     @Column("ItemID8")
-    private Integer itemID8;
+    private int itemID8;
 
     @Column("ItemID9")
-    private Integer itemID9;
+    private int itemID9;
 
     @Column("ItemID10")
-    private Integer itemID10;
+    private int itemID10;
 
     @Column("ItemID11")
-    private Integer itemID11;
+    private int itemID11;
 
     @Column("ItemID12")
-    private Integer itemID12;
+    private int itemID12;
 
     @Column("ItemID13")
-    private Integer itemID13;
+    private int itemID13;
 
     @Column("ItemID14")
-    private Integer itemID14;
+    private int itemID14;
 
     @Column("ItemID15")
-    private Integer itemID15;
+    private int itemID15;
 
     @Column("ItemID16")
-    private Integer itemID16;
+    private int itemID16;
 
     @Column("ItemID17")
-    private Integer itemID17;
+    private int itemID17;
 
     @Column("ItemID18")
-    private Integer itemID18;
+    private int itemID18;
 
     @Column("ItemID19")
-    private Integer itemID19;
+    private int itemID19;
 
     @Column("ItemID20")
-    private Integer itemID20;
+    private int itemID20;
 
     @Column("ItemID21")
-    private Integer itemID21;
+    private int itemID21;
 
     @Column("ItemID22")
-    private Integer itemID22;
+    private int itemID22;
 
     @Column("ItemID23")
-    private Integer itemID23;
+    private int itemID23;
 
     @Column("ItemID24")
-    private Integer itemID24;
+    private int itemID24;
 
     @Column("PetDisplayID")
-    private Integer petDisplayID;
+    private int petDisplayID;
 
     @Column("ClassID")
-    private Byte classID;
+    private byte classID;
 
     @Column("SexID")
-    private Byte sexID;
+    private byte sexID;
 
     @Column("OutfitID")
-    private Byte outfitID;
+    private byte outfitID;
 
     @Column("PetFamilyID")
-    private Short petFamilyID;
+    private short petFamilyID;
 
     @Column("RaceID")
-    private Byte raceID;
+    private byte raceID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     public int[] getItems() {
         return new int[]{

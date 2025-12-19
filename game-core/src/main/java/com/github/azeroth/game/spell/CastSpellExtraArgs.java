@@ -16,7 +16,7 @@ public class CastSpellExtraArgs {
     public Spell triggeringSpell;
     public AuraEffect triggeringAura;
     public ObjectGuid originalCaster = ObjectGuid.EMPTY;
-    public Difficulty castDifficulty = Difficulty.DIFFICULTY_NONE;
+    public Difficulty castDifficulty = Difficulty.NONE;
     public ObjectGuid originalCastId = ObjectGuid.EMPTY;
     public Integer originalCastItemLevel = null;
     //public IntFloatMap spellValueOverrides = new IntFloatMap(SpellValueMod.BASE_POINT_END.ordinal());

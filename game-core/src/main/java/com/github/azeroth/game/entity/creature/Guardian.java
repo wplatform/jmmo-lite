@@ -1,6 +1,6 @@
 package com.github.azeroth.game.entity.creature;
 
-import Framework.Constants.*;
+
 import com.github.azeroth.dbc.domain.SummonProperty;
 import com.github.azeroth.defines.WeaponAttackType;
 import com.github.azeroth.game.entity.unit.Unit;
@@ -35,7 +35,7 @@ public class Guardian extends Minion {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override void InitStats(uint duration)
     @Override
     public void initStats(int duration) {
@@ -60,7 +60,7 @@ public class Guardian extends Minion {
     }
 
     // @todo Move stat mods code to pet passive auras
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public bool InitStatsForLevel(uint petlevel)
     public final boolean initStatsForLevel(int petlevel) {
         var cinfo = getCreatureTemplate();
@@ -112,7 +112,7 @@ public class Guardian extends Minion {
                 setStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Base, pInfo.armor);
             }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (byte stat = 0; stat < (int)Stats.Max; ++stat)
             for (byte stat = 0; stat < Stats.Max.getValue(); ++stat) {
                 setCreateStat(Stats.forValue(stat), pInfo.stats[stat]);
@@ -122,7 +122,7 @@ public class Guardian extends Minion {
             var stats = Global.getObjectMgr().getCreatureBaseStats(petlevel, cinfo.unitClass);
             applyLevelScaling();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: SetCreateHealth((uint)(Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (PlayerClass)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));
             setCreateHealth((int) (Global.getDB2Mgr().evaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.healthScalingExpansion, unitData.contentTuningID, PlayerClass.forValue(cinfo.unitClass)) * cinfo.modHealth * cinfo.modHealthExtra * getHealthMod(cinfo.rank)));
             setCreateMana(stats.generateMana(cinfo));
@@ -167,7 +167,7 @@ public class Guardian extends Minion {
                 break;
             }
             case Hunter: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: AsPet.SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(petlevel) * 0.05f));
                 toPet().setPetNextLevelExperience((int) (Global.getObjectMgr().getXPForLevel(petlevel) * 0.05f));
                 //these formula may not be correct; however, it is designed to be close to what it should be
@@ -489,14 +489,14 @@ public class Guardian extends Minion {
         value += getFlatModifierValue(unitMod, UnitModifierFlatType.Total) + stamina * multiplicator;
         value *= getPctModifierValue(unitMod, UnitModifierPctType.Total);
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: SetMaxHealth((uint)value);
         setMaxHealth((int) value);
     }
 
     @Override
     public void updateMaxPower(PowerType power) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (GetPowerIndex(power) == (uint)PowerType.Max)
         if (getPowerIndex(power) == (int) PowerType.Max.getValue()) {
             return;
@@ -518,7 +518,7 @@ public class Guardian extends Minion {
         updateAttackPowerAndDamage(false);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public override void UpdateAttackPowerAndDamage(bool ranged = false)
     @Override
     public void updateAttackPowerAndDamage(boolean ranged) {
@@ -645,7 +645,7 @@ public class Guardian extends Minion {
         var playerOwner = getOwnerUnit().getAsPlayer();
 
         if (playerOwner != null) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: playerOwner.SetPetSpellPower((uint)damage);
             playerOwner.setPetSpellPower((int) damage);
         }

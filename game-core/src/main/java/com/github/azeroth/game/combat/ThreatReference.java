@@ -1,23 +1,27 @@
 package com.github.azeroth.game.combat;
 
 
+import com.github.azeroth.game.domain.unit.UnitFlag;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.spell.auras.enums.AuraType;
+import lombok.Data;
 
+@Data
 public class ThreatReference implements Comparable<ThreatReference> {
     private final Creature owner;
     private final Unit victim;
-    public ThreatManager mgr;
-    public onlineState online = OnlineState.values()[0];
-    public int tempModifier; // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers
+    private ThreatManager mgr;
+    private OnlineState onlineState;
+    private int tempModifier; // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers
     private double baseAmount;
-    private TauntState taunted = TauntState.values()[0];
+    private TauntState taunted;
 
     public ThreatReference(ThreatManager mgr, Unit victim) {
-        owner = mgr._owner instanceof Creature ? (CREATURE) mgr._owner : null;
-        mgr = mgr;
-        victim = victim;
-        online = OnlineState.Offline;
+        this.owner = mgr.owner.toCreature();
+        this.victim = victim;
+        this.mgr = mgr;
+        this.onlineState = OnlineState.OFFLINE;
     }
 
     public static boolean flagsAllowFighting(Unit a, Unit b) {
@@ -25,19 +29,19 @@ public class ThreatReference implements Comparable<ThreatReference> {
             return false;
         }
 
-        if (a.hasUnitFlag(UnitFlag.PlayerControlled)) {
-            return !b.hasUnitFlag(UnitFlag.ImmuneToPc);
+        if (a.hasUnitFlag(UnitFlag.PLAYER_CONTROLLED)) {
+            return !b.hasUnitFlag(UnitFlag.IMMUNE_TO_PC);
         } else {
-            return !b.hasUnitFlag(UnitFlag.ImmuneToNpc);
+            return !b.hasUnitFlag(UnitFlag.IMMUNE_TO_NPC);
         }
     }
 
-    public final boolean getShouldBeOffline() {
+    public final boolean shouldBeOffline() {
         if (!owner.canSeeOrDetect(victim)) {
             return true;
         }
 
-        if (!owner._IsTargetAcceptable(victim) || !owner.canCreatureAttack(victim)) {
+        if (!owner.isTargetAcceptable(victim) || !owner.canCreatureAttack(victim)) {
             return true;
         }
 
@@ -58,24 +62,18 @@ public class ThreatReference implements Comparable<ThreatReference> {
             return true;
         }
 
-        if (victim.hasAuraType(AuraType.ModConfuse)) {
+        if (victim.hasAuraType(AuraType.MOD_CONFUSE)) {
             return true;
         }
 
-        if (victim.hasBreakableByDamageAuraType(AuraType.ModStun)) {
+        if (victim.hasBreakableByDamageAuraType(AuraType.MOD_STUN)) {
             return true;
         }
 
         return false;
     }
 
-    public final Creature getOwner() {
-        return owner;
-    }
 
-    public final Unit getVictim() {
-        return victim;
-    }
 
     public final double getThreat() {
         return Math.max(baseAmount + tempModifier, 0.0f);
@@ -87,35 +85,35 @@ public class ThreatReference implements Comparable<ThreatReference> {
     }
 
     public final OnlineState getOnlineState() {
-        return online;
+        return onlineState;
     }
 
     public final boolean isOnline() {
-        return online.getValue() >= OnlineState.online.getValue();
+        return onlineState.getValue() >= OnlineState.ONLINE.getValue();
     }
 
     public final boolean isAvailable() {
-        return online.getValue() > OnlineState.Offline.getValue();
+        return onlineState.getValue() > OnlineState.OFFLINE.getValue();
     }
 
     public final boolean isSuppressed() {
-        return online == OnlineState.Suppressed;
+        return onlineState == OnlineState.SUPPRESSED;
     }
 
     public final boolean isOffline() {
-        return online.getValue() <= OnlineState.Offline.getValue();
+        return onlineState.getValue() <= OnlineState.OFFLINE.getValue();
     }
 
     public final TauntState getTauntState() {
-        return isTaunting() ? TauntState.Taunt : taunted;
+        return isTaunting() ? TauntState.TAUNT : taunted;
     }
 
     public final boolean isTaunting() {
-        return taunted.getValue() >= TauntState.Taunt.getValue();
+        return taunted.getValue() >= TauntState.TAUNT.getValue();
     }
 
     public final boolean isDetaunted() {
-        return taunted == TauntState.Detaunt;
+        return taunted == TauntState.DE_TAUNT;
     }
 
     public final int compareTo(ThreatReference other) {
@@ -136,25 +134,39 @@ public class ThreatReference implements Comparable<ThreatReference> {
         if (factor == 1.0f) {
             return;
         }
-
-        _baseAmount *= factor;
-        listNotifyChanged();
+        baseAmount *= factor;
+        if (factor > 1.0f)
+            heapNotifyIncreased();
+        else
+            heapNotifyDecreased();
         mgr.needClientUpdate = true;
     }
 
+
+
+    void heapNotifyIncreased()
+    {
+        mgr.sortedThreatList.increase(static_cast<ThreatReferenceImpl*>(this)->_handle);
+    }
+
+    void heapNotifyDecreased()
+    {
+        _mgr._sortedThreatList->decrease(static_cast<ThreatReferenceImpl*>(this)->_handle);
+    }
+
     public final void updateOffline() {
-        var shouldBeOffline = getShouldBeOffline();
+        var shouldBeOffline = shouldBeOffline();
 
         if (shouldBeOffline == isOffline()) {
             return;
         }
 
         if (shouldBeOffline) {
-            online = OnlineState.Offline;
+            onlineState = OnlineState.OFFLINE;
             listNotifyChanged();
             mgr.sendRemoveToClients(victim);
         } else {
-            online = getShouldBeSuppressed() ? OnlineState.Suppressed : OnlineState.online;
+            onlineState = getShouldBeSuppressed() ? OnlineState.SUPPRESSED : OnlineState.ONLINE;
             listNotifyChanged();
             mgr.registerForAIUpdate(this);
         }
@@ -166,8 +178,8 @@ public class ThreatReference implements Comparable<ThreatReference> {
 
     public final void updateTauntState(TauntState state) {
         // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
-        if (state.getValue() < TauntState.Taunt.getValue() && victim.hasAuraTypeWithCaster(AuraType.ModDetaunt, owner.getGUID())) {
-            state = TauntState.Detaunt;
+        if (state.getValue() < TauntState.TAUNT.getValue() && victim.hasAuraTypeWithCaster(AuraType.ModDetaunt, owner.getGUID())) {
+            state = TauntState.DE_TAUNT;
         }
 
         if (state == taunted) {

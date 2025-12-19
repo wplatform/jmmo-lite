@@ -37,23 +37,23 @@ public class SpellCategory implements DbcEntity {
     private LocalizedString name;
 
     @Column("ChargeRecoveryTime")
-    private Integer chargeRecoveryTime;
+    private int chargeRecoveryTime;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("UsesPerWeek")
-    private Byte usesPerWeek;
+    private byte usesPerWeek;
 
     @Column("MaxCharges")
-    private Byte maxCharges;
+    private byte maxCharges;
 
     @Column("TypeMask")
-    private Integer typeMask;
+    private int typeMask;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

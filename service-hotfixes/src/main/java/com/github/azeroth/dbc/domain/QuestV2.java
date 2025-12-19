@@ -28,11 +28,11 @@ public class QuestV2 implements DbcEntity {
     private int id;
 
     @Column("UniqueBitFlag")
-    private Short uniqueBitFlag;
+    private short uniqueBitFlag;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

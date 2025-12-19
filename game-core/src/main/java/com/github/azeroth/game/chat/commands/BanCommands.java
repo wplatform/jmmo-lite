@@ -2,7 +2,7 @@ package com.github.azeroth.game.chat.commands;
 
 
 import com.github.azeroth.game.chat.CommandHandler;
-import game.*;
+
 
 class BanCommands {
     

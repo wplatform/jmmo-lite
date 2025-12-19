@@ -43,44 +43,44 @@ public class BroadcastText implements DbcEntity {
     private LocalizedString text1;
 
     @Column("EmoteID1")
-    private Short emoteID1;
+    private short emoteID1;
 
     @Column("EmoteID2")
-    private Short emoteID2;
+    private short emoteID2;
 
     @Column("EmoteID3")
-    private Short emoteID3;
+    private short emoteID3;
 
     @Column("EmoteDelay1")
-    private Short emoteDelay1;
+    private short emoteDelay1;
 
     @Column("EmoteDelay2")
-    private Short emoteDelay2;
+    private short emoteDelay2;
 
     @Column("EmoteDelay3")
-    private Short emoteDelay3;
+    private short emoteDelay3;
 
     @Column("EmotesID")
-    private Short emotesID;
+    private short emotesID;
 
     @Column("LanguageID")
-    private Byte languageID;
+    private byte languageID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("ConditionID")
-    private Integer conditionID;
+    private int conditionID;
 
     @Column("SoundEntriesID1")
-    private Integer soundEntriesID1;
+    private int soundEntriesID1;
 
     @Column("SoundEntriesID2")
-    private Integer soundEntriesID2;
+    private int soundEntriesID2;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

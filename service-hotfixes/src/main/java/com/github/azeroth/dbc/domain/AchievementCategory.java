@@ -30,10 +30,10 @@ public class AchievementCategory implements DbcEntity {
     private LocalizedString name;
 
     @Column("Parent")
-    private Short parent;
+    private short parent;
 
     @Column("UiOrder")
-    private Byte uiOrder;
+    private byte uiOrder;
 
     @Id
     
@@ -43,6 +43,6 @@ public class AchievementCategory implements DbcEntity {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

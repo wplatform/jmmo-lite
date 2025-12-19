@@ -35,32 +35,32 @@ public class ItemEntry implements DbcEntity {
     private int id;
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
     @Column("ClassID")
-    private Byte classID;
+    private byte classID;
 
     @Column("SubclassID")
-    private Byte subclassID;
+    private byte subclassID;
 
     @Column("SoundOverrideSubclassID")
-    private Byte soundOverrideSubclassID;
+    private byte soundOverrideSubclassID;
 
     @Column("Material")
-    private Byte material;
+    private byte material;
 
     @Column("InventoryType")
-    private Byte inventoryType;
+    private byte inventoryType;
 
     @Column("SheatheType")
-    private Byte sheatheType;
+    private byte sheatheType;
 
     @Column("ItemGroupSoundsID")
-    private Byte itemGroupSoundsID;
+    private byte itemGroupSoundsID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

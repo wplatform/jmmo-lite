@@ -27,7 +27,7 @@ public class SkillLineAbilityLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("AbilityVerb_lang")

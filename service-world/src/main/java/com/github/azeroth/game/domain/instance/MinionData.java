@@ -1,4 +1,4 @@
-package com.github.azeroth.game.map;
+package com.github.azeroth.game.domain.instance;
 
 public class MinionData {
     private int entry;

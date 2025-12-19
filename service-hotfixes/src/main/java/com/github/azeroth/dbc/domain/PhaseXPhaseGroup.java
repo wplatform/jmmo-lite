@@ -29,14 +29,14 @@ public class PhaseXPhaseGroup implements DbcEntity {
     private int id;
 
     @Column("PhaseID")
-    private Short phaseID;
+    private short phaseID;
 
     @Column("PhaseGroupID")
-    private Short phaseGroupID;
+    private short phaseGroupID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

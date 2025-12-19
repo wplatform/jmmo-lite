@@ -38,26 +38,26 @@ public class CriteriaTree implements DbcEntity {
     private LocalizedString description;
 
     @Column("Amount")
-    private Integer amount;
+    private int amount;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("Operator")
-    private Byte operator;
+    private byte operator;
 
     @Column("CriteriaID")
-    private Integer criteriaID;
+    private int criteriaID;
 
     @Column("Parent")
-    private Integer parent;
+    private int parent;
 
     @Column("OrderIndex")
-    private Integer orderIndex;
+    private int orderIndex;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

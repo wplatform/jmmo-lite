@@ -35,22 +35,22 @@ public class CfgRegion implements DbcEntity {
     private String tag;
 
     @Column("Raidorigin")
-    private Integer raidorigin;
+    private int raidorigin;
 
     @Column("ChallengeOrigin")
-    private Integer challengeOrigin;
+    private int challengeOrigin;
 
     @Column("RegionID")
-    private Short regionID;
+    private short regionID;
 
     @Column("RegionGroupMask")
-    private Byte regionGroupMask;
+    private byte regionGroupMask;
 
     @Column("TimeEventRegionGroupID")
     private byte timeEventRegionGroupID;
 
     @Id
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

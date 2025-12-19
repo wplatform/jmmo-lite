@@ -31,26 +31,26 @@ public class SpellShapeshift implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("ShapeshiftExclude1")
-    private Integer shapeshiftExclude1;
+    private int shapeshiftExclude1;
 
     @Column("ShapeshiftExclude2")
-    private Integer shapeshiftExclude2;
+    private int shapeshiftExclude2;
 
     @Column("ShapeshiftMask1")
-    private Integer shapeshiftMask1;
+    private int shapeshiftMask1;
 
     @Column("ShapeshiftMask2")
-    private Integer shapeshiftMask2;
+    private int shapeshiftMask2;
 
     @Column("StanceBarOrder")
-    private Byte stanceBarOrder;
+    private byte stanceBarOrder;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

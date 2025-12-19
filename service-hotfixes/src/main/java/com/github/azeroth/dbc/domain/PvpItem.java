@@ -29,14 +29,14 @@ public class PvpItem implements DbcEntity {
     private int id;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Column("ItemLevelDelta")
-    private Byte itemLevelDelta;
+    private byte itemLevelDelta;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

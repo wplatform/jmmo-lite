@@ -23,7 +23,7 @@ public class HotfixDatumId implements Serializable {
     private Long tableHash;
 
     @Column("RecordId")
-    private Integer recordId;
+    private int recordId;
 
     @Override
     public boolean equals(Object o) {

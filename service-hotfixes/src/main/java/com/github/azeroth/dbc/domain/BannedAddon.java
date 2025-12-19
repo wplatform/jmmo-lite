@@ -36,11 +36,11 @@ public class BannedAddon implements DbcEntity {
     private String version;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

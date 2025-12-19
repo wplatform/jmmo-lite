@@ -35,32 +35,32 @@ public class SpellTargetRestriction implements DbcEntity {
     private int id;
 
     @Column("ConeDegrees")
-    private Float coneDegrees;
+    private float coneDegrees;
 
     @Column("Width")
-    private Float width;
+    private float width;
 
     @Column("Targets")
-    private Integer targets;
+    private int targets;
 
     @Column("TargetCreatureType")
-    private Short targetCreatureType;
+    private short targetCreatureType;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("MaxTargets")
-    private Short maxTargets;
+    private short maxTargets;
 
     @Column("MaxTargetLevel")
-    private Integer maxTargetLevel;
+    private int maxTargetLevel;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

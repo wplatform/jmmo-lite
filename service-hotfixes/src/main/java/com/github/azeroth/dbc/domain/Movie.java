@@ -31,20 +31,20 @@ public class Movie implements DbcEntity {
     private int id;
 
     @Column("AudioFileDataID")
-    private Integer audioFileDataID;
+    private int audioFileDataID;
 
     @Column("SubtitleFileDataID")
-    private Integer subtitleFileDataID;
+    private int subtitleFileDataID;
 
     @Column("Volume")
-    private Short volume;
+    private short volume;
 
     @Column("KeyID")
-    private Byte keyID;
+    private byte keyID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

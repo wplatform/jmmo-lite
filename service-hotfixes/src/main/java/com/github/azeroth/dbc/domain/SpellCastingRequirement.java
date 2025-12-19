@@ -34,29 +34,29 @@ public class SpellCastingRequirement implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("MinFactionID")
-    private Short minFactionID;
+    private short minFactionID;
 
     @Column("RequiredAreasID")
-    private Short requiredAreasID;
+    private short requiredAreasID;
 
     @Column("RequiresSpellFocus")
-    private Short requiresSpellFocus;
+    private short requiresSpellFocus;
 
     @Column("FacingCasterFlags")
-    private Byte facingCasterFlags;
+    private byte facingCasterFlags;
 
     @Column("MinReputation")
-    private Byte minReputation;
+    private byte minReputation;
 
     @Column("RequiredAuraVision")
-    private Byte requiredAuraVision;
+    private byte requiredAuraVision;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

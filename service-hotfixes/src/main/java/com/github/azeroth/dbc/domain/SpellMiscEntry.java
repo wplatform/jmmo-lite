@@ -31,87 +31,106 @@ import lombok.ToString;
         @Db2Field(name = {"attributes1", "attributes2", "attributes3", "attributes4", "attributes5", "attributes6", "attributes7", "attributes8", "attributes9", "attributes10", "attributes11", "attributes12", "attributes13", "attributes14"}, type = Db2Type.INT, signed = true),
         @Db2Field(name = "spellID", type = Db2Type.INT, signed = true)
 })
-public class SpellMisc implements DbcEntity {
+public class SpellMiscEntry implements DbcEntity {
     @Id
     
     @Column("ID")
     private int id;
 
     @Column("CastingTimeIndex")
-    private Short castingTimeIndex;
+    private short castingTimeIndex;
 
     @Column("DurationIndex")
-    private Short durationIndex;
+    private short durationIndex;
 
     @Column("RangeIndex")
-    private Short rangeIndex;
+    private short rangeIndex;
 
     @Column("SchoolMask")
-    private Byte schoolMask;
+    private byte schoolMask;
 
     @Column("SpellIconFileDataID")
-    private Integer spellIconFileDataID;
+    private int spellIconFileDataID;
 
     @Column("Speed")
-    private Float speed;
+    private float speed;
 
     @Column("ActiveIconFileDataID")
-    private Integer activeIconFileDataID;
+    private int activeIconFileDataID;
 
     @Column("LaunchDelay")
-    private Float launchDelay;
+    private float launchDelay;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("Attributes1")
-    private Integer attributes1;
+    private int attributes1;
 
     @Column("Attributes2")
-    private Integer attributes2;
+    private int attributes2;
 
     @Column("Attributes3")
-    private Integer attributes3;
+    private int attributes3;
 
     @Column("Attributes4")
-    private Integer attributes4;
+    private int attributes4;
 
     @Column("Attributes5")
-    private Integer attributes5;
+    private int attributes5;
 
     @Column("Attributes6")
-    private Integer attributes6;
+    private int attributes6;
 
     @Column("Attributes7")
-    private Integer attributes7;
+    private int attributes7;
 
     @Column("Attributes8")
-    private Integer attributes8;
+    private int attributes8;
 
     @Column("Attributes9")
-    private Integer attributes9;
+    private int attributes9;
 
     @Column("Attributes10")
-    private Integer attributes10;
+    private int attributes10;
 
     @Column("Attributes11")
-    private Integer attributes11;
+    private int attributes11;
 
     @Column("Attributes12")
-    private Integer attributes12;
+    private int attributes12;
 
     @Column("Attributes13")
-    private Integer attributes13;
+    private int attributes13;
 
     @Column("Attributes14")
-    private Integer attributes14;
+    private int attributes14;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
-    
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
+    
+    public int getAttributes(int index) {
+        return switch (index) {
+            case 0 -> attributes1;
+            case 1 -> attributes2;
+            case 2 -> attributes3;
+            case 3 -> attributes4;
+            case 4 -> attributes5;
+            case 5 -> attributes6;
+            case 6 -> attributes7;
+            case 7 -> attributes8;
+            case 8 -> attributes9;
+            case 9 -> attributes10;
+            case 10 -> attributes11;
+            case 11 -> attributes12;
+            case 12 -> attributes13;
+            case 13 -> attributes14;
+            default -> throw new IllegalArgumentException("index(" + index + ") must be between 0 and 13");
+        };
+    }
 
 }

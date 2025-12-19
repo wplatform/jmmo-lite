@@ -33,22 +33,22 @@ public class AnimationData implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("Fallback")
-    private Integer fallback;
+    private int fallback;
 
 
     @Column("BehaviorTier")
-    private Short behaviorTier;
+    private short behaviorTier;
 
 
     @Column("BehaviorID")
-    private Integer behaviorID;
+    private int behaviorID;
 
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
 }

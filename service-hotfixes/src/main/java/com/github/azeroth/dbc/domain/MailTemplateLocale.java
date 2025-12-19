@@ -27,7 +27,7 @@ public class MailTemplateLocale {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Body_lang")

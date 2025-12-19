@@ -1,22 +1,21 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.entities.*;
-import game.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
+
+
 
 
 
 
 public class FollowerAI extends ScriptedAI {
     private ObjectGuid leaderGUID = new ObjectGuid();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _updateFollowTimer;
     private int updateFollowTimer;
     private FollowState followState = FollowState.values()[0];
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _questForFollow;
     private int questForFollow;
 
@@ -88,7 +87,7 @@ public class FollowerAI extends ScriptedAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint uiDiff)
     @Override
     public void updateAI(int uiDiff) {
@@ -169,9 +168,9 @@ public class FollowerAI extends ScriptedAI {
         startFollow(player, 0, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void StartFollow(Player player, uint factionForFollower = 0, Quest quest = null)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void startFollow(Player player, int factionForFollower, Quest quest) {
         var cdata = me.getCreatureData();
 
@@ -242,7 +241,7 @@ public class FollowerAI extends ScriptedAI {
         setFollowComplete(false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetFollowComplete(bool withEndEvent = false)
     public final void setFollowComplete(boolean withEndEvent) {
         if (me.hasUnitState(UnitState.Follow)) {
@@ -265,7 +264,7 @@ public class FollowerAI extends ScriptedAI {
         return hasFollowState(FollowState.Inprogress);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void UpdateFollowerAI(uint diff)
     private void updateFollowerAI(int diff) {
         if (!updateVictim()) {

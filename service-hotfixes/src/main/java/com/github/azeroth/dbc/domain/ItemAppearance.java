@@ -31,20 +31,20 @@ public class ItemAppearance implements DbcEntity {
     private int id;
 
     @Column("ItemDisplayInfoID")
-    private Integer itemDisplayInfoID;
+    private int itemDisplayInfoID;
 
     @Column("DefaultIconFileDataID")
-    private Integer defaultIconFileDataID;
+    private int defaultIconFileDataID;
 
     @Column("UiOrder")
-    private Integer uiOrder;
+    private int uiOrder;
 
     @Column("DisplayType")
-    private Byte displayType;
+    private byte displayType;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

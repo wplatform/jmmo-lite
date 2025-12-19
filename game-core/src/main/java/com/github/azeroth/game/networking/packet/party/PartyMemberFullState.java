@@ -4,7 +4,7 @@ package com.github.azeroth.game.networking.packet.party;
 import com.github.azeroth.game.entity.player.Player;
 import com.github.azeroth.game.networking.ServerPacket;
 import com.github.azeroth.game.spell.AuraFlags;
-import game.*;
+
 
 class PartyMemberFullState extends ServerPacket {
     public boolean forEnemy;

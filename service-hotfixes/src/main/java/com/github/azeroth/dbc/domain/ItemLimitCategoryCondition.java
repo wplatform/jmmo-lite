@@ -30,17 +30,17 @@ public class ItemLimitCategoryCondition implements DbcEntity {
     private int id;
 
     @Column("AddQuantity")
-    private Byte addQuantity;
+    private byte addQuantity;
 
     @Column("PlayerConditionID")
-    private Integer playerConditionID;
+    private int playerConditionID;
 
     @Column("ParentItemLimitCategoryID")
-    private Integer parentItemLimitCategoryID;
+    private int parentItemLimitCategoryID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

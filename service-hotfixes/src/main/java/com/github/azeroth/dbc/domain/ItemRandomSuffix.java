@@ -34,38 +34,38 @@ public class ItemRandomSuffix implements DbcEntity {
     private LocalizedString name;
 
     @Column("Enchantment1")
-    private Short enchantment1;
+    private short enchantment1;
 
     @Column("Enchantment2")
-    private Short enchantment2;
+    private short enchantment2;
 
     @Column("Enchantment3")
-    private Short enchantment3;
+    private short enchantment3;
 
     @Column("Enchantment4")
-    private Short enchantment4;
+    private short enchantment4;
 
     @Column("Enchantment5")
-    private Short enchantment5;
+    private short enchantment5;
 
     @Column("AllocationPct1")
-    private Short allocationPct1;
+    private short allocationPct1;
 
     @Column("AllocationPct2")
-    private Short allocationPct2;
+    private short allocationPct2;
 
     @Column("AllocationPct3")
-    private Short allocationPct3;
+    private short allocationPct3;
 
     @Column("AllocationPct4")
-    private Short allocationPct4;
+    private short allocationPct4;
 
     @Column("AllocationPct5")
-    private Short allocationPct5;
+    private short allocationPct5;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

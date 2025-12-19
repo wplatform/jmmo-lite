@@ -35,17 +35,17 @@ public class QuestInfo implements DbcEntity {
     private LocalizedString infoName;
 
     @Column("Profession")
-    private Short profession;
+    private short profession;
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
     @Column("Modifiers")
-    private Byte Modifiers;
+    private byte Modifiers;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -27,7 +27,7 @@ public class AreaTableLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("AreaName_lang")

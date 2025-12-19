@@ -28,104 +28,104 @@ public class Keychain implements DbcEntity {
     private int id;
 
     @Column("Key1")
-    private Short key1;
+    private short key1;
 
     @Column("Key2")
-    private Short key2;
+    private short key2;
 
     @Column("Key3")
-    private Short key3;
+    private short key3;
 
     @Column("Key4")
-    private Short key4;
+    private short key4;
 
     @Column("Key5")
-    private Short key5;
+    private short key5;
 
     @Column("Key6")
-    private Short key6;
+    private short key6;
 
     @Column("Key7")
-    private Short key7;
+    private short key7;
 
     @Column("Key8")
-    private Short key8;
+    private short key8;
 
     @Column("Key9")
-    private Short key9;
+    private short key9;
 
     @Column("Key10")
-    private Short key10;
+    private short key10;
 
     @Column("Key11")
-    private Short key11;
+    private short key11;
 
     @Column("Key12")
-    private Short key12;
+    private short key12;
 
     @Column("Key13")
-    private Short key13;
+    private short key13;
 
     @Column("Key14")
-    private Short key14;
+    private short key14;
 
     @Column("Key15")
-    private Short key15;
+    private short key15;
 
     @Column("Key16")
-    private Short key16;
+    private short key16;
 
     @Column("Key17")
-    private Short key17;
+    private short key17;
 
     @Column("Key18")
-    private Short key18;
+    private short key18;
 
     @Column("Key19")
-    private Short key19;
+    private short key19;
 
     @Column("Key20")
-    private Short key20;
+    private short key20;
 
     @Column("Key21")
-    private Short key21;
+    private short key21;
 
     @Column("Key22")
-    private Short key22;
+    private short key22;
 
     @Column("Key23")
-    private Short key23;
+    private short key23;
 
     @Column("Key24")
-    private Short key24;
+    private short key24;
 
     @Column("Key25")
-    private Short key25;
+    private short key25;
 
     @Column("Key26")
-    private Short key26;
+    private short key26;
 
     @Column("Key27")
-    private Short key27;
+    private short key27;
 
     @Column("Key28")
-    private Short key28;
+    private short key28;
 
     @Column("Key29")
-    private Short key29;
+    private short key29;
 
     @Column("Key30")
-    private Short key30;
+    private short key30;
 
     @Column("Key31")
-    private Short key31;
+    private short key31;
 
     @Column("Key32")
-    private Short key32;
+    private short key32;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

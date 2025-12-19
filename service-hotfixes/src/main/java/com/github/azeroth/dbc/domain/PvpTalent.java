@@ -41,35 +41,35 @@ public class PvpTalent implements DbcEntity {
     private LocalizedString description;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("OverridesSpellID")
-    private Integer overridesSpellID;
+    private int overridesSpellID;
 
     @Column("ActionBarSpellID")
-    private Integer actionBarSpellID;
+    private int actionBarSpellID;
 
     @Column("TierID")
-    private Integer tierID;
+    private int tierID;
 
     @Column("ColumnIndex")
-    private Integer columnIndex;
+    private int columnIndex;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("ClassID")
-    private Integer classID;
+    private int classID;
 
     @Column("SpecID")
-    private Integer specID;
+    private int specID;
 
     @Column("Role")
-    private Integer role;
+    private int role;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

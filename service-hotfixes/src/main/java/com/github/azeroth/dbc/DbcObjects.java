@@ -235,7 +235,7 @@ public enum DbcObjects {
     SpellLabel(SpellLabel.class),
     SpellLearnSpell(SpellLearnSpell.class),
     SpellLevel(SpellLevel.class),
-    SpellMisc(SpellMisc.class),
+    SpellMisc(SpellMiscEntry.class),
     SpellPower(SpellPower.class),
     SpellPowerDifficulty(SpellPowerDifficulty.class),
     SpellProcsPerMinute(SpellProcsPerMinute.class),

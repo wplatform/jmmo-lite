@@ -32,20 +32,20 @@ public class ItemSetSpell implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("ChrSpecID")
-    private Short chrSpecID;
+    private short chrSpecID;
 
     @Column("Threshold")
-    private Byte threshold;
+    private byte threshold;
 
     @Column("ItemSetID")
-    private Short itemSetID;
+    private short itemSetID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

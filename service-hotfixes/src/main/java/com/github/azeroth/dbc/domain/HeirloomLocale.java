@@ -27,7 +27,7 @@ public class HeirloomLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("SourceText_lang")

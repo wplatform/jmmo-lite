@@ -45,32 +45,32 @@ public class CurrencyType implements DbcEntity {
     private LocalizedString description;
 
     @Column("MaxQty")
-    private Integer maxQty;
+    private int maxQty;
 
     @Column("MaxEarnablePerWeek")
-    private Integer maxEarnablePerWeek;
+    private int maxEarnablePerWeek;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("CategoryID")
-    private Short categoryID;
+    private short categoryID;
 
     @Column("SpellCategory")
-    private Byte spellCategory;
+    private byte spellCategory;
 
     @Column("Quality")
-    private Byte quality;
+    private byte quality;
 
     @Column("InventoryIconFileID")
-    private Integer inventoryIconFileID;
+    private int inventoryIconFileID;
 
     @Column("SpellWeight")
-    private Integer spellWeight;
+    private int spellWeight;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

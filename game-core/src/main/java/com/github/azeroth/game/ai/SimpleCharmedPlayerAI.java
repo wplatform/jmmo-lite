@@ -1,13 +1,12 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.entities.*;
+
+
 import game.spells.*;
-import game.*;
+
 import java.util.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
 
 
 
@@ -15,7 +14,7 @@ import java.util.*;
 public class SimpleCharmedPlayerAI extends PlayerAI {
     private static final float CASTER_CHASE_DISTANCE = 28.0f;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _castCheckTimer;
     private int castCheckTimer;
     private boolean chaseCloser;
@@ -63,7 +62,7 @@ public class SimpleCharmedPlayerAI extends PlayerAI {
         return null;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
@@ -198,7 +197,7 @@ public class SimpleCharmedPlayerAI extends PlayerAI {
     }
 
     private Tuple<Spell, Unit> selectAppropriateCastForSpec() {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: List<Tuple<Tuple<Spell, Unit>, uint>> spells = new();
         ArrayList<Tuple<Tuple<Spell, Unit>, Integer>> spells = new ArrayList<Tuple<Tuple<Spell, Unit>, Integer>>();
 

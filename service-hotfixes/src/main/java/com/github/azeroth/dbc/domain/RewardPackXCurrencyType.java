@@ -30,17 +30,17 @@ public class RewardPackXCurrencyType implements DbcEntity {
     private int id;
 
     @Column("CurrencyTypeID")
-    private Integer currencyTypeID;
+    private int currencyTypeID;
 
     @Column("Quantity")
-    private Integer quantity;
+    private int quantity;
 
     @Column("RewardPackID")
-    private Integer rewardPackID;
+    private int rewardPackID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

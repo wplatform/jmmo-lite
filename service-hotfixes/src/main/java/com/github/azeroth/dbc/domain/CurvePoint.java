@@ -30,21 +30,21 @@ public class CurvePoint implements DbcEntity,Comparable<CurvePoint> {
     private int id;
 
     @Column("PosX")
-    private Float posX;
+    private float posX;
 
     @Column("PosY")
-    private Float posY;
+    private float posY;
 
     @Column("CurveID")
-    private Short curveID;
+    private short curveID;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     @Override
     public int compareTo(CurvePoint o) {

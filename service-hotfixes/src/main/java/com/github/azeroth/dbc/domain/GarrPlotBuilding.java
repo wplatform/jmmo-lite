@@ -29,14 +29,14 @@ public class GarrPlotBuilding implements DbcEntity {
     private int id;
 
     @Column("GarrPlotID")
-    private Byte garrPlotID;
+    private byte garrPlotID;
 
     @Column("GarrBuildingID")
-    private Short garrBuildingID;
+    private short garrBuildingID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

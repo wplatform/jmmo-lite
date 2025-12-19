@@ -1,6 +1,6 @@
 package com.github.azeroth.game.entity.vehicle;
 
-import Framework.Constants.*;
+
 import Framework.Dynamic.*;
 import com.github.azeroth.game.listener.interfaces.ivehicle.IVehicleOnAddPassenger;
 import com.github.azeroth.game.listener.interfaces.ivehicle.IVehicleOnInstallAccessory;
@@ -18,7 +18,7 @@ public class VehicleJoinEvent extends BasicEvent {
         seat = target.seats.Last();
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override bool Execute(ulong etime, uint pTime)
     @Override
     public boolean execute(long etime, int pTime) {
@@ -147,7 +147,7 @@ public class VehicleJoinEvent extends BasicEvent {
         return true;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override void Abort(ulong e_time)
     @Override
     public void abort(long eTime) {

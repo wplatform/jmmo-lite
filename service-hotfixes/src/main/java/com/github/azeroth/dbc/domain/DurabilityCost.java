@@ -29,95 +29,95 @@ public class DurabilityCost implements DbcEntity {
     private int id;
 
     @Column("WeaponSubClassCost1")
-    private Short weaponSubClassCost1;
+    private short weaponSubClassCost1;
 
     @Column("WeaponSubClassCost2")
-    private Short weaponSubClassCost2;
+    private short weaponSubClassCost2;
 
     @Column("WeaponSubClassCost3")
-    private Short weaponSubClassCost3;
+    private short weaponSubClassCost3;
 
     @Column("WeaponSubClassCost4")
-    private Short weaponSubClassCost4;
+    private short weaponSubClassCost4;
 
     @Column("WeaponSubClassCost5")
-    private Short weaponSubClassCost5;
+    private short weaponSubClassCost5;
 
     @Column("WeaponSubClassCost6")
-    private Short weaponSubClassCost6;
+    private short weaponSubClassCost6;
 
     @Column("WeaponSubClassCost7")
-    private Short weaponSubClassCost7;
+    private short weaponSubClassCost7;
 
     @Column("WeaponSubClassCost8")
-    private Short weaponSubClassCost8;
+    private short weaponSubClassCost8;
 
     @Column("WeaponSubClassCost9")
-    private Short weaponSubClassCost9;
+    private short weaponSubClassCost9;
 
     @Column("WeaponSubClassCost10")
-    private Short weaponSubClassCost10;
+    private short weaponSubClassCost10;
 
     @Column("WeaponSubClassCost11")
-    private Short weaponSubClassCost11;
+    private short weaponSubClassCost11;
 
     @Column("WeaponSubClassCost12")
-    private Short weaponSubClassCost12;
+    private short weaponSubClassCost12;
 
     @Column("WeaponSubClassCost13")
-    private Short weaponSubClassCost13;
+    private short weaponSubClassCost13;
 
     @Column("WeaponSubClassCost14")
-    private Short weaponSubClassCost14;
+    private short weaponSubClassCost14;
 
     @Column("WeaponSubClassCost15")
-    private Short weaponSubClassCost15;
+    private short weaponSubClassCost15;
 
     @Column("WeaponSubClassCost16")
-    private Short weaponSubClassCost16;
+    private short weaponSubClassCost16;
 
     @Column("WeaponSubClassCost17")
-    private Short weaponSubClassCost17;
+    private short weaponSubClassCost17;
 
     @Column("WeaponSubClassCost18")
-    private Short weaponSubClassCost18;
+    private short weaponSubClassCost18;
 
     @Column("WeaponSubClassCost19")
-    private Short weaponSubClassCost19;
+    private short weaponSubClassCost19;
 
     @Column("WeaponSubClassCost20")
-    private Short weaponSubClassCost20;
+    private short weaponSubClassCost20;
 
     @Column("WeaponSubClassCost21")
-    private Short weaponSubClassCost21;
+    private short weaponSubClassCost21;
 
     @Column("ArmorSubClassCost1")
-    private Short armorSubClassCost1;
+    private short armorSubClassCost1;
 
     @Column("ArmorSubClassCost2")
-    private Short armorSubClassCost2;
+    private short armorSubClassCost2;
 
     @Column("ArmorSubClassCost3")
-    private Short armorSubClassCost3;
+    private short armorSubClassCost3;
 
     @Column("ArmorSubClassCost4")
-    private Short armorSubClassCost4;
+    private short armorSubClassCost4;
 
     @Column("ArmorSubClassCost5")
-    private Short armorSubClassCost5;
+    private short armorSubClassCost5;
 
     @Column("ArmorSubClassCost6")
-    private Short armorSubClassCost6;
+    private short armorSubClassCost6;
 
     @Column("ArmorSubClassCost7")
-    private Short armorSubClassCost7;
+    private short armorSubClassCost7;
 
     @Column("ArmorSubClassCost8")
-    private Short armorSubClassCost8;
+    private short armorSubClassCost8;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

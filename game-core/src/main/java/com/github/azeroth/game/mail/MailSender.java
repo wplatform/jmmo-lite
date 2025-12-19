@@ -4,7 +4,7 @@ package com.github.azeroth.game.mail;
 import com.github.azeroth.game.blackmarket.BlackMarketEntry;
 import com.github.azeroth.game.entity.object.WorldObject;
 import com.github.azeroth.game.entity.player.Player;
-import game.*;
+
 
 public class MailSender {
     private final MailMessageType m_messageType;

@@ -33,14 +33,14 @@ public class NameGen implements DbcEntity {
     private String name;
 
     @Column("RaceID")
-    private Byte raceID;
+    private byte raceID;
 
     @Column("Sex")
-    private Byte sex;
+    private byte sex;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

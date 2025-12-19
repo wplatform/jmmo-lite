@@ -29,32 +29,32 @@ public class ItemArmorQuality implements DbcEntity {
     private int id;
 
     @Column("Qualitymod1")
-    private Float qualitymod1;
+    private float qualitymod1;
 
     @Column("Qualitymod2")
-    private Float qualitymod2;
+    private float qualitymod2;
 
     @Column("Qualitymod3")
-    private Float qualitymod3;
+    private float qualitymod3;
 
     @Column("Qualitymod4")
-    private Float qualitymod4;
+    private float qualitymod4;
 
     @Column("Qualitymod5")
-    private Float qualitymod5;
+    private float qualitymod5;
 
     @Column("Qualitymod6")
-    private Float qualitymod6;
+    private float qualitymod6;
 
     @Column("Qualitymod7")
-    private Float qualitymod7;
+    private float qualitymod7;
 
     @Column("ItemLevel")
-    private Short itemLevel;
+    private short itemLevel;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

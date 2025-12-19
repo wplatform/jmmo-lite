@@ -36,25 +36,25 @@ import lombok.ToString;
 })
 public class SpellPower implements DbcEntity {
     @Column("ManaCost")
-    private Integer manaCost;
+    private int manaCost;
 
     @Column("PowerCostPct")
-    private Float powerCostPct;
+    private float powerCostPct;
 
     @Column("PowerPctPerSecond")
-    private Float powerPctPerSecond;
+    private float powerPctPerSecond;
 
     @Column("RequiredAuraSpellID")
-    private Integer requiredAuraSpellID;
+    private int requiredAuraSpellID;
 
     @Column("PowerCostMaxPct")
-    private Float powerCostMaxPct;
+    private float powerCostMaxPct;
 
     @Column("OrderIndex")
-    private Byte orderIndex;
+    private byte orderIndex;
 
     @Column("PowerType")
-    private Byte powerType;
+    private byte powerType;
 
     @Id
 
@@ -62,26 +62,26 @@ public class SpellPower implements DbcEntity {
     private int id;
 
     @Column("ManaCostPerLevel")
-    private Integer manaCostPerLevel;
+    private int manaCostPerLevel;
 
     @Column("ManaPerSecond")
-    private Integer manaPerSecond;
+    private int manaPerSecond;
 
     @Column("OptionalCost")
-    private Integer optionalCost;
+    private int optionalCost;
 
     @Column("PowerDisplayID")
-    private Integer powerDisplayID;
+    private int powerDisplayID;
 
     @Column("AltPowerBarID")
-    private Integer altPowerBarID;
+    private int altPowerBarID;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

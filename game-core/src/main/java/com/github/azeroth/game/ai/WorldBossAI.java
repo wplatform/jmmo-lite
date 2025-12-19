@@ -1,11 +1,10 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.entities.*;
-import game.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
+
+
 
 
 
@@ -33,7 +32,7 @@ public class WorldBossAI extends ScriptedAI {
         summons.despawn(summon);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
@@ -62,7 +61,7 @@ public class WorldBossAI extends ScriptedAI {
     // to override UpdateAI
     // note: You must re-schedule the event within this method if the event
     // is supposed to run more than once
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void ExecuteEvent(uint eventId)
     public void executeEvent(int eventId) {
     }

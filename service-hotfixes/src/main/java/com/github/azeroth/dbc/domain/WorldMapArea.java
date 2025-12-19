@@ -42,46 +42,46 @@ public class WorldMapArea implements DbcEntity {
     private String areaName;
 
     @Column("LocLeft")
-    private Float locLeft;
+    private float locLeft;
 
     @Column("LocRight")
-    private Float locRight;
+    private float locRight;
 
     @Column("LocTop")
-    private Float locTop;
+    private float locTop;
 
     @Column("LocBottom")
-    private Float locBottom;
+    private float locBottom;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Column("AreaID")
-    private Short areaID;
+    private short areaID;
 
     @Column("DisplayMapID")
-    private Short displayMapID;
+    private short displayMapID;
 
     @Column("DefaultDungeonFloor")
-    private Short defaultDungeonFloor;
+    private short defaultDungeonFloor;
 
     @Column("ParentWorldMapID")
-    private Short parentWorldMapID;
+    private short parentWorldMapID;
 
     @Column("LevelRangeMin")
-    private Byte levelRangeMin;
+    private byte levelRangeMin;
 
     @Column("LevelRangeMax")
-    private Byte levelRangeMax;
+    private byte levelRangeMax;
 
     @Column("BountySetID")
-    private Byte bountySetID;
+    private byte bountySetID;
 
     @Column("BountyDisplayLocation")
-    private Byte bountyDisplayLocation;
+    private byte bountyDisplayLocation;
 
     @Id
     
@@ -89,11 +89,11 @@ public class WorldMapArea implements DbcEntity {
     private int id;
 
     @Column("VisibilityPlayerConditionID")
-    private Integer visibilityPlayerConditionID;
+    private int visibilityPlayerConditionID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

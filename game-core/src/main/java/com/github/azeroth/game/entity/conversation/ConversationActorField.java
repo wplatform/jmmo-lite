@@ -1,20 +1,20 @@
 package com.github.azeroth.game.entity.conversation;
 
-import Framework.Constants.*;
+
 import com.github.azeroth.game.networking.WorldPacket;
 
 
 public class ConversationActorField {
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public uint CreatureID;
     public int creatureID;
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public uint CreatureDisplayInfoID;
     public int creatureDisplayInfoID;
     public ObjectGuid actorGUID = new ObjectGuid();
     public int id;
     public ConversationActorType type = ConversationActorType.values()[0];
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public uint NoActorObject;
     public int noActorObject;
 

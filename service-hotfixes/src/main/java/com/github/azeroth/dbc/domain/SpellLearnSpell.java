@@ -30,17 +30,17 @@ public class SpellLearnSpell implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("LearnSpellID")
-    private Integer learnSpellID;
+    private int learnSpellID;
 
     @Column("OverridesSpellID")
-    private Integer overridesSpellID;
+    private int overridesSpellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -35,7 +35,7 @@ public class MapChallengeMode implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Name")
@@ -43,22 +43,22 @@ public class MapChallengeMode implements DbcEntity {
 
 
     @Column("MapID")
-    private Integer mapID;
+    private int mapID;
 
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
 
     @Column("CriteriaCount1")
-    private Short criteriaCount1;
+    private short criteriaCount1;
 
 
     @Column("CriteriaCount2")
-    private Short criteriaCount2;
+    private short criteriaCount2;
 
 
     @Column("CriteriaCount3")
-    private Short criteriaCount3;
+    private short criteriaCount3;
 
 }

@@ -29,14 +29,14 @@ public class AreaGroupMember implements DbcEntity {
     private int id;
 
     @Column("AreaID")
-    private Short areaID;
+    private short areaID;
 
     @Column("AreaGroupID")
-    private Short areaGroupID;
+    private short areaGroupID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

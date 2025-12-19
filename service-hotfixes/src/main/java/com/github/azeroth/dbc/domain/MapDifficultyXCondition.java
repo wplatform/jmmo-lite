@@ -34,7 +34,7 @@ public class MapDifficultyXCondition implements DbcEntity, Comparable<MapDifficu
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("FailureDescription")
@@ -42,15 +42,15 @@ public class MapDifficultyXCondition implements DbcEntity, Comparable<MapDifficu
 
 
     @Column("PlayerConditionID")
-    private Integer playerConditionID;
+    private int playerConditionID;
 
 
     @Column("OrderIndex")
-    private Integer orderIndex;
+    private int orderIndex;
 
 
     @Column("MapDifficultyID")
-    private Integer mapDifficultyId;
+    private int mapDifficultyId;
 
     @Override
     public int compareTo(MapDifficultyXCondition o) {

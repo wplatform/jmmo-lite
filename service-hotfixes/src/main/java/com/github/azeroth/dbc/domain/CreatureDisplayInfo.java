@@ -50,80 +50,80 @@ public class CreatureDisplayInfo implements DbcEntity {
     private int id;
 
     @Column("CreatureModelScale")
-    private Float creatureModelScale;
+    private float creatureModelScale;
 
     @Column("ModelID")
-    private Short modelID;
+    private short modelID;
 
     @Column("NPCSoundID")
-    private Short nPCSoundID;
+    private short nPCSoundID;
 
     @Column("SizeClass")
-    private Byte sizeClass;
+    private byte sizeClass;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("Gender")
-    private Byte gender;
+    private byte gender;
 
     @Column("ExtendedDisplayInfoID")
-    private Integer extendedDisplayInfoID;
+    private int extendedDisplayInfoID;
 
     @Column("PortraitTextureFileDataID")
-    private Integer portraitTextureFileDataID;
+    private int portraitTextureFileDataID;
 
     @Column("CreatureModelAlpha")
-    private Short creatureModelAlpha;
+    private short creatureModelAlpha;
 
     @Column("SoundID")
-    private Short soundID;
+    private short soundID;
 
     @Column("PlayerOverrideScale")
-    private Float playerOverrideScale;
+    private float playerOverrideScale;
 
     @Column("PortraitCreatureDisplayInfoID")
-    private Integer portraitCreatureDisplayInfoID;
+    private int portraitCreatureDisplayInfoID;
 
     @Column("BloodID")
-    private Byte bloodID;
+    private byte bloodID;
 
     @Column("ParticleColorID")
-    private Short particleColorID;
+    private short particleColorID;
 
     @Column("CreatureGeosetData")
-    private Integer creatureGeosetData;
+    private int creatureGeosetData;
 
     @Column("ObjectEffectPackageID")
-    private Short objectEffectPackageID;
+    private short objectEffectPackageID;
 
     @Column("AnimReplacementSetID")
-    private Short animReplacementSetID;
+    private short animReplacementSetID;
 
     @Column("UnarmedWeaponType")
-    private Byte unarmedWeaponType;
+    private byte unarmedWeaponType;
 
     @Column("StateSpellVisualKitID")
-    private Integer stateSpellVisualKitID;
+    private int stateSpellVisualKitID;
 
     @Column("PetInstanceScale")
-    private Float petInstanceScale;
+    private float petInstanceScale;
 
     @Column("MountPoofSpellVisualKitID")
-    private Integer mountPoofSpellVisualKitID;
+    private int mountPoofSpellVisualKitID;
 
     @Column("TextureVariationFileDataID1")
-    private Integer textureVariationFileDataID1;
+    private int textureVariationFileDataID1;
 
     @Column("TextureVariationFileDataID2")
-    private Integer textureVariationFileDataID2;
+    private int textureVariationFileDataID2;
 
     @Column("TextureVariationFileDataID3")
-    private Integer textureVariationFileDataID3;
+    private int textureVariationFileDataID3;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

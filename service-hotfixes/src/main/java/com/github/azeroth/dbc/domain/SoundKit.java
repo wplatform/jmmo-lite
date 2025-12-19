@@ -43,53 +43,53 @@ public class SoundKit implements DbcEntity {
     private int id;
 
     @Column("VolumeFloat")
-    private Float volumeFloat;
+    private float volumeFloat;
 
     @Column("MinDistance")
-    private Float minDistance;
+    private float minDistance;
 
     @Column("DistanceCutoff")
-    private Float distanceCutoff;
+    private float distanceCutoff;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("SoundEntriesAdvancedID")
-    private Integer soundEntriesAdvancedID;
+    private int soundEntriesAdvancedID;
 
     @Column("SoundType")
-    private Byte soundType;
+    private byte soundType;
 
     @Column("DialogType")
-    private Byte dialogType;
+    private byte dialogType;
 
     @Column("EAXDef")
-    private Byte eAXDef;
+    private byte eAXDef;
 
     @Column("VolumeVariationPlus")
-    private Float volumeVariationPlus;
+    private float volumeVariationPlus;
 
     @Column("VolumeVariationMinus")
-    private Float volumeVariationMinus;
+    private float volumeVariationMinus;
 
     @Column("PitchVariationPlus")
-    private Float pitchVariationPlus;
+    private float pitchVariationPlus;
 
     @Column("PitchVariationMinus")
-    private Float pitchVariationMinus;
+    private float pitchVariationMinus;
 
     @Column("PitchAdjust")
-    private Float pitchAdjust;
+    private float pitchAdjust;
 
     @Column("BusOverwriteID")
-    private Short busOverwriteID;
+    private short busOverwriteID;
 
     @Column("MaxInstances")
-    private Byte maxInstances;
+    private byte maxInstances;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

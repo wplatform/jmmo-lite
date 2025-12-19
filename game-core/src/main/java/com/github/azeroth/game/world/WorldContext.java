@@ -3,6 +3,7 @@ package com.github.azeroth.game.world;
 import com.github.azeroth.common.Locale;
 import com.github.azeroth.dbc.DbcObjectManager;
 import com.github.azeroth.dbc.GameTableManager;
+import com.github.azeroth.game.ai.*;
 import com.github.azeroth.game.battlefield.BattleFieldManager;
 import com.github.azeroth.game.chat.LanguageManager;
 import com.github.azeroth.game.condition.PlayerConditions;
@@ -34,6 +35,7 @@ import com.github.azeroth.game.map.collision.VMapManager;
 import com.github.azeroth.game.movement.waypoint.WayPointManager;
 import com.github.azeroth.game.pools.PoolManager;
 import com.github.azeroth.game.pvp.OutdoorPvpManager;
+import com.github.azeroth.game.script.ScriptManager;
 import com.github.azeroth.game.spell.SpellManager;
 import com.github.azeroth.game.world.setting.WorldSetting;
 
@@ -139,6 +141,14 @@ public interface WorldContext {
 
     default WayPointManager getWayPointManager() {
         return getBean(WayPointManager.class);
+    }
+
+    default ObjectAiFactory getObjectAiFactory() {
+        return getBean(ObjectAiFactory.class);
+    }
+
+    default ScriptManager getScriptManager() {
+        return getBean(ScriptManager.class);
     }
 
 

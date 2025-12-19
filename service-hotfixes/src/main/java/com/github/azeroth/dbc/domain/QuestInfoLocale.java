@@ -27,7 +27,7 @@ public class QuestInfoLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("InfoName_lang")

@@ -1512,7 +1512,7 @@ public abstract class WorldObject extends GenericObject {
 
         // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
         // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
-        if (spellInfo.getHasOnlyDamageEffects() && victim.isImmunedToDamage(spellInfo)) {
+        if (spellInfo.hasOnlyDamageEffects() && victim.isImmunedToDamage(spellInfo)) {
             return SpellMissInfo.IMMUNE;
         }
 
@@ -1775,16 +1775,17 @@ public abstract class WorldObject extends GenericObject {
     public final SpellCastResult castSpell(WorldObject target, int spellId, Spell triggeringSpell) {
         CastSpellExtraArgs args = new CastSpellExtraArgs(true);
         args.triggeringSpell = triggeringSpell;
-
-        return castSpell(target, spellId, args);
+        return castSpell(new CastSpellTargetArg(target), spellId, args);
     }
 
+    public final SpellCastResult castSpell(WorldObject target, int spellId, Difficulty difficulty) {
+        return castSpell(new CastSpellTargetArg(target), spellId, new CastSpellExtraArgs(difficulty));
+    }
 
     public final SpellCastResult castSpell(WorldObject target, int spellId, AuraEffect triggeringAura) {
         CastSpellExtraArgs args = new CastSpellExtraArgs(true);
         args.triggeringAura = triggeringAura;
-
-        return castSpell(target, spellId, args);
+        return castSpell(new CastSpellTargetArg(target), spellId, args);
     }
 
     public final SpellCastResult castSpell(WorldObject target, int spellId, boolean triggered) {
@@ -1798,8 +1799,7 @@ public abstract class WorldObject extends GenericObject {
     public final SpellCastResult castSpell(WorldObject target, int spellId, boolean triggered, Byte empowerStage) {
         CastSpellExtraArgs args = new CastSpellExtraArgs(triggered);
         args.empowerStage = empowerStage;
-
-        return castSpell(target, spellId, args);
+        return castSpell(new CastSpellTargetArg(target), spellId, args);
     }
 
     public final SpellCastResult castSpell(WorldObject target, int spellId, TriggerCastFlag triggerCastFlag) {
@@ -1809,8 +1809,7 @@ public abstract class WorldObject extends GenericObject {
     public final SpellCastResult castSpell(WorldObject target, int spellId, TriggerCastFlag triggerCastFlags, boolean triggered) {
         CastSpellExtraArgs args = new CastSpellExtraArgs(triggered);
         args.triggerFlags = triggerCastFlags;
-
-        return castSpell(target, spellId, args);
+        return castSpell(new CastSpellTargetArg(target), spellId, args);
     }
 
     public final SpellCastResult castSpell(WorldObject target, int spellId, float bp0Val) {
@@ -1820,8 +1819,7 @@ public abstract class WorldObject extends GenericObject {
     public final SpellCastResult castSpell(WorldObject target, int spellId, float bp0Val, boolean triggered) {
         CastSpellExtraArgs args = new CastSpellExtraArgs(triggered);
         args.spellValueOverrides.put(SpellValueMod.BASE_POINT0, bp0Val);
-
-        return castSpell(target, spellId, args);
+        return castSpell(new CastSpellTargetArg(target), spellId, args);
     }
 
     public final SpellCastResult castSpell(WorldObject target, int spellId, SpellValueMod spellValueMod, float bp0Val) {
@@ -1831,8 +1829,7 @@ public abstract class WorldObject extends GenericObject {
     public final SpellCastResult castSpell(WorldObject target, int spellId, SpellValueMod spellValueMod, float bp0Val, boolean triggered) {
         CastSpellExtraArgs args = new CastSpellExtraArgs(triggered);
         args.spellValueOverrides.put(spellValueMod, bp0Val);
-
-        return castSpell(target, spellId, args);
+        return castSpell(new CastSpellTargetArg(target), spellId, args);
     }
 
 
@@ -1841,9 +1838,6 @@ public abstract class WorldObject extends GenericObject {
     }
 
 
-    public final SpellCastResult castSpell(WorldObject target, int spellId, CastSpellExtraArgs args) {
-        return castSpell(new CastSpellTargetArg(target), spellId, args);
-    }
 
     public final SpellCastResult castSpell(float x, float y, float z, int spellId) {
         return castSpell(x, y, z, spellId, false);
@@ -2168,8 +2162,8 @@ public abstract class WorldObject extends GenericObject {
                 return true;
             }
 
-            return playerAffectingAttacker.hasPvpFlag(UnitPVPStateFlag.UNIT_BYTE2_FLAG_UNK1)
-                    || playerAffectingTarget.hasPvpFlag(UnitPVPStateFlag.UNIT_BYTE2_FLAG_UNK1);
+            return playerAffectingAttacker.hasPvpFlag(UnitPVPStateFlag.UNK1)
+                    || playerAffectingTarget.hasPvpFlag(UnitPVPStateFlag.UNK1);
         }
 
         return true;
@@ -2335,9 +2329,9 @@ public abstract class WorldObject extends GenericObject {
 
                         var delay = (int) Math.floor(hitDelay * 1000.0f);
                         // Schedule charge drop
-                        aurEff.getBase().dropChargeDelayed(delay, AuraRemoveMode.Expire);
+                        aurEff.getBase().dropChargeDelayed(delay, AuraRemoveMode.EXPIRE);
                     } else {
-                        aurEff.getBase().dropCharge(AuraRemoveMode.Expire);
+                        aurEff.getBase().dropCharge(AuraRemoveMode.EXPIRE);
                     }
 
                     return magnet;

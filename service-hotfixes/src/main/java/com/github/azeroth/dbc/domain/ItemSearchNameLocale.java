@@ -27,7 +27,7 @@ public class ItemSearchNameLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Display_lang")

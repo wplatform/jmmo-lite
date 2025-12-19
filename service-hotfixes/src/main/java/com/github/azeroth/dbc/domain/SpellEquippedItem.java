@@ -31,20 +31,20 @@ public class SpellEquippedItem implements DbcEntity {
     private int id;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Column("EquippedItemInvTypes")
-    private Integer equippedItemInvTypes;
+    private int equippedItemInvTypes;
 
     @Column("EquippedItemSubclass")
-    private Integer equippedItemSubclass;
+    private int equippedItemSubclass;
 
     @Column("EquippedItemClass")
-    private Byte equippedItemClass;
+    private byte equippedItemClass;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

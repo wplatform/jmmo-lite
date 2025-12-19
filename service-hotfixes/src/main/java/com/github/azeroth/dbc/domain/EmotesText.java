@@ -32,11 +32,11 @@ public class EmotesText implements DbcEntity {
     private String name;
 
     @Column("EmoteID")
-    private Short emoteID;
+    private short emoteID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

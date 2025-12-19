@@ -39,146 +39,146 @@ public class Holiday implements DbcEntity {
     private int id;
 
     @Column("Date1")
-    private Integer date1;
+    private int date1;
 
     @Column("Date2")
-    private Integer date2;
+    private int date2;
 
     @Column("Date3")
-    private Integer date3;
+    private int date3;
 
     @Column("Date4")
-    private Integer date4;
+    private int date4;
 
     @Column("Date5")
-    private Integer date5;
+    private int date5;
 
     @Column("Date6")
-    private Integer date6;
+    private int date6;
 
     @Column("Date7")
-    private Integer date7;
+    private int date7;
 
     @Column("Date8")
-    private Integer date8;
+    private int date8;
 
     @Column("Date9")
-    private Integer date9;
+    private int date9;
 
     @Column("Date10")
-    private Integer date10;
+    private int date10;
 
     @Column("Date11")
-    private Integer date11;
+    private int date11;
 
     @Column("Date12")
-    private Integer date12;
+    private int date12;
 
     @Column("Date13")
-    private Integer date13;
+    private int date13;
 
     @Column("Date14")
-    private Integer date14;
+    private int date14;
 
     @Column("Date15")
-    private Integer date15;
+    private int date15;
 
     @Column("Date16")
-    private Integer date16;
+    private int date16;
 
     @Column("Duration1")
-    private Short duration1;
+    private short duration1;
 
     @Column("Duration2")
-    private Short duration2;
+    private short duration2;
 
     @Column("Duration3")
-    private Short duration3;
+    private short duration3;
 
     @Column("Duration4")
-    private Short duration4;
+    private short duration4;
 
     @Column("Duration5")
-    private Short duration5;
+    private short duration5;
 
     @Column("Duration6")
-    private Short duration6;
+    private short duration6;
 
     @Column("Duration7")
-    private Short duration7;
+    private short duration7;
 
     @Column("Duration8")
-    private Short duration8;
+    private short duration8;
 
     @Column("Duration9")
-    private Short duration9;
+    private short duration9;
 
     @Column("Duration10")
-    private Short duration10;
+    private short duration10;
 
     @Column("Region")
-    private Short region;
+    private short region;
 
     @Column("Looping")
-    private Byte looping;
+    private byte looping;
 
     @Column("CalendarFlags1")
-    private Byte calendarFlags1;
+    private byte calendarFlags1;
 
     @Column("CalendarFlags2")
-    private Byte calendarFlags2;
+    private byte calendarFlags2;
 
     @Column("CalendarFlags3")
-    private Byte calendarFlags3;
+    private byte calendarFlags3;
 
     @Column("CalendarFlags4")
-    private Byte calendarFlags4;
+    private byte calendarFlags4;
 
     @Column("CalendarFlags5")
-    private Byte calendarFlags5;
+    private byte calendarFlags5;
 
     @Column("CalendarFlags6")
-    private Byte calendarFlags6;
+    private byte calendarFlags6;
 
     @Column("CalendarFlags7")
-    private Byte calendarFlags7;
+    private byte calendarFlags7;
 
     @Column("CalendarFlags8")
-    private Byte calendarFlags8;
+    private byte calendarFlags8;
 
     @Column("CalendarFlags9")
-    private Byte calendarFlags9;
+    private byte calendarFlags9;
 
     @Column("CalendarFlags10")
-    private Byte calendarFlags10;
+    private byte calendarFlags10;
 
     @Column("Priority")
-    private Byte priority;
+    private byte priority;
 
     @Column("CalendarFilterType")
-    private Byte calendarFilterType;
+    private byte calendarFilterType;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("HolidayNameID")
-    private Integer holidayNameID;
+    private int holidayNameID;
 
     @Column("HolidayDescriptionID")
-    private Integer holidayDescriptionID;
+    private int holidayDescriptionID;
 
     @Column("TextureFileDataID1")
-    private Integer textureFileDataID1;
+    private int textureFileDataID1;
 
     @Column("TextureFileDataID2")
-    private Integer textureFileDataID2;
+    private int textureFileDataID2;
 
     @Column("TextureFileDataID3")
-    private Integer textureFileDataID3;
+    private int textureFileDataID3;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

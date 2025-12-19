@@ -33,26 +33,26 @@ public class WorldEffect implements DbcEntity {
     private int id;
 
     @Column("TargetAsset")
-    private Integer targetAsset;
+    private int targetAsset;
 
     @Column("CombatConditionID")
-    private Short combatConditionID;
+    private short combatConditionID;
 
     @Column("TargetType")
-    private Byte targetType;
+    private byte targetType;
 
     @Column("WhenToDisplay")
-    private Byte whenToDisplay;
+    private byte whenToDisplay;
 
     @Column("QuestFeedbackEffectID")
-    private Integer questFeedbackEffectID;
+    private int questFeedbackEffectID;
 
     @Column("PlayerConditionID")
-    private Integer playerConditionID;
+    private int playerConditionID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

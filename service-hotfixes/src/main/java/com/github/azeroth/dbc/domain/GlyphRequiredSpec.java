@@ -30,14 +30,14 @@ public class GlyphRequiredSpec implements DbcEntity {
     private int id;
 
     @Column("ChrSpecializationID")
-    private Short chrSpecializationID;
+    private short chrSpecializationID;
 
     @Column("GlyphPropertiesID")
-    private Short glyphPropertiesID;
+    private short glyphPropertiesID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

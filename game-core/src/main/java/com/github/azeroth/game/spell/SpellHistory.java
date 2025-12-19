@@ -520,7 +520,7 @@ public class SpellHistory {
         var player = getPlayerOwner();
 
         if (player) {
-            var category = spellInfo.getCategory();
+            var category = spellInfo.getCategoryId();
             tangible.RefObject<Integer> tempRef_category = new tangible.RefObject<Integer>(category);
             getCooldownDurations(spellInfo, itemId, tempRef_category);
             category = tempRef_category.refArgValue;
@@ -735,7 +735,7 @@ public class SpellHistory {
         category = tempRef_category.refArgValue;
 
         if (category == 0) {
-            category = spellInfo.getCategory();
+            category = spellInfo.getCategoryId();
         }
 
         if (category == 0) {
@@ -752,7 +752,7 @@ public class SpellHistory {
         if (entry != null) {
             end = entry.cooldownEnd;
         } else {
-            var cooldownEntry = categoryCooldowns.get(spellInfo.getCategory());
+            var cooldownEntry = categoryCooldowns.get(spellInfo.getCategoryId());
 
             if (cooldownEntry == null) {
                 return duration.Zero;
@@ -794,7 +794,7 @@ public class SpellHistory {
     }
 
     public final Duration getRemainingCategoryCooldown(SpellInfo spellInfo) {
-        return getRemainingCategoryCooldown(spellInfo.getCategory());
+        return getRemainingCategoryCooldown(spellInfo.getCategoryId());
     }
 
     public final void lockSpellSchool(SpellSchoolMask schoolMask, Duration lockoutTime) {
@@ -1228,7 +1228,7 @@ public class SpellHistory {
         // if no cooldown found above then base at DBC data
         if (tmpCooldown < duration.Zero && tmpCategoryCooldown < duration.Zero) {
             tmpCooldown = duration.ofSeconds(spellInfo.getRecoveryTime());
-            tmpCategoryId = spellInfo.getCategory();
+            tmpCategoryId = spellInfo.getCategoryId();
             tmpCategoryCooldown = duration.ofSeconds(spellInfo.getCategoryRecoveryTime());
         }
 

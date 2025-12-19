@@ -1,7 +1,9 @@
-package com.github.azeroth.game.map;
+package com.github.azeroth.game.domain.instance;
 
 import com.github.azeroth.game.domain.object.Position;
+import lombok.Data;
 
+@Data
 public class AreaBoundary {
     private final boolean isInvertedBoundary;
 

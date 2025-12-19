@@ -30,17 +30,17 @@ public class GarrFollowerXAbility implements DbcEntity {
     private int id;
 
     @Column("GarrAbilityID")
-    private Short garrAbilityID;
+    private short garrAbilityID;
 
     @Column("FactionIndex")
-    private Byte factionIndex;
+    private byte factionIndex;
 
     @Column("GarrFollowerID")
-    private Short garrFollowerID;
+    private short garrFollowerID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

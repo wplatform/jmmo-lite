@@ -1,5 +1,7 @@
 package com.github.azeroth.game.map;
 
+import com.github.azeroth.game.domain.instance.AreaBoundary;
+
 public class ZRangeBoundary extends AreaBoundary {
     private final float minZ;
     private final float maxZ;

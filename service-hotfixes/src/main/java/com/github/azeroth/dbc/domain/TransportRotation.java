@@ -30,26 +30,26 @@ public class TransportRotation implements DbcEntity {
     private int id;
 
     @Column("TimeIndex")
-    private Integer timeIndex;
+    private int timeIndex;
 
     @Column("Rot1")
-    private Float rot1;
+    private float rot1;
 
     @Column("Rot2")
-    private Float rot2;
+    private float rot2;
 
     @Column("Rot3")
-    private Float rot3;
+    private float rot3;
 
     @Column("Rot4")
-    private Float rot4;
+    private float rot4;
 
     @Column("GameObjectsID")
-    private Integer gameObjectsID;
+    private int gameObjectsID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

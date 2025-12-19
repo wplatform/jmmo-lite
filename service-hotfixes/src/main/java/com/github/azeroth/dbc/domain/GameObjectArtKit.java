@@ -29,20 +29,20 @@ public class GameObjectArtKit implements DbcEntity {
     private int id;
 
     @Column("AttachModelFileID")
-    private Integer attachModelFileID;
+    private int attachModelFileID;
 
     @Column("TextureVariationFileID1")
-    private Integer textureVariationFileID1;
+    private int textureVariationFileID1;
 
     @Column("TextureVariationFileID2")
-    private Integer textureVariationFileID2;
+    private int textureVariationFileID2;
 
     @Column("TextureVariationFileID3")
-    private Integer textureVariationFileID3;
+    private int textureVariationFileID3;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -1,8 +1,8 @@
-package com.github.azeroth.game.map;
+package com.github.azeroth.game.domain.instance;
 
 public class BossBoundaryEntry {
     private int bossId;
-    private Areaboundary boundary;
+    private AreaBoundary boundary;
 
     public BossBoundaryEntry(int bossId, AreaBoundary boundary) {
         setBossId(bossId);

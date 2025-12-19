@@ -32,38 +32,38 @@ public class GameObjectDisplayInfo implements DbcEntity {
     private int id;
 
     @Column("FileDataID")
-    private Integer fileDataID;
+    private int fileDataID;
 
     @Column("GeoBoxMinX")
-    private Float geoBoxMinX;
+    private float geoBoxMinX;
 
     @Column("GeoBoxMinY")
-    private Float geoBoxMinY;
+    private float geoBoxMinY;
 
     @Column("GeoBoxMinZ")
-    private Float geoBoxMinZ;
+    private float geoBoxMinZ;
 
     @Column("GeoBoxMaxX")
-    private Float geoBoxMaxX;
+    private float geoBoxMaxX;
 
     @Column("GeoBoxMaxY")
-    private Float geoBoxMaxY;
+    private float geoBoxMaxY;
 
     @Column("GeoBoxMaxZ")
-    private Float geoBoxMaxZ;
+    private float geoBoxMaxZ;
 
     @Column("OverrideLootEffectScale")
-    private Float overrideLootEffectScale;
+    private float overrideLootEffectScale;
 
     @Column("OverrideNameScale")
-    private Float overrideNameScale;
+    private float overrideNameScale;
 
     @Column("ObjectEffectPackageID")
-    private Short objectEffectPackageID;
+    private short objectEffectPackageID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

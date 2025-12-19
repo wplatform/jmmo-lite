@@ -30,16 +30,16 @@ public class GemProperty implements DbcEntity {
     private int id;
 
     @Column("Type")
-    private Integer type;
+    private int type;
 
     @Column("EnchantId")
-    private Short enchantId;
+    private short enchantId;
 
     @Column("MinItemLevel")
-    private Short minItemLevel;
+    private short minItemLevel;
 
     @Id
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

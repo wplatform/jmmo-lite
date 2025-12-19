@@ -33,6 +33,6 @@ public class HotfixOptionalDatum {
 
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

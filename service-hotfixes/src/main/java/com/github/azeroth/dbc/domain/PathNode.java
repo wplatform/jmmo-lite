@@ -33,19 +33,19 @@ public class PathNode implements DbcEntity, Comparable<PathNode> {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("PathID")
-    private Integer pathID;
+    private int pathID;
 
 
     @Column("Sequence")
-    private Short sequence;
+    private short sequence;
 
 
     @Column("LocationID")
-    private Integer locationID;
+    private int locationID;
 
     @Override
     public int compareTo(PathNode o) {

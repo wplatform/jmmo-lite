@@ -38,14 +38,14 @@ public class ChatChannel implements DbcEntity {
     private LocalizedString shortcut;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("FactionGroup")
-    private Byte factionGroup;
+    private byte factionGroup;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

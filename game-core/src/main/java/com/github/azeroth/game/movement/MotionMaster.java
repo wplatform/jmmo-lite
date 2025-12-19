@@ -1,6 +1,8 @@
 package com.github.azeroth.game.movement;
 
 
+import com.badlogic.gdx.math.Vector3;
+import com.github.azeroth.common.EnumFlag;
 import com.github.azeroth.game.domain.object.Position;
 import com.github.azeroth.game.domain.object.enums.TypeId;
 import com.github.azeroth.game.domain.unit.UnitState;
@@ -14,12 +16,15 @@ import com.github.azeroth.game.movement.spline.MoveSpline;
 import com.github.azeroth.game.movement.spline.MoveSplineInit;
 import com.github.azeroth.utils.MathUtil;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
+@Setter
 public class MotionMaster {
     public static final float GRAVITY = 19.29110527038574f;
     public static final float SPEED_CHARGE = 42.0f;
@@ -31,9 +36,9 @@ public class MotionMaster {
     private final TreeSet<MovementGenerator> generators = new TreeSet<>();
 
     private final EnumMap<UnitState, List<MovementGenerator>> baseUnitStatesMap = new EnumMap<>(UnitState.class);
-    private final DelayQueue<DelayedAction> delayedActions = new DelayQueue<>();
+    private final LinkedList<DelayedAction> delayedActions = new LinkedList<>();
     private volatile MovementGenerator defaultGenerator;
-    private MotionMasterFlag flags = MotionMasterFlag.NONE;
+    private final EnumFlag<MotionMasterFlag> flags = EnumFlag.of();
 
     public MotionMaster(Unit unit) {
         owner = unit;
@@ -69,26 +74,15 @@ public class MotionMaster {
 
 
 
-    private ConcurrentQueue<DelayedAction> getDelayedActions() {
-        return delayedActions;
-    }
-
-    private MotionMasterFlags getFlags() {
-        return flags;
-    }
-
-    private void setFlags(MotionMasterFlag value) {
-        flags = value;
-    }
 
     public final void initialize() {
-        if (hasFlag(MotionMasterFlags.InitializationPending)) {
+        if (hasFlag(MotionMasterFlag.INITIALIZATION_PENDING)) {
             return;
         }
 
-        if (hasFlag(MotionMasterFlags.Update)) {
+        if (hasFlag(MotionMasterFlag.UPDATE)) {
 
-            getDelayedActions().Enqueue(new DelayedAction(this::Initialize, MotionMasterDelayedActionType.Initialize));
+            delayedActions.offer(new DelayedAction(this::Initialize, MotionMasterDelayedActionType.INITIALIZE));
 
             return;
         }
@@ -97,21 +91,21 @@ public class MotionMaster {
     }
 
     public final void initializeDefault() {
-        add(AISelector.selectMovementGenerator(getOwner()), MovementSlot.Default);
+        add(game.ai.AISelector.selectMovementGenerator(getOwner()), MovementSlot.Default);
     }
 
     public final void addToWorld() {
-        if (!hasFlag(MotionMasterFlags.InitializationPending)) {
+        if (!hasFlag(MotionMasterFlag.INITIALIZATION_PENDING)) {
             return;
         }
 
-        addFlag(MotionMasterFlags.Initializing);
-        removeFlag(MotionMasterFlags.InitializationPending);
+        addFlag(MotionMasterFlag.Initializing);
+        removeFlag(MotionMasterFlag.InitializationPending);
 
         directInitialize();
         resolveDelayedActions();
 
-        removeFlag(MotionMasterFlags.Initializing);
+        removeFlag(MotionMasterFlag.Initializing);
     }
 
     public final boolean empty() {
@@ -320,16 +314,16 @@ public class MotionMaster {
                 return;
             }
 
-            if (hasFlag(MotionMasterFlags.InitializationPending.getValue() | MotionMasterFlags.Initializing.getValue())) {
+            if (hasFlag(MotionMasterFlag.InitializationPending.getValue() | MotionMasterFlag.Initializing.getValue())) {
                 return;
             }
 
-            addFlag(MotionMasterFlags.Update);
+            addFlag(MotionMasterFlag.Update);
 
             var top = getCurrentMovementGenerator();
 
-            if (hasFlag(MotionMasterFlags.StaticInitializationPending) && isStatic(top)) {
-                removeFlag(MotionMasterFlags.StaticInitializationPending);
+            if (hasFlag(MotionMasterFlag.StaticInitializationPending) && isStatic(top)) {
+                removeFlag(MotionMasterFlag.StaticInitializationPending);
                 top.initialize(getOwner());
             }
 
@@ -352,7 +346,7 @@ public class MotionMaster {
         } catch (RuntimeException ex) {
             Log.outException(ex, "");
         } finally {
-            removeFlag(MotionMasterFlags.Update);
+            removeFlag(MotionMasterFlag.Update);
         }
     }
 
@@ -365,7 +359,7 @@ public class MotionMaster {
             return;
         }
 
-        if (hasFlag(MotionMasterFlags.Delayed)) {
+        if (hasFlag(MotionMasterFlag.Delayed)) {
             getDelayedActions().Enqueue(new DelayedAction(() -> remove(movement, slot), MotionMasterDelayedActionType.Remove));
 
             return;
@@ -403,7 +397,7 @@ public class MotionMaster {
 
     public final void remove(MovementGeneratorType type, MovementSlot slot) {
 
-        if (hasFlag(MotionMasterFlags.Delayed)) {
+        if (hasFlag(MotionMasterFlag.Delayed)) {
             getDelayedActions().Enqueue(new DelayedAction(() -> remove(type, slot), MotionMasterDelayedActionType.RemoveType));
 
             return;
@@ -438,7 +432,7 @@ public class MotionMaster {
     }
 
     public final void clear() {
-        if (hasFlag(MotionMasterFlags.Delayed)) {
+        if (hasFlag(MotionMasterFlag.Delayed)) {
             getDelayedActions().Enqueue(new DelayedAction(this::Clear, MotionMasterDelayedActionType.Clear));
 
             return;
@@ -451,7 +445,7 @@ public class MotionMaster {
 
     public final void clear(MovementSlot slot) {
 
-        if (hasFlag(MotionMasterFlags.Delayed)) {
+        if (hasFlag(MotionMasterFlag.Delayed)) {
             getDelayedActions().Enqueue(new DelayedAction(() -> clear(slot), MotionMasterDelayedActionType.ClearSlot));
 
             return;
@@ -476,7 +470,7 @@ public class MotionMaster {
     }
 
     public final void clear(MovementGeneratorMode mode) {
-        if (hasFlag(MotionMasterFlags.Delayed)) {
+        if (hasFlag(MotionMasterFlag.Delayed)) {
             getDelayedActions().Enqueue(new DelayedAction(() -> clear(mode), MotionMasterDelayedActionType.ClearMode));
 
             return;
@@ -490,7 +484,7 @@ public class MotionMaster {
     }
 
     public final void clear(MovementGeneratorPriority priority) {
-        if (hasFlag(MotionMasterFlags.Delayed)) {
+        if (hasFlag(MotionMasterFlag.DELAYED)) {
 
             getDelayedActions().Enqueue(new DelayedAction(() -> clear(priority), MotionMasterDelayedActionType.ClearPriority));
 
@@ -539,7 +533,7 @@ public class MotionMaster {
         var movementGenerator = getCurrentMovementGenerator();
 
         if (movementGenerator != null) {
-            if (movementGenerator.hasFlag(MovementGeneratorFlags.PersistOnDeath)) {
+            if (movementGenerator.hasFlag(MovementGeneratorFlag.PERSIST_ON_DEATH)) {
                 return false;
             }
         }
@@ -560,7 +554,7 @@ public class MotionMaster {
     }
 
     public final void moveIdle() {
-        add(getIdleMovementGenerator(), MovementSlot.Default);
+        add(getIdleMovementGenerator(), MovementSlot.DEFAULT);
     }
 
     public final void moveTargetedHome() {
@@ -589,24 +583,24 @@ public class MotionMaster {
 
     public final void moveRandom(float wanderDistance, Duration duration) {
         if (getOwner().isTypeId(TypeId.UNIT)) {
-            add(new RandomMovementGenerator(wanderDistance, duration), MovementSlot.Default);
+            add(new RandomMovementGenerator(wanderDistance, duration), MovementSlot.DEFAULT);
         }
     }
 
     public final void moveFollow(Unit target, float dist, float angle) {
-        moveFollow(target, dist, angle, MovementSlot.active);
+        moveFollow(target, dist, angle, MovementSlot.ACTIVE);
     }
 
     public final void moveFollow(Unit target, float dist) {
-        moveFollow(target, dist, 0.0f, MovementSlot.active);
+        moveFollow(target, dist, 0.0f, MovementSlot.ACTIVE);
     }
 
     public final void moveFollow(Unit target, float dist, float angle, MovementSlot slot) {
-        moveFollow(target, dist, new chaseAngle(angle), slot);
+        moveFollow(target, dist, new ChaseAngle(angle), slot);
     }
 
     public final void moveFollow(Unit target, float dist, ChaseAngle angle) {
-        moveFollow(target, dist, angle, MovementSlot.active);
+        moveFollow(target, dist, angle, MovementSlot.ACTIVE);
     }
 
     public final void moveFollow(Unit target, float dist, ChaseAngle angle, MovementSlot slot) {
@@ -715,7 +709,7 @@ public class MotionMaster {
 
 
     public final void moveCloserAndStop(int id, Unit target, float distance) {
-        var distanceToTravel = getOwner().getLocation().getExactdist2D(target.getLocation()) - distance;
+        var distanceToTravel = getOwner().getLocation().getExactDist2D(target.getLocation()) - distance;
 
         if (distanceToTravel > 0.0f) {
             var angle = getOwner().getLocation().getAbsoluteAngle(target.getLocation());
@@ -1284,7 +1278,7 @@ public class MotionMaster {
         }
 
 
-        if (hasFlag(MotionMasterFlags.Delayed)) {
+        if (hasFlag(MotionMasterFlag.Delayed)) {
 
             getDelayedActions().Enqueue(new DelayedAction(() -> add(movement, slot), MotionMasterDelayedActionType.Add));
         } else {
@@ -1422,7 +1416,7 @@ public class MotionMaster {
                 setDefaultGenerator(movement);
 
                 if (isStatic(movement)) {
-                    addFlag(MotionMasterFlags.StaticInitializationPending);
+                    addFlag(MotionMasterFlag.StaticInitializationPending);
                 }
 
                 break;
@@ -1464,7 +1458,7 @@ public class MotionMaster {
     private void deleteDefault(boolean active, boolean movementInform) {
         getDefaultGenerator().finalize(getOwner(), active, movementInform);
         setDefaultGenerator(getIdleMovementGenerator());
-        addFlag(MotionMasterFlags.StaticInitializationPending);
+        addFlag(MotionMasterFlag.StaticInitializationPending);
     }
 
     private void addBaseUnitState(MovementGenerator movement) {
@@ -1504,15 +1498,15 @@ public class MotionMaster {
         }
     }
 
-    private void addFlag(MotionMasterFlags flag) {
-        setFlags(MotionMasterFlags.forValue(getFlags().getValue() | flag.getValue()));
+    private void addFlag(MotionMasterFlag flag) {
+        setFlags(MotionMasterFlag.forValue(getFlags().getValue() | flag.getValue()));
     }
 
-    private boolean hasFlag(MotionMasterFlags flag) {
+    private boolean hasFlag(MotionMasterFlag flag) {
         return (getFlags().getValue() & flag.getValue()) != 0;
     }
 
-    private void removeFlag(MotionMasterFlags flag) {
-        setFlags(MotionMasterFlags.forValue(getFlags().getValue() & ~flag.getValue()));
+    private void removeFlag(MotionMasterFlag flag) {
+        setFlags(MotionMasterFlag.forValue(getFlags().getValue() & ~flag.getValue()));
     }
 }

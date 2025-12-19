@@ -44,53 +44,53 @@ public class WorldMapOverlay implements DbcEntity {
     private int id;
 
     @Column("TextureWidth")
-    private Short textureWidth;
+    private short textureWidth;
 
     @Column("TextureHeight")
-    private Short textureHeight;
+    private short textureHeight;
 
     @Column("MapAreaID")
-    private Integer mapAreaID;
+    private int mapAreaID;
 
     @Column("OffsetX")
-    private Integer offsetX;
+    private int offsetX;
 
     @Column("OffsetY")
-    private Integer offsetY;
+    private int offsetY;
 
     @Column("HitRectTop")
-    private Integer hitRectTop;
+    private int hitRectTop;
 
     @Column("HitRectLeft")
-    private Integer hitRectLeft;
+    private int hitRectLeft;
 
     @Column("HitRectBottom")
-    private Integer hitRectBottom;
+    private int hitRectBottom;
 
     @Column("HitRectRight")
-    private Integer hitRectRight;
+    private int hitRectRight;
 
     @Column("PlayerConditionID")
-    private Integer playerConditionID;
+    private int playerConditionID;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("AreaID1")
-    private Integer areaID1;
+    private int areaID1;
 
     @Column("AreaID2")
-    private Integer areaID2;
+    private int areaID2;
 
     @Column("AreaID3")
-    private Integer areaID3;
+    private int areaID3;
 
     @Column("AreaID4")
-    private Integer areaID4;
+    private int areaID4;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -28,19 +28,19 @@ import lombok.ToString;
 })
 public class JournalEncounterItem implements DbcEntity {
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Column("JournalEncounterID")
-    private Short journalEncounterID;
+    private short journalEncounterID;
 
     @Column("DifficultyMask")
-    private Byte difficultyMask;
+    private byte difficultyMask;
 
     @Column("FactionMask")
-    private Byte factionMask;
+    private byte factionMask;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
@@ -50,6 +50,6 @@ public class JournalEncounterItem implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

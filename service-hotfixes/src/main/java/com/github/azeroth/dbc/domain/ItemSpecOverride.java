@@ -29,14 +29,14 @@ public class ItemSpecOverride implements DbcEntity {
     private int id;
 
     @Column("SpecID")
-    private Short specID;
+    private short specID;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

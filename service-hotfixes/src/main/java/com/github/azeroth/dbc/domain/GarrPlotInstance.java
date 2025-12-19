@@ -32,11 +32,11 @@ public class GarrPlotInstance implements DbcEntity {
     private String name;
 
     @Column("GarrPlotID")
-    private Byte garrPlotID;
+    private byte garrPlotID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

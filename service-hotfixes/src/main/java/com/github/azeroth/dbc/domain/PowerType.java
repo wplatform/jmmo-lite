@@ -45,38 +45,38 @@ public  class PowerType implements DbcEntity {
     private String costGlobalStringTag;
 
     @Column("RegenPeace")
-    private Float regenPeace;
+    private float regenPeace;
 
     @Column("RegenCombat")
-    private Float regenCombat;
+    private float regenCombat;
 
     @Column("MaxBasePower")
-    private Short maxBasePower;
+    private short maxBasePower;
 
     @Column("RegenInterruptTimeMS")
-    private Short regenInterruptTimeMS;
+    private short regenInterruptTimeMS;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("PowerTypeEnum")
-    private Byte powerTypeEnum;
+    private byte powerTypeEnum;
 
     @Column("MinPower")
-    private Byte minPower;
+    private byte minPower;
 
     @Column("CenterPower")
-    private Byte centerPower;
+    private byte centerPower;
 
     @Column("DefaultPower")
-    private Byte defaultPower;
+    private byte defaultPower;
 
     @Column("DisplayModifier")
-    private Byte displayModifier;
+    private byte displayModifier;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

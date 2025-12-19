@@ -30,17 +30,17 @@ public class GuildColorEmblem implements DbcEntity {
     private int id;
 
     @Column("Red")
-    private Short red;
+    private short red;
 
     @Column("Green")
-    private Short green;
+    private short green;
 
     @Column("Blue")
-    private Short blue;
+    private short blue;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

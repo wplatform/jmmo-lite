@@ -1,10 +1,9 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
+
 
 
 
@@ -448,13 +447,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Talk
     public final static class Talk {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint textGroupId;
         public int textGroupId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint duration;
         public int duration;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint useTalkTarget;
         public int useTalkTarget;
 
@@ -472,10 +471,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SimpleTalk
     public final static class SimpleTalk {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint textGroupId;
         public int textGroupId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint duration;
         public int duration;
 
@@ -492,7 +491,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Faction
     public final static class Faction {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint factionId;
         public int factionId;
 
@@ -508,10 +507,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct MorphOrMount
     public final static class MorphOrMount {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint creature;
         public int creature;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint model;
         public int model;
 
@@ -528,16 +527,16 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Sound
     public final static class Sound {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint soundId;
         public int soundId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint onlySelf;
         public int onlySelf;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint distance;
         public int distance;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint keyBroadcastTextId;
         public int keyBroadcastTextId;
 
@@ -556,7 +555,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Emote
     public final static class Emote {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint emoteId;
         public int emoteId;
 
@@ -572,7 +571,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Quest
     public final static class Quest {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint questId;
         public int questId;
 
@@ -588,10 +587,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct QuestOffer
     public final static class QuestOffer {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint questId;
         public int questId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint directAdd;
         public int directAdd;
 
@@ -608,7 +607,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct React
     public final static class React {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint state;
         public int state;
 
@@ -624,22 +623,22 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RandomEmote
     public final static class RandomEmote {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint emote1;
         public int emote1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint emote2;
         public int emote2;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint emote3;
         public int emote3;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint emote4;
         public int emote4;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint emote5;
         public int emote5;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint emote6;
         public int emote6;
 
@@ -660,16 +659,16 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Cast
     public final static class Cast {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spell;
         public int spell;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint castFlags;
         public int castFlags;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint triggerFlags;
         public int triggerFlags;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint targetsLimit;
         public int targetsLimit;
 
@@ -688,22 +687,22 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct CrossCast
     public final static class CrossCast {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spell;
         public int spell;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint castFlags;
         public int castFlags;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint targetType;
         public int targetType;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint targetParam1;
         public int targetParam1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint targetParam2;
         public int targetParam2;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint targetParam3;
         public int targetParam3;
 
@@ -724,25 +723,25 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SummonCreature
     public final static class SummonCreature {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint creature;
         public int creature;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint type;
         public int type;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint duration;
         public int duration;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint storageID;
         public int storageID;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint attackInvoker;
         public int attackInvoker;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint flags;
         public int flags; // SmartActionSummonCreatureFlags
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint count;
         public int count;
 
@@ -764,10 +763,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct ThreatPCT
     public final static class ThreatPCT {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint threatINC;
         public int threatINC;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint threatDEC;
         public int threatDEC;
 
@@ -784,10 +783,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct CastCreatureOrGO
     public final static class CastCreatureOrGO {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint quest;
         public int quest;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spell;
         public int spell;
 
@@ -804,10 +803,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Threat
     public final static class Threat {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint threatINC;
         public int threatINC;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint threatDEC;
         public int threatDEC;
 
@@ -824,7 +823,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct AutoAttack
     public final static class AutoAttack {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint attack;
         public int attack;
 
@@ -840,7 +839,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct CombatMove
     public final static class CombatMove {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint move;
         public int move;
 
@@ -856,7 +855,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetEventPhase
     public final static class SetEventPhase {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phase;
         public int phase;
 
@@ -872,10 +871,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct IncEventPhase
     public final static class IncEventPhase {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint inc;
         public int inc;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint dec;
         public int dec;
 
@@ -892,10 +891,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct CastedCreatureOrGO
     public final static class CastedCreatureOrGO {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint creature;
         public int creature;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spell;
         public int spell;
 
@@ -912,13 +911,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RemoveAura
     public final static class RemoveAura {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spell;
         public int spell;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint charges;
         public int charges;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint onlyOwnedAuras;
         public int onlyOwnedAuras;
 
@@ -936,19 +935,19 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Follow
     public final static class Follow {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint dist;
         public int dist;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint angle;
         public int angle;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint entry;
         public int entry;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint credit;
         public int credit;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint creditType;
         public int creditType;
 
@@ -968,22 +967,22 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RandomPhase
     public final static class RandomPhase {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phase1;
         public int phase1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phase2;
         public int phase2;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phase3;
         public int phase3;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phase4;
         public int phase4;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phase5;
         public int phase5;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phase6;
         public int phase6;
 
@@ -1004,10 +1003,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RandomPhaseRange
     public final static class RandomPhaseRange {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phaseMin;
         public int phaseMin;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint phaseMax;
         public int phaseMax;
 
@@ -1024,7 +1023,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct KilledMonster
     public final static class KilledMonster {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint creature;
         public int creature;
 
@@ -1040,13 +1039,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetInstanceData
     public final static class SetInstanceData {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint field;
         public int field;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint data;
         public int data;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint type;
         public int type;
 
@@ -1064,7 +1063,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetInstanceData64
     public final static class SetInstanceData64 {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint field;
         public int field;
 
@@ -1080,10 +1079,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct UpdateTemplate
     public final static class UpdateTemplate {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint creature;
         public int creature;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint updateLevel;
         public int updateLevel;
 
@@ -1100,10 +1099,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct CallHelp
     public final static class CallHelp {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint range;
         public int range;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint withEmote;
         public int withEmote;
 
@@ -1120,7 +1119,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetSheath
     public final static class SetSheath {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint sheath;
         public int sheath;
 
@@ -1136,10 +1135,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct ForceDespawn
     public final static class ForceDespawn {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint delay;
         public int delay;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint forceRespawnTimer;
         public int forceRespawnTimer;
 
@@ -1156,10 +1155,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct InvincHP
     public final static class InvincHP {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint minHP;
         public int minHP;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint percent;
         public int percent;
 
@@ -1176,10 +1175,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct IngamePhaseId
     public final static class IngamePhaseId {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint apply;
         public int apply;
 
@@ -1196,10 +1195,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct IngamePhaseGroup
     public final static class IngamePhaseGroup {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint groupId;
         public int groupId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint apply;
         public int apply;
 
@@ -1216,10 +1215,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetData
     public final static class SetData {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint field;
         public int field;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint data;
         public int data;
 
@@ -1236,7 +1235,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct MoveRandom
     public final static class MoveRandom {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint distance;
         public int distance;
 
@@ -1252,7 +1251,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Visibility
     public final static class Visibility {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint state;
         public int state;
 
@@ -1268,13 +1267,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SummonGO
     public final static class SummonGO {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint entry;
         public int entry;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint despawnTime;
         public int despawnTime;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint summonType;
         public int summonType;
 
@@ -1292,7 +1291,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Active
     public final static class Active {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint state;
         public int state;
 
@@ -1308,7 +1307,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Taxi
     public final static class Taxi {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
 
@@ -1324,20 +1323,20 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct WpStart
     public final static class WpStart {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint run;
         public int run;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint pathID;
         public int pathID;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint repeat;
         public int repeat;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint quest;
         public int quest;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint despawnTime;
         public int despawnTime;
         //public uint reactState; DO NOT REUSE
@@ -1358,7 +1357,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct WpPause
     public final static class WpPause {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint delay;
         public int delay;
 
@@ -1374,13 +1373,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct WpStop
     public final static class WpStop {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint despawnTime;
         public int despawnTime;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint quest;
         public int quest;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint fail;
         public int fail;
 
@@ -1398,10 +1397,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Item
     public final static class Item {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint entry;
         public int entry;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint count;
         public int count;
 
@@ -1418,7 +1417,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetRun
     public final static class SetRun {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint run;
         public int run;
 
@@ -1434,7 +1433,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetDisableGravity
     public final static class SetDisableGravity {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint disable;
         public int disable;
 
@@ -1450,7 +1449,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Teleport
     public final static class Teleport {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint mapID;
         public int mapID;
 
@@ -1466,13 +1465,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetCounter
     public final static class SetCounter {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint counterId;
         public int counterId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint value;
         public int value;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint reset;
         public int reset;
 
@@ -1490,7 +1489,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct StoreTargets
     public final static class StoreTargets {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
 
@@ -1506,22 +1505,22 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct TimeEvent
     public final static class TimeEvent {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint min;
         public int min;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint max;
         public int max;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint repeatMin;
         public int repeatMin;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint repeatMax;
         public int repeatMax;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint chance;
         public int chance;
 
@@ -1542,7 +1541,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Movie
     public final static class Movie {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint entry;
         public int entry;
 
@@ -1558,19 +1557,19 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Equip
     public final static class Equip {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint entry;
         public int entry;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint mask;
         public int mask;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint slot1;
         public int slot1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint slot2;
         public int slot2;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint slot3;
         public int slot3;
 
@@ -1590,7 +1589,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Flag
     public final static class Flag {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint flag;
         public int flag;
 
@@ -1606,10 +1605,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetunitByte
     public final static class SetunitByte {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint byte1;
         public int byte1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint type;
         public int type;
 
@@ -1626,10 +1625,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct DelunitByte
     public final static class DelunitByte {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint byte1;
         public int byte1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint type;
         public int type;
 
@@ -1646,13 +1645,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct TimedActionList
     public final static class TimedActionList {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint timerType;
         public int timerType;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint allowOverride;
         public int allowOverride;
 
@@ -1670,22 +1669,22 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RandTimedActionList
     public final static class RandTimedActionList {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint actionList1;
         public int actionList1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint actionList2;
         public int actionList2;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint actionList3;
         public int actionList3;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint actionList4;
         public int actionList4;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint actionList5;
         public int actionList5;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint actionList6;
         public int actionList6;
 
@@ -1706,10 +1705,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RandRangeTimedActionList
     public final static class RandRangeTimedActionList {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint idMin;
         public int idMin;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint idMax;
         public int idMax;
 
@@ -1726,13 +1725,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct InterruptSpellCasting
     public final static class InterruptSpellCasting {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint withDelayed;
         public int withDelayed;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spell_id;
         public int spellId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint withInstant;
         public int withInstant;
 
@@ -1750,22 +1749,22 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Jump
     public final static class Jump {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint SpeedXY;
         public int speedXY;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint SpeedZ;
         public int speedZ;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint Gravity;
         public int gravity;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint UseDefaultGravity;
         public int useDefaultGravity;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint PointId;
         public int pointId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint ContactDistance;
         public int contactDistance;
 
@@ -1786,7 +1785,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct FleeAssist
     public final static class FleeAssist {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint withEmote;
         public int withEmote;
 
@@ -1802,7 +1801,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct EnableTempGO
     public final static class EnableTempGO {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint duration;
         public int duration;
 
@@ -1818,16 +1817,16 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct MoveToPos
     public final static class MoveToPos {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint pointId;
         public int pointId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint transport;
         public int transport;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint disablePathfinding;
         public int disablePathfinding;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint contactDistance;
         public int contactDistance;
 
@@ -1846,10 +1845,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SendGossipMenu
     public final static class SendGossipMenu {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint gossipMenuId;
         public int gossipMenuId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint gossipNpcTextId;
         public int gossipNpcTextId;
 
@@ -1866,7 +1865,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetGoLootState
     public final static class SetGoLootState {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint state;
         public int state;
 
@@ -1882,7 +1881,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SendTargetToTarget
     public final static class SendTargetToTarget {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
 
@@ -1898,10 +1897,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetRangedMovement
     public final static class SetRangedMovement {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint distance;
         public int distance;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint angle;
         public int angle;
 
@@ -1918,7 +1917,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetHealthRegen
     public final static class SetHealthRegen {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint regenHealth;
         public int regenHealth;
 
@@ -1934,7 +1933,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetRoot
     public final static class SetRoot {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint root;
         public int root;
 
@@ -1950,7 +1949,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct GoState
     public final static class GoState {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint state;
         public int state;
 
@@ -1966,10 +1965,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct CreatureGroup
     public final static class CreatureGroup {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint group;
         public int group;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint attackInvoker;
         public int attackInvoker;
 
@@ -1986,10 +1985,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Power
     public final static class Power {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint powerType;
         public int powerType;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint newPower;
         public int newPower;
 
@@ -2006,7 +2005,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct GameEventStop
     public final static class GameEventStop {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
 
@@ -2022,7 +2021,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct GameEventStart
     public final static class GameEventStart {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
 
@@ -2038,22 +2037,22 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct ClosestWaypointFromList
     public final static class ClosestWaypointFromList {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint wp1;
         public int wp1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint wp2;
         public int wp2;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint wp3;
         public int wp3;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint wp4;
         public int wp4;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint wp5;
         public int wp5;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint wp6;
         public int wp6;
 
@@ -2074,7 +2073,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct MoveOffset
     public final static class MoveOffset {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint PointId;
         public int pointId;
 
@@ -2090,22 +2089,22 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RandomSound
     public final static class RandomSound {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint sound1;
         public int sound1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint sound2;
         public int sound2;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint sound3;
         public int sound3;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint sound4;
         public int sound4;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint onlySelf;
         public int onlySelf;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint distance;
         public int distance;
 
@@ -2126,10 +2125,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct CorpseDelay
     public final static class CorpseDelay {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint timer;
         public int timer;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint includeDecayRatio;
         public int includeDecayRatio;
 
@@ -2146,7 +2145,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct DisableEvade
     public final static class DisableEvade {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint disable;
         public int disable;
 
@@ -2162,16 +2161,16 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct GroupSpawn
     public final static class GroupSpawn {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint groupId;
         public int groupId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint minDelay;
         public int minDelay;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint maxDelay;
         public int maxDelay;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spawnflags;
         public int spawnflags;
 
@@ -2190,10 +2189,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct LoadEquipment
     public final static class LoadEquipment {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint force;
         public int force;
 
@@ -2210,10 +2209,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RandomTimedEvent
     public final static class RandomTimedEvent {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint minId;
         public int minId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint maxId;
         public int maxId;
 
@@ -2230,13 +2229,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct PauseMovement
     public final static class PauseMovement {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint movementSlot;
         public int movementSlot;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint pauseTimer;
         public int pauseTimer;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint force;
         public int force;
 
@@ -2254,10 +2253,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct RespawnData
     public final static class RespawnData {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spawnType;
         public int spawnType;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spawnId;
         public int spawnId;
 
@@ -2274,10 +2273,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct AnimKit
     public final static class AnimKit {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint animKit;
         public int animKit;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint type;
         public int type;
 
@@ -2294,7 +2293,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Scene
     public final static class Scene {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint sceneId;
         public int sceneId;
 
@@ -2310,7 +2309,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Cinematic
     public final static class Cinematic {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint entry;
         public int entry;
 
@@ -2326,13 +2325,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct MovementSpeed
     public final static class MovementSpeed {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint movementType;
         public int movementType;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint speedInteger;
         public int speedInteger;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint speedFraction;
         public int speedFraction;
 
@@ -2350,13 +2349,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SpellVisualKit
     public final static class SpellVisualKit {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint spellVisualKitId;
         public int spellVisualKitId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint kitType;
         public int kitType;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint duration;
         public int duration;
 
@@ -2374,16 +2373,16 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct OverrideLight
     public final static class OverrideLight {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint zoneId;
         public int zoneId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint areaLightId;
         public int areaLightId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint overrideLightId;
         public int overrideLightId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint transitionMilliseconds;
         public int transitionMilliseconds;
 
@@ -2402,13 +2401,13 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct OverrideWeather
     public final static class OverrideWeather {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint zoneId;
         public int zoneId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint weatherId;
         public int weatherId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint intensity;
         public int intensity;
 
@@ -2426,7 +2425,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetHover
     public final static class SetHover {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint enable;
         public int enable;
 
@@ -2442,7 +2441,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Evade
     public final static class Evade {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint toRespawnPosition;
         public int toRespawnPosition;
 
@@ -2458,7 +2457,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetHealthPct
     public final static class SetHealthPct {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint percent;
         public int percent;
 
@@ -2474,7 +2473,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Conversation
     public final static class Conversation {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
 
@@ -2490,7 +2489,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetImmunePC
     public final static class SetImmunePC {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint immunePC;
         public int immunePC;
 
@@ -2506,7 +2505,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetImmuneNPC
     public final static class SetImmuneNPC {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint immuneNPC;
         public int immuneNPC;
 
@@ -2522,7 +2521,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct SetUninteractible
     public final static class SetUninteractible {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint uninteractible;
         public int uninteractible;
 
@@ -2538,10 +2537,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct ActivateGameObject
     public final static class ActivateGameObject {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint gameObjectAction;
         public int gameObjectAction;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint param;
         public int param;
 
@@ -2558,7 +2557,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct AddToStoredTargets
     public final static class AddToStoredTargets {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint id;
         public int id;
 
@@ -2574,10 +2573,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct BecomePersonalClone
     public final static class BecomePersonalClone {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint type;
         public int type;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint duration;
         public int duration;
 
@@ -2594,10 +2593,10 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct TriggerGameEvent
     public final static class TriggerGameEvent {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint eventId;
         public int eventId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint useSaiTargetAsGameEventSource;
         public int useSaiTargetAsGameEventSource;
 
@@ -2614,7 +2613,7 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct DoAction
     public final static class DoAction {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint actionId;
         public int actionId;
 
@@ -2630,25 +2629,25 @@ public final class SmartAction {
 //C# TO JAVA CONVERTER WARNING: Java does not allow user-defined value types. The behavior of this class may differ from the original:
 //ORIGINAL LINE: public struct Raw
     public final static class Raw {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint param1;
         public int param1;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint param2;
         public int param2;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint param3;
         public int param3;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint param4;
         public int param4;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint param5;
         public int param5;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint param6;
         public int param6;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint param7;
         public int param7;
 

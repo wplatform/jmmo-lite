@@ -1,22 +1,18 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.entities.*;
-import game.groups.*;
-import game.movement.*;
-import game.spells.*;
-import game.*;
+
+
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.entity.creature.Creature;
+
 import java.util.*;
-
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 
 
 
 public class PetAI extends CreatureAI {
     private final ArrayList<ObjectGuid> allySet = new ArrayList<ObjectGuid>();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _updateAlliesTimer;
     private int updateAlliesTimer;
 
@@ -25,7 +21,7 @@ public class PetAI extends CreatureAI {
         updateAllies();
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
@@ -88,7 +84,7 @@ public class PetAI extends CreatureAI {
         if (!me.hasUnitState(UnitState.Casting)) {
             ArrayList<Tuple<Unit, Spell>> targetSpellStore = new ArrayList<Tuple<Unit, Spell>>();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (byte i = 0; i < Me.PetAutoSpellSize; ++i)
             for (byte i = 0; i < me.getPetAutoSpellSize(); ++i) {
                 var spellID = me.getPetAutoSpellOnPos(i);
@@ -304,7 +300,7 @@ public class PetAI extends CreatureAI {
         attackStart(target);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void MovementInform(MovementGeneratorType type, uint id)
     @Override
     public void movementInform(MovementGeneratorType type, int id) {
@@ -479,7 +475,7 @@ public class PetAI extends CreatureAI {
         damageTaken(attacker, damage, damageType, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
     @Override
     public void damageTaken(Unit attacker, tangible.RefObject<Double> damage, DamageEffectType damageType, SpellInfo spellInfo) {
@@ -606,7 +602,7 @@ public class PetAI extends CreatureAI {
                     me.getMotionMaster().remove(MovementGeneratorType.Chase);
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Me.MotionMaster.MovePoint((uint)Me.GUID.Counter, x, y, z);
                 me.getMotionMaster().movePoint((int)me.getGUID().getCounter(), x, y, z);
             }

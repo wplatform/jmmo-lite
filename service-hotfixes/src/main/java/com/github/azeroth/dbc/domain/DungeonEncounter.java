@@ -35,19 +35,19 @@ public class DungeonEncounter implements DbcEntity {
     private LocalizedString name;
 
     @Column("CreatureDisplayID")
-    private Integer creatureDisplayID;
+    private int creatureDisplayID;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("Bit")
-    private Byte bit;
+    private byte bit;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
     
@@ -55,14 +55,14 @@ public class DungeonEncounter implements DbcEntity {
     private int id;
 
     @Column("OrderIndex")
-    private Integer orderIndex;
+    private int orderIndex;
 
     @Column("SpellIconFileID")
-    private Integer spellIconFileID;
+    private int spellIconFileID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -30,53 +30,53 @@ public class RandPropPoint implements DbcEntity {
     private int id;
 
     @Column("Epic1")
-    private Integer epic1;
+    private int epic1;
 
     @Column("Epic2")
-    private Integer epic2;
+    private int epic2;
 
     @Column("Epic3")
-    private Integer epic3;
+    private int epic3;
 
     @Column("Epic4")
-    private Integer epic4;
+    private int epic4;
 
     @Column("Epic5")
-    private Integer epic5;
+    private int epic5;
 
     @Column("Superior1")
-    private Integer superior1;
+    private int superior1;
 
     @Column("Superior2")
-    private Integer superior2;
+    private int superior2;
 
     @Column("Superior3")
-    private Integer superior3;
+    private int superior3;
 
     @Column("Superior4")
-    private Integer superior4;
+    private int superior4;
 
     @Column("Superior5")
-    private Integer superior5;
+    private int superior5;
 
     @Column("Good1")
-    private Integer good1;
+    private int good1;
 
     @Column("Good2")
-    private Integer good2;
+    private int good2;
 
     @Column("Good3")
-    private Integer good3;
+    private int good3;
 
     @Column("Good4")
-    private Integer good4;
+    private int good4;
 
     @Column("Good5")
-    private Integer good5;
+    private int good5;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

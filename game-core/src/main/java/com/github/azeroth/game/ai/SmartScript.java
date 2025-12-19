@@ -1,19 +1,18 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
+
 import game.chat.*;
 import game.datastorage.*;
-import game.entities.*;
+
 import game.maps.*;
 import game.misc.*;
 import game.movement.*;
 import game.scripting.interfaces.iareatrigger.*;
 import game.spells.*;
-import game.*;
+
 import java.util.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
 
 
 
@@ -22,19 +21,19 @@ public class SmartScript {
     public ObjectGuid lastInvoker = new ObjectGuid();
 
     // Max number of nested ProcessEventsFor() calls to avoid infinite loops
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: const uint MaxNestedEvents = 10;
     private static final int MAX_NESTED_EVENTS = 10;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: readonly Dictionary<uint, uint> _counterList = new();
     private final HashMap<Integer, Integer> counterList = new HashMap<Integer, Integer>();
     private final ArrayList<SmartScriptHolder> events = new ArrayList<SmartScriptHolder>();
     private final ArrayList<SmartScriptHolder> installEvents = new ArrayList<SmartScriptHolder>();
     private final ArrayList<SmartScriptHolder> storedEvents = new ArrayList<SmartScriptHolder>();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: readonly List<uint> _remIDs = new();
     private final ArrayList<Integer> remIDs = new ArrayList<Integer>();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: readonly Dictionary<uint, ObjectGuidList> _storedTargets = new();
     private final HashMap<Integer, ObjectGuidList> storedTargets = new HashMap<Integer, ObjectGuidList>();
     private ArrayList<SmartScriptHolder> timedActionList = new ArrayList<SmartScriptHolder>();
@@ -49,30 +48,30 @@ public class SmartScript {
     private SceneTemplate sceneTemplate;
     private Quest quest;
     private SmartScriptType scriptType = SmartScriptType.values()[0];
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _eventPhase;
     private int eventPhase;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _pathId;
     private int pathId;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _textTimer;
     private int textTimer;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _lastTextID;
     private int lastTextID;
     private ObjectGuid textGUID = new ObjectGuid();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _talkerEntry;
     private int talkerEntry;
     private boolean useTextTimer;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _currentPriority;
     private int currentPriority;
     private boolean eventSortingRequired;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint _nestedEventsCounter;
     private int nestedEventsCounter;
     private SmartEventFlags allEventFlags = SmartEventFlags.values()[0];
@@ -144,9 +143,9 @@ public class SmartScript {
         processEventsFor(e, null, 0, 0, false, null, null, "");
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void ProcessEventsFor(SmartEvents e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void processEventsFor(SmartEvents e, Unit unit, int var0, int var1, boolean bvar, SpellInfo spell, GameObject gob, String varString) {
         nestedEventsCounter++;
 
@@ -183,7 +182,7 @@ public class SmartScript {
         return e.active;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public void OnUpdate(uint diff)
     public final void onUpdate(int diff) {
         if ((scriptType == SmartScriptType.Creature || scriptType == SmartScriptType.GameObject || scriptType == SmartScriptType.AreaTriggerEntity || scriptType == SmartScriptType.AreaTriggerEntityServerside) && !getBaseObject()) {
@@ -285,7 +284,7 @@ public class SmartScript {
         onInitialize(obj, null, null, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void OnInitialize(WorldObject obj, AreaTriggerRecord at = null, SceneTemplate scene = null, Quest qst = null)
     public final void onInitialize(WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest qst) {
         if (at != null) {
@@ -386,9 +385,9 @@ public class SmartScript {
         return doSelectBelowHpPctFriendlyWithEntry(entry, range, 1, true);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public Unit DoSelectBelowHpPctFriendlyWithEntry(uint entry, float range, byte minHPDiff = 1, bool excludeSelf = true)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final Unit doSelectBelowHpPctFriendlyWithEntry(int entry, float range, byte minHPDiff, boolean excludeSelf) {
         FriendlyBelowHpPctEntryInRange uCheck = new FriendlyBelowHpPctEntryInRange(me, entry, range, minHPDiff, excludeSelf);
         UnitLastSearcher searcher = new UnitLastSearcher(me, uCheck, GridType.All);
@@ -402,9 +401,9 @@ public class SmartScript {
         setTimedActionList(e, entry, invoker, 0);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker, uint startFromEventId = 0)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void setTimedActionList(SmartScriptHolder e, int entry, Unit invoker, int startFromEventId) {
         // Do NOT allow to start a new actionlist if a previous one is already running, unless explicitly allowed. We need to always finish the current actionlist
         if (e.getActionType() == SmartActions.CallTimedActionlist && e.action.timedActionList.allowOverride == 0 && !timedActionList.Empty()) {
@@ -440,13 +439,13 @@ public class SmartScript {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public void SetPathId(uint id)
     public final void setPathId(int id) {
         pathId = id;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint GetPathId()
     public final int getPathId() {
         return pathId;
@@ -486,7 +485,7 @@ public class SmartScript {
         return obj != null && obj.isTypeId(TypeId.GameObject);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public List<WorldObject> GetStoredTargetList(uint id, WorldObject obj)
     public final ArrayList<WorldObject> getStoredTargetList(int id, WorldObject obj) {
         var list = storedTargets.LookupByKey(id);
@@ -527,9 +526,9 @@ public class SmartScript {
         processAction(e, null, 0, 0, false, null, null, "");
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: void ProcessAction(SmartScriptHolder e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     private void processAction(SmartScriptHolder e, Unit unit, int var0, int var1, boolean bvar, SpellInfo spell, GameObject gob, String varString) {
         e.runOnce = true; //used for repeat check
 
@@ -591,7 +590,7 @@ public class SmartScript {
                 textTimer = e.action.talk.duration;
 
                 useTextTimer = true;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Global.CreatureTextMgr.SendChat(talker, (byte)e.Action.talk.textGroupId, talkTarget);
                 Global.getCreatureTextMgr().sendChat(talker, (byte)e.action.talk.textGroupId, talkTarget);
 
@@ -602,12 +601,12 @@ public class SmartScript {
             case SimpleTalk: {
                 for (var target : targets) {
                     if (isCreature(target)) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Global.CreatureTextMgr.SendChat(target.AsCreature, (byte)e.Action.simpleTalk.textGroupId, IsPlayer(GetLastInvoker()) ? GetLastInvoker() : null);
                         Global.getCreatureTextMgr().sendChat(target.getAsCreature(), (byte)e.action.simpleTalk.textGroupId, isPlayer(getLastInvoker()) ? getLastInvoker() : null);
                     } else if (isPlayer(target) && me != null) {
                         var templastInvoker = getLastInvoker();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Global.CreatureTextMgr.SendChat(_me, (byte)e.Action.simpleTalk.textGroupId, IsPlayer(templastInvoker) ? templastInvoker : null, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, target.AsPlayer);
                         Global.getCreatureTextMgr().sendChat(me, (byte)e.action.simpleTalk.textGroupId, isPlayer(templastInvoker) ? templastInvoker : null, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, target.getAsPlayer());
                     }
@@ -750,12 +749,12 @@ public class SmartScript {
                 break;
             }
             case RandomEmote: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: List<uint> emotes = new();
                 ArrayList<Integer> emotes = new ArrayList<Integer>();
                 var randomEmote = e.action.randomEmote.clone();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: foreach (var id in new[] { randomEmote.emote1, randomEmote.emote2, randomEmote.emote3, randomEmote.emote4, randomEmote.emote5, randomEmote.emote6})
                 for (var id : new int[] {randomEmote.emote1, randomEmote.emote2, randomEmote.emote3, randomEmote.emote4, randomEmote.emote5, randomEmote.emote6}) {
                     if (id != 0) {
@@ -843,12 +842,12 @@ public class SmartScript {
                         continue;
                     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (!e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.AuraNotPresent) || !target.AsUnit.HasAura(e.Action.cast.spell))
                     if (!e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.AuraNotPresent.getValue()) || !target.getAsUnit().hasAura(e.action.cast.spell)) {
                         var triggerFlag = TriggerCastFlags.None;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.Triggered))
                         if (e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.Triggered.getValue())) {
                             if (e.action.cast.triggerFlags != 0) {
@@ -859,7 +858,7 @@ public class SmartScript {
                         }
 
                         if (me) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.InterruptPrevious))
                             if (e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.InterruptPrevious.getValue())) {
                                 me.interruptNonMeleeSpells(false);
@@ -868,7 +867,7 @@ public class SmartScript {
                             var result = me.castSpell(target.getAsUnit(), e.action.cast.spell, new CastSpellExtraArgs(triggerFlag));
                             var spellCastFailed = (result != SpellCastResult.SpellCastOk && result != SpellCastResult.SpellInProgress);
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.CombatMove))
                             if (e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.CombatMove.getValue())) {
                                 ((SmartAI)me.getAI()).setCombatMove(spellCastFailed, true);
@@ -908,7 +907,7 @@ public class SmartScript {
 
                 var triggerFlags = TriggerCastFlags.None;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.Triggered))
                 if (e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.Triggered.getValue())) {
                     if (e.action.cast.triggerFlags != 0) {
@@ -925,10 +924,10 @@ public class SmartScript {
                         continue;
                     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (!e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.AuraNotPresent) || !uTarget.HasAura(e.Action.cast.spell))
                     if (!e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.AuraNotPresent.getValue()) || !uTarget.hasAura(e.action.cast.spell)) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.InterruptPrevious))
                         if (e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.InterruptPrevious.getValue())) {
                             uTarget.interruptNonMeleeSpells(false);
@@ -960,10 +959,10 @@ public class SmartScript {
                         continue;
                     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (!e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.AuraNotPresent) || !target.AsUnit.HasAura(e.Action.cast.spell))
                     if (!e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.AuraNotPresent.getValue()) || !target.getAsUnit().hasAura(e.action.cast.spell)) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.InterruptPrevious))
                         if (e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.InterruptPrevious.getValue())) {
                             tempLastInvoker.interruptNonMeleeSpells(false);
@@ -971,7 +970,7 @@ public class SmartScript {
 
                         var triggerFlag = TriggerCastFlags.None;
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Action.cast.castFlags.HasAnyFlag((uint)SmartCastFlags.Triggered))
                         if (e.action.cast.castFlags.HasAnyFlag((int)SmartCastFlags.Triggered.getValue())) {
                             if (e.action.cast.triggerFlags != 0) {
@@ -1092,7 +1091,7 @@ public class SmartScript {
                 me.doFleeToGetAssistance();
 
                 if (e.action.fleeAssist.withEmote != 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var builder = new BroadcastTextBuilder(_me, ChatMsg.MonsterEmote, (uint)BroadcastTextIds.FleeForAssist, _me.Gender);
                     var builder = new BroadcastTextBuilder(me, ChatMsg.MonsterEmote, (int)BroadcastTextIds.FleeForAssist.getValue(), me.getGender());
                     Global.getCreatureTextMgr().sendChatPacket(me, builder, ChatMsg.Emote);
@@ -1205,12 +1204,12 @@ public class SmartScript {
                     break;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: List<uint> phases = new();
                 ArrayList<Integer> phases = new ArrayList<Integer>();
                 var randomPhase = e.action.randomPhase.clone();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: foreach (var id in new[] { randomPhase.phase1, randomPhase.phase2, randomPhase.phase3, randomPhase.phase4, randomPhase.phase5, randomPhase.phase6 })
                 for (var id : new int[] {randomPhase.phase1, randomPhase.phase2, randomPhase.phase3, randomPhase.phase4, randomPhase.phase5, randomPhase.phase6}) {
                     if (id != 0) {
@@ -1373,7 +1372,7 @@ public class SmartScript {
                     me.callForHelp(e.action.callHelp.range);
 
                     if (e.action.callHelp.withEmote != 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var builder = new BroadcastTextBuilder(_me, ChatMsg.Emote, (uint)BroadcastTextIds.CallForHelp, _me.Gender);
                         var builder = new BroadcastTextBuilder(me, ChatMsg.Emote, (int)BroadcastTextIds.CallForHelp.getValue(), me.getGender());
                         Global.getCreatureTextMgr().sendChatPacket(me, builder, ChatMsg.MonsterEmote);
@@ -1474,7 +1473,7 @@ public class SmartScript {
                         }
 
                         if (e.action.invincHP.percent != 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: ai.SetInvincibilityHpLevel((uint)target.AsCreature.CountPctFromMaxHealth((int)e.Action.invincHP.percent));
                             ai.setInvincibilityHpLevel((int)target.getAsCreature().countPctFromMaxHealth((int)e.action.invincHP.percent));
                         } else {
@@ -1604,7 +1603,7 @@ public class SmartScript {
                     pos.z += e.target.z;
                     pos.setOrientation(pos.getOrientation() + e.target.o);
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (uint counter = 0; counter < spawnsCount; counter++)
                     for (int counter = 0; counter < spawnsCount; counter++) {
                         Creature summon = summoner.SummonCreature(e.action.summonCreature.creature, pos, TempSummonType.forValue(e.action.summonCreature.type), TimeSpan.FromMilliseconds(e.action.summonCreature.duration), 0, 0, privateObjectOwner.clone());
@@ -1621,7 +1620,7 @@ public class SmartScript {
                     break;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (uint counter = 0; counter < spawnsCount; counter++)
                 for (int counter = 0; counter < spawnsCount; counter++) {
                     Creature summon = summoner.SummonCreature(e.action.summonCreature.creature, new Position(e.target.x, e.target.y, e.target.z, e.target.o), TempSummonType.forValue(e.action.summonCreature.type), TimeSpan.FromMilliseconds(e.action.summonCreature.duration), 0, 0, privateObjectOwner.clone());
@@ -1921,7 +1920,7 @@ public class SmartScript {
                                 break;
                             }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: npc.CurrentEquipmentId = (byte)equipId;
                             npc.currentEquipmentId = (byte)equipId;
                             system.arraycopy(eInfo.items, 0, slot, 0, SharedConst.MaxEquipmentItems);
@@ -1931,7 +1930,7 @@ public class SmartScript {
                             slot[2].itemId = e.action.equip.slot3;
                         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (uint i = 0; i < SharedConst.MaxEquipmentItems; ++i)
                         for (int i = 0; i < SharedConst.MaxEquipmentItems; ++i) {
                             if (e.action.equip.mask == 0 || (e.action.equip.mask & (1 << (int)i)) != 0) {
@@ -2097,17 +2096,17 @@ public class SmartScript {
                             continue;
                         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (!(e.Action.crossCast.castFlags.HasAnyFlag((uint)SmartCastFlags.AuraNotPresent)) || !target.AsUnit.HasAura(e.Action.crossCast.spell))
                         if (!(e.action.crossCast.castFlags.HasAnyFlag((int)SmartCastFlags.AuraNotPresent.getValue())) || !target.getAsUnit().hasAura(e.action.crossCast.spell)) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (!interruptedSpell && e.Action.crossCast.castFlags.HasAnyFlag((uint)SmartCastFlags.InterruptPrevious))
                             if (!interruptedSpell && e.action.crossCast.castFlags.HasAnyFlag((int)SmartCastFlags.InterruptPrevious.getValue())) {
                                 casterUnit.interruptNonMeleeSpells(false);
                                 interruptedSpell = true;
                             }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: casterUnit.CastSpell(target.AsUnit, e.Action.crossCast.spell, e.Action.crossCast.castFlags.HasAnyFlag((uint)SmartCastFlags.Triggered));
                             casterUnit.CastSpell(target.getAsUnit(), e.action.crossCast.spell, e.action.crossCast.castFlags.HasAnyFlag((int)SmartCastFlags.Triggered.getValue()));
                         } else {
@@ -2119,12 +2118,12 @@ public class SmartScript {
                 break;
             }
             case CallRandomTimedActionlist: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: List<uint> actionLists = new();
                 ArrayList<Integer> actionLists = new ArrayList<Integer>();
                 var randTimedActionList = e.action.randTimedActionList.clone();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: foreach (var id in new[] { randTimedActionList.actionList1, randTimedActionList.actionList2, randTimedActionList.actionList3, randTimedActionList.actionList4, randTimedActionList.actionList5, randTimedActionList.actionList6 })
                 for (var id : new int[] {randTimedActionList.actionList1, randTimedActionList.actionList2, randTimedActionList.actionList3, randTimedActionList.actionList4, randTimedActionList.actionList5, randTimedActionList.actionList6}) {
                     if (id != 0) {
@@ -2469,7 +2468,7 @@ public class SmartScript {
             case SummonCreatureGroup: {
                 ArrayList<TempSummon> summonList;
                 tangible.OutObject<ArrayList<TempSummon>> tempOutSummonList = new tangible.OutObject<ArrayList<TempSummon>>();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GetBaseObject().SummonCreatureGroup((byte)e.Action.creatureGroup.group, out var summonList);
                 getBaseObject().summonCreatureGroup((byte)e.action.creatureGroup.group, tempOutSummonList);
             summonList = tempOutSummonList.outArgValue;
@@ -2510,7 +2509,7 @@ public class SmartScript {
                 break;
             }
             case GameEventStop: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var eventId = (ushort)e.Action.gameEventStop.id;
                 var eventId = (short)e.action.gameEventStop.id;
 
@@ -2525,7 +2524,7 @@ public class SmartScript {
                 break;
             }
             case GameEventStart: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var eventId = (ushort)e.Action.gameEventStart.id;
                 var eventId = (short)e.action.gameEventStart.id;
 
@@ -2540,12 +2539,12 @@ public class SmartScript {
                 break;
             }
             case StartClosestWaypoint: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: List<uint> waypoints = new();
                 ArrayList<Integer> waypoints = new ArrayList<Integer>();
                 var closestWaypointFromList = e.action.closestWaypointFromList.clone();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: foreach (var id in new[] { closestWaypointFromList.wp1, closestWaypointFromList.wp2, closestWaypointFromList.wp3, closestWaypointFromList.wp4, closestWaypointFromList.wp5, closestWaypointFromList.wp6 })
                 for (var id : new int[] {closestWaypointFromList.wp1, closestWaypointFromList.wp2, closestWaypointFromList.wp3, closestWaypointFromList.wp4, closestWaypointFromList.wp5, closestWaypointFromList.wp6}) {
                     if (id != 0) {
@@ -2554,10 +2553,10 @@ public class SmartScript {
                 }
 
                 var distanceToClosest = Float.MAX_VALUE;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint closestPathId = 0;
                 int closestPathId = 0;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint closestWaypointId = 0;
                 int closestWaypointId = 0;
 
@@ -2594,12 +2593,12 @@ public class SmartScript {
                 break;
             }
             case RandomSound: {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: List<uint> sounds = new();
                 ArrayList<Integer> sounds = new ArrayList<Integer>();
                 var randomSound = e.action.randomSound.clone();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: foreach (var id in new[] { randomSound.sound1, randomSound.sound2, randomSound.sound3, randomSound.sound4 })
                 for (var id : new int[] {randomSound.sound1, randomSound.sound2, randomSound.sound3, randomSound.sound4}) {
                     if (id != 0) {
@@ -2636,10 +2635,10 @@ public class SmartScript {
             }
             case SpawnSpawngroup: {
                 if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var ignoreRespawn = ((e.Action.groupSpawn.spawnflags & (uint)SmartAiSpawnFlags.IgnoreRespawn) != 0);
                     var ignoreRespawn = ((e.action.groupSpawn.spawnflags & (int)SmartAiSpawnFlags.IgnoreRespawn.getValue()) != 0);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var force = ((e.Action.groupSpawn.spawnflags & (uint)SmartAiSpawnFlags.ForceSpawn) != 0);
                     var force = ((e.action.groupSpawn.spawnflags & (int)SmartAiSpawnFlags.ForceSpawn.getValue()) != 0);
 
@@ -2680,7 +2679,7 @@ public class SmartScript {
             }
             case DespawnSpawngroup: {
                 if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var deleteRespawnTimes = ((e.Action.groupSpawn.spawnflags & (uint)SmartAiSpawnFlags.NosaveRespawn) != 0);
                     var deleteRespawnTimes = ((e.action.groupSpawn.spawnflags & (int)SmartAiSpawnFlags.NosaveRespawn.getValue()) != 0);
 
@@ -2787,19 +2786,19 @@ public class SmartScript {
                 for (var target : targets) {
                     if (isCreature(target)) {
                         if (e.action.animKit.type == 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: target.AsCreature.PlayOneShotAnimKitId((ushort)e.Action.animKit.animKit);
                             target.getAsCreature().playOneShotAnimKitId((short)e.action.animKit.animKit);
                         } else if (e.action.animKit.type == 1) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: target.AsCreature.SetAIAnimKitId((ushort)e.Action.animKit.animKit);
                             target.getAsCreature().setAIAnimKitId((short)e.action.animKit.animKit);
                         } else if (e.action.animKit.type == 2) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: target.AsCreature.SetMeleeAnimKitId((ushort)e.Action.animKit.animKit);
                             target.getAsCreature().setMeleeAnimKitId((short)e.action.animKit.animKit);
                         } else if (e.action.animKit.type == 3) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: target.AsCreature.SetMovementAnimKitId((ushort)e.Action.animKit.animKit);
                             target.getAsCreature().setMovementAnimKitId((short)e.action.animKit.animKit);
                         }
@@ -2808,13 +2807,13 @@ public class SmartScript {
                     } else if (isGameObject(target)) {
                         switch (e.action.animKit.type) {
                             case 0:
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: target.AsGameObject.SetAnimKitId((ushort)e.Action.animKit.animKit, true);
                                 target.getAsGameObject().setAnimKitId((short)e.action.animKit.animKit, true);
 
                                 break;
                             case 1:
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: target.AsGameObject.SetAnimKitId((ushort)e.Action.animKit.animKit, false);
                                 target.getAsGameObject().setAnimKitId((short)e.action.animKit.animKit, false);
 
@@ -3013,7 +3012,7 @@ public class SmartScript {
 
                     if (summon != null) {
                         if (isSmart(summon)) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: ((SmartAI)summon.AI).SetTimedActionList(e, (uint)e.EntryOrGuid, privateObjectOwner, e.EventId + 1);
                             ((SmartAI)summon.getAI()).setTimedActionList(e, (int)e.entryOrGuid, privateObjectOwner, e.eventId + 1);
                         }
@@ -3124,9 +3123,9 @@ public class SmartScript {
         processTimedAction(e, min, max, null, 0, 0, false, null, null, "");
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: void ProcessTimedAction(SmartScriptHolder e, uint min, uint max, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     private void processTimedAction(SmartScriptHolder e, int min, int max, Unit unit, int var0, int var1, boolean bvar, SpellInfo spell, GameObject gob, String varString) {
         // We may want to execute action rarely and because of this if condition is not fulfilled the action will be rechecked in a long time
         if (Global.getConditionMgr().isObjectMeetingSmartEventConditions(e.entryOrGuid, e.eventId, e.sourceType, unit, getBaseObject())) {
@@ -3137,7 +3136,7 @@ public class SmartScript {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: SmartScriptHolder CreateSmartEvent(SmartEvents e, SmartEventFlags event_flags, uint event_param1, uint event_param2, uint event_param3, uint event_param4, uint event_param5, SmartActions action, uint action_param1, uint action_param2, uint action_param3, uint action_param4, uint action_param5, uint action_param6, uint action_param7, SmartTargets t, uint target_param1, uint target_param2, uint target_param3, uint target_param4, uint phaseMask)
     private SmartScriptHolder createSmartEvent(SmartEvents e, SmartEventFlags eventFlags, int eventParam1, int eventParam2, int eventParam3, int eventParam4, int eventParam5, SmartActions action, int actionParam1, int actionParam2, int actionParam3, int actionParam4, int actionParam5, int actionParam6, int actionParam7, SmartTargets t, int targetParam1, int targetParam2, int targetParam3, int targetParam4, int phaseMask) {
         SmartScriptHolder script = new SmartScriptHolder();
@@ -3177,7 +3176,7 @@ public class SmartScript {
         return getTargets(e, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: List<WorldObject> GetTargets(SmartScriptHolder e, WorldObject invoker = null)
     private ArrayList<WorldObject> getTargets(SmartScriptHolder e, WorldObject invoker) {
         WorldObject scriptTrigger = null;
@@ -3758,9 +3757,9 @@ public class SmartScript {
         processEvent(e, null, 0, 0, false, null, null, "");
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: void ProcessEvent(SmartScriptHolder e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     private void processEvent(SmartScriptHolder e, Unit unit, int var0, int var1, boolean bvar, SpellInfo spell, GameObject gob, String varString) {
         if (!e.active && e.getEventType() != SmartEvents.Link) {
             return;
@@ -3805,7 +3804,7 @@ public class SmartScript {
                     return;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var perc = (uint)_me.HealthPct;
                 var perc = (int)me.getHealthPct();
 
@@ -3822,7 +3821,7 @@ public class SmartScript {
                     return;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var perc = (uint)_me.GetPowerPct(PowerType.Mana);
                 var perc = (int)me.getPowerPct(PowerType.Mana);
 
@@ -4031,7 +4030,7 @@ public class SmartScript {
                     return;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if ((e.Event.spellHit.spell == 0 || spell.Id == e.Event.spellHit.spell) && (e.Event.spellHit.school == 0 || Convert.ToBoolean((uint)spell.SchoolMask & e.Event.spellHit.school)))
                 if ((e.event.spellHit.spell == 0 || spell.id == e.event.spellHit.spell) && (e.event.spellHit.school == 0 || (boolean)((int)spell.schoolMask.getValue() & e.event.spellHit.school))) {
                     recalcTimer(e, e.event.spellHit.cooldownMin, e.event.spellHit.cooldownMax);
@@ -4111,13 +4110,13 @@ public class SmartScript {
                     return;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && GetBaseObject().Location.MapId != e.Event.respawn.map)
                 if (e.event.respawn.type == (int)SmartRespawnCondition.Map.getValue() && getBaseObject().location.mapId != e.event.respawn.map) {
                     return;
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && GetBaseObject().Zone != e.Event.respawn.area)
                 if (e.event.respawn.type == (int)SmartRespawnCondition.Area.getValue() && getBaseObject().getZone() != e.event.respawn.area) {
                     return;
@@ -4338,7 +4337,7 @@ public class SmartScript {
 
                         for (var target : targets) {
                             if (isUnit(target) && me.isFriendlyTo(target.getAsUnit()) && target.getAsUnit().isAlive() && target.getAsUnit().isInCombat()) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var healthPct = (uint)target.AsUnit.HealthPct;
                                 var healthPct = (int)target.getAsUnit().getHealthPct();
 
@@ -4484,7 +4483,7 @@ public class SmartScript {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void RecalcTimer(SmartScriptHolder e, uint min, uint max)
     private void recalcTimer(SmartScriptHolder e, int min, int max) {
         if (e.entryOrGuid == 15294 && e.timer != 0) {
@@ -4496,7 +4495,7 @@ public class SmartScript {
         e.active = e.timer == 0;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void UpdateTimer(SmartScriptHolder e, uint diff)
     private void updateTimer(SmartScriptHolder e, int diff) {
         if (e.getEventType() == SmartEvents.Link) {
@@ -4518,7 +4517,7 @@ public class SmartScript {
         if (e.timer < diff) {
             // delay spell cast event if another spell is being casted
             if (e.getActionType() == SmartActions.Cast) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: if (!Convert.ToBoolean(e.Action.cast.castFlags & (uint)SmartCastFlags.InterruptPrevious))
                 if (!(boolean)(e.action.cast.castFlags & (int)SmartCastFlags.InterruptPrevious.getValue())) {
                     if (me != null && me.hasUnitState(UnitState.Casting)) {
@@ -4630,7 +4629,7 @@ public class SmartScript {
         retryLater(e, false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: void RetryLater(SmartScriptHolder e, bool ignoreChanceRoll = false)
     private void retryLater(SmartScriptHolder e, boolean ignoreChanceRoll) {
         raisePriority(e);
@@ -4753,7 +4752,7 @@ public class SmartScript {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Unit DoSelectLowestHpFriendly(float range, uint MinHPDiff)
     private Unit doSelectLowestHpFriendly(float range, int minHPDiff) {
         if (!me) {
@@ -4767,7 +4766,7 @@ public class SmartScript {
         return searcher.getTarget();
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Unit DoSelectLowestHpPercentFriendly(float range, uint minHpPct, uint maxHpPct)
     private Unit doSelectLowestHpPercentFriendly(float range, int minHpPct, int maxHpPct) {
         if (me == null) {
@@ -4791,7 +4790,7 @@ public class SmartScript {
         Cell.visitGrid(me, searcher, range);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void DoFindFriendlyMissingBuff(List<Creature> creatures, float range, uint spellid)
     private void doFindFriendlyMissingBuff(ArrayList<Creature> creatures, float range, int spellid) {
         if (me == null) {
@@ -4820,7 +4819,7 @@ public class SmartScript {
         return getLastInvoker(null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: Unit GetLastInvoker(Unit invoker = null)
     private Unit getLastInvoker(Unit invoker) {
         // Look for invoker only on map of base object... Prevents multithreaded crashes
@@ -4862,7 +4861,7 @@ public class SmartScript {
         return isSmart(creature, false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: bool IsSmart(Creature creature, bool silent = false)
     private boolean isSmart(Creature creature, boolean silent) {
         if (creature == null) {
@@ -4887,7 +4886,7 @@ public class SmartScript {
         return isSmart(gameObject, false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: bool IsSmart(GameObject gameObject, bool silent = false)
     private boolean isSmart(GameObject gameObject, boolean silent) {
         if (gameObject == null) {
@@ -4912,7 +4911,7 @@ public class SmartScript {
         return isSmart(false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: bool IsSmart(bool silent = false)
     private boolean isSmart(boolean silent) {
         if (me != null) {
@@ -4926,7 +4925,7 @@ public class SmartScript {
         return false;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void StoreTargetList(List<WorldObject> targets, uint id)
     private void storeTargetList(ArrayList<WorldObject> targets, int id) {
         // insert or replace
@@ -4934,7 +4933,7 @@ public class SmartScript {
         storedTargets.put(id, new ObjectGuidList(targets));
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void AddToStoredTargetList(List<WorldObject> targets, uint id)
     private void addToStoredTargetList(ArrayList<WorldObject> targets, int id) {
         var inserted = storedTargets.TryAdd(id, new ObjectGuidList(targets));
@@ -4946,7 +4945,7 @@ public class SmartScript {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void StoreCounter(uint id, uint value, uint reset)
     private void storeCounter(int id, int value, int reset) {
         if (counterList.containsKey(id)) {
@@ -4962,7 +4961,7 @@ public class SmartScript {
         processEventsFor(SmartEvents.CounterSet, null, id);
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint GetCounterValue(uint id)
     private int getCounterValue(int id) {
         if (counterList.containsKey(id)) {
@@ -4972,7 +4971,7 @@ public class SmartScript {
         return 0;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: GameObject FindGameObjectNear(WorldObject searchObject, ulong guid)
     private GameObject findGameObjectNear(WorldObject searchObject, long guid) {
         var bounds = searchObject.getMap().getGameObjectBySpawnIdStore().LookupByKey(guid);
@@ -4984,7 +4983,7 @@ public class SmartScript {
         return bounds[0];
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Creature FindCreatureNear(WorldObject searchObject, ulong guid)
     private Creature findCreatureNear(WorldObject searchObject, long guid) {
         var bounds = searchObject.getMap().getCreatureBySpawnIdStore().LookupByKey(guid);
@@ -5031,16 +5030,16 @@ public class SmartScript {
         meOrigGUID.clear();
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void IncPhase(uint p)
     private void incPhase(int p) {
         // protect phase from overflowing
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: SetPhase(Math.Min((uint)SmartPhase.Phase12, _eventPhase + p));
         setPhase(Math.min((int)SmartPhase.Phase12.getValue(), eventPhase + p));
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void DecPhase(uint p)
     private void decPhase(int p) {
         if (p >= eventPhase) {
@@ -5050,13 +5049,13 @@ public class SmartScript {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void SetPhase(uint p)
     private void setPhase(int p) {
         eventPhase = p;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: bool IsInPhase(uint p)
     private boolean isInPhase(int p) {
         if (eventPhase == 0) {
@@ -5066,7 +5065,7 @@ public class SmartScript {
         return ((1 << (int)(eventPhase - 1)) & p) != 0;
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: void RemoveStoredEvent(uint id)
     private void removeStoredEvent(int id) {
         if (!storedEvents.Empty()) {

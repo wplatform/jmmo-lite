@@ -42,29 +42,29 @@ public class Emote implements DbcEntity {
     private String emoteSlashCommand;
 
     @Column("EmoteFlags")
-    private Integer emoteFlags;
+    private int emoteFlags;
 
     @Column("SpellVisualKitID")
-    private Integer spellVisualKitID;
+    private int spellVisualKitID;
 
     @Column("AnimID")
-    private Short animID;
+    private short animID;
 
     @Column("EmoteSpecProc")
-    private Byte emoteSpecProc;
+    private byte emoteSpecProc;
 
     @Column("ClassMask")
-    private Integer classMask;
+    private int classMask;
 
     @Column("EmoteSpecProcParam")
-    private Integer emoteSpecProcParam;
+    private int emoteSpecProcParam;
 
     @Column("EventSoundID")
-    private Integer eventSoundID;
+    private int eventSoundID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

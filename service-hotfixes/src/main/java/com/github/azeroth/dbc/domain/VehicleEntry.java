@@ -45,89 +45,89 @@ public class VehicleEntry implements DbcEntity {
     private int id;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("TurnSpeed")
-    private Float turnSpeed;
+    private float turnSpeed;
 
     @Column("PitchSpeed")
-    private Float pitchSpeed;
+    private float pitchSpeed;
 
     @Column("PitchMin")
-    private Float pitchMin;
+    private float pitchMin;
 
     @Column("PitchMax")
-    private Float pitchMax;
+    private float pitchMax;
 
     @Column("MouseLookOffsetPitch")
-    private Float mouseLookOffsetPitch;
+    private float mouseLookOffsetPitch;
 
     @Column("CameraFadeDistScalarMin")
-    private Float cameraFadeDistScalarMin;
+    private float cameraFadeDistScalarMin;
 
     @Column("CameraFadeDistScalarMax")
-    private Float cameraFadeDistScalarMax;
+    private float cameraFadeDistScalarMax;
 
     @Column("CameraPitchOffset")
-    private Float cameraPitchOffset;
+    private float cameraPitchOffset;
 
     @Column("FacingLimitRight")
-    private Float facingLimitRight;
+    private float facingLimitRight;
 
     @Column("FacingLimitLeft")
-    private Float facingLimitLeft;
+    private float facingLimitLeft;
 
     @Column("CameraYawOffset")
-    private Float cameraYawOffset;
+    private float cameraYawOffset;
 
     @Column("SeatID1")
-    private Short seatID1;
+    private short seatID1;
 
     @Column("SeatID2")
-    private Short seatID2;
+    private short seatID2;
 
     @Column("SeatID3")
-    private Short seatID3;
+    private short seatID3;
 
     @Column("SeatID4")
-    private Short seatID4;
+    private short seatID4;
 
     @Column("SeatID5")
-    private Short seatID5;
+    private short seatID5;
 
     @Column("SeatID6")
-    private Short seatID6;
+    private short seatID6;
 
     @Column("SeatID7")
-    private Short seatID7;
+    private short seatID7;
 
     @Column("SeatID8")
-    private Short seatID8;
+    private short seatID8;
 
     @Column("VehicleUIIndicatorID")
-    private Short vehicleUIIndicatorID;
+    private short vehicleUIIndicatorID;
 
     @Column("PowerDisplayID1")
-    private Short powerDisplayID1;
+    private short powerDisplayID1;
 
     @Column("PowerDisplayID2")
-    private Short powerDisplayID2;
+    private short powerDisplayID2;
 
     @Column("PowerDisplayID3")
-    private Short powerDisplayID3;
+    private short powerDisplayID3;
 
     @Column("FlagsB")
-    private Byte flagsB;
+    private byte flagsB;
 
     @Column("UiLocomotionType")
-    private Byte uiLocomotionType;
+    private byte uiLocomotionType;
 
     @Column("MissileTargetingID")
-    private Integer missileTargetingID;
+    private int missileTargetingID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

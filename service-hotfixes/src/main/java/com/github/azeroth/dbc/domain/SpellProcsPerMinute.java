@@ -29,14 +29,14 @@ public class SpellProcsPerMinute implements DbcEntity {
     private int id;
 
     @Column("BaseProcRate")
-    private Float baseProcRate;
+    private float baseProcRate;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

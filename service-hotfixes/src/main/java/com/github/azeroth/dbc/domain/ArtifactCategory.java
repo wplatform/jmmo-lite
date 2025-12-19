@@ -29,14 +29,14 @@ public class ArtifactCategory implements DbcEntity {
     private int id;
 
     @Column("XpMultCurrencyID")
-    private Short xpMultCurrencyID;
+    private short xpMultCurrencyID;
 
     @Column("XpMultCurveID")
-    private Short xpMultCurveID;
+    private short xpMultCurveID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

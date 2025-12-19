@@ -40,22 +40,22 @@ public class BattlePetSpecie implements DbcEntity {
     private LocalizedString description;
 
     @Column("CreatureID")
-    private Integer creatureID;
+    private int creatureID;
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
     @Column("SummonSpellID")
-    private Integer summonSpellID;
+    private int summonSpellID;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("PetTypeEnum")
-    private Byte petTypeEnum;
+    private byte petTypeEnum;
 
     @Column("SourceTypeEnum")
-    private Byte sourceTypeEnum;
+    private byte sourceTypeEnum;
 
     @Id
 
@@ -63,14 +63,14 @@ public class BattlePetSpecie implements DbcEntity {
     private int id;
 
     @Column("CardUIModelSceneID")
-    private Integer cardUIModelSceneID;
+    private int cardUIModelSceneID;
 
     @Column("LoadoutUIModelSceneID")
-    private Integer loadoutUIModelSceneID;
+    private int loadoutUIModelSceneID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -29,14 +29,14 @@ public class SceneScript implements DbcEntity {
     private int id;
 
     @Column("FirstSceneScriptID")
-    private Short firstSceneScriptID;
+    private short firstSceneScriptID;
 
     @Column("NextSceneScriptID")
-    private Short nextSceneScriptID;
+    private short nextSceneScriptID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

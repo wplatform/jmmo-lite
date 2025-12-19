@@ -33,26 +33,26 @@ public class RewardPack implements DbcEntity {
     private int id;
 
     @Column("Money")
-    private Integer money;
+    private int money;
 
     @Column("ArtifactXPMultiplier")
-    private Float artifactXPMultiplier;
+    private float artifactXPMultiplier;
 
     @Column("ArtifactXPDifficulty")
-    private Byte artifactXPDifficulty;
+    private byte artifactXPDifficulty;
 
     @Column("ArtifactXPCategoryID")
-    private Byte artifactXPCategoryID;
+    private byte artifactXPCategoryID;
 
     @Column("CharTitleID")
-    private Integer charTitleID;
+    private int charTitleID;
 
     @Column("TreasurePickerID")
-    private Integer treasurePickerID;
+    private int treasurePickerID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

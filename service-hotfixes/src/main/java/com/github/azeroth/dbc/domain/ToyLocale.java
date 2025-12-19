@@ -27,7 +27,7 @@ public class ToyLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("SourceText_lang")

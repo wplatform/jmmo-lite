@@ -29,14 +29,14 @@ public class SpellLabel implements DbcEntity {
     private int id;
 
     @Column("LabelID")
-    private Integer labelID;
+    private int labelID;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

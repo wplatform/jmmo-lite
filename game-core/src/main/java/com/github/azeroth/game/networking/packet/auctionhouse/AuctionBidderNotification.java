@@ -1,7 +1,7 @@
 package com.github.azeroth.game.networking.packet.auctionhouse;
 
 import com.github.azeroth.game.networking.WorldPacket;
-import game.*;
+
 
 final class AuctionBidderNotification {
     public int auctionID;

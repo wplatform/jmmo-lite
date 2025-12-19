@@ -28,38 +28,38 @@ public class QuestFactionReward implements DbcEntity {
     private int id;
 
     @Column("Difficulty1")
-    private Short difficulty1;
+    private short difficulty1;
 
     @Column("Difficulty2")
-    private Short difficulty2;
+    private short difficulty2;
 
     @Column("Difficulty3")
-    private Short difficulty3;
+    private short difficulty3;
 
     @Column("Difficulty4")
-    private Short difficulty4;
+    private short difficulty4;
 
     @Column("Difficulty5")
-    private Short difficulty5;
+    private short difficulty5;
 
     @Column("Difficulty6")
-    private Short difficulty6;
+    private short difficulty6;
 
     @Column("Difficulty7")
-    private Short difficulty7;
+    private short difficulty7;
 
     @Column("Difficulty8")
-    private Short difficulty8;
+    private short difficulty8;
 
     @Column("Difficulty9")
-    private Short difficulty9;
+    private short difficulty9;
 
     @Column("Difficulty10")
-    private Short difficulty10;
+    private short difficulty10;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

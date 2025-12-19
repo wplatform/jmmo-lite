@@ -37,52 +37,52 @@ import lombok.ToString;
 })
 public class AreaTriggerEntry implements DbcEntity {
     @Column("PosX")
-    private Float posX;
+    private float posX;
 
     @Column("PosY")
-    private Float posY;
+    private float posY;
 
     @Column("PosZ")
-    private Float posZ;
+    private float posZ;
 
     @Column("Radius")
-    private Float radius;
+    private float radius;
 
     @Column("BoxLength")
-    private Float boxLength;
+    private float boxLength;
 
     @Column("BoxWidth")
-    private Float boxWidth;
+    private float boxWidth;
 
     @Column("BoxHeight")
-    private Float boxHeight;
+    private float boxHeight;
 
     @Column("BoxYaw")
-    private Float boxYaw;
+    private float boxYaw;
 
     @Column("ContinentID")
-    private Short continentID;
+    private short continentID;
 
     @Column("PhaseID")
-    private Short phaseID;
+    private short phaseID;
 
     @Column("PhaseGroupID")
-    private Short phaseGroupID;
+    private short phaseGroupID;
 
     @Column("ShapeID")
-    private Short shapeID;
+    private short shapeID;
 
     @Column("AreaTriggerActionSetID")
-    private Short areaTriggerActionSetID;
+    private short areaTriggerActionSetID;
 
     @Column("PhaseUseFlags")
-    private Byte phaseUseFlags;
+    private byte phaseUseFlags;
 
     @Column("ShapeType")
-    private Byte shapeType;
+    private byte shapeType;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
@@ -92,6 +92,6 @@ public class AreaTriggerEntry implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

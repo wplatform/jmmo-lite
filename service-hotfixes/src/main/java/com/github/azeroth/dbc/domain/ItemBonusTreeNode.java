@@ -32,23 +32,23 @@ public class ItemBonusTreeNode implements DbcEntity {
     private int id;
 
     @Column("ChildItemBonusTreeID")
-    private Short childItemBonusTreeID;
+    private short childItemBonusTreeID;
 
     @Column("ChildItemBonusListID")
-    private Short childItemBonusListID;
+    private short childItemBonusListID;
 
     @Column("ChildItemLevelSelectorID")
-    private Short childItemLevelSelectorID;
+    private short childItemLevelSelectorID;
 
     @Column("ItemContext")
-    private Byte itemContext;
+    private byte itemContext;
 
     @Column("ParentItemBonusTreeID")
-    private Short parentItemBonusTreeID;
+    private short parentItemBonusTreeID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

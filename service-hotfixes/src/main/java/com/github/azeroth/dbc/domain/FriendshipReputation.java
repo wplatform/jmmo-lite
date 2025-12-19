@@ -30,10 +30,10 @@ public class FriendshipReputation implements DbcEntity {
     private LocalizedString description;
 
     @Column("TextureFileID")
-    private Integer textureFileID;
+    private int textureFileID;
 
     @Column("FactionID")
-    private Short factionID;
+    private short factionID;
 
     @Id
 
@@ -43,6 +43,6 @@ public class FriendshipReputation implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

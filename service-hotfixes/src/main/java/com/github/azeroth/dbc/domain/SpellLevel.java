@@ -33,26 +33,26 @@ public class SpellLevel implements DbcEntity {
     private int id;
 
     @Column("BaseLevel")
-    private Short baseLevel;
+    private short baseLevel;
 
     @Column("MaxLevel")
-    private Short maxLevel;
+    private short maxLevel;
 
     @Column("SpellLevel")
-    private Short spellLevel;
+    private short spellLevel;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("MaxPassiveAuraLevel")
-    private Byte maxPassiveAuraLevel;
+    private byte maxPassiveAuraLevel;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

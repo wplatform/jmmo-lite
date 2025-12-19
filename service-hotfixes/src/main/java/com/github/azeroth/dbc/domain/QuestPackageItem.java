@@ -31,20 +31,20 @@ public class QuestPackageItem implements DbcEntity {
     private int id;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Column("PackageID")
-    private Short packageID;
+    private short packageID;
 
     @Column("DisplayType")
-    private Byte displayType;
+    private byte displayType;
 
     @Column("ItemQuantity")
-    private Integer itemQuantity;
+    private int itemQuantity;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

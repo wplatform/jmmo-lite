@@ -1,6 +1,6 @@
 package com.github.azeroth.game.entity.totem;
 
-import Framework.Constants.*;
+
 import com.github.azeroth.dbc.domain.SummonProperty;
 import com.github.azeroth.game.entity.creature.Minion;
 import com.github.azeroth.game.entity.unit.Unit;
@@ -11,7 +11,7 @@ import game.spells.*;
 
 public class Totem extends Minion {
     private TotemType totemType = TotemType.values()[0];
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: uint _duration;
     private int duration;
 
@@ -21,7 +21,7 @@ public class Totem extends Minion {
         totemType = TotemType.Passive;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override void Update(uint diff)
     @Override
     public void update(int diff) {
@@ -42,7 +42,7 @@ public class Totem extends Minion {
         super.update(diff);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override void InitStats(uint duration)
     @Override
     public void initStats(int duration) {
@@ -53,7 +53,7 @@ public class Totem extends Minion {
             if (summonProperty.slot >= SummonSlot.Totem.getValue() && summonProperty.slot < SharedConst.MaxTotemSlot) {
                 TotemCreated packet = new TotemCreated();
                 packet.totem = getGUID().clone();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: packet.Slot = (byte)(SummonPropertiesRecord.Slot - (int)Framework.Constants.SummonSlot.Totem);
                 packet.slot = (byte) (summonProperty.slot - SummonSlot.Totem.getValue());
                 packet.duration = duration;
@@ -114,7 +114,7 @@ public class Totem extends Minion {
         removeAurasDueToSpell(getSpell(), getGUID().clone());
 
         // clear owner's totem slot
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (byte i = (int)Framework.Constants.SummonSlot.Totem; i < SharedConst.MaxTotemSlot; ++i)
         for (byte i = SummonSlot.Totem.getValue(); i < SharedConst.MaxTotemSlot; ++i) {
             if (game.entities.ObjectGuid.opEquals(getOwnerUnit().summonSlot[i].clone(), getGUID().clone())) {
@@ -160,7 +160,7 @@ public class Totem extends Minion {
         return isImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, false);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public override bool IsImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, bool requireImmunityPurgesEffectAttribute = false)
     @Override
     public boolean isImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, boolean requireImmunityPurgesEffectAttribute) {
@@ -188,20 +188,20 @@ public class Totem extends Minion {
         return getSpell(0);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public uint GetSpell(byte slot = 0)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final int getSpell(byte slot) {
         return spells[slot];
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public uint GetTotemDuration()
     public final int getTotemDuration() {
         return duration;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public void SetTotemDuration(uint duration)
     public final void setTotemDuration(int duration) {
         this.duration = duration;
@@ -243,7 +243,7 @@ public class Totem extends Minion {
         updateAttackPowerAndDamage(false);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public override void UpdateAttackPowerAndDamage(bool ranged = false)
     @Override
     public void updateAttackPowerAndDamage(boolean ranged) {

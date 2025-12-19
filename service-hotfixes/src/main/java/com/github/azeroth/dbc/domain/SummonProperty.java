@@ -33,23 +33,23 @@ public class SummonProperty implements DbcEntity {
     private int id;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("Control")
-    private Integer control;
+    private int control;
 
     @Column("Faction")
-    private Integer faction;
+    private int faction;
 
     @Column("Title")
-    private Integer title;
+    private int title;
 
     @Column("Slot")
-    private Integer slot;
+    private int slot;
 
     @Id
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     public EnumFlag<SummonPropertyFlag> getFlags() {
         return EnumFlag.of(SummonPropertyFlag.class, flags);

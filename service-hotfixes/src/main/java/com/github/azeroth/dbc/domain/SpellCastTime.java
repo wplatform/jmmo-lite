@@ -30,17 +30,17 @@ public class SpellCastTime implements DbcEntity {
     private int id;
 
     @Column("Base")
-    private Integer base;
+    private int base;
 
     @Column("Minimum")
-    private Integer minimum;
+    private int minimum;
 
     @Column("PerLevel")
-    private Short perLevel;
+    private short perLevel;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

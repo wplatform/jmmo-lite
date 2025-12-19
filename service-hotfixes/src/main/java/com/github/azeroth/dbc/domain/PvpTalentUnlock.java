@@ -30,17 +30,17 @@ public class PvpTalentUnlock implements DbcEntity {
     private int id;
 
     @Column("TierID")
-    private Integer tierID;
+    private int tierID;
 
     @Column("ColumnIndex")
-    private Integer columnIndex;
+    private int columnIndex;
 
     @Column("HonorLevel")
-    private Integer honorLevel;
+    private int honorLevel;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

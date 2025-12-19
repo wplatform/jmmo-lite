@@ -32,7 +32,7 @@ public class ItemNameDescription implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Description")
@@ -40,6 +40,6 @@ public class ItemNameDescription implements DbcEntity {
 
 
     @Column("Color")
-    private Integer color;
+    private int color;
 
 }

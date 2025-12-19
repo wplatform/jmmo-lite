@@ -38,41 +38,41 @@ public class CriteriaEntity implements DbcEntity {
     private int id;
 
     @Column("Asset")
-    private Integer asset;
+    private int asset;
 
     @Column("StartAsset")
-    private Integer startAsset;
+    private int startAsset;
 
     @Column("FailAsset")
-    private Integer failAsset;
+    private int failAsset;
 
     @Column("ModifierTreeId")
-    private Integer ModifierTreeId;
+    private int ModifierTreeId;
 
     @Column("StartTimer")
-    private Short startTimer;
+    private short startTimer;
 
     @Column("EligibilityWorldStateID")
-    private Short eligibilityWorldStateID;
+    private short eligibilityWorldStateID;
 
     @Column("Type")
-    private Short type;
+    private short type;
 
     @Column("StartEvent")
-    private Byte startEvent;
+    private byte startEvent;
 
     @Column("FailEvent")
-    private Byte failEvent;
+    private byte failEvent;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("EligibilityWorldStateValue")
-    private Byte eligibilityWorldStateValue;
+    private byte eligibilityWorldStateValue;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

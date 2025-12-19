@@ -41,62 +41,62 @@ public class SpellVisual implements DbcEntity {
     private int id;
 
     @Column("MissileCastOffset1")
-    private Float missileCastOffset1;
+    private float missileCastOffset1;
 
     @Column("MissileCastOffset2")
-    private Float missileCastOffset2;
+    private float missileCastOffset2;
 
     @Column("MissileCastOffset3")
-    private Float missileCastOffset3;
+    private float missileCastOffset3;
 
     @Column("MissileImpactOffset1")
-    private Float missileImpactOffset1;
+    private float missileImpactOffset1;
 
     @Column("MissileImpactOffset2")
-    private Float missileImpactOffset2;
+    private float missileImpactOffset2;
 
     @Column("MissileImpactOffset3")
-    private Float missileImpactOffset3;
+    private float missileImpactOffset3;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("SpellVisualMissileSetID")
-    private Short spellVisualMissileSetID;
+    private short spellVisualMissileSetID;
 
     @Column("MissileDestinationAttachment")
-    private Byte missileDestinationAttachment;
+    private byte missileDestinationAttachment;
 
     @Column("MissileAttachment")
-    private Byte missileAttachment;
+    private byte missileAttachment;
 
     @Column("MissileCastPositionerID")
-    private Integer missileCastPositionerID;
+    private int missileCastPositionerID;
 
     @Column("MissileImpactPositionerID")
-    private Integer missileImpactPositionerID;
+    private int missileImpactPositionerID;
 
     @Column("MissileTargetingKit")
-    private Integer missileTargetingKit;
+    private int missileTargetingKit;
 
     @Column("AnimEventSoundID")
-    private Integer animEventSoundID;
+    private int animEventSoundID;
 
     @Column("DamageNumberDelay")
-    private Short damageNumberDelay;
+    private short damageNumberDelay;
 
     @Column("HostileSpellVisualID")
-    private Integer hostileSpellVisualID;
+    private int hostileSpellVisualID;
 
     @Column("CasterSpellVisualID")
-    private Integer casterSpellVisualID;
+    private int casterSpellVisualID;
 
     @Column("LowViolenceSpellVisualID")
-    private Integer lowViolenceSpellVisualID;
+    private int lowViolenceSpellVisualID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

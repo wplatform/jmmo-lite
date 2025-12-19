@@ -61,87 +61,87 @@ public class Faction implements DbcEntity {
     private int id;
 
     @Column("ReputationBase1")
-    private Integer reputationBase1;
+    private int reputationBase1;
 
     @Column("ReputationBase2")
-    private Integer reputationBase2;
+    private int reputationBase2;
 
     @Column("ReputationBase3")
-    private Integer reputationBase3;
+    private int reputationBase3;
 
     @Column("ReputationBase4")
-    private Integer reputationBase4;
+    private int reputationBase4;
 
     @Column("ParentFactionMod1")
-    private Float parentFactionMod1;
+    private float parentFactionMod1;
 
     @Column("ParentFactionMod2")
-    private Float parentFactionMod2;
+    private float parentFactionMod2;
 
     @Column("ReputationMax1")
-    private Integer reputationMax1;
+    private int reputationMax1;
 
     @Column("ReputationMax2")
-    private Integer reputationMax2;
+    private int reputationMax2;
 
     @Column("ReputationMax3")
-    private Integer reputationMax3;
+    private int reputationMax3;
 
     @Column("ReputationMax4")
-    private Integer reputationMax4;
+    private int reputationMax4;
 
     @Column("ReputationIndex")
-    private Short reputationIndex;
+    private short reputationIndex;
 
     @Column("ReputationClassMask1")
-    private Short reputationClassMask1;
+    private short reputationClassMask1;
 
     @Column("ReputationClassMask2")
-    private Short reputationClassMask2;
+    private short reputationClassMask2;
 
     @Column("ReputationClassMask3")
-    private Short reputationClassMask3;
+    private short reputationClassMask3;
 
     @Column("ReputationClassMask4")
-    private Short reputationClassMask4;
+    private short reputationClassMask4;
 
     @Column("ReputationFlags1")
-    private Short reputationFlags1;
+    private short reputationFlags1;
 
     @Column("ReputationFlags2")
-    private Short reputationFlags2;
+    private short reputationFlags2;
 
     @Column("ReputationFlags3")
-    private Short reputationFlags3;
+    private short reputationFlags3;
 
     @Column("ReputationFlags4")
-    private Short reputationFlags4;
+    private short reputationFlags4;
 
     @Column("ParentFactionID")
-    private Short parentFactionID;
+    private short parentFactionID;
 
     @Column("ParagonFactionID")
-    private Short paragonFactionID;
+    private short paragonFactionID;
 
     @Column("ParentFactionCap1")
-    private Byte parentFactionCap1;
+    private byte parentFactionCap1;
 
     @Column("ParentFactionCap2")
-    private Byte parentFactionCap2;
+    private byte parentFactionCap2;
 
     @Column("Expansion")
-    private Byte expansion;
+    private byte expansion;
 
     @Column("FriendshipRepID")
-    private Byte friendshipRepID;
+    private byte friendshipRepID;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     public boolean canHaveReputation() {

@@ -36,38 +36,38 @@ public class GarrSiteLevel implements DbcEntity {
     private int id;
 
     @Column("TownHallUiPosX")
-    private Float townHallUiPosX;
+    private float townHallUiPosX;
 
     @Column("TownHallUiPosY")
-    private Float townHallUiPosY;
+    private float townHallUiPosY;
 
     @Column("MapID")
-    private Short mapID;
+    private short mapID;
 
     @Column("UiTextureKitID")
-    private Short uiTextureKitID;
+    private short uiTextureKitID;
 
     @Column("UpgradeMovieID")
-    private Short upgradeMovieID;
+    private short upgradeMovieID;
 
     @Column("UpgradeCost")
-    private Short upgradeCost;
+    private short upgradeCost;
 
     @Column("UpgradeGoldCost")
-    private Short upgradeGoldCost;
+    private short upgradeGoldCost;
 
     @Column("GarrLevel")
-    private Byte garrLevel;
+    private byte garrLevel;
 
     @Column("GarrSiteID")
-    private Short garrSiteID;
+    private short garrSiteID;
 
     @Column("MaxBuildingLevel")
-    private Byte maxBuildingLevel;
+    private byte maxBuildingLevel;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

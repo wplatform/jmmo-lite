@@ -58,46 +58,46 @@ public class ChrClass implements DbcEntity {
     private String filename;
 
     @Column("CreateScreenFileDataID")
-    private Integer createScreenFileDataID;
+    private int createScreenFileDataID;
 
     @Column("SelectScreenFileDataID")
-    private Integer selectScreenFileDataID;
+    private int selectScreenFileDataID;
 
     @Column("LowResScreenFileDataID")
-    private Integer lowResScreenFileDataID;
+    private int lowResScreenFileDataID;
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
     @Column("StartingLevel")
-    private Integer startingLevel;
+    private int startingLevel;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("CinematicSequenceID")
-    private Short cinematicSequenceID;
+    private short cinematicSequenceID;
 
     @Column("DefaultSpec")
-    private Short defaultSpec;
+    private short defaultSpec;
 
     @Column("DisplayPower")
-    private Byte displayPower;
+    private byte displayPower;
 
     @Column("SpellClassSet")
-    private Byte spellClassSet;
+    private byte spellClassSet;
 
     @Column("AttackPowerPerStrength")
-    private Byte attackPowerPerStrength;
+    private byte attackPowerPerStrength;
 
     @Column("AttackPowerPerAgility")
-    private Byte attackPowerPerAgility;
+    private byte attackPowerPerAgility;
 
     @Column("RangedAttackPowerPerAgility")
-    private Byte rangedAttackPowerPerAgility;
+    private byte rangedAttackPowerPerAgility;
 
     @Column("PrimaryStatPriority")
-    private Byte primaryStatPriority;
+    private byte primaryStatPriority;
 
     @Id
     
@@ -107,6 +107,6 @@ public class ChrClass implements DbcEntity {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

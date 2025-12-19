@@ -30,17 +30,17 @@ public class RewardPackXItem implements DbcEntity {
     private int id;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Column("ItemQuantity")
-    private Integer itemQuantity;
+    private int itemQuantity;
 
     @Column("RewardPackID")
-    private Integer rewardPackID;
+    private int rewardPackID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

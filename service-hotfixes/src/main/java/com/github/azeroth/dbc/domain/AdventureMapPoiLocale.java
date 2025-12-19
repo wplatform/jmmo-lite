@@ -27,7 +27,7 @@ public class AdventureMapPoiLocale {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Title_lang")

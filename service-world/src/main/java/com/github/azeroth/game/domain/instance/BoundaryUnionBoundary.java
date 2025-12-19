@@ -1,18 +1,18 @@
-package com.github.azeroth.game.map;
+package com.github.azeroth.game.domain.instance;
 
-class BoundaryUnionBoundary extends AreaBoundary {
+import com.github.azeroth.game.domain.object.Position;
+import lombok.Getter;
+
+@Getter
+public class BoundaryUnionBoundary extends AreaBoundary {
     private final AreaBoundary b1;
     private final AreaBoundary b2;
 
 
-    public BoundaryUnionBoundary(AreaBoundary b1, AreaBoundary b2) {
-        this(b1, b2, false);
-    }
-
     public BoundaryUnionBoundary(AreaBoundary b1, AreaBoundary b2, boolean isInverted) {
         super(isInverted);
-        b1 = b1;
-        b2 = b2;
+        this.b1 = b1;
+        this.b2 = b2;
     }
 
     @Override

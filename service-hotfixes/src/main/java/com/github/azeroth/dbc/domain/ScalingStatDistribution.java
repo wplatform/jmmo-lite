@@ -30,17 +30,17 @@ public class ScalingStatDistribution implements DbcEntity {
     private int id;
 
     @Column("PlayerLevelToItemLevelCurveID")
-    private Short playerLevelToItemLevelCurveID;
+    private short playerLevelToItemLevelCurveID;
 
     @Column("MinLevel")
-    private Integer minLevel;
+    private int minLevel;
 
     @Column("MaxLevel")
-    private Integer maxLevel;
+    private int maxLevel;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -88,203 +88,203 @@ public class VehicleSeat implements DbcEntity {
     private int id;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Column("FlagsB")
-    private Integer flagsB;
+    private int flagsB;
 
     @Column("FlagsC")
-    private Integer flagsC;
+    private int flagsC;
 
     @Column("AttachmentOffsetX")
-    private Float attachmentOffsetX;
+    private float attachmentOffsetX;
 
     @Column("AttachmentOffsetY")
-    private Float attachmentOffsetY;
+    private float attachmentOffsetY;
 
     @Column("AttachmentOffsetZ")
-    private Float attachmentOffsetZ;
+    private float attachmentOffsetZ;
 
     @Column("EnterPreDelay")
-    private Float enterPreDelay;
+    private float enterPreDelay;
 
     @Column("EnterSpeed")
-    private Float enterSpeed;
+    private float enterSpeed;
 
     @Column("EnterGravity")
-    private Float enterGravity;
+    private float enterGravity;
 
     @Column("EnterMinDuration")
-    private Float enterMinDuration;
+    private float enterMinDuration;
 
     @Column("EnterMaxDuration")
-    private Float enterMaxDuration;
+    private float enterMaxDuration;
 
     @Column("EnterMinArcHeight")
-    private Float enterMinArcHeight;
+    private float enterMinArcHeight;
 
     @Column("EnterMaxArcHeight")
-    private Float enterMaxArcHeight;
+    private float enterMaxArcHeight;
 
     @Column("ExitPreDelay")
-    private Float exitPreDelay;
+    private float exitPreDelay;
 
     @Column("ExitSpeed")
-    private Float exitSpeed;
+    private float exitSpeed;
 
     @Column("ExitGravity")
-    private Float exitGravity;
+    private float exitGravity;
 
     @Column("ExitMinDuration")
-    private Float exitMinDuration;
+    private float exitMinDuration;
 
     @Column("ExitMaxDuration")
-    private Float exitMaxDuration;
+    private float exitMaxDuration;
 
     @Column("ExitMinArcHeight")
-    private Float exitMinArcHeight;
+    private float exitMinArcHeight;
 
     @Column("ExitMaxArcHeight")
-    private Float exitMaxArcHeight;
+    private float exitMaxArcHeight;
 
     @Column("PassengerYaw")
-    private Float passengerYaw;
+    private float passengerYaw;
 
     @Column("PassengerPitch")
-    private Float passengerPitch;
+    private float passengerPitch;
 
     @Column("PassengerRoll")
-    private Float passengerRoll;
+    private float passengerRoll;
 
     @Column("VehicleEnterAnimDelay")
-    private Float vehicleEnterAnimDelay;
+    private float vehicleEnterAnimDelay;
 
     @Column("VehicleExitAnimDelay")
-    private Float vehicleExitAnimDelay;
+    private float vehicleExitAnimDelay;
 
     @Column("CameraEnteringDelay")
-    private Float cameraEnteringDelay;
+    private float cameraEnteringDelay;
 
     @Column("CameraEnteringDuration")
-    private Float cameraEnteringDuration;
+    private float cameraEnteringDuration;
 
     @Column("CameraExitingDelay")
-    private Float cameraExitingDelay;
+    private float cameraExitingDelay;
 
     @Column("CameraExitingDuration")
-    private Float cameraExitingDuration;
+    private float cameraExitingDuration;
 
     @Column("CameraOffsetX")
-    private Float cameraOffsetX;
+    private float cameraOffsetX;
 
     @Column("CameraOffsetY")
-    private Float cameraOffsetY;
+    private float cameraOffsetY;
 
     @Column("CameraOffsetZ")
-    private Float cameraOffsetZ;
+    private float cameraOffsetZ;
 
     @Column("CameraPosChaseRate")
-    private Float cameraPosChaseRate;
+    private float cameraPosChaseRate;
 
     @Column("CameraFacingChaseRate")
-    private Float cameraFacingChaseRate;
+    private float cameraFacingChaseRate;
 
     @Column("CameraEnteringZoom")
-    private Float cameraEnteringZoom;
+    private float cameraEnteringZoom;
 
     @Column("CameraSeatZoomMin")
-    private Float cameraSeatZoomMin;
+    private float cameraSeatZoomMin;
 
     @Column("CameraSeatZoomMax")
-    private Float cameraSeatZoomMax;
+    private float cameraSeatZoomMax;
 
     @Column("UiSkinFileDataID")
-    private Integer uiSkinFileDataID;
+    private int uiSkinFileDataID;
 
     @Column("EnterAnimStart")
-    private Short enterAnimStart;
+    private short enterAnimStart;
 
     @Column("EnterAnimLoop")
-    private Short enterAnimLoop;
+    private short enterAnimLoop;
 
     @Column("RideAnimStart")
-    private Short rideAnimStart;
+    private short rideAnimStart;
 
     @Column("RideAnimLoop")
-    private Short rideAnimLoop;
+    private short rideAnimLoop;
 
     @Column("RideUpperAnimStart")
-    private Short rideUpperAnimStart;
+    private short rideUpperAnimStart;
 
     @Column("RideUpperAnimLoop")
-    private Short rideUpperAnimLoop;
+    private short rideUpperAnimLoop;
 
     @Column("ExitAnimStart")
-    private Short exitAnimStart;
+    private short exitAnimStart;
 
     @Column("ExitAnimLoop")
-    private Short exitAnimLoop;
+    private short exitAnimLoop;
 
     @Column("ExitAnimEnd")
-    private Short exitAnimEnd;
+    private short exitAnimEnd;
 
     @Column("VehicleEnterAnim")
-    private Short vehicleEnterAnim;
+    private short vehicleEnterAnim;
 
     @Column("VehicleExitAnim")
-    private Short vehicleExitAnim;
+    private short vehicleExitAnim;
 
     @Column("VehicleRideAnimLoop")
-    private Short vehicleRideAnimLoop;
+    private short vehicleRideAnimLoop;
 
     @Column("EnterAnimKitID")
-    private Short enterAnimKitID;
+    private short enterAnimKitID;
 
     @Column("RideAnimKitID")
-    private Short rideAnimKitID;
+    private short rideAnimKitID;
 
     @Column("ExitAnimKitID")
-    private Short exitAnimKitID;
+    private short exitAnimKitID;
 
     @Column("VehicleEnterAnimKitID")
-    private Short vehicleEnterAnimKitID;
+    private short vehicleEnterAnimKitID;
 
     @Column("VehicleRideAnimKitID")
-    private Short vehicleRideAnimKitID;
+    private short vehicleRideAnimKitID;
 
     @Column("VehicleExitAnimKitID")
-    private Short vehicleExitAnimKitID;
+    private short vehicleExitAnimKitID;
 
     @Column("CameraModeID")
-    private Short cameraModeID;
+    private short cameraModeID;
 
     @Column("AttachmentID")
-    private Byte attachmentID;
+    private byte attachmentID;
 
     @Column("PassengerAttachmentID")
-    private Byte passengerAttachmentID;
+    private byte passengerAttachmentID;
 
     @Column("VehicleEnterAnimBone")
-    private Byte vehicleEnterAnimBone;
+    private byte vehicleEnterAnimBone;
 
     @Column("VehicleExitAnimBone")
-    private Byte vehicleExitAnimBone;
+    private byte vehicleExitAnimBone;
 
     @Column("VehicleRideAnimLoopBone")
-    private Byte vehicleRideAnimLoopBone;
+    private byte vehicleRideAnimLoopBone;
 
     @Column("VehicleAbilityDisplay")
-    private Byte vehicleAbilityDisplay;
+    private byte vehicleAbilityDisplay;
 
     @Column("EnterUISoundID")
-    private Integer enterUISoundID;
+    private int enterUISoundID;
 
     @Column("ExitUISoundID")
-    private Integer exitUISoundID;
+    private int exitUISoundID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

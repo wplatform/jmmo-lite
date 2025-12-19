@@ -45,57 +45,57 @@ public class TaxiNode implements DbcEntity {
     private LocalizedString name;
 
     @Column("PosX")
-    private Float posX;
+    private float posX;
 
     @Column("PosY")
-    private Float posY;
+    private float posY;
 
     @Column("PosZ")
-    private Float posZ;
+    private float posZ;
 
     @Column("MountCreatureID1")
-    private Integer mountCreatureID1;
+    private int mountCreatureID1;
 
     @Column("MountCreatureID2")
-    private Integer mountCreatureID2;
+    private int mountCreatureID2;
 
     @Column("MapOffsetX")
-    private Float mapOffsetX;
+    private float mapOffsetX;
 
     @Column("MapOffsetY")
-    private Float mapOffsetY;
+    private float mapOffsetY;
 
     @Column("Facing")
-    private Float facing;
+    private float facing;
 
     @Column("FlightMapOffsetX")
-    private Float flightMapOffsetX;
+    private float flightMapOffsetX;
 
     @Column("FlightMapOffsetY")
-    private Float flightMapOffsetY;
+    private float flightMapOffsetY;
 
     @Column("ContinentID")
-    private Short continentID;
+    private short continentID;
 
     @Column("ConditionID")
-    private Integer conditionID;
+    private int conditionID;
 
     @Column("CharacterBitNumber")
-    private Short characterBitNumber;
+    private short characterBitNumber;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("UiTextureKitID")
-    private Integer uiTextureKitID;
+    private int uiTextureKitID;
 
     @Column("SpecialIconConditionID")
-    private Integer specialIconConditionID;
+    private int specialIconConditionID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     public EnumFlag<TaxiNodeFlag> flags() { return EnumFlag.of(TaxiNodeFlag.class, flags); }

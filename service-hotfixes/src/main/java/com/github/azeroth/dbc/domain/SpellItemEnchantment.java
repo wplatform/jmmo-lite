@@ -50,86 +50,86 @@ public class SpellItemEnchantment implements DbcEntity {
     private LocalizedString name;
 
     @Column("EffectArg1")
-    private Integer effectArg1;
+    private int effectArg1;
 
     @Column("EffectArg2")
-    private Integer effectArg2;
+    private int effectArg2;
 
     @Column("EffectArg3")
-    private Integer effectArg3;
+    private int effectArg3;
 
     @Column("EffectScalingPoints1")
-    private Float effectScalingPoints1;
+    private float effectScalingPoints1;
 
     @Column("EffectScalingPoints2")
-    private Float effectScalingPoints2;
+    private float effectScalingPoints2;
 
     @Column("EffectScalingPoints3")
-    private Float effectScalingPoints3;
+    private float effectScalingPoints3;
 
     @Column("TransmogCost")
-    private Integer transmogCost;
+    private int transmogCost;
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
     @Column("EffectPointsMin1")
-    private Short effectPointsMin1;
+    private short effectPointsMin1;
 
     @Column("EffectPointsMin2")
-    private Short effectPointsMin2;
+    private short effectPointsMin2;
 
     @Column("EffectPointsMin3")
-    private Short effectPointsMin3;
+    private short effectPointsMin3;
 
     @Column("ItemVisual")
-    private Short itemVisual;
+    private short itemVisual;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("RequiredSkillID")
-    private Short requiredSkillID;
+    private short requiredSkillID;
 
     @Column("RequiredSkillRank")
-    private Short requiredSkillRank;
+    private short requiredSkillRank;
 
     @Column("ItemLevel")
-    private Short itemLevel;
+    private short itemLevel;
 
     @Column("Charges")
-    private Byte charges;
+    private byte charges;
 
     @Column("Effect1")
-    private Byte effect1;
+    private byte effect1;
 
     @Column("Effect2")
-    private Byte effect2;
+    private byte effect2;
 
     @Column("Effect3")
-    private Byte effect3;
+    private byte effect3;
 
     @Column("ConditionID")
-    private Byte conditionID;
+    private byte conditionID;
 
     @Column("MinLevel")
-    private Byte minLevel;
+    private byte minLevel;
 
     @Column("MaxLevel")
-    private Byte maxLevel;
+    private byte maxLevel;
 
     @Column("ScalingClass")
-    private Byte scalingClass;
+    private byte scalingClass;
 
     @Column("ScalingClassRestricted")
-    private Byte scalingClassRestricted;
+    private byte scalingClassRestricted;
 
     @Column("TransmogPlayerConditionID")
-    private Integer transmogPlayerConditionID;
+    private int transmogPlayerConditionID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -34,14 +34,14 @@ public class TotemCategory implements DbcEntity {
     private LocalizedString name;
 
     @Column("TotemCategoryMask")
-    private Integer totemCategoryMask;
+    private int totemCategoryMask;
 
     @Column("TotemCategoryType")
-    private Byte totemCategoryType;
+    private byte totemCategoryType;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

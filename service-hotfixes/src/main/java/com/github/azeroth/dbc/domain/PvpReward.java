@@ -30,17 +30,17 @@ public class PvpReward implements DbcEntity {
     private int id;
 
     @Column("HonorLevel")
-    private Integer honorLevel;
+    private int honorLevel;
 
     @Column("PrestigeLevel")
-    private Integer prestigeLevel;
+    private int prestigeLevel;
 
     @Column("RewardPackID")
-    private Integer rewardPackID;
+    private int rewardPackID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

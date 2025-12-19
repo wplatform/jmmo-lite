@@ -32,11 +32,11 @@ public class NamesProfanity implements DbcEntity {
     private String name;
 
     @Column("Language")
-    private Byte language;
+    private byte language;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

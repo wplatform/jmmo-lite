@@ -48,47 +48,47 @@ public class ItemSearchName implements DbcEntity {
     private int id;
 
     @Column("Flags1")
-    private Integer flags1;
+    private int flags1;
 
     @Column("Flags2")
-    private Integer flags2;
+    private int flags2;
 
     @Column("Flags3")
-    private Integer flags3;
+    private int flags3;
 
     @Column("ItemLevel")
-    private Short itemLevel;
+    private short itemLevel;
 
     @Column("OverallQualityID")
-    private Byte overallQualityID;
+    private byte overallQualityID;
 
     @Column("ExpansionID")
-    private Byte expansionID;
+    private byte expansionID;
 
     @Column("RequiredLevel")
-    private Byte requiredLevel;
+    private byte requiredLevel;
 
     @Column("MinFactionID")
-    private Short minFactionID;
+    private short minFactionID;
 
     @Column("MinReputation")
-    private Byte minReputation;
+    private byte minReputation;
 
     @Column("AllowableClass")
-    private Integer allowableClass;
+    private int allowableClass;
 
     @Column("RequiredSkill")
-    private Short requiredSkill;
+    private short requiredSkill;
 
     @Column("RequiredSkillRank")
-    private Short requiredSkillRank;
+    private short requiredSkillRank;
 
     @Column("RequiredAbility")
-    private Integer requiredAbility;
+    private int requiredAbility;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

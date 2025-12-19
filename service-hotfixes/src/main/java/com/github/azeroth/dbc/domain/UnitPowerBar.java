@@ -57,74 +57,74 @@ public class UnitPowerBar implements DbcEntity {
     private LocalizedString toolTip;
 
     @Column("RegenerationPeace")
-    private Float regenerationPeace;
+    private float regenerationPeace;
 
     @Column("RegenerationCombat")
-    private Float regenerationCombat;
+    private float regenerationCombat;
 
     @Column("FileDataID1")
-    private Integer fileDataID1;
+    private int fileDataID1;
 
     @Column("FileDataID2")
-    private Integer fileDataID2;
+    private int fileDataID2;
 
     @Column("FileDataID3")
-    private Integer fileDataID3;
+    private int fileDataID3;
 
     @Column("FileDataID4")
-    private Integer fileDataID4;
+    private int fileDataID4;
 
     @Column("FileDataID5")
-    private Integer fileDataID5;
+    private int fileDataID5;
 
     @Column("FileDataID6")
-    private Integer fileDataID6;
+    private int fileDataID6;
 
     @Column("Color1")
-    private Integer color1;
+    private int color1;
 
     @Column("Color2")
-    private Integer color2;
+    private int color2;
 
     @Column("Color3")
-    private Integer color3;
+    private int color3;
 
     @Column("Color4")
-    private Integer color4;
+    private int color4;
 
     @Column("Color5")
-    private Integer color5;
+    private int color5;
 
     @Column("Color6")
-    private Integer color6;
+    private int color6;
 
     @Column("StartInset")
-    private Float startInset;
+    private float startInset;
 
     @Column("EndInset")
-    private Float endInset;
+    private float endInset;
 
     @Column("StartPower")
-    private Short startPower;
+    private short startPower;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("CenterPower")
-    private Byte centerPower;
+    private byte centerPower;
 
     @Column("BarType")
-    private Byte barType;
+    private byte barType;
 
     @Column("MinPower")
-    private Integer minPower;
+    private int minPower;
 
     @Column("MaxPower")
-    private Integer maxPower;
+    private int maxPower;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

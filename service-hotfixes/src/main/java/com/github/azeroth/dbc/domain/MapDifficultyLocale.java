@@ -27,7 +27,7 @@ public class MapDifficultyLocale {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("Message_lang")

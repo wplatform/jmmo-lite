@@ -28,11 +28,11 @@ public class ItemCurrencyCost implements DbcEntity {
     private int id;
 
     @Column("ItemID")
-    private Integer itemID;
+    private int itemID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

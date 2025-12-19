@@ -1,21 +1,28 @@
 package com.github.azeroth.game.ai;
 
 
+import com.github.azeroth.defines.AiReaction;
 import com.github.azeroth.defines.TextEmote;
+import com.github.azeroth.game.ai.enums.EvadeReason;
+import com.github.azeroth.game.domain.object.enums.TypeId;
+import com.github.azeroth.game.domain.unit.ReactState;
+import com.github.azeroth.game.domain.unit.UnitState;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.player.Player;
+import com.github.azeroth.game.entity.unit.Unit;
+import com.github.azeroth.game.map.InstanceScript;
 import com.github.azeroth.game.movement.enums.MovementGeneratorType;
 import com.github.azeroth.game.spell.SpellInfo;
 
 public class CreatureAI extends UnitAI {
 
     protected final Creature me;
-
-    protected EventMap events = new EventMap();
-    protected TaskScheduler schedulerProtected = new TaskScheduler();
-    protected InstanceScript script;
-    private boolean isEngaged;
+    private final int scriptId;
+    private boolean engaged;
     private boolean moveInLosLocked;
+
+    private boolean isEngaged;
+
     private ArrayList<AreaBoundary> boundary = new ArrayList<AreaBoundary>();
     private boolean negateBoundary;
 
@@ -42,11 +49,11 @@ public class CreatureAI extends UnitAI {
         talk(id, null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void Talk(uint id, WorldObject whisperTarget = null)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final void talk(int id, WorldObject whisperTarget) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: Global.CreatureTextMgr.SendChat(Me, (byte)id, whisperTarget);
         Global.getCreatureTextMgr().sendChat(me, (byte)id, whisperTarget);
     }
@@ -73,7 +80,7 @@ public class CreatureAI extends UnitAI {
         doZoneInCombat(null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void DoZoneInCombat(Creature creature = null)
     public final void doZoneInCombat(Creature creature) {
         if (creature == null) {
@@ -141,17 +148,17 @@ public class CreatureAI extends UnitAI {
         }
 
         // If this unit isn't an NPC, is already distracted, is fighting, is confused, stunned or fleeing, do nothing
-        if (!me.isTypeId(TypeId.Unit) || me.isEngaged() || me.hasUnitState(UnitState.Confused.getValue() | UnitState.Stunned.getValue().getValue() | UnitState.Fleeing.getValue().getValue().getValue() | UnitState.Distracted.getValue().getValue().getValue())) {
+        if (!me.isTypeId(TypeId.UNIT) || me.isEngaged() || me.hasUnitState(UnitState.Confused.getValue() | UnitState.Stunned.getValue().getValue() | UnitState.Fleeing.getValue().getValue().getValue() | UnitState.Distracted.getValue().getValue().getValue())) {
             return;
         }
 
         // Only alert for hostiles!
-        if (me.isCivilian() || me.hasReactState(ReactStates.Passive) || !me.isHostileTo(who) || !me.isTargetAcceptable(who)) {
+        if (me.isCivilian() || me.hasReactState(ReactState.PASSIVE) || !me.isHostileTo(who) || !me.isTargetAcceptable(who)) {
             return;
         }
 
         // Send alert sound (if any) for this creature
-        me.sendAIReaction(AiReaction.Alert);
+        me.sendAIReaction(AiReaction.ALERT);
 
         // Face the unit (stealthed player) and set distracted state for 5 seconds
         me.getMotionMaster().moveDistract(5 * Time.InMilliseconds, me.location.getAbsoluteAngle(who.location));
@@ -221,7 +228,7 @@ public class CreatureAI extends UnitAI {
         enterEvadeMode(EvadeReason.Other);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public virtual void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     public void enterEvadeMode(EvadeReason why) {
         if (!_EnterEvadeMode(why)) {
@@ -305,7 +312,7 @@ public class CreatureAI extends UnitAI {
         return _EnterEvadeMode(EvadeReason.Other);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public bool _EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     public final boolean _EnterEvadeMode(EvadeReason why) {
         if (me.isInEvadeMode()) {
@@ -343,7 +350,7 @@ public class CreatureAI extends UnitAI {
         return visualizeBoundary(duration, null, false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public CypherStrings VisualizeBoundary(TimeSpan duration, Unit owner = null, bool fill = false)
     public final CypherStrings visualizeBoundary(TimeSpan duration, Unit owner, boolean fill) {
         if (owner == null) {
@@ -432,7 +439,7 @@ public class CreatureAI extends UnitAI {
         return isInBoundary(null);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public bool IsInBoundary(Position who = null)
     public final boolean isInBoundary(Position who) {
         if (boundary == null) {
@@ -461,9 +468,9 @@ public class CreatureAI extends UnitAI {
         return doSummon(entry, pos, despawnTime, TempSummonType.CorpseTimedDespawn);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public Creature DoSummon(uint entry, Position pos, TimeSpan despawnTime, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final Creature doSummon(int entry, Position pos, TimeSpan despawnTime, TempSummonType summonType) {
         return me.summonCreature(entry, pos, summonType, despawnTime);
     }
@@ -481,9 +488,9 @@ public class CreatureAI extends UnitAI {
         return doSummon(entry, obj, 5.0f, null, TempSummonType.CorpseTimedDespawn);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public Creature DoSummon(uint entry, WorldObject obj, float radius = 5.0f, TimeSpan despawnTime = default, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final Creature doSummon(int entry, WorldObject obj, float radius, TimeSpan despawnTime, TempSummonType summonType) {
         var pos = obj.getRandomNearPosition(radius);
 
@@ -503,9 +510,9 @@ public class CreatureAI extends UnitAI {
         return doSummonFlyer(entry, obj, flightZ, 5.0f, null, TempSummonType.CorpseTimedDespawn);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public Creature DoSummonFlyer(uint entry, WorldObject obj, float flightZ, float radius = 5.0f, TimeSpan despawnTime = default, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final Creature doSummonFlyer(int entry, WorldObject obj, float flightZ, float radius, TimeSpan despawnTime, TempSummonType summonType) {
         var pos = obj.getRandomNearPosition(radius);
         pos.z += flightZ;
@@ -528,7 +535,7 @@ public class CreatureAI extends UnitAI {
         setBoundary(boundary, false);
     }
 
-//C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+
 //ORIGINAL LINE: public void SetBoundary(List<AreaBoundary> boundary, bool negateBoundaries = false)
     public final void setBoundary(ArrayList<AreaBoundary> boundary, boolean negateBoundaries) {
         this.boundary = boundary;
@@ -614,7 +621,7 @@ public class CreatureAI extends UnitAI {
     }
 
     // Called at waypoint reached or point movement finished
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void MovementInform(MovementGeneratorType type, uint id)
     public void movementInform(MovementGeneratorType type, int id) {
     }
@@ -655,14 +662,14 @@ public class CreatureAI extends UnitAI {
     }
 
     // Called when a player selects a gossip item in the creature's gossip menu.
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
     public boolean onGossipSelect(Player player, int menuId, int gossipListId) {
         return false;
     }
 
     // Called when a player selects a gossip with a code in the creature's gossip menu.
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual bool OnGossipSelectCode(Player player, uint menuId, uint gossipListId, string code)
     public boolean onGossipSelectCode(Player player, int menuId, int gossipListId, String code) {
         return false;
@@ -673,24 +680,24 @@ public class CreatureAI extends UnitAI {
     }
 
     // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
     public void onQuestReward(Player player, Quest quest, LootItemType type, int opt) {
     }
 
     /** == Waypoints system =============================
     */
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void WaypointStarted(uint nodeId, uint pathId)
     public void waypointStarted(int nodeId, int pathId) {
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void WaypointReached(uint nodeId, uint pathId)
     public void waypointReached(int nodeId, int pathId) {
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void WaypointPathEnded(uint nodeId, uint pathId)
     public void waypointPathEnded(int nodeId, int pathId) {
     }

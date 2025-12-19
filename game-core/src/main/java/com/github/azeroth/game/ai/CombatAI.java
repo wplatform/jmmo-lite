@@ -1,18 +1,19 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.entities.*;
-import game.*;
+
+
+
+import com.github.azeroth.game.entity.creature.Creature;
+
 import java.util.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
 
 
 
 
 public class CombatAI extends CreatureAI {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: protected List<uint> _spells = new();
     protected ArrayList<Integer> spells = new ArrayList<Integer>();
 
@@ -41,7 +42,7 @@ public class CombatAI extends CreatureAI {
         for (var id : spells) {
             var info = getAISpellInfo(id, me.getMap().getDifficultyID());
 
-            if (info != null && info.condition == AICondition.Die) {
+            if (info != null && info.condition == AICondition.DIE) {
                 me.castSpell(killer, id, true);
             }
         }
@@ -53,15 +54,15 @@ public class CombatAI extends CreatureAI {
             var info = getAISpellInfo(id, me.getMap().getDifficultyID());
 
             if (info != null) {
-                if (info.condition == AICondition.Aggro) {
+                if (info.condition == AICondition.AGGRO) {
                     me.castSpell(victim, id, false);
-                } else if (info.condition == AICondition.Combat) {
+                } else if (info.condition == AICondition.COMBAT) {
                     events.ScheduleEvent(id, info.cooldown, info.cooldown * 2);
                 }
             }
         }
     }
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {
@@ -89,7 +90,7 @@ public class CombatAI extends CreatureAI {
         }
     }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void SpellInterrupted(uint spellId, uint unTimeMs)
     @Override
     public void spellInterrupted(int spellId, int unTimeMs) {

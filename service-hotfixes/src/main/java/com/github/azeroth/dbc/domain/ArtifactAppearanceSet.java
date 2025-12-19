@@ -38,19 +38,19 @@ public class ArtifactAppearanceSet implements DbcEntity {
     private LocalizedString description;
 
     @Column("UiCameraID")
-    private Short uiCameraID;
+    private short uiCameraID;
 
     @Column("AltHandUICameraID")
-    private Short altHandUICameraID;
+    private short altHandUICameraID;
 
     @Column("DisplayIndex")
-    private Byte displayIndex;
+    private byte displayIndex;
 
     @Column("ForgeAttachmentOverride")
-    private Byte forgeAttachmentOverride;
+    private byte forgeAttachmentOverride;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
     
@@ -58,11 +58,11 @@ public class ArtifactAppearanceSet implements DbcEntity {
     private int id;
 
     @Column("ArtifactID")
-    private Short artifactID;
+    private short artifactID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

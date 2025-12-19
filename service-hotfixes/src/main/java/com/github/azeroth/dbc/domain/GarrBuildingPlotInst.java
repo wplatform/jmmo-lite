@@ -27,19 +27,19 @@ import lombok.ToString;
 })
 public class GarrBuildingPlotInst implements DbcEntity {
     @Column("MapOffsetX")
-    private Float mapOffsetX;
+    private float mapOffsetX;
 
     @Column("MapOffsetY")
-    private Float mapOffsetY;
+    private float mapOffsetY;
 
     @Column("UiTextureAtlasMemberID")
-    private Short uiTextureAtlasMemberID;
+    private short uiTextureAtlasMemberID;
 
     @Column("GarrSiteLevelPlotInstID")
-    private Short garrSiteLevelPlotInstID;
+    private short garrSiteLevelPlotInstID;
 
     @Column("GarrBuildingID")
-    private Short garrBuildingID;
+    private short garrBuildingID;
 
     @Id
 
@@ -49,6 +49,6 @@ public class GarrBuildingPlotInst implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

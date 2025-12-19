@@ -34,14 +34,14 @@ public class FriendshipRepReaction implements DbcEntity {
     private LocalizedString reaction;
 
     @Column("ReactionThreshold")
-    private Integer reactionThreshold;
+    private int reactionThreshold;
 
     @Column("FriendshipRepID")
-    private Short friendshipRepID;
+    private short friendshipRepID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -37,19 +37,19 @@ public class GarrAbility implements DbcEntity {
     private LocalizedString description;
 
     @Column("IconFileDataID")
-    private Integer iconFileDataID;
+    private int iconFileDataID;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("FactionChangeGarrAbilityID")
-    private Short factionChangeGarrAbilityID;
+    private short factionChangeGarrAbilityID;
 
     @Column("GarrAbilityCategoryID")
-    private Byte garrAbilityCategoryID;
+    private byte garrAbilityCategoryID;
 
     @Column("GarrFollowerTypeID")
-    private Byte garrFollowerTypeID;
+    private byte garrFollowerTypeID;
 
     @Id
     
@@ -59,6 +59,6 @@ public class GarrAbility implements DbcEntity {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

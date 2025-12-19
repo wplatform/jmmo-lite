@@ -30,17 +30,17 @@ public class SpellDuration implements DbcEntity {
     private int id;
 
     @Column("Duration")
-    private Integer duration;
+    private int duration;
 
     @Column("MaxDuration")
-    private Integer maxDuration;
+    private int maxDuration;
 
     @Column("DurationPerLevel")
-    private Integer durationPerLevel;
+    private int durationPerLevel;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

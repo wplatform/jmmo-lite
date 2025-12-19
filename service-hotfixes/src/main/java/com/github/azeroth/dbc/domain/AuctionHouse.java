@@ -35,17 +35,17 @@ public class AuctionHouse implements DbcEntity {
     private LocalizedString name;
 
     @Column("FactionID")
-    private Short factionID;
+    private short factionID;
 
     @Column("DepositRate")
-    private Byte depositRate;
+    private byte depositRate;
 
     @Column("ConsignmentRate")
-    private Byte consignmentRate;
+    private byte consignmentRate;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

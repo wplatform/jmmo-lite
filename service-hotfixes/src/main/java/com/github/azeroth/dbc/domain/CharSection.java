@@ -34,35 +34,35 @@ public class CharSection implements DbcEntity {
     private int id;
 
     @Column("MaterialResourcesID1")
-    private Integer materialResourcesID1;
+    private int materialResourcesID1;
 
     @Column("MaterialResourcesID2")
-    private Integer materialResourcesID2;
+    private int materialResourcesID2;
 
     @Column("MaterialResourcesID3")
-    private Integer materialResourcesID3;
+    private int materialResourcesID3;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Column("RaceID")
-    private Byte raceID;
+    private byte raceID;
 
     @Column("SexID")
-    private Byte sexID;
+    private byte sexID;
 
     @Column("BaseSection")
-    private Byte baseSection;
+    private byte baseSection;
 
     @Column("VariationIndex")
-    private Byte variationIndex;
+    private byte variationIndex;
 
     @Column("ColorIndex")
-    private Byte colorIndex;
+    private byte colorIndex;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

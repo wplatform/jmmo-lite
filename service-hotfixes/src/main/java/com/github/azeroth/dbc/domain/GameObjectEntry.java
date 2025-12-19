@@ -38,70 +38,70 @@ public class GameObjectEntry implements DbcEntity {
     private LocalizedString name;
 
     @Column("PosX")
-    private Float posX;
+    private float posX;
 
     @Column("PosY")
-    private Float posY;
+    private float posY;
 
     @Column("PosZ")
-    private Float posZ;
+    private float posZ;
 
     @Column("Rot1")
-    private Float rot1;
+    private float rot1;
 
     @Column("Rot2")
-    private Float rot2;
+    private float rot2;
 
     @Column("Rot3")
-    private Float rot3;
+    private float rot3;
 
     @Column("Rot4")
-    private Float rot4;
+    private float rot4;
 
     @Column("Scale")
-    private Float scale;
+    private float scale;
 
     @Column("PropValue1")
-    private Integer propValue1;
+    private int propValue1;
 
     @Column("PropValue2")
-    private Integer propValue2;
+    private int propValue2;
 
     @Column("PropValue3")
-    private Integer propValue3;
+    private int propValue3;
 
     @Column("PropValue4")
-    private Integer propValue4;
+    private int propValue4;
 
     @Column("PropValue5")
-    private Integer propValue5;
+    private int propValue5;
 
     @Column("PropValue6")
-    private Integer propValue6;
+    private int propValue6;
 
     @Column("PropValue7")
-    private Integer propValue7;
+    private int propValue7;
 
     @Column("PropValue8")
-    private Integer propValue8;
+    private int propValue8;
 
     @Column("OwnerID")
-    private Short ownerID;
+    private short ownerID;
 
     @Column("DisplayID")
-    private Integer displayID;
+    private int displayID;
 
     @Column("PhaseID")
-    private Short phaseID;
+    private short phaseID;
 
     @Column("PhaseGroupID")
-    private Short phaseGroupID;
+    private short phaseGroupID;
 
     @Column("PhaseUseFlags")
-    private Byte phaseUseFlags;
+    private byte phaseUseFlags;
 
     @Column("TypeID")
-    private Byte typeID;
+    private byte typeID;
 
     @Id
 
@@ -111,7 +111,7 @@ public class GameObjectEntry implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     public int[] getPropValues() {

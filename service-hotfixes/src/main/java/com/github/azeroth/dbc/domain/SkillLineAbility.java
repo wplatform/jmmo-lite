@@ -44,44 +44,44 @@ public class SkillLineAbility implements DbcEntity {
     private int id;
 
     @Column("Spell")
-    private Integer spell;
+    private int spell;
 
     @Column("SupercedesSpell")
-    private Integer supercedesSpell;
+    private int supercedesSpell;
 
     @Column("SkillLine")
-    private Short skillLine;
+    private short skillLine;
 
     @Column("TrivialSkillLineRankHigh")
-    private Short trivialSkillLineRankHigh;
+    private short trivialSkillLineRankHigh;
 
     @Column("TrivialSkillLineRankLow")
-    private Short trivialSkillLineRankLow;
+    private short trivialSkillLineRankLow;
 
     @Column("UniqueBit")
-    private Short uniqueBit;
+    private short uniqueBit;
 
     @Column("TradeSkillCategoryID")
-    private Short tradeSkillCategoryID;
+    private short tradeSkillCategoryID;
 
     @Column("NumSkillUps")
-    private Byte numSkillUps;
+    private byte numSkillUps;
 
     @Column("ClassMask")
-    private Integer classMask;
+    private int classMask;
 
     @Column("MinSkillLineRank")
-    private Short minSkillLineRank;
+    private short minSkillLineRank;
 
     @Column("AcquireMethod")
-    private Byte acquireMethod;
+    private byte acquireMethod;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -59,87 +59,87 @@ public class AreaTable implements DbcEntity {
     private LocalizedString areaName;
 
     @Column("Flags1")
-    private Integer flags1;
+    private int flags1;
 
     @Column("Flags2")
-    private Integer flags2;
+    private int flags2;
 
     @Column("AmbientMultiplier")
-    private Float ambientMultiplier;
+    private float ambientMultiplier;
 
     @Column("ContinentID")
-    private Short continentID;
+    private short continentID;
 
     @Column("ParentAreaID")
-    private Short parentAreaID;
+    private short parentAreaID;
 
     @Column("AreaBit")
-    private Short areaBit;
+    private short areaBit;
 
     @Column("AmbienceID")
-    private Short ambienceID;
+    private short ambienceID;
 
     @Column("ZoneMusic")
-    private Short zoneMusic;
+    private short zoneMusic;
 
     @Column("IntroSound")
-    private Short introSound;
+    private short introSound;
 
     @Column("LiquidTypeID1")
-    private Short liquidTypeID1;
+    private short liquidTypeID1;
 
     @Column("LiquidTypeID2")
-    private Short liquidTypeID2;
+    private short liquidTypeID2;
 
     @Column("LiquidTypeID3")
-    private Short liquidTypeID3;
+    private short liquidTypeID3;
 
     @Column("LiquidTypeID4")
-    private Short liquidTypeID4;
+    private short liquidTypeID4;
 
     @Column("UwZoneMusic")
-    private Short uwZoneMusic;
+    private short uwZoneMusic;
 
     @Column("UwAmbience")
-    private Short uwAmbience;
+    private short uwAmbience;
 
     @Column("PvpCombatWorldStateID")
-    private Short pvpCombatWorldStateID;
+    private short pvpCombatWorldStateID;
 
     @Column("SoundProviderPref")
-    private Byte soundProviderPref;
+    private byte soundProviderPref;
 
     @Column("SoundProviderPrefUnderwater")
-    private Byte soundProviderPrefUnderwater;
+    private byte soundProviderPrefUnderwater;
 
     @Column("ExplorationLevel")
-    private Byte explorationLevel;
+    private byte explorationLevel;
 
     @Column("FactionGroupMask")
-    private Byte factionGroupMask;
+    private byte factionGroupMask;
 
     @Column("MountFlags")
-    private Byte mountFlags;
+    private byte mountFlags;
 
     @Column("WildBattlePetLevelMin")
-    private Byte wildBattlePetLevelMin;
+    private byte wildBattlePetLevelMin;
 
     @Column("WildBattlePetLevelMax")
-    private Byte wildBattlePetLevelMax;
+    private byte wildBattlePetLevelMax;
 
     @Column("WindSettingsID")
-    private Byte windSettingsID;
+    private byte windSettingsID;
 
     @Column("UwIntroSound")
-    private Integer uwIntroSound;
+    private int uwIntroSound;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
-    public Short getLiquidTypeID(int index) {
+    public short getLiquidTypeID(int index) {
         Short[] shorts = {liquidTypeID1, liquidTypeID2, liquidTypeID3, liquidTypeID4};
         return shorts[index];
     }

@@ -37,38 +37,38 @@ public class SpellAuraRestriction implements DbcEntity {
     private int id;
 
     @Column("CasterAuraSpell")
-    private Integer casterAuraSpell;
+    private int casterAuraSpell;
 
     @Column("TargetAuraSpell")
-    private Integer targetAuraSpell;
+    private int targetAuraSpell;
 
     @Column("ExcludeCasterAuraSpell")
-    private Integer excludeCasterAuraSpell;
+    private int excludeCasterAuraSpell;
 
     @Column("ExcludeTargetAuraSpell")
-    private Integer excludeTargetAuraSpell;
+    private int excludeTargetAuraSpell;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("CasterAuraState")
-    private Byte casterAuraState;
+    private byte casterAuraState;
 
     @Column("TargetAuraState")
-    private Byte targetAuraState;
+    private byte targetAuraState;
 
     @Column("ExcludeCasterAuraState")
-    private Byte excludeCasterAuraState;
+    private byte excludeCasterAuraState;
 
     @Column("ExcludeTargetAuraState")
-    private Byte excludeTargetAuraState;
+    private byte excludeTargetAuraState;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

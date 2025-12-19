@@ -32,23 +32,23 @@ public class ArtifactUnlock implements DbcEntity {
     private int id;
 
     @Column("ItemBonusListID")
-    private Short itemBonusListID;
+    private short itemBonusListID;
 
     @Column("PowerRank")
-    private Byte powerRank;
+    private byte powerRank;
 
     @Column("PowerID")
-    private Integer powerID;
+    private int powerID;
 
     @Column("PlayerConditionID")
-    private Integer playerConditionID;
+    private int playerConditionID;
 
     @Column("ArtifactID")
-    private Byte artifactID;
+    private byte artifactID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

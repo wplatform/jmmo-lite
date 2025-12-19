@@ -32,9 +32,9 @@ public interface DbcDefine {
     int MAX_SPELL_EFFECTS = 32;
     int MAX_EFFECT_MASK = 0xFFFFFFFF;
 
-    int MAX_SPELL_AURA_INTERRUPT_FLAGS = 2;
+    byte MAX_SPELL_AURA_INTERRUPT_FLAGS = 2;
 
-    int MAX_POWERS_PER_SPELL = 4;
+    byte MAX_POWERS_PER_SPELL = 4;
 
     byte MAX_TALENT_TIERS = 7;
 
@@ -43,6 +43,10 @@ public interface DbcDefine {
     byte MAX_PVP_TALENT_TIERS = 6;
 
     byte MAX_PVP_TALENT_COLUMNS = 3;
+
+    byte MAX_SPELL_TOTEMS = 2;
+
+    byte MAX_SPELL_REAGENTS = 8;
 
     int WORLD_MAP_TRANSFORMS_FLAG_DUNGEON = 0x04;
 

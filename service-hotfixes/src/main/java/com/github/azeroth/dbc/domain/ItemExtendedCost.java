@@ -37,86 +37,86 @@ public class ItemExtendedCost implements DbcEntity {
     private int id;
 
     @Column("ItemID1")
-    private Integer itemID1;
+    private int itemID1;
 
     @Column("ItemID2")
-    private Integer itemID2;
+    private int itemID2;
 
     @Column("ItemID3")
-    private Integer itemID3;
+    private int itemID3;
 
     @Column("ItemID4")
-    private Integer itemID4;
+    private int itemID4;
 
     @Column("ItemID5")
-    private Integer itemID5;
+    private int itemID5;
 
     @Column("CurrencyCount1")
-    private Integer currencyCount1;
+    private int currencyCount1;
 
     @Column("CurrencyCount2")
-    private Integer currencyCount2;
+    private int currencyCount2;
 
     @Column("CurrencyCount3")
-    private Integer currencyCount3;
+    private int currencyCount3;
 
     @Column("CurrencyCount4")
-    private Integer currencyCount4;
+    private int currencyCount4;
 
     @Column("CurrencyCount5")
-    private Integer currencyCount5;
+    private int currencyCount5;
 
     @Column("ItemCount1")
-    private Short itemCount1;
+    private short itemCount1;
 
     @Column("ItemCount2")
-    private Short itemCount2;
+    private short itemCount2;
 
     @Column("ItemCount3")
-    private Short itemCount3;
+    private short itemCount3;
 
     @Column("ItemCount4")
-    private Short itemCount4;
+    private short itemCount4;
 
     @Column("ItemCount5")
-    private Short itemCount5;
+    private short itemCount5;
 
     @Column("RequiredArenaRating")
-    private Short requiredArenaRating;
+    private short requiredArenaRating;
 
     @Column("CurrencyID1")
-    private Short currencyID1;
+    private short currencyID1;
 
     @Column("CurrencyID2")
-    private Short currencyID2;
+    private short currencyID2;
 
     @Column("CurrencyID3")
-    private Short currencyID3;
+    private short currencyID3;
 
     @Column("CurrencyID4")
-    private Short currencyID4;
+    private short currencyID4;
 
     @Column("CurrencyID5")
-    private Short currencyID5;
+    private short currencyID5;
 
     @Column("ArenaBracket")
-    private Byte arenaBracket;
+    private byte arenaBracket;
 
     @Column("MinFactionID")
-    private Byte minFactionID;
+    private byte minFactionID;
 
     @Column("MinReputation")
-    private Byte minReputation;
+    private byte minReputation;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("RequiredAchievement")
-    private Byte requiredAchievement;
+    private byte requiredAchievement;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

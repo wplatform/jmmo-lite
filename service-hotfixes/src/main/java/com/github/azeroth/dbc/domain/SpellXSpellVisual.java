@@ -35,7 +35,7 @@ import lombok.ToString;
 })
 public class SpellXSpellVisual implements DbcEntity {
     @Column("SpellVisualID")
-    private Integer spellVisualID;
+    private int spellVisualID;
 
     @Id
 
@@ -43,41 +43,41 @@ public class SpellXSpellVisual implements DbcEntity {
     private int id;
 
     @Column("Probability")
-    private Float probability;
+    private float probability;
 
     @Column("CasterPlayerConditionID")
-    private Integer casterPlayerConditionID;
+    private int casterPlayerConditionID;
 
     @Column("CasterUnitConditionID")
-    private Short casterUnitConditionID;
+    private short casterUnitConditionID;
 
     @Column("ViewerPlayerConditionID")
-    private Integer viewerPlayerConditionID;
+    private int viewerPlayerConditionID;
 
     @Column("ViewerUnitConditionID")
-    private Short viewerUnitConditionID;
+    private short viewerUnitConditionID;
 
     @Column("SpellIconFileID")
-    private Integer spellIconFileID;
+    private int spellIconFileID;
 
     @Column("ActiveIconFileID")
-    private Integer activeIconFileID;
+    private int activeIconFileID;
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
     @Column("DifficultyID")
-    private Byte difficultyID;
+    private byte difficultyID;
 
     @Column("Priority")
-    private Byte priority;
+    private byte priority;
 
     @Column("SpellID")
-    private Integer spellID;
+    private int spellID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

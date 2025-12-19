@@ -37,7 +37,7 @@ public class Vignette implements DbcEntity {
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("Name")
@@ -57,22 +57,22 @@ public class Vignette implements DbcEntity {
 
     
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     
     @Column("MaxHeight")
-    private Float maxHeight;
+    private float maxHeight;
 
     
     @Column("MinHeight")
-    private Float minHeight;
+    private float minHeight;
 
     
     @Column("VignetteType")
-    private Byte vignetteType;
+    private byte vignetteType;
 
     
     @Column("RewardQuestID")
-    private Integer rewardQuestID;
+    private int rewardQuestID;
 
 }

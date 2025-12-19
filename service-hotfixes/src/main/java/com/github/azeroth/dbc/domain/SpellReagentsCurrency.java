@@ -33,7 +33,7 @@ public class SpellReagentsCurrency implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("SpellID")
@@ -41,10 +41,10 @@ public class SpellReagentsCurrency implements DbcEntity {
 
 
     @Column("CurrencyTypesID")
-    private Integer currencyTypesID;
+    private int currencyTypesID;
 
 
     @Column("CurrencyCount")
-    private Integer currencyCount;
+    private int currencyCount;
 
 }

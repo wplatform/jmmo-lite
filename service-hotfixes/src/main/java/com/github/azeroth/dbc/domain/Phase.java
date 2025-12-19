@@ -28,11 +28,11 @@ public class Phase implements DbcEntity {
     private int id;
 
     @Column("Flags")
-    private Short flags;
+    private short flags;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

@@ -1,34 +1,33 @@
-package game.ai;
+package com.github.azeroth.game.ai;
 
-import Framework.Constants.*;
-import game.*;
 
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+
+
 
 
 
 
 public class SmartScriptHolder implements java.lang.Comparable<SmartScriptHolder> {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public const uint DefaultPriority = uint.MaxValue;
     public static final int DEFAULT_PRIORITY = Integer.MAX_VALUE;
 
     public int entryOrGuid;
     public SmartScriptType sourceType = SmartScriptType.values()[0];
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint EventId;
     public int eventId;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint Link;
     public int link;
     public SmartEvent event = new SmartEvent();
     public SmartAction action = new SmartAction();
     public SmartTarget target = new SmartTarget();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint Timer;
     public int timer;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public uint Priority;
     public int priority;
     public boolean active;
@@ -53,7 +52,7 @@ public class SmartScriptHolder implements java.lang.Comparable<SmartScriptHolder
     }
 
     public final int compareTo(SmartScriptHolder other) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var result = Priority.CompareTo(other.Priority);
         var result = (new Integer(priority)).compareTo(other.priority);
 
@@ -66,13 +65,13 @@ public class SmartScriptHolder implements java.lang.Comparable<SmartScriptHolder
         }
 
         if (result == 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: result = EventId.CompareTo(other.EventId);
             result = (new Integer(eventId)).compareTo(other.eventId);
         }
 
         if (result == 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: result = Link.CompareTo(other.Link);
             result = (new Integer(link)).compareTo(other.link);
         }

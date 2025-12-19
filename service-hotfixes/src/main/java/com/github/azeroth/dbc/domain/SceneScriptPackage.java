@@ -33,6 +33,6 @@ public class SceneScriptPackage implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

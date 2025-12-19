@@ -1,30 +1,39 @@
 package com.github.azeroth.game.combat;
 
 
+import com.github.azeroth.common.Pair;
+import com.github.azeroth.common.Tuple;
+import com.github.azeroth.defines.SpellSchool;
+import com.github.azeroth.defines.SpellSchoolMask;
+import com.github.azeroth.game.domain.object.ObjectGuid;
+import com.github.azeroth.game.domain.unit.UnitTypeMask;
 import com.github.azeroth.game.entity.creature.Creature;
 import com.github.azeroth.game.entity.unit.Unit;
-import com.github.azeroth.game.networking.packet.HighestThreatUpdate;
-import com.github.azeroth.game.networking.packet.ThreatClear;
-import com.github.azeroth.game.networking.packet.ThreatRemove;
-import com.github.azeroth.game.networking.packet.ThreatUpdate;
+import com.github.azeroth.game.networking.packet.combat.HighestThreatUpdate;
+import com.github.azeroth.game.networking.packet.combat.ThreatClear;
+import com.github.azeroth.game.networking.packet.combat.ThreatRemove;
+import com.github.azeroth.game.networking.packet.combat.ThreatUpdate;
 import com.github.azeroth.game.spell.SpellInfo;
+import com.github.azeroth.game.spell.enums.SpellModOp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.collections;
 
 
 public class ThreatManager {
     public static int THREAT_UPDATE_INTERVAL = 1000;
+
     private final ArrayList<ThreatReference> sortedThreatList = new ArrayList<>();
-    private final HashMap<ObjectGuid, ThreatReference> myThreatListEntries = new HashMap<ObjectGuid, ThreatReference>();
+    private final HashMap<ObjectGuid, ThreatReference> myThreatListEntries = new HashMap<>();
     private final ArrayList<ThreatReference> needsAIUpdate = new ArrayList<>();
     private final HashMap<ObjectGuid, ThreatReference> threatenedByMe = new HashMap<ObjectGuid, ThreatReference>(); // these refs are entries for myself on other units' threat lists
     public Unit owner;
     public boolean needClientUpdate;
-    public double[] singleSchoolModifiers = new double[SpellSchool.max.getValue()]; // most spells are single school - we pre-calculate these and store them
-    public volatile HashMap<spellSchoolMask, Double> multiSchoolModifiers = new HashMap<spellSchoolMask, Double>(); // these are calculated on demand
-    public ArrayList<Tuple<ObjectGuid, Integer>> redirectInfo = new ArrayList<Tuple<ObjectGuid, Integer>>(); // current redirection targets and percentages (updated from registry in ThreatManager::UpdateRedirectInfo)
+    public EnumMap<SpellSchool, Float> singleSchoolModifiers = new EnumMap<>(SpellSchool.class); // most spells are single school - we pre-calculate these and store them
+    public volatile HashMap<SpellSchoolMask, Float> multiSchoolModifiers = new HashMap<>(); // these are calculated on demand
+    public ArrayList<Pair<ObjectGuid, Integer>> redirectInfo = new ArrayList<>(); // current redirection targets and percentages (updated from registry in ThreatManager::UpdateRedirectInfo)
     public HashMap<Integer, HashMap<ObjectGuid, Integer>> redirectRegistry = new HashMap<Integer, HashMap<ObjectGuid, Integer>>(); // spellid . (victim . pct); all redirection effects on us (removal individually managed by spell scripts because blizzard is dumb)
     private boolean ownerCanHaveThreatList;
     private int updateTimer;
@@ -32,19 +41,16 @@ public class ThreatManager {
     private ThreatReference fixateRef;
 
     public ThreatManager(Unit owner) {
-        owner = owner;
+        this.owner = owner;
         updateTimer = THREAT_UPDATE_INTERVAL;
-
-        for (var i = 0; i < SpellSchool.max.getValue(); ++i) {
-            _singleSchoolModifiers[i] = 1.0f;
-        }
+        Arrays.stream(SpellSchool.values()).forEach(school -> singleSchoolModifiers.put(school, 1.0f));
     }
 
-    public static boolean canHaveThreatListForUnit(Unit who) {
+    public static boolean canHaveThreatList(Unit who) {
         var cWho = who.toCreature();
 
         // only creatures can have threat list
-        if (!cWho) {
+        if (cWho == null) {
             return false;
         }
 
@@ -54,16 +60,12 @@ public class ThreatManager {
         }
 
         // summons cannot have a threat list if they were summoned by a player
-        if (cWho.hasUnitTypeMask(UnitTypeMask.minion.getValue() | UnitTypeMask.Guardian.getValue())) {
+        if (cWho.hasUnitTypeMask(UnitTypeMask.MINION, UnitTypeMask.GUARDIAN)) {
             var tWho = cWho.toTempSummon();
-
             if (tWho != null) {
-                if (tWho.getSummonerGUID().isPlayer()) {
-                    return false;
-                }
+                return !tWho.getSummonerGUID().isPlayer();
             }
         }
-
         return true;
     }
 
@@ -73,23 +75,17 @@ public class ThreatManager {
     // returns true if a is LOWER on the threat list than b
     public static boolean compareReferencesLT(ThreatReference a, ThreatReference b, float aWeight) {
         if (a.getOnlineState() != b.getOnlineState()) // online state precedence (ONLINE > SUPPRESSED > OFFLINE)
-        {
-            return a.getOnlineState().getValue() < b.getOnlineState().getValue();
-        }
-
-        if (a.getTauntState() != b.getTauntState()) // taunt state precedence (TAUNT > NONE > DETAUNT)
-        {
-            return a.getTauntState().getValue() < b.getTauntState().getValue();
-        }
-
-        return (a.getThreat() * aWeight < b.getThreat());
+            return a.getOnlineState().compareTo(b.getOnlineState()) < 0;
+        if (a.getTaunted() != b.getTaunted()) // taunt state precedence (TAUNT > NONE > DETAUNT)
+            return a.getTaunted().compareTo(b.getTaunted()) < 0;
+        return (a.getThreat()*aWeight < b.getThreat());
     }
 
-    public static double calculateModifiedThreat(double threat, Unit victim, SpellInfo spell) {
+    public static double calculateModifiedThreat(float threat, Unit victim, SpellInfo spell) {
         // modifiers by spell
         if (spell != null) {
-            var threatEntry = global.getSpellMgr().getSpellThreatEntry(spell.getId());
 
+            var threatEntry = victim.getWorldContext().getSpellManager().getSpellThreatEntry(spell.getId());
             if (threatEntry != null) {
                 if (threatEntry.pctMod != 1.0f) // flat/AP modifiers handled in Spell::HandleThreatSpells
                 {
@@ -100,57 +96,53 @@ public class ThreatManager {
             var modOwner = victim.getSpellModOwner();
 
             if (modOwner != null) {
-                tangible.RefObject<Double> tempRef_threat = new tangible.RefObject<Double>(threat);
-                modOwner.applySpellMod(spell, SpellModOp.Hate, tempRef_threat);
-                threat = tempRef_threat.refArgValue;
+                threat = modOwner.applySpellMod(spell, SpellModOp.Hate, threat);
             }
         }
 
         // modifiers by effect school
         var victimMgr = victim.getThreatManager();
-        var mask = spell != null ? spell.getSchoolMask() : spellSchoolMask.NORMAL;
+        var mask = spell != null ? spell.getSchoolMask() : SpellSchoolMask.NORMAL;
 
         switch (mask) {
-            case Normal:
-                threat *= victimMgr._singleSchoolModifiers[SpellSchool.NORMAL.getValue()];
+            case NORMAL:
+                threat *= victimMgr.singleSchoolModifiers.get(SpellSchool.NORMAL);
 
                 break;
-            case Holy:
-                threat *= victimMgr._singleSchoolModifiers[SpellSchool.Holy.getValue()];
+            case HOLY:
+                threat *= victimMgr.singleSchoolModifiers.get(SpellSchool.HOLY);
 
                 break;
-            case Fire:
-                threat *= victimMgr._singleSchoolModifiers[SpellSchool.Fire.getValue()];
+            case FIRE:
+                threat *= victimMgr.singleSchoolModifiers.get(SpellSchool.FIRE);
 
                 break;
-            case Nature:
-                threat *= victimMgr._singleSchoolModifiers[SpellSchool.Nature.getValue()];
+            case NATURE:
+                threat *= victimMgr.singleSchoolModifiers.get(SpellSchool.NATURE);
 
                 break;
-            case Frost:
-                threat *= victimMgr._singleSchoolModifiers[SpellSchool.Frost.getValue()];
+            case FROST:
+                threat *= victimMgr.singleSchoolModifiers.get(SpellSchool.FROST);
 
                 break;
-            case Shadow:
-                threat *= victimMgr._singleSchoolModifiers[SpellSchool.Shadow.getValue()];
+            case SHADOW:
+                threat *= victimMgr.singleSchoolModifiers.get(SpellSchool.SHADOW);
 
                 break;
-            case Arcane:
-                threat *= victimMgr._singleSchoolModifiers[SpellSchool.Arcane.getValue()];
+            case ARCANE:
+                threat *= victimMgr.singleSchoolModifiers.get(SpellSchool.ARCANE);
 
                 break;
             default: {
-                TValue value;
-                if (victimMgr.multiSchoolModifiers.containsKey(mask) && (value = victimMgr.multiSchoolModifiers.get(mask)) == value) {
-                    threat *= value;
-
+                var it = victimMgr.multiSchoolModifiers.get(mask);
+                if (it != null)
+                {
+                    threat *= it;
                     break;
                 }
-
-                var mod = victim.getTotalAuraMultiplierByMiscMask(AuraType.ModThreat, (int) mask.getValue());
+                float mod = victim.getTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_THREAT, mask);
                 victimMgr.multiSchoolModifiers.put(mask, mod);
                 threat *= mod;
-
                 break;
             }
         }
@@ -161,7 +153,7 @@ public class ThreatManager {
     // fastest of the three threat list getters - gets the threat list in "arbitrary" order
 
     public final Unit getCurrentVictim() {
-        if (currentVictimRef == null || currentVictimRef.getShouldBeOffline()) {
+        if (currentVictimRef == null || currentVictimRef.shouldBeOffline()) {
             updateVictim();
         }
 
@@ -169,7 +161,7 @@ public class ThreatManager {
     }
 
     public final Unit getLastVictim() {
-        if (currentVictimRef != null && !currentVictimRef.getShouldBeOffline()) {
+        if (currentVictimRef != null && !currentVictimRef.shouldBeOffline()) {
             return currentVictimRef.getVictim();
         }
 
@@ -198,8 +190,10 @@ public class ThreatManager {
         return owner;
     }
 
+    // called from ::Create methods just after construction (once all fields on owner have been populated)
+    // should not be called from anywhere else
     public final void initialize() {
-        ownerCanHaveThreatList = canHaveThreatListForUnit(owner);
+        ownerCanHaveThreatList = canHaveThreatList(owner);
     }
 
     public final void update(int tdiff) {
@@ -332,10 +326,10 @@ public class ThreatManager {
             var shouldBeSuppressed = pair.getValue().ShouldBeSuppressed;
 
             if (pair.getValue().IsOnline && shouldBeSuppressed) {
-                pair.getValue().online = OnlineState.Suppressed;
+                pair.getValue().onlineState = OnlineState.SUPPRESSED;
                 pair.getValue().listNotifyChanged();
             } else if (canExpire && pair.getValue().IsSuppressed && !shouldBeSuppressed) {
-                pair.getValue().online = OnlineState.online;
+                pair.getValue().onlineState = OnlineState.ONLINE;
                 pair.getValue().listNotifyChanged();
             }
         }
@@ -457,9 +451,9 @@ public class ThreatManager {
 
         if (targetRefe != null) {
             // SUPPRESSED threat states don't go back to ONLINE until threat is caused by them (retail behavior)
-            if (targetRefe.OnlineState == OnlineState.Suppressed) {
+            if (targetRefe.OnlineState == OnlineState.SUPPRESSED) {
                 if (!targetRefe.ShouldBeSuppressed) {
-                    targetRefe.online = OnlineState.online;
+                    targetRefe.onlineState = OnlineState.ONLINE;
                     targetRefe.listNotifyChanged();
                 }
             }
@@ -518,7 +512,7 @@ public class ThreatManager {
 
     public final void tauntUpdate() {
         var tauntEffects = owner.getAuraEffectsByType(AuraType.ModTaunt);
-        var state = TauntState.Taunt;
+        var state = TauntState.TAUNT;
         HashMap<ObjectGuid, TauntState> tauntStates = new HashMap<ObjectGuid, TauntState>();
 
         // Only the last taunt effect applied by something still on our threat list is considered
@@ -783,10 +777,10 @@ public class ThreatManager {
         }
 
         // in 99% of cases - we won't need to actually look at anything beyond the first element
-        var highest = sortedThreatList.get(0);
+        var highest = sortedThreatList.getFirst();
 
         // if the highest reference is offline, the entire list is offline, and we indicate this
-        if (!highest.IsAvailable) {
+        if (!highest.isAvailable()) {
             return null;
         }
 

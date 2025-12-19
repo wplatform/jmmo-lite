@@ -1,13 +1,8 @@
-package game.ai;
-
-import game.entities.*;
-import game.*;
-
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+package com.github.azeroth.game.ai;
 
 
-
+import com.github.azeroth.game.entity.areatrigger.AreaTrigger;
+import com.github.azeroth.game.entity.unit.Unit;
 
 public class AreaTriggerAI {
     protected AreaTrigger at;
@@ -25,7 +20,7 @@ public class AreaTriggerAI {
     }
 
     // Called on each AreaTrigger update
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public virtual void OnUpdate(uint diff)
     public void onUpdate(int diff) {
     }

@@ -32,23 +32,23 @@ public class EmotesTextSound implements DbcEntity {
     private int id;
 
     @Column("RaceID")
-    private Byte raceID;
+    private byte raceID;
 
     @Column("SexID")
-    private Byte sexID;
+    private byte sexID;
 
     @Column("ClassID")
-    private Byte classID;
+    private byte classID;
 
     @Column("SoundID")
-    private Integer soundID;
+    private int soundID;
 
     @Column("EmotesTextID")
-    private Short emotesTextID;
+    private short emotesTextID;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

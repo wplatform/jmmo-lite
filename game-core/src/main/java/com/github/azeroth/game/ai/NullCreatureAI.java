@@ -1,19 +1,15 @@
-package game.ai;
-
-import Framework.Constants.*;
-import game.entities.*;
-import game.*;
-
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+package com.github.azeroth.game.ai;
 
 
-
+import com.github.azeroth.game.ai.enums.EvadeReason;
+import com.github.azeroth.game.domain.unit.ReactState;
+import com.github.azeroth.game.entity.creature.Creature;
+import com.github.azeroth.game.entity.unit.Unit;
 
 public class NullCreatureAI extends CreatureAI {
     public NullCreatureAI(Creature creature) {
         super(creature);
-        creature.reactState = ReactStates.Passive;
+        creature.setReactState(ReactState.PASSIVE);
     }
 
     @Override
@@ -28,7 +24,7 @@ public class NullCreatureAI extends CreatureAI {
     @Override
     public void justEnteredCombat(Unit who) {
     }
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: public override void UpdateAI(uint diff)
     @Override
     public void updateAI(int diff) {

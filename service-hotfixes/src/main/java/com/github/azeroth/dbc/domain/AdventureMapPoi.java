@@ -43,7 +43,7 @@ public class AdventureMapPoi implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Title")
@@ -55,15 +55,15 @@ public class AdventureMapPoi implements DbcEntity {
 
 
     @Column("WorldPositionX")
-    private Float worldPositionX;
+    private float worldPositionX;
 
 
     @Column("WorldPositionY")
-    private Float worldPositionY;
+    private float worldPositionY;
 
 
     @Column("Type")
-    private Byte type;
+    private byte type;
 
 
     @Column("PlayerConditionID")
@@ -79,7 +79,7 @@ public class AdventureMapPoi implements DbcEntity {
 
 
     @Column("RewardItemID")
-    private Integer rewardItemID;
+    private int rewardItemID;
 
 
     @Column("UiTextureAtlasMemberID")
@@ -91,11 +91,11 @@ public class AdventureMapPoi implements DbcEntity {
 
 
     @Column("MapID")
-    private Integer mapID;
+    private int mapID;
 
 
     @Column("WorldMapAreaID")
-    private Integer worldMapAreaID;
+    private int worldMapAreaID;
 
 
     @Column("AreaTableID")

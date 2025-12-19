@@ -28,11 +28,11 @@ public class BankBagSlotPrice implements DbcEntity {
     private int id;
 
     @Column("Cost")
-    private Integer cost;
+    private int cost;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

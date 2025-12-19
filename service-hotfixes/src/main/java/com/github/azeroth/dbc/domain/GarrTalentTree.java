@@ -34,7 +34,7 @@ public class GarrTalentTree implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
     
     @Column("Name")
@@ -42,26 +42,26 @@ public class GarrTalentTree implements DbcEntity {
 
 
     @Column("GarrTypeID")
-    private Integer garrTypeID;
+    private int garrTypeID;
 
 
     @Column("ClassID")
-    private Integer classID;
+    private int classID;
 
 
     @Column("MaxTiers")
-    private Byte maxTiers;
+    private byte maxTiers;
 
 
     @Column("UiOrder")
-    private Byte uiOrder;
+    private byte uiOrder;
 
 
     @Column("Flags")
-    private Byte flags;
+    private byte flags;
 
 
     @Column("UiTextureKitID")
-    private Integer uiTextureKitID;
+    private int uiTextureKitID;
 
 }

@@ -8,26 +8,26 @@ public class Pet extends Guardian {
 
     //C# TO JAVA CONVERTER WARNING: There is no Java equivalent to C#'s shadowing via the 'new' keyword:
 //ORIGINAL LINE: public new Dictionary<uint, PetSpell> Spells = new();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public HashMap<Integer, PetSpell> spells = new HashMap<Integer, PetSpell>();
     public boolean removed;
     private static final int PET_FOCUS_REGEN_INTERVAL = 4 * Time.InMilliseconds;
     private static final int HAPPINESS_LEVEL_SIZE = 333000;
     private static final float PET_XPFACTOR = 0.05f;
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: readonly List<uint> _autospells = new();
     private final ArrayList<Integer> autospells = new ArrayList<Integer>();
 
     private PetType petType = getPetType().values()[0];
     private int duration; // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
     private boolean loading;
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: uint _focusRegenTimer;
     private int focusRegenTimer;
     private GroupUpdatePetFlags mGroupUpdateMask = GroupUpdatePetFlags.values()[0];
 
     private DeclinedName declinedname;
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: ushort _petSpecialization;
     private short petSpecialization;
 
@@ -56,11 +56,11 @@ public class Pet extends Guardian {
         return loading;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override byte getPetAutoSpellSize()
     @Override
     public byte getPetAutoSpellSize() {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: return (byte)_autospells.Count;
         return (byte)autospells.size();
     }
@@ -88,7 +88,7 @@ public class Pet extends Guardian {
         return duration;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public ushort getSpecialization()
     public final short getSpecialization() {
         return petSpecialization;
@@ -109,7 +109,7 @@ public class Pet extends Guardian {
         this(owner, PetType.Max);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public Pet(Player owner, PetType type = PetType.Max)
     public Pet(Player owner, PetType type) {
         super(null, owner, true);
@@ -173,7 +173,7 @@ public class Pet extends Guardian {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public static Tuple<PetStable.PetInfo, PetSaveMode> GetLoadPetInfo(PetStable stable, uint petEntry, uint petnumber, System.Nullable<PetSaveMode> slot)
     public static Tuple<PetStable.PetInfo, PetSaveMode> getLoadPetInfo(PetStable stable, int petEntry, int petnumber, PetSaveMode slot) {
         if (petnumber != 0) {
@@ -253,9 +253,9 @@ public class Pet extends Guardian {
         return loadPetFromDB(owner, 0, 0, false, null);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public bool LoadPetFromDB(Player owner, uint petEntry = 0, uint petnumber = 0, bool current = false, System.Nullable<PetSaveMode> forcedSlot = null)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final boolean loadPetFromDB(Player owner, int petEntry, int petnumber, boolean current, PetSaveMode forcedSlot) {
         loading = true;
 
@@ -333,7 +333,7 @@ public class Pet extends Guardian {
 
         setDisplayId(petInfo.DisplayId);
         setNativeDisplayId(petInfo.DisplayId);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint petlevel = petInfo.Level;
         int petlevel = petInfo.Level;
         replaceAllNpcFlags(NPCFlags.None);
@@ -364,7 +364,7 @@ public class Pet extends Guardian {
                 break;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: SetPetNameTimestamp((uint)GameTime.GetGameTime());
         setPetNameTimestamp((int)GameTime.getGameTime()); // cast can't be helped here
         setCreatorGUID(owner.getGUID().clone());
@@ -413,7 +413,7 @@ public class Pet extends Guardian {
 
             var unslottedPetIndex = tangible.ListHelper.findIndex(petStable.unslottedPets, unslottedPet -> unslottedPet.PetNumber == petInfoNumber);
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: petStable.SetCurrentUnslottedPetIndex((uint)unslottedPetIndex);
             petStable.setCurrentUnslottedPetIndex((int)unslottedPetIndex);
         } else if (PetSaveMode.FirstActiveSlot.getValue() <= slot && slot <= PetSaveMode.LastActiveSlot.getValue()) {
@@ -427,7 +427,7 @@ public class Pet extends Guardian {
                 activePetIndex = (int)petnumber;
             }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: petStable.SetCurrentActivePetIndex((uint)activePetIndex);
             petStable.setCurrentActivePetIndex((int)activePetIndex);
         }
@@ -565,7 +565,7 @@ public class Pet extends Guardian {
             mode = PetSaveMode.NotInSlot;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var curhealth = (uint)Health;
         var curhealth = (int)getHealth();
         var curmana = getPower(PowerType.Mana);
@@ -613,7 +613,7 @@ public class Pet extends Guardian {
             stmt.AddValue(3, getNativeDisplayId());
             stmt.AddValue(4, getLevel());
             stmt.AddValue(5, unitData.petExperience);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: stmt.AddValue(6, (byte)ReactState);
             stmt.AddValue(6, (byte)reactState.getValue());
             stmt.AddValue(7, (owner.getPetStable1().getCurrentActivePetIndex() != null ? (short)owner.getPetStable1().getCurrentActivePetIndex().intValue() : (short)PetSaveMode.NotInSlot.getValue()));
@@ -626,7 +626,7 @@ public class Pet extends Guardian {
 
             stmt.AddValue(13, GameTime.getGameTime());
             stmt.AddValue(14, unitData.createdBySpell);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: stmt.AddValue(15, (byte)PetType);
             stmt.AddValue(15, (byte)getPetType().getValue());
             stmt.AddValue(16, getSpecialization());
@@ -645,21 +645,21 @@ public class Pet extends Guardian {
         petInfo.petNumber = getCharmInfo().getPetNumber();
         petInfo.creatureId = getEntry();
         petInfo.displayId = getNativeDisplayId();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: petInfo.Level = (byte)Level;
         petInfo.level = (byte)getLevel();
         petInfo.experience = unitData.petExperience;
         petInfo.reactState = reactState;
         petInfo.name = getName();
         petInfo.wasRenamed = !hasPetFlag(UnitPetFlags.CanBeRenamed);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: petInfo.Health = (uint)Health;
         petInfo.health = (int)getHealth();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: petInfo.Mana = (uint)GetPower(PowerType.Mana);
         petInfo.mana = (int)getPower(PowerType.Mana);
         petInfo.actionBar = generateActionBarData();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: petInfo.LastSaveTime = (uint)GameTime.GetGameTime();
         petInfo.lastSaveTime = (int)GameTime.getGameTime();
         petInfo.createdBySpellId = unitData.createdBySpell;
@@ -667,7 +667,7 @@ public class Pet extends Guardian {
         petInfo.specializationId = getSpecialization();
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public static void DeleteFromDB(uint petNumber)
     public static void deleteFromDB(int petNumber) {
         SQLTransaction trans = new SQLTransaction();
@@ -718,7 +718,7 @@ public class Pet extends Guardian {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override void Update(uint diff)
     @Override
     public void update(int diff) {
@@ -811,13 +811,13 @@ public class Pet extends Guardian {
         remove(mode, false);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public void Remove(PetSaveMode mode, bool returnreagent = false)
     public final void remove(PetSaveMode mode, boolean returnreagent) {
         getOwningPlayer().removePet(this, mode, returnreagent);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public void GivePetXP(uint xp)
     public final void givePetXP(int xp) {
         if (getPetType() != PetType.Hunter) {
@@ -840,10 +840,10 @@ public class Pet extends Guardian {
             return;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint nextLvlXP = UnitData.PetNextLevelExperience;
         int nextLvlXP = unitData.petNextLevelExperience;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint curXP = UnitData.PetExperience;
         int curXP = unitData.petExperience;
         var newXP = curXP + xp;
@@ -870,12 +870,12 @@ public class Pet extends Guardian {
 
         if (getPetType() == PetType.Hunter) {
             setPetExperience(0);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel((uint)level) * PetXPFactor));
             setPetNextLevelExperience((int)(Global.getObjectMgr().getXPForLevel((int)level) * PET_XPFACTOR));
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: InitStatsForLevel((uint)level);
         initStatsForLevel((int)level);
         initLevelupSpellsForLevel();
@@ -947,17 +947,17 @@ public class Pet extends Guardian {
             return false;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: uint diet = cFamily.PetFoodMask;
         int diet = cFamily.PetFoodMask;
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var FoodMask = (uint)(1 << ((int)item.FoodType - 1));
         var foodMask = (int)(1 << ((int)item.foodType - 1));
 
         return diet.HasAnyFlag(foodMask);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public bool LearnSpell(uint spellId)
     public final boolean learnSpell(int spellId) {
         // prevent duplicated entires in spell book
@@ -980,9 +980,9 @@ public class Pet extends Guardian {
         return removeSpell(spellId, learnPrev, true);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public bool RemoveSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     public final boolean removeSpell(int spellId, boolean learnPrev, boolean clearActionBar) {
         var petSpell = spells.LookupByKey(spellId);
 
@@ -1099,7 +1099,7 @@ public class Pet extends Guardian {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public bool Create(ulong guidlow, Map map, uint entry, uint petNumber)
     public final boolean create(long guidlow, Map map, int entry, int petNumber) {
         setMap(map);
@@ -1123,7 +1123,7 @@ public class Pet extends Guardian {
         return true;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override bool HasSpell(uint spell)
     @Override
     public boolean hasSpell(int spell) {
@@ -1173,9 +1173,9 @@ public class Pet extends Guardian {
         setDisplayId(modelId, 1f);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: public override void SetDisplayId(uint modelId, float displayScale = 1f)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     @Override
     public void setDisplayId(int modelId, float displayScale) {
         super.setDisplayId(modelId, displayScale);
@@ -1187,7 +1187,7 @@ public class Pet extends Guardian {
         setGroupUpdateFlag(GroupUpdatePetFlags.ModelId);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public override uint GetPetAutoSpellOnPos(byte pos)
     @Override
     public int getPetAutoSpellOnPos(byte pos) {
@@ -1198,19 +1198,19 @@ public class Pet extends Guardian {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public void SetDuration(uint dur)
     public final void setDuration(int dur) {
         duration = (int)dur;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public void SetPetExperience(uint xp)
     public final void setPetExperience(int xp) {
         SetUpdateFieldValue(values.modifyValue(unitData).modifyValue(unitData.petExperience), xp);
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public void SetPetNextLevelExperience(uint xp)
     public final void setPetNextLevelExperience(int xp) {
         SetUpdateFieldValue(values.modifyValue(unitData).modifyValue(unitData.petNextLevelExperience), xp);
@@ -1224,7 +1224,7 @@ public class Pet extends Guardian {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: public void SetSpecialization(uint spec)
     public final void setSpecialization(int spec) {
         if (petSpecialization == spec) {
@@ -1241,7 +1241,7 @@ public class Pet extends Guardian {
             return;
         }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: _petSpecialization = (ushort)spec;
         petSpecialization = (short)spec;
         learnSpecializationSpells();
@@ -1273,7 +1273,7 @@ public class Pet extends Guardian {
 
         setPetNameTimestamp(0);
         setPetExperience(0);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(Level + 1) * PetXPFactor));
         setPetNextLevelExperience((int)(Global.getObjectMgr().getXPForLevel(getLevel() + 1) * PET_XPFACTOR));
         replaceAllNpcFlags(NPCFlags.None);
@@ -1293,7 +1293,7 @@ public class Pet extends Guardian {
     private void loadSpells(SQLResult result) {
         if (!result.IsEmpty()) {
             do {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: AddSpell(result.Read<uint>(0), (ActiveStates)result.Read<byte>(1), PetSpellState.Unchanged);
                 addSpell(result.<Integer>Read(0), ActiveStates.forValue(result.<Byte>Read(1)), PetSpellState.Unchanged);
             } while (result.NextRow());
@@ -1328,7 +1328,7 @@ public class Pet extends Guardian {
                     stmt = DB.Characters.GetPreparedStatement(CharStatements.InsPetSpell);
                     stmt.AddValue(0, getCharmInfo().getPetNumber());
                     stmt.AddValue(1, pair.Key);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: stmt.AddValue(2, (byte)pair.Value.Active);
                     stmt.AddValue(2, (byte)pair.Value.Active);
                     trans.Append(stmt);
@@ -1338,7 +1338,7 @@ public class Pet extends Guardian {
                     stmt = DB.Characters.GetPreparedStatement(CharStatements.InsPetSpell);
                     stmt.AddValue(0, getCharmInfo().getPetNumber());
                     stmt.AddValue(1, pair.Key);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: stmt.AddValue(2, (byte)pair.Value.Active);
                     stmt.AddValue(2, (byte)pair.Value.Active);
                     trans.Append(stmt);
@@ -1352,7 +1352,7 @@ public class Pet extends Guardian {
         }
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
     private void loadAuras(SQLResult auraResult, SQLResult effectResult, int timediff) {
         Log.outDebug(LogFilter.Pet, "Loading auras for {0}", getGUID().toString());
@@ -1363,10 +1363,10 @@ public class Pet extends Guardian {
 
         if (!effectResult.IsEmpty()) {
             do {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: int effectIndex = effectResult.Read<byte>(3);
                 int effectIndex = effectResult.<Byte>Read(3);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: casterGuid.SetRawValue(effectResult.Read<byte[]>(0));
                 casterGuid.setRawValue(effectResult.<byte[]>Read(0));
 
@@ -1374,7 +1374,7 @@ public class Pet extends Guardian {
                     casterGuid = getGUID().clone();
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: AuraKey key = new(casterGuid, itemGuid, effectResult.Read<uint>(1), effectResult.Read<uint>(2));
                 AuraKey key = new AuraKey(casterGuid.clone(), itemGuid.clone(), effectResult.<Integer>Read(1), effectResult.<Integer>Read(2));
 
@@ -1391,7 +1391,7 @@ public class Pet extends Guardian {
         if (!auraResult.IsEmpty()) {
             do {
                 // NULL guid stored - pet is the caster of the spell - see Pet._SaveAuras
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: casterGuid.SetRawValue(auraResult.Read<byte[]>(0));
                 casterGuid.setRawValue(auraResult.<byte[]>Read(0));
 
@@ -1399,21 +1399,21 @@ public class Pet extends Guardian {
                     casterGuid = getGUID().clone();
                 }
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: AuraKey key = new(casterGuid, itemGuid, auraResult.Read<uint>(1), auraResult.Read<uint>(2));
                 AuraKey key = new AuraKey(casterGuid.clone(), itemGuid.clone(), auraResult.<Integer>Read(1), auraResult.<Integer>Read(2));
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var recalculateMask = auraResult.Read<uint>(3);
                 var recalculateMask = auraResult.<Integer>Read(3);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var difficulty = (Difficulty)auraResult.Read<byte>(4);
                 var difficulty = Difficulty.forValue(auraResult.<Byte>Read(4));
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var stackCount = auraResult.Read<byte>(5);
                 var stackCount = auraResult.<Byte>Read(5);
                 var maxDuration = auraResult.<Integer>Read(6);
                 var remainTime = auraResult.<Integer>Read(7);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var remainCharges = auraResult.Read<byte>(8);
                 var remainCharges = auraResult.<Byte>Read(8);
 
@@ -1443,7 +1443,7 @@ public class Pet extends Guardian {
                 // prevent wrong values of remaincharges
                 if (spellInfo.procCharges != 0) {
                     if (remainCharges <= 0) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: remainCharges = (byte)spellInfo.ProcCharges;
                         remainCharges = (byte)spellInfo.procCharges;
                     }
@@ -1484,14 +1484,14 @@ public class Pet extends Guardian {
         stmt.AddValue(0, getCharmInfo().getPetNumber());
         trans.Append(stmt);
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: byte index;
         byte index;
 
         for (var aura : getAuraQuery().canBeSaved().alsoMatches(a -> !isPetAura(a)).getResults()) {
             int recalculateMask;
             tangible.OutObject<Integer> tempOutRecalculateMask = new tangible.OutObject<Integer>();
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: var key = aura.GenerateKey(out var recalculateMask);
             var key = aura.generateKey(tempOutRecalculateMask);
             recalculateMask = tempOutRecalculateMask.outArgValue;
@@ -1508,7 +1508,7 @@ public class Pet extends Guardian {
             stmt.AddValue(index++, key.spellId);
             stmt.AddValue(index++, key.effectMask);
             stmt.AddValue(index++, recalculateMask);
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: stmt.AddValue(index++, (byte)aura.CastDifficulty);
             stmt.AddValue(index++, (byte)aura.getCastDifficulty().getValue());
             stmt.AddValue(index++, aura.getStackAmount());
@@ -1545,9 +1545,9 @@ public class Pet extends Guardian {
         return addSpell(spellId, ActiveStates.Decide, PetSpellState.New, PetSpellType.Normal);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: bool AddSpell(uint spellId, ActiveStates active = ActiveStates.Decide, PetSpellState state = PetSpellState.New, PetSpellType type = PetSpellType.Normal)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     private boolean addSpell(int spellId, ActiveStates active, PetSpellState state, PetSpellType type) {
         var spellInfo = Global.getSpellMgr().getSpellInfo(spellId, Difficulty.None);
 
@@ -1652,7 +1652,7 @@ public class Pet extends Guardian {
         return true;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: void LearnSpells(List<uint> spellIds)
     private void learnSpells(ArrayList<Integer> spellIds) {
         PetLearnedSpells packet = new PetLearnedSpells();
@@ -1716,9 +1716,9 @@ public class Pet extends Guardian {
         return unlearnSpell(spellId, learnPrev, true);
     }
 
-    //C# TO JAVA CONVERTER NOTE: Java does not support optional parameters. Overloaded method(s) are created above:
+    
 //ORIGINAL LINE: bool UnlearnSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
     private boolean unlearnSpell(int spellId, boolean learnPrev, boolean clearActionBar) {
         if (removeSpell(spellId, learnPrev, clearActionBar)) {
             if (!loading) {
@@ -1733,7 +1733,7 @@ public class Pet extends Guardian {
         return false;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: void UnlearnSpells(List<uint> spellIds, bool learnPrev, bool clearActionBar)
     private void unlearnSpells(ArrayList<Integer> spellIds, boolean learnPrev, boolean clearActionBar) {
         PetUnlearnedSpells packet = new PetUnlearnedSpells();
@@ -1752,7 +1752,7 @@ public class Pet extends Guardian {
     }
 
     private void cleanupActionBar() {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i) {
             var ab = getCharmInfo().getActionBarEntry(i);
@@ -1828,7 +1828,7 @@ public class Pet extends Guardian {
         return false;
     }
 
-    //C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+    
 //ORIGINAL LINE: void LearnSpellHighRank(uint spellid)
     private void learnSpellHighRank(int spellid) {
         learnSpell(spellid);
@@ -1840,7 +1840,7 @@ public class Pet extends Guardian {
     }
 
     private void learnSpecializationSpells() {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: List<uint> learnedSpells = new();
         ArrayList<Integer> learnedSpells = new ArrayList<Integer>();
 
@@ -1862,11 +1862,11 @@ public class Pet extends Guardian {
     }
 
     private void removeSpecializationSpells(boolean clearActionBar) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: List<uint> unlearnedSpells = new();
         ArrayList<Integer> unlearnedSpells = new ArrayList<Integer>();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
         for (int i = 0; i < PlayerConst.MaxSpecializations; ++i) {
             var specialization = Global.getDB2Mgr().getChrSpecializationByIndex(0, i);
@@ -1900,10 +1900,10 @@ public class Pet extends Guardian {
     private String generateActionBarData() {
         StringBuilder ss = new StringBuilder();
 
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: for (byte i = SharedConst.ActionBarIndexStart; i < SharedConst.ActionBarIndexEnd; ++i)
         for (byte i = SharedConst.ActionBarIndexStart; i < SharedConst.ActionBarIndexEnd; ++i) {
-//C# TO JAVA CONVERTER WARNING: Unsigned integer types have no direct equivalent in Java:
+
 //ORIGINAL LINE: ss.AppendFormat("{0} {1} ", (uint)GetCharmInfo().GetActionBarEntry(i).GetActiveState(), (uint)GetCharmInfo().GetActionBarEntry(i).GetAction());
             ss.append(String.format("%1$s %2$s ", (int)getCharmInfo().getActionBarEntry(i).getActiveState().getValue(), (int)getCharmInfo().getActionBarEntry(i).getAction()));
         }

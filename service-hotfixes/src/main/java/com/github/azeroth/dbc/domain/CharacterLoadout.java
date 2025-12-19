@@ -34,7 +34,7 @@ public class CharacterLoadout implements DbcEntity {
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 
     @Column("RaceMask")
@@ -42,14 +42,14 @@ public class CharacterLoadout implements DbcEntity {
 
 
     @Column("ChrClassID")
-    private Byte chrClassID;
+    private byte chrClassID;
 
 
     @Column("Purpose")
-    private Integer purpose;
+    private int purpose;
 
 
     @Column("ItemContext")
-    private Byte itemContext;
+    private byte itemContext;
 
 }

@@ -30,17 +30,17 @@ public class MountXDisplay implements DbcEntity {
     private int id;
 
     @Column("CreatureDisplayInfoID")
-    private Integer creatureDisplayInfoID;
+    private int creatureDisplayInfoID;
 
     @Column("PlayerConditionID")
-    private Integer playerConditionID;
+    private int playerConditionID;
 
     @Column("MountID")
-    private Integer mountID;
+    private int mountID;
 
     @Id
     
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }

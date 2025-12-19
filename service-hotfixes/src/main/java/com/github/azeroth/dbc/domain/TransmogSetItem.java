@@ -31,17 +31,17 @@ public class TransmogSetItem implements DbcEntity {
     private int id;
 
     @Column("TransmogSetID")
-    private Integer transmogSetID;
+    private int transmogSetID;
 
     @Column("ItemModifiedAppearanceID")
-    private Integer itemModifiedAppearanceID;
+    private int itemModifiedAppearanceID;
 
     @Column("Flags")
-    private Integer flags;
+    private int flags;
 
     @Id
 
     @Column("VerifiedBuild")
-    private Integer verifiedBuild;
+    private int verifiedBuild;
 
 }
